@@ -6,7 +6,7 @@ declare VERBOSITY=${LOG_LEVEL:=1};
 declare GETH_OPTS;
 
 if [[ -f /root/rinkeby/password && -s /root/rinkeby/password ]]; then
-  GETH_OPTS='--password /root/rinkeby/password --keystore /root/rinkeby/keystore --unlock 0x11a618de3ade9b85cd811bf45af03bad481842ed';
+  GETH_OPTS='--password /root/rinkeby/password --keystore /root/rinkeby/keystore --unlock 0x49b7776ea56080439000fd54c45d72d3ac213020';
 fi
 
 echo -e "geth start rinkeby log_level:${VERBOSITY}"

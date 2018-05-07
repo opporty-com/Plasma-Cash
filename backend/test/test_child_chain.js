@@ -53,12 +53,20 @@ async function createTx(utxo, account, to) {
   return createdTx;
 }
 
+let accounts = [
+  '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70',
+  '0x11A618DE3ADe9B85Cd811BF45af03bAd481842Ed', 
+  '0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe',
+  '0x9345a4d4a43815c613cf9e9db1920b9c9eeb8dc7',
+  '0x220cD6eBB62F9aD170C9bf7984F22A3afc023E7d'
+]
+
 describe('ChildChain', function () {
   let accounts = [];
   var nextAddressGen;
   
   before(async function() {
-    accounts = await web3.eth.getAccounts();
+    // accounts = await web3.eth.getAccounts();
     accounts = accounts.reduce((res, account) => {
       account = account.toLowerCase();
       if (account != config.plasmaOperatorAddress.toLowerCase()) {
@@ -162,16 +170,13 @@ describe('ChildChain', function () {
       }
   
       await Promise.all(queryAll)
-  
-  
-  
-  
-      console.log('tx created time: ', Date.now() - start);
+    
+      console.log('tx created: ', createdTxs.length);
+      
       expect(txPool.length).to.equal(utxosBeforeTest.length);
   
       let newBlock = await txPool.createNewBlock();
       expect(newBlock).to.exist;
-      console.log('newBlock created time: ', Date.now() - start);
   
       let newUtxos = await getAllUtxos(null, {});
   

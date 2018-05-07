@@ -3,7 +3,9 @@
   "plugins": [
     ["module-alias", [
       { "src": "app/lib", "expose": "lib" },
-      { "src": "app/controllers", "expose": "controllers" }
+      { "src": "app/model", "expose": "model" },
+      { "src": "app/controllers", "expose": "controllers" },
+      { "src": "app/config", "expose": "config" }
     ]]
   ]
 }
