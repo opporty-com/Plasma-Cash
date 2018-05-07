@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+
+
+  ethernode:
+    environment:
+      LOG_LEVEL: 3
+    ports:
+      - 127.0.0.1:8545:8545
+    entrypoint: "/root/rinkeby.sh"
+     

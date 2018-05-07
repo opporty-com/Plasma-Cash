@@ -1,0 +1,20 @@
+{
+  "restartable": "rs",
+  "ignore": [
+    ".git",
+    "app/logs/*",
+    "node_modules/**/node_modules",
+    "apidoc/*",
+    "/usr/src/app/app/logs",
+    "/usr/src/app/leveldb"
+  ],
+  "verbose": true,
+  "watch": [
+    "app",
+    "server.js"
+  ],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ext": "js json"
+}
