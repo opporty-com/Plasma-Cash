@@ -22,13 +22,13 @@ let accounts = [
   '0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe',
   '0x9345a4d4a43815c613cf9e9db1920b9c9eeb8dc7',
   '0x220cD6eBB62F9aD170C9bf7984F22A3afc023E7d'
-]
+];
 async function createDeposits(options = {}) {
   // let accounts = await web3.eth.getAccounts();
   console.log('Accounts: ', accounts);
-  accounts = accounts.filter
+ // accounts = accounts.filter
   for (let addr of accounts) {
-    await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 0);
+    await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 90000);
     console.log('unlockAccount', addr);
   }
   
@@ -40,8 +40,8 @@ async function createDeposits(options = {}) {
   for (let i = 0; i < deposits; i++) {
     try {
       let address = nextAddressGen.next().value;
-      let amount = new BN('100000000000000000');
-      let add = new BN('1000000000000000');
+      let amount = new BN('1000000000000000');
+      let add = new BN('10000000000000');
       add = add.mul(new BN(i + 1));
 
       amount = amount.add(add).toString();
