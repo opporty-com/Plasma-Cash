@@ -127,7 +127,7 @@ class TXPool {
       await levelDB.batch(queryAll);
       
       this.transactions = this.transactions.slice(txCount);
-      console.log('New block created: ', this.newBlockNumber.toString(), ' ', 'transactions: ', txCount);
+      console.log('      New block created - transactions: ', txCount);
 
       this.newBlockNumber = this.newBlockNumber.add(new BN(config.contractblockStep));
       this.newBlockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(this.newBlockNumber), blockNumberLength);

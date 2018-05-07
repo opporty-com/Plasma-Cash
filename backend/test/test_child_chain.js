@@ -62,22 +62,18 @@ let accounts = [
 ]
 
 describe('ChildChain', function () {
-  let accounts = [];
+  
   var nextAddressGen;
   
   before(async function() {
     // accounts = await web3.eth.getAccounts();
-    accounts = accounts.reduce((res, account) => {
-      account = account.toLowerCase();
-      if (account != config.plasmaOperatorAddress.toLowerCase()) {
-        res.push(account);
-      }
-      return res;
-    }, []);
     
+	    
     for (let addr of accounts) {
       await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 0);
+      console.log('    unlock account - ' , addr )
     }
+
     
     expect(accounts).to.have.lengthOf.above(1);
     nextAddressGen = getNextAddress(accounts);
@@ -158,6 +154,8 @@ describe('ChildChain', function () {
       let queryAll = [];
       let txQueryAll = [];
       let createdTxs = [];
+
+      var t0 = Date.now();
   
       for (let utxo of utxosBeforeTest) {
         let ownerAccount = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
@@ -170,8 +168,10 @@ describe('ChildChain', function () {
       }
   
       await Promise.all(queryAll)
-    
-      console.log('tx created: ', createdTxs.length);
+      var t1 = Date.now();
+      console.log('      txs created: ', createdTxs.length);
+
+      console.log('      time - ', (t1 - t0)/1000 ,' s')
       
       expect(txPool.length).to.equal(utxosBeforeTest.length);
   
