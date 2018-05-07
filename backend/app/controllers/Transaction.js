@@ -9,7 +9,7 @@ import ValidateMiddleware  from 'lib/validate';
 import { createSignedTransaction } from 'lib/tx';
 import txPool from 'lib/txPool';
 
-import { startTest, createDeposits } from 'lib/test';
+import { createDeposits } from 'lib/test';
 
 router.route('/signed')
   .post(ValidateMiddleware('createSignedTX'), async function(req, res, next) {
@@ -43,4 +43,18 @@ router.route('/getRawToSign')
     }
   })
 
+  router.route('/createTestDeposits')
+    .post(function(req, res, next) {
+      try { 
+        let data = req.body;
+        let count = data.count || null;
+        return createDeposits({deposits: count})
+          .then(ctreated => res.json({ ctreated }))
+      }
+      catch(error){
+        next(error);
+      }
+    })
+    
+    
 module.exports = router;

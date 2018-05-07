@@ -80,43 +80,43 @@ describe('ChildChain', function () {
     expect(accounts).to.have.lengthOf.above(1);
   })
   
-  describe('Check Deposit Event Handle', async function () {
-    let utxoBeforeTestCount;
-    before(async function() {
-      let utxosBeforeTest = await getAllUtxos(null, {});
-      utxoBeforeTestCount = utxosBeforeTest.length;
-    });
-    
-    let amount = new BN('322000000000000000');
-    let additional = new BN('1000000000000000');
-
-    it('should create deposits', async function () {
-        let address = nextAddressGen.next().value;
-
-        let depostisToCreate = [];
-
-        for (let i = 0; i < 100; i++) {
-          let data = {
-            depositor: nextAddressGen.next().value,
-            amount: amount.add(additional.mul(new BN(i + 1))).toString(),
-            depositBlock:  new BN(ethUtil.sha3(Date.now() + i), 16).toString(10),
-            blockNumber: 3
-          }
-          depostisToCreate.push(data);
-          
-          await depositEventHandler({ returnValues: data });
-        }
-
-        expect(depostisToCreate.length).to.equal(txPool.length);
-        
-        let newBlock = await txPool.createNewBlock();
-        
-        let newUtxos = await getAllUtxos(null, {});
-        
-        expect(newUtxos.length).to.equal(utxoBeforeTestCount + depostisToCreate.length);
-    })
-  
-  })
+  // describe('Check Deposit Event Handle', async function () {
+  //   let utxoBeforeTestCount;
+  //   before(async function() {
+  //     let utxosBeforeTest = await getAllUtxos(null, {});
+  //     utxoBeforeTestCount = utxosBeforeTest.length;
+  //   });
+  // 
+  //   let amount = new BN('322000000000000000');
+  //   let additional = new BN('1000000000000000');
+  // 
+  //   it('should create deposits', async function () {
+  //       let address = nextAddressGen.next().value;
+  // 
+  //       let depostisToCreate = [];
+  // 
+  //       for (let i = 0; i < 100; i++) {
+  //         let data = {
+  //           depositor: nextAddressGen.next().value,
+  //           amount: amount.add(additional.mul(new BN(i + 1))).toString(),
+  //           depositBlock:  new BN(ethUtil.sha3(Date.now() + i), 16).toString(10),
+  //           blockNumber: 3
+  //         }
+  //         depostisToCreate.push(data);
+  // 
+  //         await depositEventHandler({ returnValues: data });
+  //       }
+  // 
+  //       expect(depostisToCreate.length).to.equal(txPool.length);
+  // 
+  //       let newBlock = await txPool.createNewBlock();
+  // 
+  //       let newUtxos = await getAllUtxos(null, {});
+  // 
+  //       expect(newUtxos.length).to.equal(utxoBeforeTestCount + depostisToCreate.length);
+  //   })
+  // 
+  // })
   
   describe('Check Transaction Creation', async function () {
     it('should get correct address from created trasaction signature', async function () {
