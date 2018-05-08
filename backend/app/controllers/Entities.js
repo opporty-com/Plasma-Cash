@@ -14,6 +14,7 @@ import Block from 'lib/model/block';
 const { prefixes: { utxoPrefix } } = config;
 import { PlasmaTransaction } from 'lib/model/tx';
 import { getAllUtxos } from 'lib/tx';
+import ValidateMiddleware  from 'lib/validate';
 
 import {
   tokenIdLength,
@@ -66,7 +67,25 @@ router.route('/deposit')
     }
   })
 
-router.route('/uxto')
+router.route('/utxo')
+  .get(ValidateMiddleware('getAllUtxos'), async function(req, res, next) {
+    try { 
+      let data = req.formData;    
+      let options = { json: true };
+      if (data.address) {
+        options.address = data.address;
+      }
+
+      let utxos = await getAllUtxos(options);
+      
+      res.json(utxos);
+    }
+    catch(error){
+      next(error);
+    }
+  })
+  
+router.route('/utxo')
   .get(async function(req, res, next) {
     try { 
       const uxtos = [];    

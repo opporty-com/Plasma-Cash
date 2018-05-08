@@ -1,0 +1,8 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties":
+  {
+    "address" : { "type" : "string", "minLength": 42, "maxLength": 42 }
+  }
+}

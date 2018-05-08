@@ -39,7 +39,7 @@ async function processDepositEvent(event){
 
   if (tx.validate()) {
     txPool.addTransaction(tx);
-    // logger.info('Create deposit transaction ', depositBlock);        
+    logger.info('Create deposit transaction ', depositBlock);        
   }
   else {
     logger.error('Deposit TX error ');        

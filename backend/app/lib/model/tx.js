@@ -92,11 +92,16 @@ class PlasmaTransaction {
   }
 
   getAddressFromSignature(hex) {
+    if (this._address) {
+      return hex && this._address instanceof Buffer ? ethUtil.bufferToHex(this._address) : this._address;
+    }
+    
     let txRlpHashed = ethUtil.hashPersonalMessage(this.getHash(true));
     if (this.signature) {
       let { v, r, s } = ethUtil.fromRpcSig(ethUtil.addHexPrefix(this.signature));
       let publicAddress = ethUtil.ecrecover(txRlpHashed, v, r, s);
       let address = ethUtil.pubToAddress(publicAddress);
+      this._address = address;
       if (hex) {
         address = ethUtil.bufferToHex(address);
       }
@@ -110,6 +115,10 @@ class PlasmaTransaction {
     if (this.signature && !this.getAddressFromSignature()) {
       isValid = false;
     }
+    if (!this.new_owner) {
+      isValid = false;
+    }
+    
     return isValid;
   }
 

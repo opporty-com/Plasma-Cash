@@ -38,15 +38,36 @@ export function validateRequestBySchema (schemaPath, data) {
   });
 };
 
+function getReqDataKey (method) {
+  let reqDataKey
+  switch (method) {
+    case 'GET':
+      reqDataKey = 'query';
+      break;
+    case 'POST':
+      reqDataKey = 'body';
+      break;
+    case 'PUT':
+      reqDataKey = 'body';
+      break;
+    case 'DELETE':
+      reqDataKey = 'body';
+      break;
+  }
+  return reqDataKey;
+};
+
+
 export default function validate (schemaName = null) {
   if (!schemaName) {
     throw Error('schemaName required');
   }
 
   let schemaPath = `../schema/${schemaName}.json`;
-
+  
   return function (req, res, next) {
-    return validateRequestBySchema(schemaPath, req['body'])
+    let reqDataKey = getReqDataKey(req.method);
+    return validateRequestBySchema(schemaPath, req[reqDataKey])
       .then((formData) => {
         req.formData = formData;
         return next();

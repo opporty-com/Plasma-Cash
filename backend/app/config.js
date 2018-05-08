@@ -5,14 +5,13 @@ module.exports = {
   plasmaOperatorKey: process.env.PLASMA_OPERATOR_PRIVATE,
   prefixes: { 
     utxoPrefix: Buffer.from('utxo'),
+    utxoWithAddressPrefix: Buffer.from('autxo'),
     blockPrefix: Buffer.from('block'),
-    headerPrefix: Buffer.from('header'),
-    transactionPrefix: Buffer.from('tx'),
     lastBlockSubmittedToParentPrefix: Buffer.from('lastBlockSubmited'),
     // depositIndexPrefix: Buffer.from('depositIndex'),
     tokenIdPrefix: Buffer.from('tokenId'),
     depositNotAddedToBlockIndexPrefix: Buffer.from('depositNotInBlockIndex'),
-    lastEventProcessedBlockPrefix: Buffer.from('lastEventProcessed'),
+    lastEventProcessedBlockPrefix: Buffer.from('lastEventProcessed')
   },
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
   blockCreationPeriod: 30000,

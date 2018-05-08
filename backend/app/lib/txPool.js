@@ -10,7 +10,7 @@ import levelDB from 'lib/db';
 import { logger } from 'lib/logger';
 import { blockNumberLength, tokenIdLength } from 'lib/dataStructureLengths';
 import { getUTXO } from 'lib/tx';
-const { prefixes: { blockPrefix, transactionPrefix, utxoPrefix } } = config;
+const { prefixes: { blockPrefix, utxoPrefix, utxoWithAddressPrefix } } = config;
 
 const depositPreviousBlockBn = new BN(0);
 
@@ -43,8 +43,11 @@ class TXPool {
   
   async checkTransaction(transaction) {
     try {
-      let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
+      if (!transaction || !transaction.validate) {
+        return false;
+      }
 
+      let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
       if (new BN(transaction.prev_block).eq(depositPreviousBlockBn)) {
         let valid = address == config.plasmaOperatorAddress.toLowerCase();
         if (!valid) {
@@ -117,11 +120,17 @@ class TXPool {
         let tokenIdBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(tx.token_id), tokenIdLength)
 
         let txRlp = tx.getRlp();
-        let utxoNewKey = Buffer.concat([utxoPrefix, block.blockNumber, tokenIdBuffer]);
+        
+        let utxoNewKey = Buffer.concat([utxoPrefix, block.blockNumber, tokenIdBuffer]);      
         let utxoOldKey = Buffer.concat([utxoPrefix, utxoPrevBlockNumberBuffer, tokenIdBuffer]);
+        
+        let utxoNewKeyWithAddress = Buffer.concat([utxoWithAddressPrefix, ethUtil.toBuffer(tx.new_owner), block.blockNumber, tokenIdBuffer]);
+        let utxoOldKeyWithAddress = Buffer.concat([utxoWithAddressPrefix, ethUtil.toBuffer(tx.getAddressFromSignature()), utxoPrevBlockNumberBuffer, tokenIdBuffer]);
 
         queryAll.push({ type: 'del', key: utxoOldKey });
         queryAll.push({ type: 'put', key: utxoNewKey, value: txRlp });
+        queryAll.push({ type: 'del', key: utxoOldKeyWithAddress });
+        queryAll.push({ type: 'put', key: utxoNewKeyWithAddress, value: txRlp });
       }
 
       await levelDB.batch(queryAll);

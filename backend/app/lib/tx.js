@@ -4,9 +4,9 @@ import ethUtil from 'ethereumjs-util';
 import levelDB from 'lib/db';
 const BN = ethUtil.BN;
 import config from "../config";
-const { prefixes: { utxoPrefix }, plasmaOperatorAddress } = config;
+const { prefixes: { utxoPrefix, utxoWithAddressPrefix }, plasmaOperatorAddress } = config;
 
-import { blockNumberLength, tokenIdLength } from 'lib/dataStructureLengths';
+import { blockNumberLength, tokenIdLength, addressLengthInBytes } from 'lib/dataStructureLengths';
 import { PlasmaTransaction } from 'lib/model/tx';
 
 async function getUTXO(blockNumber, token_id) {
@@ -47,31 +47,42 @@ async function createSignedTransaction(data) {
   return tx;
 }
 
-async function getAllUtxos(address, options = {}) {
+async function getAllUtxos(options = {}) {
   return await new Promise((resolve, reject) => {
     try { 
-      const uxtos = [];    
-      const start = Buffer.concat([utxoPrefix, Buffer.alloc(blockNumberLength), Buffer.alloc(tokenIdLength)]);
-      const end = Buffer.concat([utxoPrefix, Buffer.from("ff".repeat(blockNumberLength), 'hex'), Buffer.from("9".repeat(tokenIdLength))]);
-      
-      let blockStart = utxoPrefix.length;
-      let tokenIdStart = blockStart + blockNumberLength;
-      
+      options = options || {};
+      let uxtos = [];    
+      let start;
+      let end;
+      let blockStartIndex;
+      let blockEndIndex;
+
+      if (options.address && ethUtil.isValidAddress(options.address)) {
+        let address = ethUtil.toBuffer(options.address);
+        start = Buffer.concat([utxoWithAddressPrefix, address, Buffer.alloc(blockNumberLength), Buffer.alloc(tokenIdLength)]);
+        end = Buffer.concat([utxoWithAddressPrefix, address, Buffer.from("ff".repeat(blockNumberLength), 'hex'), Buffer.from("9".repeat(tokenIdLength))]);
+        blockStartIndex = utxoWithAddressPrefix.length + addressLengthInBytes;
+        blockEndIndex = blockStartIndex + blockNumberLength;
+      } else {
+        start = Buffer.concat([utxoPrefix, Buffer.alloc(blockNumberLength), Buffer.alloc(tokenIdLength)]);
+        end = Buffer.concat([utxoPrefix, Buffer.from("ff".repeat(blockNumberLength), 'hex'), Buffer.from("9".repeat(tokenIdLength))]);
+        blockStartIndex = utxoPrefix.length;
+        blockEndIndex = blockStartIndex + blockNumberLength;  
+      }
+
       levelDB.createReadStream({gte: start, lte: end})
         .on('data', function (data) {
           let utxo = new PlasmaTransaction(data.value);
+          let blockNumber = ethUtil.bufferToInt(data.key.slice(blockStartIndex, blockEndIndex));
 
           if (!options.json) {
-            utxo.blockNumber = ethUtil.bufferToInt(data.key.slice(blockStart, tokenIdStart));
+            utxo.blockNumber = blockNumber;
             uxtos.push(utxo);
             return;
           }
           let uxtosJson = utxo.getJson();
-          if (utxo && utxo.new_owner && address && utxo.new_owner.toLowerCase() != address.toLowerCase()) {
-            return;
-          }
           
-          uxtosJson.blockNumber = ethUtil.bufferToInt(data.key.slice(blockStart, tokenIdStart));
+          uxtosJson.blockNumber = blockNumber;
           if (options.includeKeys) {
             uxtosJson.key = data.key;
           }

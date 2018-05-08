@@ -126,9 +126,12 @@ describe('ChildChain', function () {
       
       let account = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
       let createdTx = await createTx(utxo, account, nextAddressGen.next(account).value);
+      
+      expect(createdTx.validate()).to.be.true; 
+
       let addressFromSignature = createdTx.getAddressFromSignature(true);
 
-      expect(addressFromSignature).to.equal(account); 
+      expect(addressFromSignature).to.equal(account);
     })
   })
 
