@@ -16,13 +16,19 @@ const BN = ethUtil.BN;
 import contractHandler from 'lib/contracts/plasma';
 
 let statistic = {}
-
+let accounts = [
+  '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70',
+  '0x11A618DE3ADe9B85Cd811BF45af03bAd481842Ed', 
+  '0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe',
+  '0x9345a4d4a43815c613cf9e9db1920b9c9eeb8dc7',
+  '0x220cD6eBB62F9aD170C9bf7984F22A3afc023E7d'
+];
 async function createDeposits(options = {}) {
-  let accounts = await web3.eth.getAccounts();
+  // let accounts = await web3.eth.getAccounts();
   console.log('Accounts: ', accounts);
-  
+ // accounts = accounts.filter
   for (let addr of accounts) {
-    await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 0);
+    await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 90000);
     console.log('unlockAccount', addr);
   }
   
@@ -34,19 +40,15 @@ async function createDeposits(options = {}) {
   for (let i = 0; i < deposits; i++) {
     try {
       let address = nextAddressGen.next().value;
-      let amount = new BN('100000000000000000');
-      console.log('amount1', amount);
-      let add = new BN('1000000000000000');
-      console.log('add', add);
+      let amount = new BN('1000000000000000');
+      let add = new BN('10000000000000');
       add = add.mul(new BN(i + 1));
-      console.log('add1', add);
 
       amount = amount.add(add).toString();
       console.log('amount', amount);
       
       contractHandler.contract.methods.deposit().estimateGas({from: address, value: amount})
         .then(gas => {
-          console.log('gas', gas);
           return contractHandler.contract.methods.deposit().send({from: address, gas, value: amount});
         })
       

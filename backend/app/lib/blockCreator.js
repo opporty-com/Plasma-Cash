@@ -156,6 +156,8 @@ class BlockCreator {
     let submitedBlockNumber = ethUtil.bufferToInt(blockNumber);
     
     await web3.eth.personal.unlockAccount(plasmaOperatorAddress, config.plasmaOperatorPassword, 60);
+
+    console.log('block submit - ', submitedBlockNumber);
     let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submitedBlockNumber).estimateGas({from: plasmaOperatorAddress});
 
     let res = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submitedBlockNumber).send({from: plasmaOperatorAddress, gas});

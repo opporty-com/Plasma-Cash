@@ -6,18 +6,15 @@ module.exports = {
   // to customize your Truffle configuration!
   networks: {
     development: {
-      host: process.env.HOST || "localhost",
-      port: 8545,
-      network_id: 58546,
-      gas: 4712388, // Gas limit used for deploys
-      from: "0x4DC884abB17d11DE6102fC1ef2ceE0EbD31DF248",
-      //gasPrice: 21000000000000000000
+      host: "127.0.0.1",
+      port: 8546,
+      network_id: "*" // Match any network id
     },
-  },
-  solc: {
-    optimizer: {
-      enabled: true,
-      runs: 200
+    ropsten: {
+      host: "127.0.0.1",
+      port: 8545,
+      gas:   4700000,
+      network_id: 3 // Match any network id
     }
-  },
+  }
 };

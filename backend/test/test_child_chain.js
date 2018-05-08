@@ -53,23 +53,27 @@ async function createTx(utxo, account, to) {
   return createdTx;
 }
 
+let accounts = [
+  '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70',
+  '0x11A618DE3ADe9B85Cd811BF45af03bAd481842Ed', 
+  '0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe',
+  '0x9345a4d4a43815c613cf9e9db1920b9c9eeb8dc7',
+  '0x220cD6eBB62F9aD170C9bf7984F22A3afc023E7d'
+]
+
 describe('ChildChain', function () {
-  let accounts = [];
+  
   var nextAddressGen;
   
   before(async function() {
-    accounts = await web3.eth.getAccounts();
-    accounts = accounts.reduce((res, account) => {
-      account = account.toLowerCase();
-      if (account != config.plasmaOperatorAddress.toLowerCase()) {
-        res.push(account);
-      }
-      return res;
-    }, []);
+    // accounts = await web3.eth.getAccounts();
     
+	    
     for (let addr of accounts) {
       await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 0);
+      console.log('    unlock account - ' , addr )
     }
+
     
     expect(accounts).to.have.lengthOf.above(1);
     nextAddressGen = getNextAddress(accounts);
@@ -153,6 +157,8 @@ describe('ChildChain', function () {
       let queryAll = [];
       let txQueryAll = [];
       let createdTxs = [];
+
+      var t0 = Date.now();
   
       for (let utxo of utxosBeforeTest) {
         let ownerAccount = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
@@ -165,16 +171,15 @@ describe('ChildChain', function () {
       }
   
       await Promise.all(queryAll)
-  
-  
-  
-  
-      console.log('tx created time: ', Date.now() - start);
+      var t1 = Date.now();
+      console.log('      txs created: ', createdTxs.length);
+
+      console.log('      time - ', (t1 - t0)/1000 ,' s')
+      
       expect(txPool.length).to.equal(utxosBeforeTest.length);
   
       let newBlock = await txPool.createNewBlock();
       expect(newBlock).to.exist;
-      console.log('newBlock created time: ', Date.now() - start);
   
       let newUtxos = await getAllUtxos(null, {});
   

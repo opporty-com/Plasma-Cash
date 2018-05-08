@@ -18,7 +18,7 @@ contract Root {
      */
     event BlockSubmitted(address operator, bytes32 merkleRoot, uint blockNumber);
     event DepositAdded(address depositor, uint amount, uint depositBlock, uint blockNumber);
-    event ExitAdded(address exitor, uint exitId, uint priority, uint tokenId);
+    event ExitAdded(address exitor, uint priority, uint exitId, uint tokenId);
     event ExitChallengedEvent(uint exitId);
     event ChallengedInvalidHistory(uint exitId, uint tokenId);
     event ExitRespondedEvent(uint exitId);
@@ -61,7 +61,7 @@ contract Root {
      * Transaction struct
      */
     struct Transaction {
-        uint prevhash;
+        bytes32 prevhash;
         uint prev_block;
         uint token_id;
         address new_owner;
@@ -71,7 +71,7 @@ contract Root {
      * Token
      */
     struct Token {
-        uint token_id;
+        uint index;
         uint denomination;
     }
 
@@ -90,7 +90,7 @@ contract Root {
      */
     struct Exit {
         uint block_num;
-        uint txhash;
+        bytes32 txhash;
         Transaction exittx;
         uint priority;
     }
@@ -133,14 +133,14 @@ contract Root {
     }
 
     function getTransactionFromRLP(bytes rlp) public pure returns (
-        uint prevhash,
+        bytes32 prevhash,
         uint prev_block,
         uint token_id,
         address new_owner) {
         RLP.RLPItem[] memory txList = rlp.toRLPItem().toList();
         require(txList.length == 4);
         return (
-            txList[0].toUint(), 
+            txList[0].toBytes32(), 
             txList[1].toUint(),
             txList[2].toUint(),
             txList[3].toAddress()
@@ -166,9 +166,9 @@ contract Root {
 
         Token memory token;
         token.denomination = msg.value;
-        token.token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
-        
-        tokens[token.token_id] = token;
+        uint token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
+        token.index = deposit_blk;
+        tokens[token_id] = token;
         Deposit memory depo;
         depo.token = token;
         depo.block_num = current_blk;
@@ -177,7 +177,7 @@ contract Root {
         deposits[deposit_blk] = depo;
         
         deposit_blk += 1;
-        emit DepositAdded(msg.sender, msg.value, token.token_id, depo.block_num);
+        emit DepositAdded(msg.sender, msg.value, token_id, depo.block_num);
     }
 
     function checkSig(bytes32 tx_hash, bytes sig) internal view returns (bool) {
@@ -189,42 +189,38 @@ contract Root {
 
         require(checkProof(keccak256(keccak256(tx1), ByteUtils.slice(sigs, 0, 65)), childChain[block_num].merkle_root, proof1));
 
-        require(checkSig(keccak256(tx1), ByteUtils.slice(sigs, 0, 65)));
-        
-        uint prev_hash; 
-        uint prev_blk; 
-        uint token_id; 
-        (prev_hash, prev_blk, token_id, ) = getTransactionFromRLP(tx1);
+        bytes32 prev_hash;
+        uint prev_blk;
+        uint token_id;
+        address new_owner;
+        (prev_hash, prev_blk, token_id, new_owner) = getTransactionFromRLP(tx1);
+    
+        require(msg.sender == new_owner);
         
         require(tokens[token_id].denomination > 0);
       
         require(checkProof(keccak256(keccak256(tx0), ByteUtils.slice(sigs, 65, 65)), childChain[prev_blk].merkle_root, proof0));
 
-        exit_id = block_num;
+        exit_id = block_num + tokens[token_id].index;
 
-        uint priority = 0;
-
-        if (childChain[block_num].time > block.timestamp - week) 
-            priority = childChain[block_num].time;
-        else 
-            priority = block.timestamp - week;
-        
-        Exit memory record = exitRecords[exit_id];
+        Exit storage record = exitRecords[exit_id];
         require(record.block_num == 0);
 
-        // Construct a new exit.
-        record.block_num = exit_id;
+        record.block_num = block_num;
         record.exittx.token_id = token_id;
         record.exittx.new_owner = msg.sender;
-        record.txhash = uint(keccak256(tx1));
+        record.txhash = keccak256(tx1);
         record.exittx.prev_block = prev_blk;
         record.exittx.prevhash = prev_hash;
-        record.priority = priority;
+        if (childChain[block_num].time > block.timestamp - week)
+            record.priority = childChain[block_num].time;
+        else
+            record.priority = block.timestamp - week;
 
-        exits.add(priority);
-        exit_ids[priority].push(exit_id);
+        exits.add(record.priority);
+        exit_ids[record.priority].push(exit_id);
 
-        emit ExitAdded(msg.sender, priority, exit_id, record.exittx.token_id);
+        emit ExitAdded(msg.sender, record.priority, exit_id, record.exittx.token_id);
         return exit_id;
     }
 
@@ -234,11 +230,12 @@ contract Root {
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
 
-        uint prev_hash; 
-        uint token_id; 
-        (prev_hash, , token_id, ) = getTransactionFromRLP(tx1);
-        
-        require(prev_hash == uint(record.exittx.prevhash) && record.block_num > blk_num);
+        uint prev_block;
+        uint token_id;
+        (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
+
+        require(tokens[token_id].denomination > 0);
+        require(prev_block == record.block_num && record.block_num < blk_num);
         require(token_id == record.exittx.token_id);
 
         exit_ids[record.priority].remove(exit_id);
@@ -252,10 +249,10 @@ contract Root {
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
 
-        uint prev_hash; 
+        bytes32 prev_hash; 
         uint token_id; 
         (prev_hash, , token_id, ) = getTransactionFromRLP(tx1);
-
+        require(tokens[token_id].denomination > 0);
         require(prev_hash == record.exittx.prevhash && blk_num < record.block_num);
         require(token_id == record.exittx.token_id);
         exit_ids[record.priority].remove(exit_id);
@@ -269,7 +266,7 @@ contract Root {
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
 
-        uint prev_hash; 
+        bytes32 prev_hash; 
         uint token_id; 
         (prev_hash, , token_id, ) = getTransactionFromRLP(tx0);
 
@@ -277,7 +274,7 @@ contract Root {
         require(tokens[token_id].denomination > 0);
         require(blk_num < record.block_num - 1);
 
-        challenged[exit_id] = uint(keccak256(tx0));
+        challenged[exit_id] = blk_num;
         emit ChallengedInvalidHistory(exit_id, token_id);
     }
 
@@ -288,12 +285,14 @@ contract Root {
 
         require(checkProof(keccak256(keccak256(childtx), sig), childChain[blk_num].merkle_root, proof));
 
-        uint prev_hash; 
+        bytes32 prev_hash; 
+        uint prev_block;
         uint token_id; 
-        (prev_hash, , token_id, ) = getTransactionFromRLP(childtx);
+        (prev_hash, prev_block, token_id, ) = getTransactionFromRLP(childtx);
         // if direct child
-        if (prev_hash == challenged[exit_id] ) {
+        if (prev_block == challenged[exit_id] ) {
             if (blk_num <= record.exittx.prev_block && token_id == record.exittx.token_id ) {
+                delete challenged[exit_id];
                 emit ExitRespondedEvent(exit_id);
             } else {
                 exit_ids[record.priority].remove(exit_id);
@@ -360,7 +359,7 @@ contract Root {
     }
 
     function getToken(uint token_id) public view returns (uint , uint) {
-        return (tokens[token_id].token_id, tokens[token_id].denomination);
+        return (tokens[token_id].index, tokens[token_id].denomination);
     }
 
     function getBalance(address addr) public view returns(uint) {
@@ -378,7 +377,7 @@ contract Root {
         return (
             deposits[deposit_num].block_num,
             deposits[deposit_num].depositor,
-            deposits[deposit_num].token.token_id,
+            deposits[deposit_num].token.index,
             deposits[deposit_num].token.denomination,
             deposits[deposit_num].time
         );

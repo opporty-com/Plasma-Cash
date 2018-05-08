@@ -16,11 +16,11 @@ class ContractHandler {
   }
 
   initContract() {
-    if (!fs.existsSync(this.gethIpc)) { throw new Error('Not exists geth.ipc'); }
+    //if (!fs.existsSync(this.gethIpc)) { throw new Error('Not exists geth.ipc'); }
     if (!web3.utils.isAddress(this.address)) { throw new Error('Contract address not valid'); }
     if (!this.abi) { throw new Error('Contract abi not set'); }
     if (!this.address) { throw new Error('Contract address not set'); }
-    this.web3 = new web3(new web3.providers.IpcProvider(this.gethIpc, net));
+    this.web3 = new web3(new web3.providers.HttpProvider("http://192.168.254.152:8545"));
     this.contract = new this.web3.eth.Contract(this.abi, this.address);
   }
 }
