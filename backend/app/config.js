@@ -14,6 +14,7 @@ module.exports = {
     lastEventProcessedBlockPrefix: Buffer.from('lastEventProcessed')
   },
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
+  web3HttpProvider: process.env.WEB3_HTTP_PROVIDER,
   blockCreationPeriod: 30000,
   startBlockNumber: 1, // first nlock number in Root contract
   contractblockStep: 1

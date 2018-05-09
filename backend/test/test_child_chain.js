@@ -38,7 +38,7 @@ function* getNextAddress(addresses) {
 
 async function createTx(utxo, account, to) {
   let txData = {
-    prev_hash: utxo.getHash().toString('hex'),
+    prev_hash:  utxo.getHash().toString('hex'),
     prev_block: utxo.blockNumber,
     token_id: utxo.token_id.toString(),
     new_owner: to
@@ -157,7 +157,7 @@ describe('ChildChain', function () {
       let queryAll = [];
       let txQueryAll = [];
       let createdTxs = [];
-
+  
       var t0 = Date.now();
   
       for (let utxo of utxosBeforeTest) {
@@ -173,9 +173,9 @@ describe('ChildChain', function () {
       await Promise.all(queryAll)
       var t1 = Date.now();
       console.log('      txs created: ', createdTxs.length);
-
+  
       console.log('      time - ', (t1 - t0)/1000 ,' s')
-      
+  
       expect(txPool.length).to.equal(utxosBeforeTest.length);
   
       let newBlock = await txPool.createNewBlock();

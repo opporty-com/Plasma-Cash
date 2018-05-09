@@ -43,27 +43,34 @@ class TXPool {
   
   async checkTransaction(transaction) {
     try {
-      if (!transaction || !transaction.validate) {
+
+      if (!transaction) {
         return false;
       }
 
-      let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
+      if (!transaction.validate) {
+        return false;
+      }
+      
       if (new BN(transaction.prev_block).eq(depositPreviousBlockBn)) {
+        let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
         let valid = address == config.plasmaOperatorAddress.toLowerCase();
         if (!valid) {
           return false;
         }
       } else {      
         let utxo = await getUTXO(transaction.prev_block, transaction.token_id);
+
         if (!utxo) {
           return false;
         }
-        
+        transaction.prev_hash = utxo.getHash();
+        let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
+
         let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());
         if (utxoOwnerAddress != address) {
           return false;
         }
-        transaction.prev_hash = utxo.getHash();
       }
         
       return true;

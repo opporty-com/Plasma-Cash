@@ -21,6 +21,7 @@ import {
   blockNumberLength
 } from 'lib/dataStructureLengths';
 
+
 router.route('/block/:id')
   .get(async function(req, res, next) {
     try { 
@@ -63,7 +64,7 @@ router.route('/deposit')
         })
     }
     catch(error){
-      console.log('error', error);
+      next(error);
     }
   })
 
@@ -71,11 +72,7 @@ router.route('/utxo')
   .get(ValidateMiddleware('getAllUtxos'), async function(req, res, next) {
     try { 
       let data = req.formData;    
-      let options = { json: true };
-      if (data.address) {
-        options.address = data.address;
-      }
-
+      let options = {...data, json: true };
       let utxos = await getAllUtxos(options);
       
       res.json(utxos);
@@ -85,42 +82,6 @@ router.route('/utxo')
     }
   })
   
-router.route('/utxo')
-  .get(async function(req, res, next) {
-    try { 
-      const uxtos = [];    
-      const start = Buffer.concat([utxoPrefix, 
-        Buffer.alloc(blockNumberLength),
-        Buffer.alloc(tokenIdLength)
-      ]);
-      const end = Buffer.concat([utxoPrefix, 
-        Buffer.from("ff".repeat(blockNumberLength), 'hex'),
-        Buffer.from("9".repeat(tokenIdLength))]
-      );
-      
-      let blockStart = utxoPrefix.length;
-      let txStart = blockStart + blockNumberLength;
-      let outputStart = txStart + tokenIdLength;
-      
-      levelDB.createReadStream({gte: start, lte: end})
-        .on('data', function (data) {
-          let tx = new PlasmaTransaction(data.value);
-        
-          let txJson = tx.getJson();
-          txJson.blockNumber = ethUtil.bufferToInt(data.key.slice(blockStart, txStart))
-          uxtos.push(txJson);
-        })
-        .on('error', function (error) {
-            console.log('error', error);
-        })
-        .on('end', function () {
-          res.json(uxtos);
-        })
-    }
-    catch(error){
-      console.log('error', error);
-    }
-  })
 
   router.route('/utxoCount')
     .get(async function(req, res, next) {

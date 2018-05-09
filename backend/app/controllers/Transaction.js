@@ -4,6 +4,7 @@ import Router from 'router';
 const router = new Router();
 import levelDB from 'lib/db';
 import { logger } from 'lib/logger';
+import ethUtil from 'ethereumjs-util';
 
 import ValidateMiddleware  from 'lib/validate';
 import { createSignedTransaction } from 'lib/tx';
@@ -31,12 +32,13 @@ router.route('/signed')
   })
   
 router.route('/getRawToSign')
-  .post(ValidateMiddleware('createSignedTX'), async function(req, res, next) {
+  .post(ValidateMiddleware('getHashToSign'), async function(req, res, next) {
     try { 
       let data = req.formData;
       let tx = await createSignedTransaction(data);
-      
-      return res.json(tx && tx.getHash(true).toString('hex'));
+      let hashForSign = tx && ethUtil.addHexPrefix(tx.getHash(true).toString('hex'));
+
+      return res.json(hashForSign);
     }
     catch(error){
       next(error);

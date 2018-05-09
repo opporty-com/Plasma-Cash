@@ -2,9 +2,9 @@
   "type": "object",
   "additionalProperties": false,
   "properties":
-  {
+  { 
     "prev_block" : { "type" : "integer", "minimum": 1 },
-    "token_id" : { "type" : "string", "minLength": 64, "maxLength": 66 },
+    "token_id" : { "type" : "string", "minLength": 70, "maxLength": 78 },
     "new_owner" : { "type" : "string", "minLength": 40, "maxLength": 42 },
     "signature" : {"type" : "string", "minLength" :130, "maxLength" : 132}
   },

@@ -7,7 +7,7 @@ const BN = ethUtil.BN;
 const transactionFields = [
   { name: 'prev_hash' },
   { name: 'prev_block' },
-  { name: 'token_id' },
+  { name: 'token_id', isDecimal: true},
   { name: 'new_owner' },
   { name: 'signature' }
 ];
@@ -24,15 +24,21 @@ function initFields(self, fields, data) {
     });
   }  else if (data && typeof data === 'object') {
     fields.forEach(field => {
-      let value;
-      if (data && data[field.name]) {
-        value = field.type == 'bn' ? new BN(data[field.name]) : data[field.name];
+      let value = data && data[field.name];
+      if (value) {
+        if (!(value instanceof Buffer)) {
+          value = ethUtil.toBuffer(field.isDecimal ? removeHexPrefix(value) : value);
+        }
       } else {
         value = field.default;
       }
       self[field.name] = value;
     });
   }
+}
+
+function removeHexPrefix(str) {
+  return (str.slice(0, 2) === '0x') ? str.slice(2) : str;
 }
 
 class PlasmaTransaction {
@@ -47,7 +53,6 @@ class PlasmaTransaction {
     if (this[fieldName]) {
       return this[fieldName];
     }
-    
     let dataToEncode = [
       this.prev_hash instanceof Buffer ? this.prev_hash : ethUtil.addHexPrefix(this.prev_hash),
       this.prev_block,
@@ -57,34 +62,19 @@ class PlasmaTransaction {
     if (!(excludeSignature)) {
       dataToEncode.push(this.signature);
     }
-    
+
     this[fieldName] = RLP.encode(dataToEncode);
     return this[fieldName];
   }
-  
+
   getHash(excludeSignature) {
     let fieldName = excludeSignature ? '_hashNoSignature' : '_hash';
     if (this[fieldName]) {
       return this[fieldName];
     }
-    
+
     this[fieldName] = ethUtil.sha3(this.getRlp(excludeSignature));
     return this[fieldName];
-  }
-  
-  getHash(excludeSignature) {
-    if (excludeSignature) {
-      if (this._hashNoSignature) {
-        return this._hashNoSignature;
-      }
-      this._hashNoSignature = ethUtil.sha3(this.getRlp(excludeSignature));
-      return this._hashNoSignature;
-    } else if (this._hash) {
-      return this._hash;
-    }
-    
-    this._hash = ethUtil.sha3(this.getRlp(excludeSignature));
-    return this._hash;
   }
 
   getRaw() {
@@ -95,7 +85,7 @@ class PlasmaTransaction {
     if (this._address) {
       return hex && this._address instanceof Buffer ? ethUtil.bufferToHex(this._address) : this._address;
     }
-    
+
     let txRlpHashed = ethUtil.hashPersonalMessage(this.getHash(true));
     if (this.signature) {
       let { v, r, s } = ethUtil.fromRpcSig(ethUtil.addHexPrefix(this.signature));
@@ -112,13 +102,10 @@ class PlasmaTransaction {
 
   validate () {
     let isValid = true;
-    if (this.signature && !this.getAddressFromSignature()) {
+    if (!this.new_owner || !this.signature || !this.token_id) {
       isValid = false;
     }
-    if (!this.new_owner) {
-      isValid = false;
-    }
-    
+
     return isValid;
   }
 
@@ -131,7 +118,7 @@ class PlasmaTransaction {
 
   getJson() {
     let data = {};
-    data.prev_block = ethUtil.bufferToInt(this.prev_block.toString());
+    data.prev_block = ethUtil.bufferToInt(this.prev_block);
     data.token_id = this.token_id.toString();
     data.new_owner = ethUtil.addHexPrefix(this.new_owner.toString('hex'));
     data.signature = ethUtil.addHexPrefix(this.signature.toString('hex'));

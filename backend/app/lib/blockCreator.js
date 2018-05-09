@@ -132,6 +132,7 @@ class BlockCreator {
         }
         return setTimeout(() => this.startBlockSubmittingToParent(), 10000);
       }
+      console.log('currentBlockInParent - ', currentBlockInParent);
 
       lastSubmittedBlock = lastSubmittedBlock.add(new BN(config.contractblockStep));
       
@@ -156,7 +157,8 @@ class BlockCreator {
     let submitedBlockNumber = ethUtil.bufferToInt(blockNumber);
     
     await web3.eth.personal.unlockAccount(plasmaOperatorAddress, config.plasmaOperatorPassword, 60);
-
+    
+    
     console.log('block submit - ', submitedBlockNumber);
     let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submitedBlockNumber).estimateGas({from: plasmaOperatorAddress});
 

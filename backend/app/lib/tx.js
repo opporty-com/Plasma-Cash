@@ -37,7 +37,8 @@ function createDepositTransaction(addressTo, amountBN, token_id) {
 
 async function createSignedTransaction(data) {
   let txData = {};
-  txData.prev_hash = data.prev_hash;
+  // txData.prev_hash = Buffer.from(data.prev_hash, 'hex');
+  txData.prev_hash = ethUtil.toBuffer(ethUtil.addHexPrefix(data.prev_hash));
   txData.prev_block = data.prev_block;
   txData.token_id = data.token_id;
   txData.new_owner = data.new_owner;
@@ -74,15 +75,19 @@ async function getAllUtxos(options = {}) {
         .on('data', function (data) {
           let utxo = new PlasmaTransaction(data.value);
           let blockNumber = ethUtil.bufferToInt(data.key.slice(blockStartIndex, blockEndIndex));
+          let hash;
+          (options.getHash) && (hash = utxo.getHash());
 
           if (!options.json) {
             utxo.blockNumber = blockNumber;
+            (options.getHash) && (uxtos.hash = hash);
             uxtos.push(utxo);
             return;
           }
           let uxtosJson = utxo.getJson();
           
           uxtosJson.blockNumber = blockNumber;
+          (options.getHash) && (uxtosJson.hash =  ethUtil.bufferToHex(hash));
           if (options.includeKeys) {
             uxtosJson.key = data.key;
           }
