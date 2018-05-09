@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties":
+  { 
+    "block" : { "type" : "integer", "minimum": 1 },
+    "token_id" : { "type" : "string", "minLength": 16896, "maxLength": 16898 }
+  },
+  "required": ["block", "token_id"]
+}

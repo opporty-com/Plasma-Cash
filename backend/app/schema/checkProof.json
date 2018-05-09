@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties":
+  { 
+    "block" : { "type" : "integer", "minimum": 1 },
+    "hash": { "type" : "string", "minLength": 64, "maxLength": 66 },
+    "proof" : { "type" : "string", "minLength": 70, "maxLength": 78 }
+  },
+  "required": ["hash", "proof"]
+}

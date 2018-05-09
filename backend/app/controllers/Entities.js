@@ -7,7 +7,7 @@ import contractHandler from 'lib/contracts/plasma';
 import web3     from 'lib/web3';
 import RLP from 'rlp';
 import config from "../config";
-const ethUtil = require('ethereumjs-util'); 
+import ethUtil from 'ethereumjs-util'; 
 const BN = ethUtil.BN;
 
 import Block from 'lib/model/block';
@@ -39,7 +39,7 @@ router.route('/block/:id')
       return res.json(resJson);
     }
     catch(error){
-      return res.json({error: true, reason: "invalid block number"});
+      next(error);
     }
   })
 

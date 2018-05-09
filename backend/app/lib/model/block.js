@@ -1,6 +1,5 @@
 'use strict';
 
-// import MerkleTools from 'merkle-tools';
 import SparseMerkle from 'lib/SparseMerkle';
 
 import { PlasmaTransaction } from 'lib/model/tx';
@@ -14,6 +13,7 @@ class Block {
       this.blockNumber = decodedData && decodedData[0];
       this.merkleRootHash = decodedData && decodedData[1];
       this.transactions = decodedData && decodedData[2];
+    
     } else if (data && typeof data === 'object') {
       this.blockNumber = data.blockNumber;
       this.transactions = data.transactions || [];
@@ -50,18 +50,52 @@ class Block {
 
     return ethUtil.baToJSON(data);
   }
+  
+  getProof(token_id, returnhex) {  
+    if (!this.merkle) {
+      this.buildTree();
+    }
+    
+    return this.merkle.getProof(token_id, returnhex);
+  }
+    
+  checkProof(proof, hash) {  
+    if (!this.merkle) {
+      this.buildTree();
+    }
+    
+    return this.merkle.checkProof(proof, hash, this.merkleRootHash);
+  }
+  
+  buildTree() {
+    if (this.transactions[0] && !(this.transactions[0] instanceof PlasmaTransaction)) {
+      this.transactions = this.transactions.map(tx => new PlasmaTransaction(tx));
+    }
+    let leaves = this.transactions.map(tx => {
+      return { key: tx.token_id, hash: tx.getMerkleHash() };
+    });
 
+    this.merkle = new SparseMerkle(leaves);
+    this.merkle.buildTree();
+    this.merkleRootHash = this.merkle.getMerkleRoot();
+  }
+
+  
   getJson() {
     let data = {
       blockNumber: ethUtil.bufferToInt(this.blockNumber.toString()),
       merkleRootHash: this.merkleRootHash.toString('hex'),
-      transactions: []
     };
+    
+    let transactions = this.transactions;
 
-    for (let txRlp of this.transactions) {
-      let tx = new PlasmaTransaction(txRlp);
-      data.transactions.push(tx.getJson());
+    if (transactions[0] && !(transactions[0] instanceof PlasmaTransaction)) {
+      transactions = transactions.map(tx => (new PlasmaTransaction(tx)).getJson());
+    } else {
+      transactions = transactions.map(tx => tx.getJson());
     }
+    
+    data.transactions = transactions;
     return data;
   }
 }

@@ -132,7 +132,6 @@ class BlockCreator {
         }
         return setTimeout(() => this.startBlockSubmittingToParent(), 10000);
       }
-      console.log('currentBlockInParent - ', currentBlockInParent);
 
       lastSubmittedBlock = lastSubmittedBlock.add(new BN(config.contractblockStep));
       

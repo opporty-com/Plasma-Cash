@@ -56,13 +56,13 @@ class Merkle {
     }
   }
 
-  getProof(token_id, returnBinary) {
-    if (!this.levels || this.levels.length < 256) {
+  getProof(leaf, returnBinary) {
+    if (this.levels.length < 256) {
       this.buildTree();
     }
 
     let proof = [];
-    let leafKey = this.toBinaryString(token_id);
+    let leafKey = this.toBinaryString(leaf.key);
 
     for (let level = this.depth; level >= 1; level--) {
       let currentKey = leafKey.slice(0, level);
@@ -71,7 +71,7 @@ class Merkle {
       let neighborLeafKey = currentKey.slice(0, -1) + (isEvenLeaf ? '1' : '0');
       let currentLevel = this.levels[level];
       let neighborLeafHash = currentLevel[neighborLeafKey];
-            
+
       if (!neighborLeafHash) {
         neighborLeafHash = this.defaultHashes[this.depth - level];
       }
@@ -82,55 +82,22 @@ class Merkle {
       } else {
         proof.push({ [isEvenLeaf ? 'right' : 'left']: neighborLeafHash });
       }
-      
-
     }
-    
-    return returnBinary ? Buffer.concat(proof).toString('hex') : proof;
+
+    return proof;
   }
 
   checkProof(proof, leafHash, merkleRoot) {
     if (!merkleRoot || !leafHash || !proof) {
       return false;
     }
-    let hash = leafHash instanceof Buffer ? leafHash : Buffer.from(leafHash, 'hex')
-    
-    if (Array.isArray(proof)) {
-      console.log('ArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayArrayv');
+    let hash = ethUtil.toBuffer(leafHash);
 
-      for (let level = 0; level < proof.length; level++) {
-        let currentProofHash = proof[level];
-        hash = currentProofHash.right ? ethUtil.sha3(Buffer.concat([ hash, currentProofHash.right ])) : ethUtil.sha3(Buffer.concat([ currentProofHash.left, hash ]));
-      }
-    } else {
-      proof = Buffer.from(proof, 'hex');
-      // while (proof.length) {
-      //   let neighborLeafHash = proof.slice(0, 32);
-      //   let isRigthNeighbor = proof.slice(0, 32);
-      // 
-      //   hash = 
-      // }
-      console.log('proof', proof);
-
-      let right = Buffer.from('01', 'hex');
-      console.log('right', right);
-
-      for (let start = 0, i = 33, length = proof.length; i <= length; i += 33) {
-        let neighborLeafHash = proof.slice(start + 1, i);
-        let typeByte = proof.slice(start, start + 1);
-        
-        let isRigthNeighbor = typeByte.equals(right);
-        console.log('typeByte', typeByte , ' ---- ', isRigthNeighbor);
-        console.log('neighborLeafHash', neighborLeafHash);
-
-        hash = isRigthNeighbor ? ethUtil.sha3(Buffer.concat([ hash, neighborLeafHash ])) : ethUtil.sha3(Buffer.concat([ neighborLeafHash, hash ]));
-        start = i;
-      }
+    for (var level = 0; level < proof.length; level++) {
+      let currentProofHash = proof[level];
+      hash = currentProofHash.right ? ethUtil.sha3(Buffer.concat([ hash, currentProofHash.right ])) : ethUtil.sha3(Buffer.concat([ currentProofHash.left, hash ]));
     }
-    console.log('hash      ', hash.toString('hex'));
-    console.log('merkleRoot', merkleRoot.toString('hex'));
 
-    
     return hash.toString('hex') == merkleRoot.toString('hex');
   }
 

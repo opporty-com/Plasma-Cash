@@ -184,10 +184,10 @@ describe('ChildChain', function () {
       let newUtxos = await getAllUtxos(null, {});
   
       newUtxos.forEach(tx => {
-        let proof = newBlock.merkle.getProof({ key: tx.token_id });
-        let proofIsValid = newBlock.merkle.checkProof(proof, tx.getHash().toString('hex'), newBlock.merkleRootHash);
-  
-        expect(proofIsValid);
+        let proof = newBlock.merkle.getProof(tx.token_id);
+        let proofIsValid = newBlock.merkle.checkProof(proof, tx.getMerkleHash(), newBlock.merkleRootHash);
+
+        expect(proofIsValid).to.be.true; 
       })
   
     })
