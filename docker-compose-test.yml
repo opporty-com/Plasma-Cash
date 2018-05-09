@@ -1,0 +1,26 @@
+version: '3.3'
+services:
+
+  backend:
+    build: ./backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./backend:/usr/src/app"
+      - "./data/leveldb:/var/lib/leveldb/data"
+      - "./data/logs/backend:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    environment:
+      NODE_ENV: development
+      PRODUCTION_MODE: "OFF"
+      PLASMA_CONTRACT_ADDRESS: '0x06462a624a5c224b15d4658aaf886da057576c44'
+      PLASMA_OPERATOR_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
+      PLASMA_OPERATOR_PRIVATE: ''
+      PLASMA_OPERATOR_PASSWORD: ''
+      WEB3_HTTP_PROVIDER: ''
+    command: 'sleep 100000000'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'

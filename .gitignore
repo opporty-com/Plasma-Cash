@@ -1,0 +1,27 @@
+*.log
+config/*.json
+
+data/leveldb
+!data/leveldb/.gitkeep
+data/ethernode
+!data/ethernode/.gitkeep
+data/logs
+!data/logs/.gitkeep
+
+# Mac system file
+.DS_Store
+node_modules
+
+#truffle
+
+truffle/build
+/data/truffle/
+!/data/truffle/.gitkeep
+/truffle/app/build
+/truffle/app/dist
+
+#ethernode
+ethernode/devnet/keystore
+ethernode/devnet/password
+ethernode/rinkeby/keystore
+ethernode/rinkeby/password
