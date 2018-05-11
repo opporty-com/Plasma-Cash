@@ -29,7 +29,7 @@ router.route('/block/:id')
       if (!blockNumber){
           return res.json({error: true, reason: "invalid block number"});
       }
-      
+
       const blockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(new BN(blockNumber)),blockNumberLength);
       const key = Buffer.concat([config.prefixes.blockPrefix, blockNumberBuffer]);
       const blockRlp = await levelDB.get(key);
@@ -39,6 +39,9 @@ router.route('/block/:id')
       return res.json(resJson);
     }
     catch(error){
+      if (error.notFound) {
+        return next({status: 404, message: 'Not Found'});
+      }
       next(error);
     }
   })

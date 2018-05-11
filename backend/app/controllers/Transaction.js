@@ -14,16 +14,40 @@ import txPool from 'lib/txPool';
 
 import { createDeposits } from 'lib/test';
 
-
+router.route('/')
+  .get(ValidateMiddleware('getTx'), async function(req, res, next) {
+    try { 
+      let { block: blockNumber, token_id, getHash } = req.formData;
+      let block = await getBlock(blockNumber);      
+      if (!block) {
+        return next({status: 404, message: 'Block not Found'});
+      }
+      let tx = block.getTxByTokenId(token_id);
+      if (!tx) {
+        return next({status: 404, message: 'Tx not Found'});
+      }
+      
+      tx = getHash ? tx.getMerkleHash().toString('hex') : tx.getJson();
+      return res.json(tx);
+    }
+    catch(error){
+      logger.error('accept signed tx error: ', error);
+      next(error);
+    }
+  })
 
 router.route('/proof')
-  .get(ValidateMiddleware('getProof'), async function(req, res, next) {
+  .get(ValidateMiddleware('getTx'), async function(req, res, next) {
     try { 
       let { block: blockNumber, token_id } = req.formData;
-      let block = await getBlock(blockNumber);
+      let block = await getBlock(blockNumber);      
+      if (!block) {
+        return next({status: 404, message: 'Not Found'});
+      }
+      
       let proof = block.getProof(token_id, true)
 
-      return res.json(proof);
+      return res.json({ proof });
     }
     catch(error){
       next(error);
@@ -34,7 +58,11 @@ router.route('/proof')
       let { block: blockNumber, hash, proof } = req.formData;
 
       let block = await getBlock(blockNumber);
-      let proofIsValid = block.checkProof(proofStr, hash);
+      if (!block) {
+        return next({status: 404, message: 'Not Found'});
+      }
+      
+      let proofIsValid = block.checkProof(proof, hash);
 
       return res.json(proofIsValid);
     }
@@ -61,13 +89,13 @@ router.route('/signed')
       next(error);
     }
   })
-  
-router.route('/getRawToSign')
+    
+router.route('/getHashToSign')
   .post(ValidateMiddleware('getHashToSign'), async function(req, res, next) {
     try { 
       let data = req.formData;
       let tx = await createSignedTransaction(data);
-      let hashForSign = tx && ethUtil.addHexPrefix(tx.getHash(true).toString('hex'));
+      let hashForSign = tx && ethUtil.addHexPrefix(tx.getMerkleHash(true).toString('hex'));
 
       return res.json(hashForSign);
     }

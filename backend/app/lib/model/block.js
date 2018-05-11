@@ -5,6 +5,7 @@ import SparseMerkle from 'lib/SparseMerkle';
 import { PlasmaTransaction } from 'lib/model/tx';
 import RLP from 'rlp';
 import ethUtil from 'ethereumjs-util';
+import { removeHexPrefix } from 'lib/helpers/utills';
 
 class Block {
   constructor (data) {
@@ -97,6 +98,22 @@ class Block {
     
     data.transactions = transactions;
     return data;
+  }
+  
+  getTxByTokenId(token_id) {
+    let transaction;
+    if (!(token_id instanceof Buffer)) {
+      token_id = ethUtil.toBuffer(removeHexPrefix(token_id));
+    }
+    let txsAreRlp = this.transactions[0] && !(this.transactions[0] instanceof PlasmaTransaction);
+    let txsTokenIdKey = txsAreRlp ? 2 : 'token_id';
+    transaction = this.transactions.find(tx => tx && token_id.equals(tx[txsTokenIdKey]));
+    console.log('txsTokenIdKey', txsTokenIdKey);
+    if (transaction && !(transaction instanceof PlasmaTransaction)) {
+      transaction = new PlasmaTransaction(transaction);
+    }
+    
+    return transaction;
   }
 }
 

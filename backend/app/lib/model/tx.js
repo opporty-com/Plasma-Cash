@@ -3,6 +3,7 @@
 import RLP from 'rlp';
 const ethUtil = require('ethereumjs-util');
 const BN = ethUtil.BN;
+import { removeHexPrefix } from 'lib/helpers/utills';
 
 const transactionFields = [
   { name: 'prev_hash' },
@@ -35,10 +36,6 @@ function initFields(self, fields, data) {
       self[field.name] = value;
     });
   }
-}
-
-function removeHexPrefix(str) {
-  return (str.slice(0, 2) === '0x') ? str.slice(2) : str;
 }
 
 class PlasmaTransaction {
