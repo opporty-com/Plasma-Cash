@@ -188,13 +188,6 @@ contract('Test', function(accounts) {
         const event = logs.find(e => e.event === 'DepositAdded');
         assert.ok(event, "event DepositAdded should exists");
 
-        const result = await root.getDeposit(blknum);
-
-        assert.equal(result[0].toNumber() , 0);
-        assert.equal(result[1], '0x5bd19a998fd721d4f96d93aeb9c0cc80c64a0e2b');
-        assert.ok(result[2]);
-        assert.equal(result[3].toNumber(), 100);
-        assert.ok(result[4]);
     });
 
     it ('should submit block', async function() {
