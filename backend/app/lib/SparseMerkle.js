@@ -135,16 +135,10 @@ class Merkle {
   }
 
   toBinaryString(value) {
-    // let hexValue = this.toHexString(value);
     if (value instanceof Buffer) {
       value = value.toString();
     }
     return new BN(value, 10).toString(2).padStart(256, '0');
-    // if (hexValue) {
-    //   return this.hexToBin(hexValue);
-    // } else {
-    //   throw new Error(`Unsupported format: ${value}`);
-    // }
   }
 
   toHexString(value) {
@@ -158,36 +152,6 @@ class Merkle {
 
   hexToBin(str) {
     return str.split('').map(item => parseInt(item, 16).toString(2).padStart(4, '0')).join('');
-  }
-
-  binStrIncrement(str) {
-    let done = false;
-    let current = str.length - 1;
-    str = str.split('');
-    while (!done) {
-      if (str[current] == '0') {
-        str[current] = '1';
-        done = true;
-      } else {
-        str[current--] = '0';
-      }
-    }
-    return str.join('');
-  }
-
-  binStrDecrement(str) {
-    let done = false;
-    let current = str.length - 1;
-    str = str.split('');
-    while (!done) {
-      if (str[current] == '1') {
-        str[current] = '0';
-        done = true;
-      } else {
-        str[current--] = '0';
-      }
-    }
-    return str.join('');
   }
 }
 

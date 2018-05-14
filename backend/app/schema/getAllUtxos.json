@@ -4,6 +4,7 @@
   "properties":
   {
     "address" : { "type" : "string", "minLength": 42, "maxLength": 42 },
-    "getHash": { "type": "boolean" }
+    "getHash": { "type": "boolean" },
+    "count": { "type": "boolean" }
   }
 }

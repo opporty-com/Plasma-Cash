@@ -32,22 +32,21 @@ class TXPool {
     }
 
     let isValid = await this.checkTransaction(tx);
+
     if (!isValid) {
       return false;
     }
     
     this.transactions.push(tx);
-    return true;
+    return tx;
   }
   
   
   async checkTransaction(transaction) {
     try {
-
       if (!transaction) {
         return false;
       }
-
       if (!transaction.validate) {
         return false;
       }
@@ -76,7 +75,7 @@ class TXPool {
       return true;
     }
     catch (error) {
-      console.log('checkTransactionInputs   error  ', error);
+      console.log('checkTransaction error: ', error);
       return false;
     }
   }

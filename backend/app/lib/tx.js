@@ -37,7 +37,6 @@ function createDepositTransaction(addressTo, amountBN, token_id) {
 
 async function createSignedTransaction(data) {
   let txData = {};
-  // txData.prev_hash = Buffer.from(data.prev_hash, 'hex');
   txData.prev_hash = ethUtil.toBuffer(ethUtil.addHexPrefix(data.prev_hash));
   txData.prev_block = data.prev_block;
   txData.token_id = data.token_id;
@@ -57,7 +56,8 @@ async function getAllUtxos(options = {}) {
       let end;
       let blockStartIndex;
       let blockEndIndex;
-
+      let count = 0;
+      
       if (options.address && ethUtil.isValidAddress(options.address)) {
         let address = ethUtil.toBuffer(options.address);
         start = Buffer.concat([utxoWithAddressPrefix, address, Buffer.alloc(blockNumberLength), Buffer.alloc(tokenIdLength)]);
@@ -73,6 +73,7 @@ async function getAllUtxos(options = {}) {
 
       levelDB.createReadStream({gte: start, lte: end})
         .on('data', function (data) {
+          count++;
           let utxo = new PlasmaTransaction(data.value);
           let blockNumber = ethUtil.bufferToInt(data.key.slice(blockStartIndex, blockEndIndex));
           let hash;
@@ -98,7 +99,11 @@ async function getAllUtxos(options = {}) {
             console.log('error', error);
         })
         .on('end', function () {
-          resolve(uxtos)
+          if (options && options.count) {
+            resolve({ count, uxto: uxtos })
+          } else {
+            resolve(uxtos)
+          }
         })
     }
     catch(error){

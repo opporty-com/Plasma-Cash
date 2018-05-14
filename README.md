@@ -9,13 +9,12 @@
 
 ## Request & Response Examples
 
-### API Resources
-
 ### GET /block/[id]
 
 Example: http://localhost/block/1
 
 Response body:
+```javascript
 
 {
   "blockNumber": 1,
@@ -35,18 +34,19 @@ Response body:
     }
   ]
 }
-
+```
 
 ### GET /utxo/
 
 Example: http://localhost/utxo?address=0x11a618de3ade9b85cd811bf45af03bad481842ed
 
 *  **URL Params**
- 
-   `address=[string] return all utxo filtered by owner address`
+```
+  address=[string] return all utxo filtered by owner address
+```
    
 Response body:
-
+```javascript
 [
   {
     "prev_block": 0,
@@ -56,29 +56,30 @@ Response body:
     "blockNumber": 1
   }
 ]
-
+```
 ### GET /tx
 
 Example: http://localhost/tx/proof?block=1&token_id=6595446839462728333343449079459300500808965641044370550270962527014110948362
 
 *  **URL Params**
-  
-  `getHash=[boolean] Return Transaction Merkle hash`
-
+```  
+  getHash=[boolean] Return Transaction Merkle hash
+```
   **Required:**
-
-  `block=[integer] Block number`
-  `token_id=[string] Transaction TokenId`
+```
+  block=[integer] Block number
+  token_id=[string] Transaction TokenId
+```
 
 Response body:
-
+```javascript
 {
   "prev_block": 0,
   "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
   "new_owner": "0x11a618de3ade9b85cd811bf45af03bad481842ed",
   "signature": "0x9845229c3f7a3b3a1c5979d91c0db84d20ac29c3df2bd4cd288dd3aec9ec075f523c2bb94b6c26747ad30525138d390054655ba192ca605fa336e699a2b29d661b"
 }
-
+```
 ### GET /tx/proof/
 
 Example: http://localhost/tx/proof?block=1&token_id=6595446839462728333343449079459300500808965641044370550270962527014110948362
@@ -86,16 +87,17 @@ Example: http://localhost/tx/proof?block=1&token_id=6595446839462728333343449079
 *  **URL Params**
  
   **Required:**
-
-   `block=[integer] Block number`
-   `token_id=[string] Transaction Token Id`
+```
+  block=[integer] Block number
+  token_id=[string] Transaction Token Id
+```
 
 Response body:
-
+```javascript
 {
   "proof": "01000000000000000000000000000000000000000000000000000000000000000000ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597b...64ba963b70"
 }
-
+```
 ### POST /tx/proof/
 
 Example: http://localhost/tx/proof
@@ -103,24 +105,26 @@ Example: http://localhost/tx/proof
 *  **URL Params**
  
   **Required:**
-
-    `block=[integer] Block number`
-    `hash=[string] Transaction hash`
-    `proof=[string] Merkle proof of existence`
+```
+  block=[integer] Block number
+  hash=[string] Transaction hash
+  proof=[string] Merkle proof of existence
+```
     
 Request body:
 
+```javascript
 { "block":1,
   "hash": "77771d855eddf6971a72f3a81b1c38d1f164268a5beee49fea7d0da0ec9def8a",
   "proof": "01000000000000000000000000000000000000000000000000000000000000000000ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597b...64ba963b70"
 }
-    
+```
 Response body:
-
+```javascript
 {
   "proof": "01000000000000000000000000000000000000000000000000000000000000000000ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597b...64ba963b70"
 }
-
+```
 
 ### POST /tx/getHashToSign/
 
@@ -129,20 +133,59 @@ Example: http://localhost/tx/getHashToSign
 *  **URL Params**
  
   **Required:**
-    `prev_hash=[string] utxo Transaction hash`
-    `prev_block=[integer] New block number`
-    `token_id=[string] Transaction TokenId`
-    `new_owner=[string] New utxo owner address`
+```  
+    prev_hash=[string] utxo Transaction hash
+    prev_block=[integer] New block number
+    token_id=[string] Transaction TokenId
+    new_owner=[string] New utxo owner address
+```
 
 Request body:
-
+```javascript
 {
-    "prev_hash": "77771d855eddf6971a72f3a81b1c38d1f164268a5beee49fea7d0da0ec9def8a",
-    "prev_block": 1,
-    "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
-    "new_owner": "0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe",
+  "prev_hash": "0caa05a05d88d6a531f4876ec0447e073cd67ef3512f8f1b9dbfc5e4eca6b044",
+  "prev_block": 1,
+  "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
+  "new_owner": "0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe"
 }
+```
+Response body:
+```javascript
+"0xd6329448836107a349bcfaa40c3294c33d994ed7c989343ce4b64675252bc5b6"
+```
 
+### POST /tx/signed/
+
+Example: http://localhost/tx/signed
+
+*  **URL Params**
+ 
+  **Required:**
+```  
+    prev_block=[integer] New block number
+    token_id=[string] Transaction TokenId
+    new_owner=[string] New utxo owner address
+    signature=[string] Transaction signature
+```
+
+Request body:
+```javascript
+{
+  "prev_hash": "0caa05a05d88d6a531f4876ec0447e073cd67ef3512f8f1b9dbfc5e4eca6b044",
+  "prev_block": 1,
+  "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
+  "new_owner": "0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe",
+  "signature": "0x51119fc358f4aa9656a574ee74f1ccce1517543f341d3da9556230f4020928fe26046adfcfe3ed5308c713a816b9971632b08fb40c84ed64e1e477d7fd7db77b1b"
+}
+```
 Response body:
 
-"0xb5b8a7b4de861a938145129a3c784fd6df9315f032900c67f86b2b1ac0647337"
+```javascript
+{
+  "prev_hash": "0x",
+  "prev_block": 1,
+  "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
+  "new_owner": "0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe",
+  "signature": "0x51119fc358f4aa9656a574ee74f1ccce1517543f341d3da9556230f4020928fe26046adfcfe3ed5308c713a816b9971632b08fb40c84ed64e1e477d7fd7db77b1b"
+}
+``

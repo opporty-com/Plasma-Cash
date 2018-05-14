@@ -27,7 +27,8 @@ router.route('/')
         return next({status: 404, message: 'Tx not Found'});
       }
       
-      tx = getHash ? tx.getMerkleHash().toString('hex') : tx.getJson();
+      tx = getHash ? tx.getHash().toString('hex') : tx.getJson();
+
       return res.json(tx);
     }
     catch(error){
@@ -78,11 +79,13 @@ router.route('/signed')
       let tx = await createSignedTransaction(data);
       
       if (!tx || !tx.validate()) {
-        return res.json({error: true, reason: "invalid transaction"});
+        return res.json({error: true, message: "invalid transaction"});
       }
-      txPool.addTransaction(tx);
-
-      return res.json(tx.getJson());
+      let savedTx = await txPool.addTransaction(tx);
+      if (!savedTx) {
+        return res.json({error: true, message: "invalid transaction"});
+      }
+      return res.json(savedTx.getJson());
     }
     catch(error){
       logger.error('accept signed tx error: ', error);
@@ -95,7 +98,7 @@ router.route('/getHashToSign')
     try { 
       let data = req.formData;
       let tx = await createSignedTransaction(data);
-      let hashForSign = tx && ethUtil.addHexPrefix(tx.getMerkleHash(true).toString('hex'));
+      let hashForSign = tx && ethUtil.addHexPrefix(tx.getHash(true).toString('hex'));
 
       return res.json(hashForSign);
     }

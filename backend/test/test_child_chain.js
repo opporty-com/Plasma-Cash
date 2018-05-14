@@ -66,14 +66,10 @@ describe('ChildChain', function () {
   var nextAddressGen;
   
   before(async function() {
-    // accounts = await web3.eth.getAccounts();
-    
-	    
     for (let addr of accounts) {
       await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 0);
-      console.log('    unlock account - ' , addr )
+      console.log('unlock account: ' , addr )
     }
-
     
     expect(accounts).to.have.lengthOf.above(1);
     nextAddressGen = getNextAddress(accounts);
@@ -84,44 +80,6 @@ describe('ChildChain', function () {
     expect(accounts).to.have.lengthOf.above(1);
   })
   
-  // describe('Check Deposit Event Handle', async function () {
-  //   let utxoBeforeTestCount;
-  //   before(async function() {
-  //     let utxosBeforeTest = await getAllUtxos(null, {});
-  //     utxoBeforeTestCount = utxosBeforeTest.length;
-  //   });
-  // 
-  //   let amount = new BN('322000000000000000');
-  //   let additional = new BN('1000000000000000');
-  // 
-  //   it('should create deposits', async function () {
-  //       let address = nextAddressGen.next().value;
-  // 
-  //       let depostisToCreate = [];
-  // 
-  //       for (let i = 0; i < 100; i++) {
-  //         let data = {
-  //           depositor: nextAddressGen.next().value,
-  //           amount: amount.add(additional.mul(new BN(i + 1))).toString(),
-  //           depositBlock:  new BN(ethUtil.sha3(Date.now() + i), 16).toString(10),
-  //           blockNumber: 3
-  //         }
-  //         depostisToCreate.push(data);
-  // 
-  //         await depositEventHandler({ returnValues: data });
-  //       }
-  // 
-  //       expect(depostisToCreate.length).to.equal(txPool.length);
-  // 
-  //       let newBlock = await txPool.createNewBlock();
-  // 
-  //       let newUtxos = await getAllUtxos(null, {});
-  // 
-  //       expect(newUtxos.length).to.equal(utxoBeforeTestCount + depostisToCreate.length);
-  //   })
-  // 
-  // })
-  
   describe('Check Transaction Creation', async function () {
     it('should get correct address from created trasaction signature', async function () {
       let utxos = await getAllUtxos(null, {});
@@ -129,8 +87,21 @@ describe('ChildChain', function () {
       expect(utxo).to.exist;
       
       let account = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
-      let createdTx = await createTx(utxo, account, nextAddressGen.next(account).value);
+      let txData = {
+        prev_hash:  utxo.getHash().toString('hex'),
+        prev_block: utxo.blockNumber,
+        token_id: utxo.token_id.toString(),
+        new_owner: nextAddressGen.next(account).value
+      };
+
+      let txDataForRlp = [ethUtil.addHexPrefix(txData.prev_hash), txData.prev_block, ethUtil.toBuffer(txData.token_id), txData.new_owner];
+      let txRlpEncoded = ethUtil.sha3(RLP.encode(txDataForRlp)).toString('hex');
+
+      let signature = await web3.eth.sign(ethUtil.addHexPrefix(txRlpEncoded), account);
+      txData.signature = signature;
+      let createdTx = await createSignedTransaction(txData);
       
+      expect(RLP.encode(txDataForRlp).toString('hex')).to.equal(createdTx.getRlp(true).toString('hex'));
       expect(createdTx.validate()).to.be.true; 
 
       let addressFromSignature = createdTx.getAddressFromSignature(true);
@@ -172,9 +143,8 @@ describe('ChildChain', function () {
   
       await Promise.all(queryAll)
       var t1 = Date.now();
-      console.log('      txs created: ', createdTxs.length);
-  
-      console.log('      time - ', (t1 - t0)/1000 ,' s')
+      console.log('txs created: ', createdTxs.length);
+      console.log('time: ', (t1 - t0)/1000 ,' s')
   
       expect(txPool.length).to.equal(utxosBeforeTest.length);
   
@@ -186,7 +156,7 @@ describe('ChildChain', function () {
       newUtxos.forEach(tx => {
         let proof = newBlock.merkle.getProof(tx.token_id);
         let proofIsValid = newBlock.merkle.checkProof(proof, tx.getMerkleHash(), newBlock.merkleRootHash);
-
+  
         expect(proofIsValid).to.be.true; 
       })
   

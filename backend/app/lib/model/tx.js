@@ -115,6 +115,7 @@ class PlasmaTransaction {
 
   getJson() {
     let data = {};
+    data.prev_hash = ethUtil.addHexPrefix(this.prev_hash.toString('hex'));
     data.prev_block = ethUtil.bufferToInt(this.prev_block);
     data.token_id = this.token_id.toString();
     data.new_owner = ethUtil.addHexPrefix(this.new_owner.toString('hex'));
