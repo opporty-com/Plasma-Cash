@@ -1,0 +1,28 @@
+version: '3.3'
+services:
+
+  backend:
+    build: ./backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./backend:/usr/src/app"
+      - "./data/leveldb:/var/lib/leveldb/data"
+      - "./data/logs/backend:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: "debug"
+      PRODUCTION_MODE: "OFF"
+      PLASMA_CONTRACT_ADDRESS: '0x6134cf6bd676ff7abd287a02b54774de9fd2b79a'
+      PLASMA_OPERATOR_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
+      PLASMA_OPERATOR_PRIVATE: ''
+      PLASMA_OPERATOR_PASSWORD: ''
+      WEB3_HTTP_PROVIDER: ''
+    command: 'npm run development'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+
