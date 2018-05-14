@@ -27,7 +27,7 @@ describe('Merkle', function() {
       tree.buildTree();
 
       leaves.forEach(leaf => {
-        let proof = tree.getProof(leaf);
+        let proof = tree.getProof(leaf.key);
         let proofIsValid = tree.checkProof(proof, leaf.hash, tree.getMerkleRoot());
 
         assert(proofIsValid);
@@ -54,7 +54,7 @@ describe('Merkle', function() {
 
       let randomHash = ethUtil.sha3(getRandomInt(100000, 100000000000000));
       leaves.forEach(leaf => {
-        let proof = tree.getProof(leaf);
+        let proof = tree.getProof(leaf.key);
         let proofIsValid = tree.checkProof(proof, randomHash, tree.getMerkleRoot());
         assert(!proofIsValid);
       });
