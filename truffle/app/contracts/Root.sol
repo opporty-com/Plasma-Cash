@@ -390,7 +390,35 @@ contract Root {
         }
         return hash == root;
     }
+    
+    // check if merkle proof is valid
+    function checkParticiaProof(bytes32 merkle, bytes32 root, bytes proof) pure public returns (bool valid)
+    {
+        bytes32 hash = merkle;
+        bytes1 flag;
+        bytes32 nodeKey;
+        bytes32 sibling;
+        
+        assembly {
+            nodeKey := mload(add(proof, 32))
+        }
+        hash = keccak256(nodeKey, hash);
 
+        for (uint i = 64; i < proof.length; i += 65) {
+            assembly {
+                flag := mload(add(proof, i))
+                nodeKey := mload(add(add(proof, i), 1))
+                sibling := mload(add(add(proof, i), 33))
+            }
+            if (flag == 0) {
+                hash = keccak256(nodeKey, sibling, hash);
+            } else if (flag == 1) {
+                hash = keccak256(nodeKey, hash, sibling);
+            }
+        }
+        return hash == root;
+    }
+    
     // get current block number
     function getCurrentBlock() public view returns(uint) {
         return current_blk;
