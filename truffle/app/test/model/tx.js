@@ -43,10 +43,6 @@ class PlasmaTransaction {
     data = data || {};
 
     initFields(this, transactionFields, data);
-
-    // this._inputs = [];
-    // this._outputs = [];
-    // this._outputsRlp = [];
   }
 
   getRlp(excludeSignatures) {
@@ -56,7 +52,6 @@ class PlasmaTransaction {
       }
       return res;
     }, []);
-
     this._rlp = RLP.encode(data);
     return this._rlp;
   }
@@ -91,14 +86,6 @@ class PlasmaTransaction {
     }
 
     return isValid;
-  }
-  
-  getMerkleHash() {
-    if (!this.signature) {
-        this.signature = '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
-    }
-
-    return ethUtil.sha3(Buffer.concat([ this.getHash(true), ethUtil.toBuffer(this.signature) ])); 
   }
   
   // getJson() {
