@@ -105,14 +105,7 @@ class PlasmaTransaction {
 
     return isValid;
   }
-
-  getMerkleHash() {
-    if (!this.signature) {
-      this.signature = '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
-    }
-    return ethUtil.sha3(Buffer.concat([ this.getHash(true), ethUtil.toBuffer(this.signature) ]));
-  }
-
+  
   getJson() {
     let data = {};
     data.prev_hash = ethUtil.addHexPrefix(this.prev_hash.toString('hex'));

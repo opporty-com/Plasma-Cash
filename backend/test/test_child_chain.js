@@ -155,7 +155,7 @@ describe('ChildChain', function () {
   
       newUtxos.forEach(tx => {
         let proof = newBlock.merkle.getProof(tx.token_id);
-        let proofIsValid = newBlock.merkle.checkProof(proof, tx.getMerkleHash(), newBlock.merkleRootHash);
+        let proofIsValid = newBlock.merkle.checkProof(proof, tx.getHash(), newBlock.merkleRootHash);
   
         expect(proofIsValid).to.be.true; 
       })
