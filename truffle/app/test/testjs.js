@@ -296,15 +296,13 @@ contract('Test', function(accounts) {
         assert.ok(event3, "event BlockSubmitted should exists");
 
         const res5 = await root.getToken(ethUtil.bufferToHex(token_id) );
-        assert.ok( res5[0] );
-        assert.ok( res5[1] );
+        assert.ok( res5 );
 
-       // let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx2.signature), ethUtil.toBuffer(tx.signature) ]));
         const res4 = await root.startExit(2, ethUtil.bufferToHex(txBytes2), ethUtil.bufferToHex(txBytes), proof2, proof, {from: accounts[1] });
         
         const event4 = res4.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event4, "event ExitAdded should exists");
-        let exitId = event4.args.exitId.toNumber();;
+        let exitId = event4.args.exitId;
 
         const res6 = await root.getExit(exitId);
         assert.equal(res6[2], 100);
@@ -385,7 +383,7 @@ contract('Test', function(accounts) {
         
         const event5 = res5.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event5, "event ExitAdded should exists");
-        let exitId = event5.args.exitId.toNumber();
+        let exitId = event5.args.exitId;
 
         // -------------
         const res6 = await root.challengeSpent(exitId, 3, ethUtil.bufferToHex(txBytes3), proof3 );
@@ -493,7 +491,7 @@ contract('Test', function(accounts) {
         
         const event6 = res6.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event6, "event ExitAdded should exists");
-        let exitId = event6.args.exitId.toNumber();
+        let exitId = event6.args.exitId;
 
         const res7 = await root.challengeDoubleSpend(exitId, 3, ethUtil.bufferToHex(txBytes3), proof3 );
         const event7 = res7.logs.find(e => e.event === 'ExitChallengedEvent');
@@ -618,7 +616,7 @@ contract('Test', function(accounts) {
         
         const event6 = res6.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event6, "event ExitAdded should exists");
-        let exitId = event6.args.exitId.toNumber();
+        let exitId = event6.args.exitId;
 
         const res7 = await root.challengeInvalidHistory(exitId, 2, ethUtil.bufferToHex(txBytes2), proof2 );
         const event7 = res7.logs.find(e => e.event === 'ChallengedInvalidHistory');
@@ -681,7 +679,7 @@ contract('Test', function(accounts) {
         
         const event4 = res4.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event4, "event ExitAdded should exists");
-        let exitId = event4.args.exitId.toNumber();;
+        let exitId = event4.args.exitId;
 
         const res6 = await root.getExit(exitId);
         assert.equal(res6[2], 100);
