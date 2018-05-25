@@ -35,7 +35,7 @@ contract Root {
      */
     event BlockSubmitted(address operator, bytes32 merkleRoot, uint blockNumber);
     event DepositAdded(address depositor, uint amount, uint depositBlock, uint blockNumber);
-    event ExitAdded(address exitor, uint priority, uint exitId, uint tokenId);
+    event ExitAdded(address exitor, uint priority, uint exitId);
     event ExitChallengedEvent(uint exitId);
     event ChallengedInvalidHistory(uint exitId, uint tokenId);
     event ExitRespondedEvent(uint exitId);
@@ -92,14 +92,6 @@ contract Root {
     }
 
     /*
-     * Token type
-     */
-    struct Token {
-        uint index;
-        uint denomination;
-    }
- 
-    /*
      * Exit record
      */
     struct Exit {
@@ -117,7 +109,7 @@ contract Root {
      * Blockchain
      */
     mapping(uint => Block) public childChain;
-    mapping(uint => Token) public tokens;
+    mapping(uint => uint) public tokens;
 
     /*
      * Heap for exits
@@ -196,11 +188,9 @@ contract Root {
      */
     function deposit() public payable {
 
-        Token memory token;
-        token.denomination = msg.value;
         uint token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
-        token.index = deposit_blk;
-        tokens[token_id] = token;
+       // token.index = deposit_blk;
+        tokens[token_id] = msg.value;
         
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
@@ -228,18 +218,15 @@ contract Root {
     
         require(msg.sender == new_owner);
         
-        require(tokens[token_id].denomination > 0);
+        require(tokens[token_id] > 0);
         bytes32 hashPrevTx = keccak256(tx0);
         require(checkProof(hashPrevTx, childChain[prev_blk].merkle_root, proof0));
         require(prev_hash == hashPrevTx);
 
-        exit_id = block_num + tokens[token_id].index;
-
-        Exit storage record = exitRecords[exit_id];
+        Exit storage record = exitRecords[token_id];
         require(record.block_num == 0);
 
         record.block_num = block_num;
-        record.token_id = token_id;
         record.new_owner = msg.sender;
         record.prev_block = prev_blk;
 
@@ -249,10 +236,10 @@ contract Root {
             record.priority = block.timestamp - week;
 
         exits.add(record.priority);
-        exit_ids[record.priority].push(exit_id);
+        exit_ids[record.priority].push(token_id);
 
-        emit ExitAdded(msg.sender, record.priority, exit_id, record.token_id);
-        return exit_id;
+        emit ExitAdded(msg.sender, record.priority, token_id);
+        return token_id;
     }
     /*
      * Challenge exit by providing
@@ -268,9 +255,9 @@ contract Root {
         uint token_id;
         (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
 
-        require(tokens[token_id].denomination > 0);
+        require(tokens[token_id] > 0);
         require(prev_block == record.block_num && record.block_num < blk_num);
-        require(token_id == record.token_id);
+        require(token_id == exit_id);
 
         exit_ids[record.priority].remove(exit_id);
         delete exitRecords[exit_id];
@@ -291,11 +278,11 @@ contract Root {
         uint prev_block;
         uint token_id; 
         (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
-        require(tokens[token_id].denomination > 0);
+        require(tokens[token_id] > 0);
 
         // check if token double spent
         require(prev_block == record.prev_block && blk_num < record.block_num);
-        require(token_id == record.token_id);
+       // require(token_id == exit_id);
         exit_ids[record.priority].remove(exit_id);
         delete exitRecords[exit_id];
         emit ExitChallengedEvent(exit_id);
@@ -316,8 +303,8 @@ contract Root {
         uint token_id; 
         (prev_hash, , token_id, ) = getTransactionFromRLP(tx0);
 
-        require(record.token_id == token_id);
-        require(tokens[token_id].denomination > 0);
+        //require(exit_id == token_id);
+        require(tokens[token_id] > 0);
 
         // transaction should be before exit tx in history
         require(blk_num < record.block_num - 1);
@@ -343,7 +330,7 @@ contract Root {
         (prev_hash, prev_block, token_id, ) = getTransactionFromRLP(childtx);
         // if direct child
         if (prev_block == challenged[exit_id] ) {
-            if (blk_num <= record.prev_block && token_id == record.token_id ) {
+            if (blk_num <= record.prev_block && token_id == exit_id ) {
                 delete challenged[exit_id];
                 emit ExitRespondedEvent(exit_id);
             } else {
@@ -362,11 +349,11 @@ contract Root {
                 uint index = exit_ids[priority][i];
                 Exit memory record = exitRecords[index];
                 // finalize exits
-                record.new_owner.transfer(tokens[record.token_id].denomination);
+                record.new_owner.transfer(tokens[index]);
 
-                emit ExitCompleteEvent(current_blk, record.block_num, record.token_id, tokens[record.token_id].denomination);
+                emit ExitCompleteEvent(current_blk, record.block_num, record.token_id, tokens[record.token_id]);
                 delete exitRecords[index];
-                delete tokens[record.token_id];
+                delete tokens[index];
             }
             delete exit_ids[priority];
             
@@ -404,10 +391,11 @@ contract Root {
     }
 
     // get exit by identifier
-    function getExit(uint exit_id) public view returns (address, uint, uint, uint)
+    function getExit(uint token_id) public view returns (address, uint, uint, uint)
     {
-        Exit memory er = exitRecords[exit_id];
-        return ( er.new_owner, er.token_id, tokens[er.token_id].denomination, er.priority );
+        Exit memory er = exitRecords[token_id];
+        if (er.priority > 0)
+            return ( er.new_owner, token_id, tokens[token_id], er.priority );
     }
 
     // get blockchain entry
@@ -417,8 +405,8 @@ contract Root {
     }
 
     // get token by identifier
-    function getToken(uint token_id) public view returns (uint , uint) {
-        return (tokens[token_id].index, tokens[token_id].denomination);
+    function getToken(uint token_id) public view returns (uint) {
+        return tokens[token_id];
     }
 
     // get balance of specific address
