@@ -20,7 +20,7 @@ class Block {
       this.transactions = data.transactions || [];
 
       let leaves = this.transactions.map(tx => {
-        return { key: tx.token_id, hash: tx.getMerkleHash() };
+        return { key: tx.token_id, hash: tx.getHash() };
       });
 
       this.merkle = new SparseMerkle(leaves);
@@ -73,7 +73,7 @@ class Block {
       this.transactions = this.transactions.map(tx => new PlasmaTransaction(tx));
     }
     let leaves = this.transactions.map(tx => {
-      return { key: tx.token_id, hash: tx.getMerkleHash() };
+      return { key: tx.token_id, hash: tx.getHash() };
     });
 
     this.merkle = new SparseMerkle(leaves);

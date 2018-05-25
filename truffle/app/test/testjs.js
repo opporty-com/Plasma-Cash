@@ -68,8 +68,8 @@ contract('Test', function(accounts) {
         const val = 100;
         const tx = new createDepositTransaction(accounts0, val, u.soliditySha3(accounts0, val, 0));
         let token_id = u.soliditySha3(accounts0, val, 0);
-        var rlpencoded = u.bytesToHex(tx.getRlp(true));
-        assert.equal(rlpencoded, '0xf8388000a0a1cec4f3c0349cb34526da97ab6cb46b80f22cfa094014702aafa06373f9aa6b943ab059da310dc06c2c08993818cb5ffab48c8bb3');
+        var rlpencoded = u.bytesToHex(tx.getRlp(false));
+        assert.equal(rlpencoded, '0xf8398000a0a1cec4f3c0349cb34526da97ab6cb46b80f22cfa094014702aafa06373f9aa6b943ab059da310dc06c2c08993818cb5ffab48c8bb380');
         
         const tx2 = await root.getTransactionFromRLP(rlpencoded);
 
@@ -175,7 +175,7 @@ contract('Test', function(accounts) {
             transactions: [ tx ]
         });
 
-        assert.equal(ethUtil.bufferToHex(blk.merkleRootHash), '0xb39ede4fb66444e317ffaa42cb3072db873f2379558405c3f46807e9b5cba065'); 
+        assert.equal(ethUtil.bufferToHex(blk.merkleRootHash), '0x08a1bcaa8a9646e46982724b0efeb7dda549fc2e0008816b42ad258aed6b110b'); 
         done();
     });
 
@@ -254,7 +254,7 @@ contract('Test', function(accounts) {
 
         let tx = new createDepositTransaction(accounts[0], 100, token_id );
         tx.sign(key);
-        const txBytes = tx.getRlp(true);
+        const txBytes = tx.getRlp(false);
         
         let blk2 = new Block({
             blockNumber: 1,
@@ -263,7 +263,7 @@ contract('Test', function(accounts) {
 
         let proof = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
             key: token_id,
-            hash: tx.getMerkleHash()
+            hash: tx.getHash(false)
         }, true) ) );
         
         const res2 = await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber );
@@ -279,7 +279,7 @@ contract('Test', function(accounts) {
           
         const tx2 = new PlasmaTransaction(txData);
         tx2.sign(key);
-        const txBytes2 = tx2.getRlp(true);
+        const txBytes2 = tx2.getRlp(false);
         
         let blk3 = new Block({
             blockNumber: 2,
@@ -288,7 +288,7 @@ contract('Test', function(accounts) {
 
         let proof2 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
             key: token_id,
-            hash: tx2.getMerkleHash()
+            hash: tx.getHash(false)
         }, true) ) );
 
         const res3 = await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
@@ -296,15 +296,13 @@ contract('Test', function(accounts) {
         assert.ok(event3, "event BlockSubmitted should exists");
 
         const res5 = await root.getToken(ethUtil.bufferToHex(token_id) );
-        assert.ok( res5[0] );
-        assert.ok( res5[1] );
+        assert.ok( res5 );
 
-        let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx2.signature), ethUtil.toBuffer(tx.signature) ]));
-        const res4 = await root.startExit(2, ethUtil.bufferToHex(txBytes2), ethUtil.bufferToHex(txBytes), proof2, proof, sigs, {from: accounts[1] });
+        const res4 = await root.startExit(2, ethUtil.bufferToHex(txBytes2), ethUtil.bufferToHex(txBytes), proof2, proof, {from: accounts[1] });
         
         const event4 = res4.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event4, "event ExitAdded should exists");
-        let exitId = event4.args.exitId.toNumber();;
+        let exitId = event4.args.exitId;
 
         const res6 = await root.getExit(exitId);
         assert.equal(res6[2], 100);
@@ -326,13 +324,13 @@ contract('Test', function(accounts) {
 
         let tx = new createDepositTransaction(accounts[0], 100, token_id );
         tx.sign(key);
-        const txBytes = tx.getRlp(true);
+        const txBytes = tx.getRlp(false);
         
         let blk2 = new Block({ blockNumber: 1, transactions: [ tx ] });
 
         let proof = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
             key: token_id,
-            hash: tx.getMerkleHash()
+            hash: tx.getHash(false)
         }, true) ) );
         
         await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber);
@@ -346,13 +344,13 @@ contract('Test', function(accounts) {
           
         const tx2 = new PlasmaTransaction(txData);
         tx2.sign(key);
-        const txBytes2 = tx2.getRlp(true);
+        const txBytes2 = tx2.getRlp(false);
         
         let blk3 = new Block({ blockNumber: 2, transactions: [ tx2 ] });
 
         let proof2 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
             key: token_id,
-            hash: tx2.getMerkleHash()
+            hash: tx2.getHash(false)
         }, true) ) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
@@ -366,13 +364,13 @@ contract('Test', function(accounts) {
           
         const tx3 = new PlasmaTransaction(txData);
         tx3.sign(key2);
-        const txBytes3 = tx3.getRlp(true);
+        const txBytes3 = tx3.getRlp(false);
         
         let blk4 = new Block({ blockNumber: 3, transactions: [ tx3 ] });
 
         let proof3 = ethUtil.bufferToHex( Buffer.concat(blk4.merkle.getProof({
             key: token_id,
-            hash: tx3.getMerkleHash()
+            hash: tx3.getHash(false)
         }, true) ) );
 
         const res4 = await root.submitBlock(ethUtil.bufferToHex(blk4.merkleRootHash), blk4.blockNumber );
@@ -380,15 +378,15 @@ contract('Test', function(accounts) {
         assert.ok(event4, "event BlockSubmitted should exists");
         // ------------
 
-        let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx2.signature), ethUtil.toBuffer(tx.signature) ]));
-        const res5 = await root.startExit(2, ethUtil.bufferToHex(txBytes2), ethUtil.bufferToHex(txBytes), proof2, proof, sigs, {from: accounts[1] });
+        //let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx2.signature), ethUtil.toBuffer(tx.signature) ]));
+        const res5 = await root.startExit(2, ethUtil.bufferToHex(txBytes2), ethUtil.bufferToHex(txBytes), proof2, proof, {from: accounts[1] });
         
         const event5 = res5.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event5, "event ExitAdded should exists");
-        let exitId = event5.args.exitId.toNumber();
+        let exitId = event5.args.exitId;
 
         // -------------
-        const res6 = await root.challengeSpent(exitId, 3, ethUtil.bufferToHex(txBytes3), proof3, tx3.signature );
+        const res6 = await root.challengeSpent(exitId, 3, ethUtil.bufferToHex(txBytes3), proof3 );
         const event6 = res6.logs.find(e => e.event === 'ExitChallengedEvent');
         assert.ok(event6, "event ExitChallengedEvent should exists");
 
@@ -413,13 +411,13 @@ contract('Test', function(accounts) {
 
         let tx = new createDepositTransaction(accounts[0], 100, token_id );
         tx.sign(key);
-        const txBytes = tx.getRlp(true);
+        const txBytes = tx.getRlp(false);
         
         let blk2 = new Block({ blockNumber: 1, transactions: [ tx ] });
 
         let proof = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
             key: token_id,
-            hash: tx.getMerkleHash()
+            hash: tx.getHash(false)
         }, true) ) );
         
         await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber);
@@ -433,13 +431,13 @@ contract('Test', function(accounts) {
           
         const tx2 = new PlasmaTransaction(txData);
         tx2.sign(key);
-        const txBytes2 = tx2.getRlp(true);
+        const txBytes2 = tx2.getRlp(false);
         
         let blk3 = new Block({ blockNumber: 2, transactions: [ tx2 ] });
 
         let proof2 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
             key: token_id,
-            hash: tx2.getMerkleHash()
+            hash: tx2.getHash(false)
         }, true) ) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
@@ -453,13 +451,13 @@ contract('Test', function(accounts) {
           
         const tx3 = new PlasmaTransaction(txData);
         tx3.sign(key2);
-        const txBytes3 = tx3.getRlp(true);
+        const txBytes3 = tx3.getRlp(false);
         
         let blk4 = new Block({ blockNumber: 3, transactions: [ tx3 ] });
 
         let proof3 = ethUtil.bufferToHex( Buffer.concat(blk4.merkle.getProof({
             key: token_id,
-            hash: tx3.getMerkleHash()
+            hash: tx3.getHash(false)
         }, true) ) );
 
         const res4 = await root.submitBlock(ethUtil.bufferToHex(blk4.merkleRootHash), blk4.blockNumber );
@@ -475,33 +473,33 @@ contract('Test', function(accounts) {
           
         const tx4 = new PlasmaTransaction(txData);
         tx4.sign(key2);
-        const txBytes4 = tx4.getRlp(true);
+        const txBytes4 = tx4.getRlp(false);
         
         let blk5 = new Block({ blockNumber: 4, transactions: [ tx4 ] });
 
         let proof4 = ethUtil.bufferToHex( Buffer.concat(blk5.merkle.getProof({
             key: token_id,
-            hash: tx4.getMerkleHash()
+            hash: tx4.getHash(false)
         }, true) ) );
 
         const res5 = await root.submitBlock(ethUtil.bufferToHex(blk5.merkleRootHash), blk5.blockNumber );
         const event5 = res5.logs.find(e => e.event === 'BlockSubmitted');
         assert.ok(event5, "event BlockSubmitted should exists");
         // ------------
-        let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx4.signature), ethUtil.toBuffer(tx2.signature) ]));
-        const res6 = await root.startExit(4, ethUtil.bufferToHex(txBytes4), ethUtil.bufferToHex(txBytes2), proof4, proof2, sigs, {from: accounts[0] });
+        //xlet sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx4.signature), ethUtil.toBuffer(tx2.signature) ]));
+        const res6 = await root.startExit(4, ethUtil.bufferToHex(txBytes4), ethUtil.bufferToHex(txBytes2), proof4, proof2, {from: accounts[0] });
         
         const event6 = res6.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event6, "event ExitAdded should exists");
-        let exitId = event6.args.exitId.toNumber();
+        let exitId = event6.args.exitId;
 
-        const res7 = await root.challengeDoubleSpend(exitId, 3, ethUtil.bufferToHex(txBytes3), proof3, tx3.signature );
+        const res7 = await root.challengeDoubleSpend(exitId, 3, ethUtil.bufferToHex(txBytes3), proof3 );
         const event7 = res7.logs.find(e => e.event === 'ExitChallengedEvent');
         assert.ok(event7, "event ExitChallengedEvent should exists");
 
         const res8 = await root.getExit(exitId);
         assert.equal(res8[2], 0);
-        //let exitId = event5.args.exitId.toNumber();*/
+        //let exitId = event5.args.exitId.toNumber();
     });
 
     it ('should challenge invalid history exit', async function() {
@@ -520,13 +518,13 @@ contract('Test', function(accounts) {
 
         let tx = new createDepositTransaction(accounts[0], 100, token_id );
         tx.sign(key);
-        const txBytes = tx.getRlp(true);
+        const txBytes = tx.getRlp(false);
         
         let blk = new Block({ blockNumber: 1, transactions: [ tx ] });
 
         let proof = ethUtil.bufferToHex( Buffer.concat(blk.merkle.getProof({
             key: token_id,
-            hash: tx.getMerkleHash()
+            hash: tx.getHash(false)
         }, true) ) );
         
         await root.submitBlock(ethUtil.bufferToHex(blk.merkleRootHash), blk.blockNumber);
@@ -540,13 +538,13 @@ contract('Test', function(accounts) {
           
         const tx2 = new PlasmaTransaction(txData);
         tx2.sign(key);
-        const txBytes2 = tx2.getRlp(true);
+        const txBytes2 = tx2.getRlp(false);
         
         let blk2 = new Block({ blockNumber: 2, transactions: [ tx2 ] });
 
         let proof2 = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
             key: token_id,
-            hash: tx2.getMerkleHash()
+            hash: tx2.getHash(false)
         }, true) ) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber );
@@ -560,13 +558,13 @@ contract('Test', function(accounts) {
           
         const tx3 = new PlasmaTransaction(txData);
         tx3.sign(key2);
-        const txBytes3 = tx3.getRlp(true);
+        const txBytes3 = tx3.getRlp(false);
         
         let blk3 = new Block({ blockNumber: 3, transactions: [ tx3 ] });
 
         let proof3 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
             key: token_id,
-            hash: tx3.getMerkleHash()
+            hash: tx3.getHash(false)
         }, true) ) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
@@ -580,13 +578,13 @@ contract('Test', function(accounts) {
           
         const tx4 = new PlasmaTransaction(txData);
         tx4.sign(key);
-        const txBytes4 = tx4.getRlp(true);
+        const txBytes4 = tx4.getRlp(false);
         
         let blk4 = new Block({ blockNumber: 4, transactions: [ tx4 ] });
 
         let proof4 = ethUtil.bufferToHex( Buffer.concat(blk4.merkle.getProof({
             key: token_id,
-            hash: tx4.getMerkleHash()
+            hash: tx4.getHash(false)
         }, true) ) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk4.merkleRootHash), blk4.blockNumber );
@@ -600,31 +598,31 @@ contract('Test', function(accounts) {
           
         const tx5 = new PlasmaTransaction(txData);
         tx5.sign(key2);
-        const txBytes5 = tx5.getRlp(true);
+        const txBytes5 = tx5.getRlp(false);
         
         let blk5 = new Block({ blockNumber: 5, transactions: [ tx5 ] });
 
         let proof5 = ethUtil.bufferToHex( Buffer.concat(blk5.merkle.getProof({
             key: token_id,
-            hash: tx5.getMerkleHash()
+            hash: tx5.getHash(false)
         }, true) ) );
 
         const res5 = await root.submitBlock(ethUtil.bufferToHex(blk5.merkleRootHash), blk5.blockNumber );
         const event5 = res5.logs.find(e => e.event === 'BlockSubmitted');
         assert.ok(event5, "event BlockSubmitted should exists");
         // ------------
-        let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx5.signature), ethUtil.toBuffer(tx4.signature) ]));
-        const res6 = await root.startExit(5, ethUtil.bufferToHex(txBytes5), ethUtil.bufferToHex(txBytes4), proof5, proof4, sigs, {from: accounts[0] });
+        //let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx5.signature), ethUtil.toBuffer(tx4.signature) ]));
+        const res6 = await root.startExit(5, ethUtil.bufferToHex(txBytes5), ethUtil.bufferToHex(txBytes4), proof5, proof4, {from: accounts[0] });
         
         const event6 = res6.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event6, "event ExitAdded should exists");
-        let exitId = event6.args.exitId.toNumber();
+        let exitId = event6.args.exitId;
 
-        const res7 = await root.challengeInvalidHistory(exitId, 2, ethUtil.bufferToHex(txBytes2), proof2, tx2.signature );
+        const res7 = await root.challengeInvalidHistory(exitId, 2, ethUtil.bufferToHex(txBytes2), proof2 );
         const event7 = res7.logs.find(e => e.event === 'ChallengedInvalidHistory');
         assert.ok(event7, "event ChallengedInvalidHistory should exists");
 
-        const res8 = await root.respondChallenge(exitId, 3, ethUtil.bufferToHex(txBytes3), proof3, tx3.signature );
+        const res8 = await root.respondChallenge(exitId, 3, ethUtil.bufferToHex(txBytes3), proof3 );
         const event8 = res8.logs.find(e => e.event === 'ExitRespondedEvent');
         assert.ok(event8, "event ExitRespondedEvent should exists");
     });
@@ -645,13 +643,13 @@ contract('Test', function(accounts) {
 
         let tx = new createDepositTransaction(accounts[0], 100, token_id );
         tx.sign(key);
-        const txBytes = tx.getRlp(true);
+        const txBytes = tx.getRlp(false);
         
         let blk2 = new Block({ blockNumber: 1, transactions: [ tx ] });
 
         let proof = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
             key: token_id,
-            hash: tx.getMerkleHash()
+            hash: tx.getHash(false)
         }, true) ) );
         
         await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber );
@@ -665,23 +663,23 @@ contract('Test', function(accounts) {
           
         const tx2 = new PlasmaTransaction(txData);
         tx2.sign(key);
-        const txBytes2 = tx2.getRlp(true);
+        const txBytes2 = tx2.getRlp(false);
         
         let blk3 = new Block({ blockNumber: 2, transactions: [ tx2 ] });
 
         let proof2 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
             key: token_id,
-            hash: tx2.getMerkleHash()
+            hash: tx2.getHash(false)
         }, true) ) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
 
-        let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx2.signature), ethUtil.toBuffer(tx.signature) ]));
-        const res4 = await root.startExit(2, ethUtil.bufferToHex(txBytes2), ethUtil.bufferToHex(txBytes), proof2, proof, sigs, {from: accounts[1] });
+        //let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx2.signature), ethUtil.toBuffer(tx.signature) ]));
+        const res4 = await root.startExit(2, ethUtil.bufferToHex(txBytes2), ethUtil.bufferToHex(txBytes), proof2, proof, {from: accounts[1] });
         
         const event4 = res4.logs.find(e => e.event === 'ExitAdded');
         assert.ok(event4, "event ExitAdded should exists");
-        let exitId = event4.args.exitId.toNumber();;
+        let exitId = event4.args.exitId;
 
         const res6 = await root.getExit(exitId);
         assert.equal(res6[2], 100);
