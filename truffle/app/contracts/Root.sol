@@ -208,7 +208,7 @@ contract Root {
      */
     function startExit(uint block_num, bytes tx1, bytes tx0, bytes proof1, bytes proof0) public returns (uint exit_id) {
 
-        require(checkProof(keccak256(tx1), childChain[block_num].merkle_root, proof1));
+        require(checkPatriciaProof(keccak256(tx1), childChain[block_num].merkle_root, proof1));
 
         bytes32 prev_hash;
         uint prev_blk;
@@ -220,7 +220,7 @@ contract Root {
         
         require(tokens[token_id] > 0);
         bytes32 hashPrevTx = keccak256(tx0);
-        require(checkProof(hashPrevTx, childChain[prev_blk].merkle_root, proof0));
+        require(checkPatriciaProof(hashPrevTx, childChain[prev_blk].merkle_root, proof0));
         require(prev_hash == hashPrevTx);
 
         Exit storage record = exitRecords[token_id];
@@ -246,7 +246,7 @@ contract Root {
      * a proof of a transaction spending C
      */
     function challengeSpent(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
-        require(checkProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
+        require(checkPatriciaProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
 
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
@@ -269,7 +269,7 @@ contract Root {
      * a proof of a transaction spending P(C) that appears before C
      */
     function challengeDoubleSpend(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
-        require(checkProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
+        require(checkPatriciaProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
 
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
@@ -294,7 +294,7 @@ contract Root {
      */
     function challengeInvalidHistory(uint exit_id, uint blk_num, bytes tx0, bytes proof) public { 
         // check if proof is valid
-        require(checkProof(keccak256(tx0), childChain[blk_num].merkle_root, proof));
+        require(checkPatriciaProof(keccak256(tx0), childChain[blk_num].merkle_root, proof));
         
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
@@ -322,7 +322,7 @@ contract Root {
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
 
-        require(checkProof(keccak256(childtx), childChain[blk_num].merkle_root, proof));
+        require(checkPatriciaProof(keccak256(childtx), childChain[blk_num].merkle_root, proof));
         // get transaction from rlpencoded form
         bytes32 prev_hash; 
         uint prev_block;
@@ -381,7 +381,7 @@ contract Root {
     }
     
     // check if merkle proof is valid
-    function checkParticiaProof(bytes32 merkle, bytes32 root, bytes proof) pure public returns (bool valid)
+    function checkPatriciaProof(bytes32 merkle, bytes32 root, bytes proof) pure public returns (bool valid)
     {
         bytes32 hash = merkle;
         bytes1 flag;

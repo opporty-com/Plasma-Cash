@@ -17,16 +17,14 @@ class Block {
     } else if (data && typeof data === 'object') {
       this.blockNumber = data.blockNumber;
       this.transactions = data.transactions || [];
-      //console.log('leaves',this.transactions )
+      
       let leaves = this.transactions.map(tx => {
       
         let key = new BN(tx.token_id, 16).toString(10);
-        console.log('key',key);
-
+  
         return { key, hash: tx.getHash(false) };
       });
 
-      console.log('leaves',  leaves)
       this.merkle = new PatriciaMerkle(leaves);
       this.merkle.buildTree();
       this.merkleRootHash = this.merkle.getMerkleRoot();

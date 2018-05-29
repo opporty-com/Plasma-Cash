@@ -24,10 +24,10 @@ class Merkle {
   buildNode(childNodes, key = '', level = 0) {
     let node = { key };
     this.iterations++;
-
     if (childNodes.length == 1) {
-      let nodeKey = childNodes[0].key.slice(level - 1);
+      let nodeKey = level == 0 ? childNodes[0].key : childNodes[0].key.slice(level - 1);
       node.key = nodeKey;    
+
       let nodeHashes = Buffer.concat([Buffer.from(ethUtil.sha3(nodeKey)), childNodes[0].hash]);
       node.hash = ethUtil.sha3(nodeHashes);
       return node;
@@ -67,7 +67,7 @@ class Merkle {
     let proof = [];
     let key = this.toBinaryString(token_id);
     let node = this.rootNode;
-
+    
     while (key.length) {
       let nodeKey;
       let itemKey;
@@ -75,10 +75,7 @@ class Merkle {
       itemKey = key.slice(0, nodeKey.length);
 
       if (nodeKey && nodeKey != itemKey) {
-        console.log('owww nullllll');
-        console.log(node);
-        console.log(itemKey);
-        return [];
+        return null;
       }
       if (nodeKey.length == key.length) {
         if (returnBinary) {
@@ -112,7 +109,7 @@ class Merkle {
         key = key.slice(nodeKey.length);
       }
     }
-    console.log('!!!!!prooof!!!!!!', proof);
+
     return returnBinary ? Buffer.concat(proof).toString('hex') : proof;
   }
 
@@ -173,8 +170,6 @@ class Merkle {
     if (value instanceof Buffer) {
       value = value.toString();
     }
-    console.log('!!!!!!!',value,  new BN(value, 10).toString(2).padStart(256, '0'))
-  
     return new BN(value, 10).toString(2).padStart(256, '0');
   }
 
