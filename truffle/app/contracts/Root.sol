@@ -34,7 +34,7 @@ contract Root {
      * Events section
      */
     event BlockSubmitted(address operator, bytes32 merkleRoot, uint blockNumber);
-    event DepositAdded(address depositor, uint amount, uint depositBlock, uint blockNumber);
+    event DepositAdded(address depositor, uint amount, uint tokenId, uint blockNumber);
     event ExitAdded(address exitor, uint priority, uint exitId);
     event ExitChallengedEvent(uint exitId);
     event ChallengedInvalidHistory(uint exitId, uint tokenId);

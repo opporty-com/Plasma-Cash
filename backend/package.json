@@ -28,6 +28,7 @@
     "merkle-tools": "1.4.0",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.13",
+    "npm": "^6.1.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "router": "^1.3.2",

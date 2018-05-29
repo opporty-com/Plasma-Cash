@@ -2,11 +2,11 @@
 
 // import MerkleTools from 'merkle-tools';
 import SparseMerkle from '../lib/SparseMerkle';
-
+import PatriciaMerkle from '../lib/ParticiaMerkle';
 import { PlasmaTransaction } from './tx';
 import RLP from 'rlp';
 import ethUtil from 'ethereumjs-util';
-
+const BN = ethUtil.BN;
 class Block {
   constructor (data) {
     if (Buffer.isBuffer(data)) {
@@ -17,12 +17,17 @@ class Block {
     } else if (data && typeof data === 'object') {
       this.blockNumber = data.blockNumber;
       this.transactions = data.transactions || [];
-
+      //console.log('leaves',this.transactions )
       let leaves = this.transactions.map(tx => {
-        return { key: tx.token_id, hash: tx.getHash(false) };
+      
+        let key = new BN(tx.token_id, 16).toString(10);
+        console.log('key',key);
+
+        return { key, hash: tx.getHash(false) };
       });
-     
-      this.merkle = new SparseMerkle(256,leaves);
+
+      console.log('leaves',  leaves)
+      this.merkle = new PatriciaMerkle(leaves);
       this.merkle.buildTree();
       this.merkleRootHash = this.merkle.getMerkleRoot();
     }
