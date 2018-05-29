@@ -10,7 +10,7 @@
     "build": "babel server.js -d dist && babel app -d dist/app",
     "test-child-chain": "mocha --require babel-register --require babel-polyfill --timeout 1600000 --reporter spec ./test/test_child_chain.js",
     "test-merkle": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle.js",
-    "test-merkle-particia": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle_particia.js"
+    "test-merkle-patricia": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle_patricia.js"
   },
   "dependencies": {
     "ajv": "^5.2.3",

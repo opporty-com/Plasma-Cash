@@ -4,7 +4,6 @@ var assert = require('assert');
 import chai           from 'chai';
 var expect = chai.expect;
 
-import SparseMerkle   from '../app/lib/SparseMerkle';
 import web3           from '../app/lib/web3';
 import ethUtil        from 'ethereumjs-util';
 import { getAllUtxos } from '../app/lib/tx';

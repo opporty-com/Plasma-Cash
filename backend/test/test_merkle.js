@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('assert');
-import SparseMerkle from '../app/lib/SparseMerkle';
+import PatriciaMerkle from '../app/lib/PatriciaMerkle';
 import ethUtil from 'ethereumjs-util';
 const BN = ethUtil.BN;
 
@@ -23,7 +23,7 @@ describe('Merkle', function() {
         });
       }
 
-      let tree = new SparseMerkle(leaves);
+      let tree = new PatriciaMerkle(leaves);
       tree.buildTree();
 
       leaves.forEach(leaf => {
@@ -49,7 +49,7 @@ describe('Merkle', function() {
         });
       }
 
-      let tree = new SparseMerkle(leaves);
+      let tree = new PatriciaMerkle(leaves);
       tree.buildTree();
 
       let randomHash = ethUtil.sha3(getRandomInt(100000, 100000000000000));

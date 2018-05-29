@@ -1,6 +1,6 @@
 'use strict';
 
-import SparseMerkle from 'lib/SparseMerkle';
+import PatriciaMerkle from 'lib/PatriciaMerkle';
 
 import { PlasmaTransaction } from 'lib/model/tx';
 import RLP from 'rlp';
@@ -23,7 +23,7 @@ class Block {
         return { key: tx.token_id, hash: tx.getHash() };
       });
 
-      this.merkle = new SparseMerkle(leaves);
+      this.merkle = new PatriciaMerkle(leaves);
       this.merkle.buildTree();
       this.merkleRootHash = this.merkle.getMerkleRoot();
     }
@@ -76,7 +76,7 @@ class Block {
       return { key: tx.token_id, hash: tx.getHash() };
     });
 
-    this.merkle = new SparseMerkle(leaves);
+    this.merkle = new PatriciaMerkle(leaves);
     this.merkle.buildTree();
     this.merkleRootHash = this.merkle.getMerkleRoot();
   }
