@@ -1,10 +1,9 @@
 import assert from "assert";
 const  Root = artifacts.require("./Root.sol");
 import ethUtil from 'ethereumjs-util';
-
 import { PlasmaTransaction } from "./model/tx"; 
-import  Block  from "./model/block";
-import SparseMerkle from './lib/SparseMerkle';
+import Block  from "./model/block";
+import ParticiaMerkle from './lib/ParticiaMerkle';
 import { utils as u } from "web3";
 import RLP from "rlp";
 const BN = ethUtil.BN;
@@ -92,79 +91,6 @@ contract('Test', function(accounts) {
         done();
     });
 
-    it ('should merkle root be correct', function(done) {
-       let val = new Buffer([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
-
-       let tree = new SparseMerkle(2, [
-            {key: new Buffer([0]), hash: val},
-            {key: new Buffer([1]), hash: val},
-            {key: new Buffer([2]), hash: val},
-            {key: new Buffer([3]), hash: val}  
-        ]);
-
-        let mid  = ethUtil.sha3(Buffer.concat([val, val]));
-        let root = ethUtil.sha3(Buffer.concat([mid, mid]));
-        tree.buildTree();
-
-        assert.equal(tree.getMerkleRoot().toString('hex'), root.toString('hex'));
-        
-        done();
-    })
-
-    /*it ('should merkle root with empty leaves be correct', function(done) {
-        let val = new Buffer([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
- 
-        let tree = new SparseMerkle(2, []);
- 
-        let mid  = ethUtil.sha3(Buffer.concat([val, val]));
-        let root = ethUtil.sha3(Buffer.concat([mid, mid]));
-        tree.buildTree();
- 
-        assert.equal(tree.getMerkleRoot().toString('hex'), root.toString('hex'));
-         
-        done();
-     })*/
-
-     it ('should merkle root with empty right leave be correct', function(done) {
-        let empval = new Buffer(32);
-        let val =    new Buffer([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
-        let tree =   new SparseMerkle(2, [
-            {key: new Buffer([0]), hash: val},
-            {key: new Buffer([2]), hash: val},
-            {key: new Buffer([3]), hash: val}  
-        ]);
-        tree.buildTree();
-        
-        let midleft  = ethUtil.sha3(Buffer.concat([val, ethUtil.sha3(empval)]));
-        let midright = ethUtil.sha3(Buffer.concat([val, val]));
-
-        let root = ethUtil.sha3(Buffer.concat([midleft, midright]));
-        
-        assert.equal(tree.getMerkleRoot().toString('hex'), root.toString('hex'));
-         
-        done();
-     })
-
-     it ('should merkle root with empty left leave be correct', function(done) {
-        let empval = new Buffer(32);
-        let val =    new Buffer([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
-        let tree =   new SparseMerkle(2, [
-            {key: new Buffer([1]), hash: val},
-            {key: new Buffer([2]), hash: val},
-            {key: new Buffer([3]), hash: val}  
-        ]);
-        tree.buildTree();
-        
-        let midleft  = ethUtil.sha3(Buffer.concat([ethUtil.sha3(empval), val]));
-        let midright = ethUtil.sha3(Buffer.concat([val, val]));
-
-        let root = ethUtil.sha3(Buffer.concat([midleft, midright]));
-        
-        assert.equal(tree.getMerkleRoot().toString('hex'), root.toString('hex'));
-         
-        done();
-     })
-
     it('should return correct merkle root', function(done) {
         const val = 100;
 
@@ -175,7 +101,7 @@ contract('Test', function(accounts) {
             transactions: [ tx ]
         });
 
-        assert.equal(ethUtil.bufferToHex(blk.merkleRootHash), '0x08a1bcaa8a9646e46982724b0efeb7dda549fc2e0008816b42ad258aed6b110b'); 
+        assert.equal(ethUtil.bufferToHex(blk.merkleRootHash), '0x90ba4f8d62572f7593b02520cec64098b3f3dbdf0ce9ad067f508ac4494742e6'); 
         done();
     });
 
@@ -238,6 +164,35 @@ contract('Test', function(accounts) {
         assert.equal(res5[0],'0x0000000000000000000000000000000000000000000000000000000000000000');
     });
 
+    it('should return true when proof is valid', function() {
+        function getRandomInt(min, max) {
+          return Math.floor(Math.random() * (max - min)) + min;
+        }
+  
+        let leaves = [];
+  
+        for (let i = 1; i <= 1; i++) {
+          let key = ethUtil.sha3(getRandomInt(100000, 100000000000000));
+          key = new BN(key, 16).toString(10);
+          leaves.push({
+            key,
+            hash: ethUtil.sha3(getRandomInt(100000, 100000000000000))
+          });
+        }
+        
+        let start = Date.now();
+        let tree = new ParticiaMerkle(leaves);
+        tree.buildTree();
+        let root = tree.getMerkleRoot()
+  
+        leaves.forEach(leaf => {
+          let proof = tree.getProof(leaf.key);
+          let proofIsValid = tree.checkProof(proof, leaf.hash, root);
+        
+          assert.ok(proofIsValid);
+        });
+      });
+
     it ('should exit', async function() {
         const root = await Root.new();
         const val = 100;
@@ -247,9 +202,13 @@ contract('Test', function(accounts) {
         
         const blknum = await root.getDepositBlock();
         assert.equal(blknum, 1);
-        await root.deposit({value: val, sender: accounts[0]});
+        const dres = await root.deposit({value: val, sender: accounts[0]});
         assert.equal(await root.getDepositBlock(), 2);
 
+        const dev = dres.logs.find(e => e.event === 'DepositAdded');
+        assert.ok(dev, "event DepositAdded should exists");
+        let token_id_num = dev.args.tokenId.toString(10);
+        
         let token_id = ethUtil.toBuffer( u.soliditySha3(accounts[0], val, 1));
 
         let tx = new createDepositTransaction(accounts[0], 100, token_id );
@@ -260,11 +219,8 @@ contract('Test', function(accounts) {
             blockNumber: 1,
             transactions: [ tx ]
         });
-
-        let proof = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
-            key: token_id,
-            hash: tx.getHash(false)
-        }, true) ) );
+        
+        let proof = ethUtil.addHexPrefix( blk2.merkle.getProof(token_id_num, true) );
         
         const res2 = await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber );
         const event2 = res2.logs.find(e => e.event === 'BlockSubmitted');
@@ -286,10 +242,7 @@ contract('Test', function(accounts) {
             transactions: [ tx2 ]
         });
 
-        let proof2 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
-            key: token_id,
-            hash: tx.getHash(false)
-        }, true) ) );
+        let proof2 = ethUtil.addHexPrefix(blk3.merkle.getProof(token_id_num, true)  );
 
         const res3 = await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
         const event3 = res3.logs.find(e => e.event === 'BlockSubmitted');
@@ -308,7 +261,7 @@ contract('Test', function(accounts) {
         assert.equal(res6[2], 100);
     });
 
-    it ('should challenge exit', async function() {
+    it('should challenge exit', async function() {
         const root = await Root.new();
         const val = 100;
         const null_address = '0x0000000000000000000000000000000000000000';
@@ -317,8 +270,10 @@ contract('Test', function(accounts) {
         
         const blknum = await root.getDepositBlock();
         assert.equal(blknum, 1);
-        await root.deposit({value: val, sender: accounts[0]});
+        const dres  = await root.deposit({value: val, sender: accounts[0]});
         assert.equal(await root.getDepositBlock(), 2);
+        const dev = dres.logs.find(e => e.event === 'DepositAdded');
+        let token_id_num = dev.args.tokenId.toString(10);
 
         let token_id = ethUtil.toBuffer( u.soliditySha3(accounts[0], val, 1));
 
@@ -328,10 +283,7 @@ contract('Test', function(accounts) {
         
         let blk2 = new Block({ blockNumber: 1, transactions: [ tx ] });
 
-        let proof = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
-            key: token_id,
-            hash: tx.getHash(false)
-        }, true) ) );
+        let proof = ethUtil.addHexPrefix(blk2.merkle.getProof( token_id_num, true ));
         
         await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber);
         // -----------
@@ -348,10 +300,7 @@ contract('Test', function(accounts) {
         
         let blk3 = new Block({ blockNumber: 2, transactions: [ tx2 ] });
 
-        let proof2 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
-            key: token_id,
-            hash: tx2.getHash(false)
-        }, true) ) );
+        let proof2 = ethUtil.addHexPrefix(blk3.merkle.getProof( token_id_num, true));
 
         await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
         // -----------
@@ -368,17 +317,13 @@ contract('Test', function(accounts) {
         
         let blk4 = new Block({ blockNumber: 3, transactions: [ tx3 ] });
 
-        let proof3 = ethUtil.bufferToHex( Buffer.concat(blk4.merkle.getProof({
-            key: token_id,
-            hash: tx3.getHash(false)
-        }, true) ) );
+        let proof3 = ethUtil.addHexPrefix(blk4.merkle.getProof(token_id_num, true));
 
         const res4 = await root.submitBlock(ethUtil.bufferToHex(blk4.merkleRootHash), blk4.blockNumber );
         const event4 = res4.logs.find(e => e.event === 'BlockSubmitted');
         assert.ok(event4, "event BlockSubmitted should exists");
         // ------------
 
-        //let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx2.signature), ethUtil.toBuffer(tx.signature) ]));
         const res5 = await root.startExit(2, ethUtil.bufferToHex(txBytes2), ethUtil.bufferToHex(txBytes), proof2, proof, {from: accounts[1] });
         
         const event5 = res5.logs.find(e => e.event === 'ExitAdded');
@@ -392,7 +337,7 @@ contract('Test', function(accounts) {
 
         const res7 = await root.getExit(exitId);
         assert.equal(res7[2], 0);
-        //let exitId = event5.args.exitId.toNumber();
+        
     });
 
     it ('should challenge double spend exit', async function() {
@@ -404,8 +349,11 @@ contract('Test', function(accounts) {
         
         const blknum = await root.getDepositBlock();
         assert.equal(blknum, 1);
-        await root.deposit({value: val, sender: accounts[0]});
+        const dres = await root.deposit({value: val, sender: accounts[0]});
         assert.equal(await root.getDepositBlock(), 2);
+
+        const dev = dres.logs.find(e => e.event === 'DepositAdded');
+        let token_id_num = dev.args.tokenId.toString(10);
 
         let token_id = ethUtil.toBuffer( u.soliditySha3(accounts[0], val, 1));
 
@@ -415,10 +363,7 @@ contract('Test', function(accounts) {
         
         let blk2 = new Block({ blockNumber: 1, transactions: [ tx ] });
 
-        let proof = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
-            key: token_id,
-            hash: tx.getHash(false)
-        }, true) ) );
+        let proof = ethUtil.addHexPrefix(blk2.merkle.getProof(token_id_num, true) );
         
         await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber);
         // -----------
@@ -435,10 +380,7 @@ contract('Test', function(accounts) {
         
         let blk3 = new Block({ blockNumber: 2, transactions: [ tx2 ] });
 
-        let proof2 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
-            key: token_id,
-            hash: tx2.getHash(false)
-        }, true) ) );
+        let proof2 = ethUtil.addHexPrefix(blk3.merkle.getProof(token_id_num, true) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
         // -----------
@@ -455,10 +397,7 @@ contract('Test', function(accounts) {
         
         let blk4 = new Block({ blockNumber: 3, transactions: [ tx3 ] });
 
-        let proof3 = ethUtil.bufferToHex( Buffer.concat(blk4.merkle.getProof({
-            key: token_id,
-            hash: tx3.getHash(false)
-        }, true) ) );
+        let proof3 = ethUtil.addHexPrefix(blk4.merkle.getProof(token_id_num, true) );
 
         const res4 = await root.submitBlock(ethUtil.bufferToHex(blk4.merkleRootHash), blk4.blockNumber );
         const event4 = res4.logs.find(e => e.event === 'BlockSubmitted');
@@ -477,16 +416,12 @@ contract('Test', function(accounts) {
         
         let blk5 = new Block({ blockNumber: 4, transactions: [ tx4 ] });
 
-        let proof4 = ethUtil.bufferToHex( Buffer.concat(blk5.merkle.getProof({
-            key: token_id,
-            hash: tx4.getHash(false)
-        }, true) ) );
+        let proof4 = ethUtil.addHexPrefix(blk5.merkle.getProof(token_id_num, true) );
 
         const res5 = await root.submitBlock(ethUtil.bufferToHex(blk5.merkleRootHash), blk5.blockNumber );
         const event5 = res5.logs.find(e => e.event === 'BlockSubmitted');
         assert.ok(event5, "event BlockSubmitted should exists");
         // ------------
-        //xlet sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx4.signature), ethUtil.toBuffer(tx2.signature) ]));
         const res6 = await root.startExit(4, ethUtil.bufferToHex(txBytes4), ethUtil.bufferToHex(txBytes2), proof4, proof2, {from: accounts[0] });
         
         const event6 = res6.logs.find(e => e.event === 'ExitAdded');
@@ -499,7 +434,6 @@ contract('Test', function(accounts) {
 
         const res8 = await root.getExit(exitId);
         assert.equal(res8[2], 0);
-        //let exitId = event5.args.exitId.toNumber();
     });
 
     it ('should challenge invalid history exit', async function() {
@@ -511,8 +445,11 @@ contract('Test', function(accounts) {
         
         const blknum = await root.getDepositBlock();
         assert.equal(blknum, 1);
-        await root.deposit({value: val, sender: accounts[0]});
+        const dres = await root.deposit({value: val, sender: accounts[0]});
         assert.equal(await root.getDepositBlock(), 2);
+
+        const dev = dres.logs.find(e => e.event === 'DepositAdded');
+        let token_id_num = dev.args.tokenId.toString(10);
 
         let token_id = ethUtil.toBuffer( u.soliditySha3(accounts[0], val, 1));
 
@@ -522,10 +459,7 @@ contract('Test', function(accounts) {
         
         let blk = new Block({ blockNumber: 1, transactions: [ tx ] });
 
-        let proof = ethUtil.bufferToHex( Buffer.concat(blk.merkle.getProof({
-            key: token_id,
-            hash: tx.getHash(false)
-        }, true) ) );
+        let proof = ethUtil.addHexPrefix( blk.merkle.getProof(token_id_num, true) ) ;
         
         await root.submitBlock(ethUtil.bufferToHex(blk.merkleRootHash), blk.blockNumber);
         // -----------
@@ -542,10 +476,7 @@ contract('Test', function(accounts) {
         
         let blk2 = new Block({ blockNumber: 2, transactions: [ tx2 ] });
 
-        let proof2 = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
-            key: token_id,
-            hash: tx2.getHash(false)
-        }, true) ) );
+        let proof2 = ethUtil.addHexPrefix( blk2.merkle.getProof(token_id_num, true) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber );
         // -----------
@@ -562,10 +493,7 @@ contract('Test', function(accounts) {
         
         let blk3 = new Block({ blockNumber: 3, transactions: [ tx3 ] });
 
-        let proof3 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
-            key: token_id,
-            hash: tx3.getHash(false)
-        }, true) ) );
+        let proof3 = ethUtil.addHexPrefix( blk3.merkle.getProof(token_id_num, true) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
         // -----------
@@ -582,10 +510,7 @@ contract('Test', function(accounts) {
         
         let blk4 = new Block({ blockNumber: 4, transactions: [ tx4 ] });
 
-        let proof4 = ethUtil.bufferToHex( Buffer.concat(blk4.merkle.getProof({
-            key: token_id,
-            hash: tx4.getHash(false)
-        }, true) ) );
+        let proof4 = ethUtil.addHexPrefix( blk4.merkle.getProof(token_id_num, true) );
 
         await root.submitBlock(ethUtil.bufferToHex(blk4.merkleRootHash), blk4.blockNumber );
         // ------------
@@ -602,16 +527,12 @@ contract('Test', function(accounts) {
         
         let blk5 = new Block({ blockNumber: 5, transactions: [ tx5 ] });
 
-        let proof5 = ethUtil.bufferToHex( Buffer.concat(blk5.merkle.getProof({
-            key: token_id,
-            hash: tx5.getHash(false)
-        }, true) ) );
+        let proof5 = ethUtil.addHexPrefix(blk5.merkle.getProof(token_id_num, true));
 
         const res5 = await root.submitBlock(ethUtil.bufferToHex(blk5.merkleRootHash), blk5.blockNumber );
         const event5 = res5.logs.find(e => e.event === 'BlockSubmitted');
         assert.ok(event5, "event BlockSubmitted should exists");
-        // ------------
-        //let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx5.signature), ethUtil.toBuffer(tx4.signature) ]));
+        
         const res6 = await root.startExit(5, ethUtil.bufferToHex(txBytes5), ethUtil.bufferToHex(txBytes4), proof5, proof4, {from: accounts[0] });
         
         const event6 = res6.logs.find(e => e.event === 'ExitAdded');
@@ -636,10 +557,12 @@ contract('Test', function(accounts) {
         
         const blknum = await root.getDepositBlock();
         assert.equal(blknum, 1);
-        await root.deposit({value: val, sender: accounts[0]});
+        const dres = await root.deposit({value: val, sender: accounts[0]});
         assert.equal(await root.getDepositBlock(), 2);
 
         let token_id = ethUtil.toBuffer( u.soliditySha3(accounts[0], val, 1));
+        const dev = dres.logs.find(e => e.event === 'DepositAdded');
+        let token_id_num = dev.args.tokenId.toString(10);
 
         let tx = new createDepositTransaction(accounts[0], 100, token_id );
         tx.sign(key);
@@ -647,10 +570,7 @@ contract('Test', function(accounts) {
         
         let blk2 = new Block({ blockNumber: 1, transactions: [ tx ] });
 
-        let proof = ethUtil.bufferToHex( Buffer.concat(blk2.merkle.getProof({
-            key: token_id,
-            hash: tx.getHash(false)
-        }, true) ) );
+        let proof = ethUtil.addHexPrefix(blk2.merkle.getProof(token_id_num, true) );
         
         await root.submitBlock(ethUtil.bufferToHex(blk2.merkleRootHash), blk2.blockNumber );
 
@@ -667,14 +587,10 @@ contract('Test', function(accounts) {
         
         let blk3 = new Block({ blockNumber: 2, transactions: [ tx2 ] });
 
-        let proof2 = ethUtil.bufferToHex( Buffer.concat(blk3.merkle.getProof({
-            key: token_id,
-            hash: tx2.getHash(false)
-        }, true) ) );
+        let proof2 = ethUtil.addHexPrefix(blk3.merkle.getProof(token_id_num, true)) ;
 
         await root.submitBlock(ethUtil.bufferToHex(blk3.merkleRootHash), blk3.blockNumber );
 
-        //let sigs = ethUtil.bufferToHex(Buffer.concat([ethUtil.toBuffer(tx2.signature), ethUtil.toBuffer(tx.signature) ]));
         const res4 = await root.startExit(2, ethUtil.bufferToHex(txBytes2), ethUtil.bufferToHex(txBytes), proof2, proof, {from: accounts[1] });
         
         const event4 = res4.logs.find(e => e.event === 'ExitAdded');

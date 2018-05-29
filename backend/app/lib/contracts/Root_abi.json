@@ -57,13 +57,13 @@
       },
       {
         "name": "txhash",
-        "type": "uint256"
+        "type": "bytes32"
       },
       {
         "components": [
           {
             "name": "prevhash",
-            "type": "uint256"
+            "type": "bytes32"
           },
           {
             "name": "prev_block",
@@ -134,52 +134,11 @@
     "name": "tokens",
     "outputs": [
       {
-        "name": "token_id",
+        "name": "index",
         "type": "uint256"
       },
       {
         "name": "denomination",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "deposits",
-    "outputs": [
-      {
-        "name": "block_num",
-        "type": "uint256"
-      },
-      {
-        "name": "depositor",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "name": "token_id",
-            "type": "uint256"
-          },
-          {
-            "name": "denomination",
-            "type": "uint256"
-          }
-        ],
-        "name": "token",
-        "type": "tuple"
-      },
-      {
-        "name": "time",
         "type": "uint256"
       }
     ],
@@ -307,12 +266,12 @@
       },
       {
         "indexed": false,
-        "name": "exitId",
+        "name": "priority",
         "type": "uint256"
       },
       {
         "indexed": false,
-        "name": "priority",
+        "name": "exitId",
         "type": "uint256"
       },
       {
@@ -499,7 +458,7 @@
     "outputs": [
       {
         "name": "prevhash",
-        "type": "uint256"
+        "type": "bytes32"
       },
       {
         "name": "prev_block",
@@ -720,6 +679,33 @@
   },
   {
     "constant": true,
+    "inputs": [
+      {
+        "name": "merkle",
+        "type": "bytes32"
+      },
+      {
+        "name": "root",
+        "type": "bytes32"
+      },
+      {
+        "name": "proof",
+        "type": "bytes"
+      }
+    ],
+    "name": "checkParticiaProof",
+    "outputs": [
+      {
+        "name": "valid",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [],
     "name": "getCurrentBlock",
     "outputs": [
@@ -835,41 +821,6 @@
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "deposit_num",
-        "type": "uint256"
-      }
-    ],
-    "name": "getDeposit",
-    "outputs": [
-      {
-        "name": "block_num",
-        "type": "uint256"
-      },
-      {
-        "name": "depositor",
-        "type": "address"
-      },
-      {
-        "name": "token_id",
-        "type": "uint256"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "name": "time",
         "type": "uint256"
       }
     ],

@@ -9,7 +9,8 @@
     "start": "npm run build && node dist/server.js",
     "build": "babel server.js -d dist && babel app -d dist/app",
     "test-child-chain": "mocha --require babel-register --require babel-polyfill --timeout 1600000 --reporter spec ./test/test_child_chain.js",
-    "test-merkle": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle.js"
+    "test-merkle": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle.js",
+    "test-merkle-patricia": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle_patricia.js"
   },
   "dependencies": {
     "ajv": "^5.2.3",
@@ -27,6 +28,7 @@
     "merkle-tools": "1.4.0",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.13",
+    "npm": "^6.1.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "router": "^1.3.2",
