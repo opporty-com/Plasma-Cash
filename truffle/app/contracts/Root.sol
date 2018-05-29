@@ -207,7 +207,6 @@ contract Root {
      * (ie. the coin they are exiting C and its parent P(C)).
      */
     function startExit(uint block_num, bytes tx1, bytes tx0, bytes proof1, bytes proof0) public returns (uint exit_id) {
-
         require(checkPatriciaProof(keccak256(tx1), childChain[block_num].merkle_root, proof1));
 
         bytes32 prev_hash;

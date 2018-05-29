@@ -1,10 +1,8 @@
 import assert from "assert";
 const  Root = artifacts.require("./Root.sol");
 import ethUtil from 'ethereumjs-util';
-
 import { PlasmaTransaction } from "./model/tx"; 
-import  Block  from "./model/block";
-import SparseMerkle from './lib/SparseMerkle';
+import Block  from "./model/block";
 import ParticiaMerkle from './lib/ParticiaMerkle';
 import { utils as u } from "web3";
 import RLP from "rlp";
@@ -92,79 +90,6 @@ contract('Test', function(accounts) {
         assert.equal(tx.signature, '0x7794e68f36a855a4c43299b5cce6c20da6db6b5d72178d9d2ba651e9a7d7b76b221aedf6f6e919a0b36c45c99f8ce8f05cb2b7e7431ff79e58b9b5896fbfb4f31b');
         done();
     });
-
-    it ('should merkle root be correct', function(done) {
-       let val = new Buffer([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
-
-       let tree = new SparseMerkle(2, [
-            {key: new Buffer([0]), hash: val},
-            {key: new Buffer([1]), hash: val},
-            {key: new Buffer([2]), hash: val},
-            {key: new Buffer([3]), hash: val}  
-        ]);
-
-        let mid  = ethUtil.sha3(Buffer.concat([val, val]));
-        let root = ethUtil.sha3(Buffer.concat([mid, mid]));
-        tree.buildTree();
-
-        assert.equal(tree.getMerkleRoot().toString('hex'), root.toString('hex'));
-        
-        done();
-    })
-
-    /*it ('should merkle root with empty leaves be correct', function(done) {
-        let val = new Buffer([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
- 
-        let tree = new SparseMerkle(2, []);
- 
-        let mid  = ethUtil.sha3(Buffer.concat([val, val]));
-        let root = ethUtil.sha3(Buffer.concat([mid, mid]));
-        tree.buildTree();
- 
-        assert.equal(tree.getMerkleRoot().toString('hex'), root.toString('hex'));
-         
-        done();
-     })*/
-
-     it ('should merkle root with empty right leave be correct', function(done) {
-        let empval = new Buffer(32);
-        let val =    new Buffer([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
-        let tree =   new SparseMerkle(2, [
-            {key: new Buffer([0]), hash: val},
-            {key: new Buffer([2]), hash: val},
-            {key: new Buffer([3]), hash: val}  
-        ]);
-        tree.buildTree();
-        
-        let midleft  = ethUtil.sha3(Buffer.concat([val, ethUtil.sha3(empval)]));
-        let midright = ethUtil.sha3(Buffer.concat([val, val]));
-
-        let root = ethUtil.sha3(Buffer.concat([midleft, midright]));
-        
-        assert.equal(tree.getMerkleRoot().toString('hex'), root.toString('hex'));
-         
-        done();
-     })
-
-     it ('should merkle root with empty left leave be correct', function(done) {
-        let empval = new Buffer(32);
-        let val =    new Buffer([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
-        let tree =   new SparseMerkle(2, [
-            {key: new Buffer([1]), hash: val},
-            {key: new Buffer([2]), hash: val},
-            {key: new Buffer([3]), hash: val}  
-        ]);
-        tree.buildTree();
-        
-        let midleft  = ethUtil.sha3(Buffer.concat([ethUtil.sha3(empval), val]));
-        let midright = ethUtil.sha3(Buffer.concat([val, val]));
-
-        let root = ethUtil.sha3(Buffer.concat([midleft, midright]));
-        
-        assert.equal(tree.getMerkleRoot().toString('hex'), root.toString('hex'));
-         
-        done();
-     })
 
     it('should return correct merkle root', function(done) {
         const val = 100;
