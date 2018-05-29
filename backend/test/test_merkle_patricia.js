@@ -3,20 +3,20 @@
 import chai           from 'chai';
 var assert = require('assert');
 var expect = chai.expect;
-import ParticiaMerkle from '../app/lib/ParticiaMerkle';
+import PatriciaMerkle from '../app/lib/PatriciaMerkle';
 import ethUtil from 'ethereumjs-util';
 const BN = ethUtil.BN;
 
 describe('Merkle', function() {
-  describe('checkProof', function() {
+  describe('checkProof', function() {  
     it('should return true when proof is valid', function() {
       function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min)) + min;
       }
-
+    
       let leaves = [];
-
-      for (let i = 1; i <= 10000; i++) {
+    
+      for (let i = 1; i <= 1000; i++) {
         let key = ethUtil.sha3(getRandomInt(100000, 100000000000000));
         key = new BN(key, 16).toString(10);
         leaves.push({
@@ -24,17 +24,17 @@ describe('Merkle', function() {
           hash: ethUtil.sha3(getRandomInt(100000, 100000000000000))
         });
       }
-      
-      
+    
+    
       let start = Date.now();
-      let tree = new ParticiaMerkle(leaves);
+      let tree = new PatriciaMerkle(leaves);
       tree.buildTree();
       let root = tree.getMerkleRoot()
-
+    
       leaves.forEach(leaf => {
         let proof = tree.getProof(leaf.key);
         let proofIsValid = tree.checkProof(proof, leaf.hash, root);
-      
+    
         expect(proofIsValid).to.be.true;
       });
     });
@@ -46,7 +46,7 @@ describe('Merkle', function() {
       }
     
       let leaves = [];
-      for (let i = 1; i < 1000; i++) {
+      for (let i = 1; i <= 1000; i++) {
         let key = ethUtil.sha3(getRandomInt(100000, 100000000000000));
         key = new BN(key, 16).toString(10);
         leaves.push({
@@ -55,7 +55,7 @@ describe('Merkle', function() {
         });
       }
     
-      let tree = new ParticiaMerkle(leaves);
+      let tree = new PatriciaMerkle(leaves);
       tree.buildTree();
       let root = tree.getMerkleRoot()
     
