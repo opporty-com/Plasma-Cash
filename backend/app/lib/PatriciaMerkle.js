@@ -1,4 +1,3 @@
-
 'use strict';
 
 import ethUtil from 'ethereumjs-util';
