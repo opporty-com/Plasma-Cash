@@ -35,7 +35,7 @@ contract Root {
      */
     event BlockSubmitted(address operator, bytes32 merkleRoot, uint blockNumber);
     event DepositAdded(address depositor, uint amount, uint depositBlock, uint blockNumber);
-    event ExitAdded(address exitor, uint priority, uint exitId, uint tokenId);
+    event ExitAdded(address exitor, uint priority, uint exitId);
     event ExitChallengedEvent(uint exitId);
     event ChallengedInvalidHistory(uint exitId, uint tokenId);
     event ExitRespondedEvent(uint exitId);
@@ -92,20 +92,13 @@ contract Root {
     }
 
     /*
-     * Token type
-     */
-    struct Token {
-        uint index;
-        uint denomination;
-    }
- 
-    /*
      * Exit record
      */
     struct Exit {
         uint block_num;
-        bytes32 txhash;
-        Transaction exittx;
+        uint prev_block;
+        uint token_id;
+        address new_owner;
         uint priority;
     }
 
@@ -116,7 +109,7 @@ contract Root {
      * Blockchain
      */
     mapping(uint => Block) public childChain;
-    mapping(uint => Token) public tokens;
+    mapping(uint => uint) public tokens;
 
     /*
      * Heap for exits
@@ -157,7 +150,8 @@ contract Root {
         address new_owner) {
         // list of rlp decoded items
         RLP.RLPItem[] memory txList = rlp.toRLPItem().toList();
-        require(txList.length == 4);
+        //emit Log(txList.length);
+        require(txList.length == 5);
         return (
             txList[0].toBytes32(),
             txList[1].toUint(),
@@ -194,11 +188,9 @@ contract Root {
      */
     function deposit() public payable {
 
-        Token memory token;
-        token.denomination = msg.value;
         uint token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
-        token.index = deposit_blk;
-        tokens[token_id] = token;
+       // token.index = deposit_blk;
+        tokens[token_id] = msg.value;
         
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
@@ -214,51 +206,47 @@ contract Root {
      * Start coin exit by providing the last two transactions in the coin’s ownership history 
      * (ie. the coin they are exiting C and its parent P(C)).
      */
-    function startExit(uint block_num, bytes tx1, bytes tx0, bytes proof1, bytes proof0, bytes sigs) public returns (uint exit_id) {
-        require(block_num > 0);
+    function startExit(uint block_num, bytes tx1, bytes tx0, bytes proof1, bytes proof0) public returns (uint exit_id) {
 
-        require(checkProof(keccak256(keccak256(tx1), ByteUtils.slice(sigs, 0, 65)), childChain[block_num].merkle_root, proof1));
+        require(checkProof(keccak256(tx1), childChain[block_num].merkle_root, proof1));
 
         bytes32 prev_hash;
         uint prev_blk;
         uint token_id;
         address new_owner;
-        (prev_hash, prev_blk, token_id, new_owner) = getTransactionFromRLP(tx1);
+        (prev_hash, prev_blk, token_id, new_owner,) = getTransactionFromRLP(tx1);
     
         require(msg.sender == new_owner);
         
-        require(tokens[token_id].denomination > 0);
-      
-        require(checkProof(keccak256(keccak256(tx0), ByteUtils.slice(sigs, 65, 65)), childChain[prev_blk].merkle_root, proof0));
+        require(tokens[token_id] > 0);
+        bytes32 hashPrevTx = keccak256(tx0);
+        require(checkProof(hashPrevTx, childChain[prev_blk].merkle_root, proof0));
+        require(prev_hash == hashPrevTx);
 
-        exit_id = block_num + tokens[token_id].index;
-
-        Exit storage record = exitRecords[exit_id];
+        Exit storage record = exitRecords[token_id];
         require(record.block_num == 0);
 
         record.block_num = block_num;
-        record.exittx.token_id = token_id;
-        record.exittx.new_owner = msg.sender;
-        record.txhash = keccak256(tx1);
-        record.exittx.prev_block = prev_blk;
-        record.exittx.prevhash = prev_hash;
+        record.new_owner = msg.sender;
+        record.prev_block = prev_blk;
+
         if (childChain[block_num].time > block.timestamp - week)
             record.priority = childChain[block_num].time;
         else
             record.priority = block.timestamp - week;
 
         exits.add(record.priority);
-        exit_ids[record.priority].push(exit_id);
+        exit_ids[record.priority].push(token_id);
 
-        emit ExitAdded(msg.sender, record.priority, exit_id, record.exittx.token_id);
-        return exit_id;
+        emit ExitAdded(msg.sender, record.priority, token_id);
+        return token_id;
     }
     /*
      * Challenge exit by providing
      * a proof of a transaction spending C
      */
-    function challengeSpent(uint exit_id, uint blk_num, bytes tx1, bytes proof, bytes sig) public { 
-        require(checkProof(keccak256(keccak256(tx1), sig), childChain[blk_num].merkle_root, proof));
+    function challengeSpent(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
+        require(checkProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
 
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
@@ -267,9 +255,9 @@ contract Root {
         uint token_id;
         (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
 
-        require(tokens[token_id].denomination > 0);
+        require(tokens[token_id] > 0);
         require(prev_block == record.block_num && record.block_num < blk_num);
-        require(token_id == record.exittx.token_id);
+        require(token_id == exit_id);
 
         exit_ids[record.priority].remove(exit_id);
         delete exitRecords[exit_id];
@@ -280,20 +268,21 @@ contract Root {
      * Challenge exit by providing
      * a proof of a transaction spending P(C) that appears before C
      */
-    function challengeDoubleSpend(uint exit_id, uint blk_num, bytes tx1, bytes proof, bytes sig) public { 
-        require(checkProof(keccak256(keccak256(tx1), sig), childChain[blk_num].merkle_root, proof));
+    function challengeDoubleSpend(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
+        require(checkProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
 
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
 
-        bytes32 prev_hash; 
+       // bytes32 prev_hash; 
+        uint prev_block;
         uint token_id; 
-        (prev_hash, , token_id, ) = getTransactionFromRLP(tx1);
-        require(tokens[token_id].denomination > 0);
+        (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
+        require(tokens[token_id] > 0);
 
         // check if token double spent
-        require(prev_hash == record.exittx.prevhash && blk_num < record.block_num);
-        require(token_id == record.exittx.token_id);
+        require(prev_block == record.prev_block && blk_num < record.block_num);
+       // require(token_id == exit_id);
         exit_ids[record.priority].remove(exit_id);
         delete exitRecords[exit_id];
         emit ExitChallengedEvent(exit_id);
@@ -303,9 +292,9 @@ contract Root {
      * Challenge exit by providing
      * a transaction C* in the coin’s history before P(C)
      */
-    function challengeInvalidHistory(uint exit_id, uint blk_num, bytes tx0, bytes proof, bytes sig) public { 
+    function challengeInvalidHistory(uint exit_id, uint blk_num, bytes tx0, bytes proof) public { 
         // check if proof is valid
-        require(checkProof(keccak256(keccak256(tx0), sig), childChain[blk_num].merkle_root, proof));
+        require(checkProof(keccak256(tx0), childChain[blk_num].merkle_root, proof));
         
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
@@ -314,8 +303,8 @@ contract Root {
         uint token_id; 
         (prev_hash, , token_id, ) = getTransactionFromRLP(tx0);
 
-        require(record.exittx.token_id == token_id);
-        require(tokens[token_id].denomination > 0);
+        //require(exit_id == token_id);
+        require(tokens[token_id] > 0);
 
         // transaction should be before exit tx in history
         require(blk_num < record.block_num - 1);
@@ -328,12 +317,12 @@ contract Root {
      * Respond to invalid history challenge by providing
      * the direct child of C*, which must be either equal to or before P( C )
      */
-    function respondChallenge(uint exit_id, uint blk_num, bytes childtx, bytes proof, bytes sig) public {
+    function respondChallenge(uint exit_id, uint blk_num, bytes childtx, bytes proof) public {
         require(challenged[exit_id] > 0);
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
 
-        require(checkProof(keccak256(keccak256(childtx), sig), childChain[blk_num].merkle_root, proof));
+        require(checkProof(keccak256(childtx), childChain[blk_num].merkle_root, proof));
         // get transaction from rlpencoded form
         bytes32 prev_hash; 
         uint prev_block;
@@ -341,7 +330,7 @@ contract Root {
         (prev_hash, prev_block, token_id, ) = getTransactionFromRLP(childtx);
         // if direct child
         if (prev_block == challenged[exit_id] ) {
-            if (blk_num <= record.exittx.prev_block && token_id == record.exittx.token_id ) {
+            if (blk_num <= record.prev_block && token_id == exit_id ) {
                 delete challenged[exit_id];
                 emit ExitRespondedEvent(exit_id);
             } else {
@@ -360,11 +349,11 @@ contract Root {
                 uint index = exit_ids[priority][i];
                 Exit memory record = exitRecords[index];
                 // finalize exits
-                record.exittx.new_owner.transfer(tokens[record.exittx.token_id].denomination);
+                record.new_owner.transfer(tokens[index]);
 
-                emit ExitCompleteEvent(current_blk, record.block_num, record.exittx.token_id, tokens[record.exittx.token_id].denomination);
+                emit ExitCompleteEvent(current_blk, record.block_num, record.token_id, tokens[record.token_id]);
                 delete exitRecords[index];
-                delete tokens[record.exittx.token_id];
+                delete tokens[index];
             }
             delete exit_ids[priority];
             
@@ -430,10 +419,11 @@ contract Root {
     }
 
     // get exit by identifier
-    function getExit(uint exit_id) public view returns (address, uint, uint, uint)
+    function getExit(uint token_id) public view returns (address, uint, uint, uint)
     {
-        Exit memory er = exitRecords[exit_id];
-        return ( er.exittx.new_owner, er.exittx.token_id, tokens[er.exittx.token_id].denomination, er.priority );
+        Exit memory er = exitRecords[token_id];
+        if (er.priority > 0)
+            return ( er.new_owner, token_id, tokens[token_id], er.priority );
     }
 
     // get blockchain entry
@@ -443,8 +433,8 @@ contract Root {
     }
 
     // get token by identifier
-    function getToken(uint token_id) public view returns (uint , uint) {
-        return (tokens[token_id].index, tokens[token_id].denomination);
+    function getToken(uint token_id) public view returns (uint) {
+        return tokens[token_id];
     }
 
     // get balance of specific address

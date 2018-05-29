@@ -19,7 +19,7 @@ class Block {
       this.transactions = data.transactions || [];
 
       let leaves = this.transactions.map(tx => {
-        return { key: tx.token_id, hash: tx.getMerkleHash() };
+        return { key: tx.token_id, hash: tx.getHash(false) };
       });
      
       this.merkle = new SparseMerkle(256,leaves);
