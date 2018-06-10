@@ -1,10 +1,8 @@
 'use strict';
 
-import BigInteger from './BigInteger'
-import { Field2, Field4, Field6, Field12} from './Fields'
-
-let MillerLoop = true;
-let FinalExp = true;
+import { Field2, Field4, Field6, Field12 } from './Fields'
+import bigInt from 'big-integer'
+import ExNumber from './ExNumber'
 
 class Pairing {
     constructor (Et) {
@@ -20,10 +18,10 @@ class Pairing {
         if (V.zero() || P.zero() || Q.zero()) {
             return this.Fp12_1;
         }
-        let Vz3 = V.z.multiply(V.z).multiply(V.z).mod(p);
+        let Vz3 = new ExNumber(V.z.multiply(V.z).multiply(V.z)).mod(p);
         let n,d;
         if (V.eq(P)) {
-            n = V.x.multiply(V.x).multiply(new BigInteger("3"));
+            n = V.x.multiply(V.x).multiply(bigInt("3"));
             d = V.y.multiply(V.z).shiftLeft(1);
         } else {
             n = P.y.multiply(Vz3).subtract(V.y);
@@ -31,7 +29,7 @@ class Pairing {
         }
         let w = new Array(6);
         
-        w[0] = new Field2(this.bn, d.multiply(V.y).subtract(n.multiply(V.x).multiply(V.z)).mod(this.bn.p));
+        w[0] = new Field2(this.bn,new ExNumber( d.multiply(V.y).subtract(n.multiply(V.x).multiply(V.z)) ).mod(this.bn.p));
         w[2] = Q.x.multiply(n.multiply(Vz3));
         w[3] = Q.y.multiply(p.subtract(d).multiply(Vz3));
         w[1] = w[4] = w[5] = this.E2.Fp2_0;
@@ -48,7 +46,7 @@ class Pairing {
             for (let i = bn.n.bitLength() - 2; i >= 0; i--) {
                 f = f.square().multiply(this.slope(V, V, Q));
                 V = V.twice(1);
-                if (bn.n.testBit(i)) {
+                if (new ExNumber(bn.n).testBit(i)) {
                     f = f.multiply(this.slope(V, P, Q));
                     V = V.add(P);
                 }

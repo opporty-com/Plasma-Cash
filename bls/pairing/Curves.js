@@ -1,10 +1,11 @@
 'use strict';
 
-import BigInteger from './BigInteger'
 import Parameters from './Parameters'
 import { Point, Point2 } from './Points' 
 import { Field2, Field4, Field6, Field12} from './Fields'
 import CryptoRandom from './Rnd'
+import bigInt from 'big-integer'
+import ExNumber from './ExNumber'
 
 class Curve {
     constructor(bn) {
@@ -20,7 +21,7 @@ class Curve {
         if (rand instanceof CryptoRandom) {
             let x, y;
             do {
-                x = new BigInteger(2*this.bn.p.bitLength(), rand).mod(this.bn.p);
+                x = new ExNumber(2*this.bn.p.bitLength(), rand).mod(this.bn.p);
                 y = this.bn.sqrt(x.multiply(x).multiply(x).add(this.b));
             } while (y === null);
             return new Point(this, x, y);
@@ -33,16 +34,19 @@ class Curve {
         if (P.E !== this) {
             return false;
         }
-        let x, y, z = new BigInteger();
-        let x2, z2, z4, br = new BigInteger();
+        let x, y, z = bigInt();
+
+        let x2, z2, z4, br = new bigInt();
         x  = P.x,
         y  = P.y,
-        z  = P.z,
-        x2 = x.multiply(x).mod(this.bn.p),
-        z2 = z.multiply(z).mod(this.bn.p),
-        z4 = z2.multiply(z2).mod(this.bn.p),
-        br = this.b.multiply(z2).mod(this.bn.p);
-        return x.multiply(x2).add(br.multiply(z4)).subtract(y.multiply(y)).mod(this.bn.p).signum() === 0;
+        z  = P.z;
+
+        x2 = new ExNumber(x.multiply(x)).mod(this.bn.p),
+        z2 = new ExNumber(z.multiply(z)).mod(this.bn.p),
+        z4 = new ExNumber(z2.multiply(z2)).mod(this.bn.p),
+        br = new ExNumber(this.b.multiply(z2)).mod(this.bn.p);
+        return new ExNumber( 
+            x.multiply(x2).add(br.multiply(z4)).subtract(y.multiply(y)).mod(this.bn.p)   ).signum() === 0;
     }
 }
 
@@ -55,9 +59,11 @@ class Curve2 {
             this.Fp2_1 = E.bn.Fp2_1;
             this.Fp2_i = E.bn.Fp2_i;
             this.infinity = new Point2(this);
-            if (E.b.intValue() === 3) {
+            if ((new ExNumber(E.b)).intValue() === 3) {
+                
                 this.bt = new Field2(E.bn, E.b).mulV(); 
                 this.xt = this.Fp2_1;
+
                 this.yt = this.xt.multiply(this.xt).multiply(this.xt).add(this.bt).sqrt();
             } else {
                 this.bt = this.Fp2_1.subtract(this.Fp2_i); 
@@ -91,8 +97,8 @@ class Curve2 {
     pointFactory(rand) {
         let k;
         do {
-            k = new BigInteger(this.E.bn.n.bitLength(), rand).mod(this.E.bn.n);
-        } while (k.signum() === 0);
+            k = new ExNumber(this.E.bn.n.bitLength(), rand).mod(this.E.bn.n);
+        } while (new ExNumber(k).signum() === 0);
         return this.Gt.multiply(k);
     }
 
@@ -101,16 +107,20 @@ class Curve2 {
             return false;
         }
        
-        let x  = P.x, y  = P.y, z  = P.z;
-        return y.square().eq(x.cube().add(this.bt.multiply(z.square().cube())));
+        let x  = P.x;
+        let y  = P.y;
+        let z  = P.z;
+
+        // y^2 = x^3+bz^5
+        return y.square().eq(x.cube().add(this.bt.multiply( z.square().cube() )));
     }
 
     kG(k) {
-        k = k.mod(this.E.bn.n); 
+        k = new ExNumber(k).mod(this.E.bn.n); 
         let A = this.infinity;
         for (let i = 0, w = 0; i < this.pp16Gt.length; i++, w >>>= 4) {
             if ((i & 7) === 0) {
-                w = k.intValue();
+                w = new ExNumber(k).intValue();
                 k = k.shiftRight(32);
             }
             A = A.add(this.pp16Gt[i][w & 0xf]);

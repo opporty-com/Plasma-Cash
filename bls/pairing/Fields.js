@@ -1,5 +1,8 @@
 'use strict';
-import BigInteger from './BigInteger'
+
+import CryptoRandom from './Rnd'
+import bigInt from 'big-integer'
+import ExNumber from './ExNumber'
 
 class Field2  {
     constructor (bn, re, im, reduce) {
@@ -9,7 +12,7 @@ class Field2  {
             this.im = bn._0;
         }
         if(arguments.length === 2) {
-            if (re instanceof BigInteger) {
+            if (bigInt.isInstance(re)) {
                 this.bn = bn;
                 this.re = re;
                 this.im = bn._0;
@@ -27,8 +30,9 @@ class Field2  {
         if(arguments.length === 4) {
             this.bn = bn;
             if (reduce) {
-                this.re = re.mod(bn.p);
-                this.im = im.mod(bn.p);
+
+                this.re = new ExNumber(re).mod(bn.p);
+                this.im = new ExNumber(im).mod(bn.p);
             } else {
                 this.re = re;
                 this.im = im;
@@ -36,12 +40,16 @@ class Field2  {
         }
     }
 
+    randomize  (rand) {
+        return new Field2(this.bn, rand);
+    };
+
     zero() {
-        return this.re.signum() === 0 && this.im.signum() === 0;
+        return new ExNumber(this.re).signum() === 0 && new ExNumber(this.im).signum() === 0;
     }
 
     one() {
-        return this.re.compareTo(this.bn._1) === 0 && this.im.signum() === 0;
+        return this.re.compareTo(this.bn._1) === 0 && new ExNumber(this.im).signum() === 0;
     }
 
     eq(u) {
@@ -55,11 +63,11 @@ class Field2  {
     }
 
     neg() {
-        return new Field2(this.bn, (this.re.signum() !== 0) ? this.bn.p.subtract(this.re) : this.re, (this.im.signum() !== 0) ? this.bn.p.subtract(this.im) : this.im, false);
+        return new Field2(this.bn, (new ExNumber(this.re).signum() !== 0) ? this.bn.p.subtract(this.re) : this.re, (new ExNumber(this.im).signum() !== 0) ? this.bn.p.subtract(this.im) : this.im, false);
     }
 
     conj() {
-        return new Field2(this.bn, this.re, (this.im.signum() !== 0) ? this.bn.p.subtract(this.im) : this.im, false);
+        return new Field2(this.bn, this.re, (new ExNumber(this.im).signum() !== 0) ? this.bn.p.subtract(this.im) : this.im, false);
     }
 
     add (v) {
@@ -79,7 +87,7 @@ class Field2  {
                 i = i.subtract(this.bn.p);
             }
             return new Field2(this.bn, r, i, false);
-        } else if (v instanceof BigInteger) {
+        } else if (bigInt.isInstance(v)) {
             let s = this.re.add(v);
             
             if (s.compareTo(this.bn.p) >= 0) {
@@ -96,12 +104,12 @@ class Field2  {
             }
             let r = this.re.subtract(v.re);
             
-            if (r.signum() < 0) {
+            if (new ExNumber(r).signum() < 0) {
                 r = r.add(this.bn.p);
             }
             let i = this.im.subtract(v.im);
             
-            if (i.signum() < 0) {
+            if (new ExNumber(i).signum() < 0) {
                 i = i.add(this.bn.p);
             }
             return new Field2(this.bn, r, i, false);
@@ -133,8 +141,8 @@ class Field2  {
 
     halve () {
         return new Field2(this.bn,
-            (this.re.testBit(0) ? this.re.add(this.bn.p) : this.re).shiftRight(1),
-            (this.im.testBit(0) ? this.im.add(this.bn.p) : this.im).shiftRight(1),
+            (new ExNumber(this.re).testBit(0) ? this.re.add(this.bn.p) : this.re).shiftRight(1),
+            (new ExNumber(this.im).testBit(0) ? this.im.add(this.bn.p) : this.im).shiftRight(1),
             false);
     }
 
@@ -156,25 +164,26 @@ class Field2  {
             let re2 = this.re.multiply(v.re);
             let im2 = this.im.multiply(v.im);
             let mix = this.re.add(this.im).multiply(v.re.add(v.im));
+
             return new Field2(this.bn,
                 re2.subtract(im2),
                 mix.subtract(re2).subtract(im2),
                 true);
         }
 
-        else if (v instanceof BigInteger) {
+        else if (bigInt.isInstance(v) ) {
             return new Field2(this.bn, this.re.multiply(v), this.im.multiply(v), true);
         }
         else if (v instanceof Number) {
-            let newre = this.re.multiply(new BigInteger(v.toString()));
-            while (newre.signum() < 0) {
+            let newre = this.re.multiply(bigInt(v.toString()));
+            while (new ExNumber(newre).signum() < 0) {
                 newre = newre.add(this.bn.p);
             }
             while (newre.compareTo(this.bn.p) >= 0) {
                 newre = newre.subtract(this.bn.p);
             }
-            let newim = this.im.multiply(new BigInteger(v.toString()));
-            while (newim.signum() < 0) {
+            let newim = this.im.multiply(bigInt(v.toString()));
+            while (new ExNumber(newim).signum() < 0) {
                 newim = newim.add(this.bn.p);
             }
             while (newim.compareTo(this.bn.p) >= 0) {
@@ -190,11 +199,11 @@ class Field2  {
         if (this.zero() || this.one()) {
             return this;
         }
-        if (this.im.signum() === 0) {
+        if (new ExNumber(this.im).signum() === 0) {
             return new Field2(this.bn,
                 this.re.multiply(this.re), this.bn._0, true);
         }
-        if (this.re.signum() === 0) {
+        if (new ExNumber(this.re).signum() === 0) {
             return new Field2(this.bn,
                 this.im.multiply(this.im).negate(), this.bn._0, true);
         }
@@ -215,21 +224,21 @@ class Field2  {
     }
 
     inverse () {
-        let d = this.re.multiply(this.re).add(this.im.multiply(this.im)).modInverse(this.bn.p);
+        let d = this.re.multiply(this.re).add(this.im.multiply(this.im)).modInv(this.bn.p);
         return new Field2(this.bn, this.re.multiply(d), this.bn.p.subtract(this.im).multiply(d), true);
     }
 
     mulI () {
-        return new Field2(this.bn, (this.im.signum() !== 0) ? this.bn.p.subtract(this.im) : this.im, this.re, false);
+        return new Field2(this.bn, (new ExNumber(this.im).signum() !== 0) ? this.bn.p.subtract(this.im) : this.im, this.re, false);
     }
 
     divideI () {
-        return new Field2(this.bn, this.im, (this.re.signum() !== 0) ? bn.p.subtract(this.re) : this.re, false);
+        return new Field2(this.bn, this.im, (new ExNumber(this.re).signum() !== 0) ? bn.p.subtract(this.re) : this.re, false);
     }
 
     mulV () {
         let r = this.re.subtract(this.im);
-        if (r.signum() < 0) {
+        if (new ExNumber(r).signum() < 0) {
             r = r.add(this.bn.p);
         }
         let i = this.re.add(this.im);
@@ -245,30 +254,32 @@ class Field2  {
             qre = qre.subtract(this.bn.p);
         }
         let qim = this.im.subtract(this.re);
-        if (qim.signum() < 0) {
+        if (new ExNumber(qim).signum() < 0) {
             qim = qim.add(this.bn.p);
         }
-        return new Field2(this.bn, (qre.testBit(0) ? qre.add(this.bn.p) : qre).shiftRight(1),
-            (qim.testBit(0) ? qim.add(this.bn.p) : qim).shiftRight(1), false);
+        return new Field2(this.bn, (new ExNumber(qre).testBit(0) ? qre.add(this.bn.p) : qre).shiftRight(1),
+            (new ExNumber(qim).testBit(0) ? qim.add(this.bn.p) : qim).shiftRight(1), false);
     }
 
     exp (k) {
         let P = this;
-        if (k.signum() < 0) {
+        if (new ExNumber(k).signum() < 0) {
             k = k.neg();
             P = P.inverse();
         }
-        let e = k.toByteArray();
-        let mP = new Array(16);
+        let e = new ExNumber(k).toByteArray();
+
+        var mP = new Array(16);
         mP[0] = this.bn.Fp2_1;
         mP[1] = P;
-        for (let m = 1; m <= 7; m++) {
+        for (var m = 1; m <= 7; m++) {
+            
             mP[2*m] = mP[m].square();
             mP[2*m + 1] = mP[2*m].multiply(P);
         }
-        let A = mP[0];
-        for (let ei of e) {
-            let u = ei & 0xff;
+        var A = mP[0];
+        for (var i = 0; i < e.length; i++) {
+            var u = e[i] & 0xff;
             A = A.square().square().square().square().multiply(mP[u >>> 4]).square().square().square().square().multiply(mP[u & 0xf]);
         }
         return A;
@@ -306,6 +317,10 @@ class Field2  {
         return r.cube().subtract(this).zero() ? r : null;
     }
 
+    toString() {
+        return '['+this.re.toJSNumber()+','+this.im.toJSNumber()+']';
+    }
+
     
 }
 
@@ -341,6 +356,10 @@ class Field4 {
             this.re = re;
             this.im = im;
         }
+    }
+
+    randomize (rand) {
+        return new Field4(this.bn, rand);
     }
 
     zero () {
@@ -455,10 +474,6 @@ class Field4 {
         return new Field4(this.bn, this.re.halve(), this.im.halve());
     }
 
-    /*
-     * (re + im*v)*v = im*xi + re*v
-     * @returns 
-     */
     mulV () {
         return new Field4(this.bn, this.im.mulV(), this.re);
     }
@@ -466,9 +481,8 @@ class Field4 {
     divV () {
         return new Field4(this.bn, this.im.divV(), this.re);
     }
-
-
 }
+
 class Field6 {
 
     constructor (bn, k, v1, v2) {
@@ -507,6 +521,10 @@ class Field6 {
             this.v[1] = v1;
             this.v[2] = v2;
         }
+    }
+
+    randomize(rand) {
+        return new Field6(this.bn, rand);
     }
 
     zero() {
@@ -677,7 +695,7 @@ class Field12 {
             /*
              * 
              */
-            if (k instanceof BigInteger) {
+            if (bigInt.isInstance(k)) {
                 this.bn = bn;
                 this.v = new Array(6);
                 this.v[0] = new Field2(bn, k);
@@ -698,6 +716,10 @@ class Field12 {
         }
     }
 
+    randomize (rand) {
+        return new Field12(this.bn, rand);
+    }
+
     zero () {
         return this.v[0].zero() && this.v[1].zero() && this.v[2].zero() &&
                 this.v[3].zero() && this.v[4].zero() && this.v[5].zero();
@@ -713,7 +735,7 @@ class Field12 {
             return false;
         }
         let w = o;
-        console.log(this.bn === w.bn);
+        
         return this.bn === w.bn &&
             this.v[0].eq(w.v[0]) &&
             this.v[1].eq(w.v[1]) &&
@@ -946,7 +968,7 @@ class Field12 {
                 let d04 = this.v[0].add(this.v[4]).multiply(k.v[0].add(k.v[4])).subtract(d00.add(d44));
                 let d13 = this.v[1].add(this.v[3]).multiply(k.v[1].add(k.v[3])).subtract(d11.add(d33));
                 let d15 = this.v[1].add(this.v[5]).multiply(k.v[1].add(k.v[5])).subtract(d11.add(d55));
-                let  s23 = this.v[2].add(this.v[3]);
+                let s23 = this.v[2].add(this.v[3]);
                 let t23 = k.v[2].add(k.v[3]);
                 let u23 = d22.add(d33);
                 let d23 = s23.multiply(t23).subtract(u23);
@@ -980,7 +1002,7 @@ class Field12 {
             }
 
             return new Field12(this.bn, w);
-        } else if (k instanceof BigInteger) {
+        } else if (bigInt.isInstance(k)) {
             let w = new Array(6);
             for (let i = 0; i < 6; i++) {
                 w[i] = this.v[i].multiply(k);
@@ -1011,15 +1033,15 @@ class Field12 {
         if (!h.v[1].zero()) {
             if (this.bn.b === 2) {
                 h.v[3] = h.v[5].square().mulV().add(h.v[2].square().multiply(new Number(3))).subtract(h.v[4].twice(1)).multiply(h.v[1].twice(2).inverse());
-                h.v[0] = h.v[3].square().twice(1).add(h.v[1].multiply(h.v[5])).subtract(h.v[4].multiply(h.v[2]).multiply(new Number(3))).mulV().add(BigInteger.ONE);
+                h.v[0] = h.v[3].square().twice(1).add(h.v[1].multiply(h.v[5])).subtract(h.v[4].multiply(h.v[2]).multiply(new Number(3))).mulV().add(bigInt.one);
                 
             } else {
                 h.v[3] = h.v[5].square().divV().add(h.v[2].square().multiply(new Number(3))).subtract(h.v[4].twice(1)).multiply(h.v[1].twice(2).inverse());
-                h.v[0] = h.v[3].square().twice(1).add(h.v[1].multiply(h.v[5])).subtract(h.v[4].multiply(h.v[2]).multiply(new Number(3))).divV().add(BigInteger.ONE);
+                h.v[0] = h.v[3].square().twice(1).add(h.v[1].multiply(h.v[5])).subtract(h.v[4].multiply(h.v[2]).multiply(new Number(3))).divV().add(bigInt.one);
             }
         } else {
             h.v[3] = h.v[2].multiply(h.v[5]).twice(1).multiply(h.v[4].inverse());
-            h.v[0] = h.v[3].square().twice(1).subtract(h.v[4].multiply(h.v[2]).multiply(new Number(3))).mulV().add(BigInteger.ONE);
+            h.v[0] = h.v[3].square().twice(1).subtract(h.v[4].multiply(h.v[2]).multiply(new Number(3))).mulV().add(bigInt.one);
         }
     }
 
@@ -1194,7 +1216,7 @@ class Field12 {
         let w = this;
         for (let i = k.bitLength()-2; i >= 0; i--) {
             w = w.square();
-            if (k.testBit(i)) {
+            if (new ExNumber(k).testBit(i)) {
                 w = w.multiply(this);
             }
         }
@@ -1205,7 +1227,7 @@ class Field12 {
         let w = new Field12(this);
         for (let i = k.bitLength()-2; i >= 0; i--) {
             w = w.compressedSquare()
-            if (k.testBit(i)) {
+            if (new ExNumber(k).testBit(i)) {
                 this.decompress(w);
                 w = w.multiply(this);
             }
@@ -1221,7 +1243,7 @@ class Field12 {
         f = f.conj(1).multiply(f);
         let fconj = f.conj(3);
         let fu; let fu2; let fu3;
-        if (this.bn.u.signum() >= 0) {
+        if (new ExNumber(this.bn.u).signum() >= 0) {
             fu  = fconj.uniExp(this.bn.u);           
             fu2 = fu.conj(3).uniExp(this.bn.u); 
             fu3 = fu2.conj(3).uniExp(this.bn.u);

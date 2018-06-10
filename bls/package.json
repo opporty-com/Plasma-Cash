@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run": "babel-node index.js",
+    "babel-node": "babel-node",
+    "start": "nodemon --exec npm run babel-node -- ./index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
@@ -18,6 +19,7 @@
   },
   "author": "",
   "dependencies": {
-    "big-integer": "^1.6.30"
+    "big-integer": "^1.6.30",
+    "nodemon": "^1.17.5"
   }
 }
