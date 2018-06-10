@@ -56,6 +56,66 @@ class Pairing {
         return f;
     }
 
+    ate(Q, P) {
+        var f = this.Fp12_1;
+        P = P.norm();
+        Q = Q.norm();
+        if (!P.zero() && !Q.zero()) {
+            var ord = this.bn.t.subtract(this.E.bn._1);
+            var X = Q.x;
+            var Y = Q.y;
+            var Z = Q.z;
+            var w = new Array(6);
+            var start = ord.bitLength() - 2;
+            for (var i = start; i >= 0; i--) {
+                var A = X.square();
+                var B = Y.square();
+                var C = Z.square();
+                if (this.bn.b === 3) {
+                    var D = C.multiply(new Number(3*this.bn.b)).mulV();
+                } else {
+                    var D = C.multiply(new Number(3*this.bn.b)).divV();
+                }
+                var F = Y.add(Z).square().subtract(B).subtract(C);
+                if (i > 0) {
+                    this.E = X.add(Y).square().subtract(A).subtract(B);
+                    var G = D.multiply(new Number(3));
+                    X = this.E.multiply(B.subtract(G));
+                    Y = B.add(G).square().subtract(D.square().twice(2).multiply(new Number(3)));
+                    Z = B.multiply(F).twice(2);
+                }
+
+                w[0] = F.multiply(P.y.negate()); 
+                w[1] = A.multiply(new Number(3)).multiply(P.x); 
+                w[3] = D.subtract(B); // L_{0,0}
+                w[2] = w[4] = w[5] = this.E2.Fp2_0;
+                var line = new Field12(this.bn, w);
+                if (i !== ord.bitLength() - 2) {
+                    f = f.square().multiply(line);
+                } else {
+                    f = new Field12(line);
+                }
+                if (new ExNumber(ord).testBit(i)) {
+                    A = X.subtract(Z.multiply(Q.x)); B = Y.subtract(Z.multiply(Q.y));
+                    
+                    w[0] = A.multiply(P.y); 
+                    w[1] = B.multiply(P.x.negate()); 
+                    w[3] = B.multiply(Q.x).subtract(A.multiply(Q.y)); 
+                    w[2] = w[4] = w[5] = this.E2.Fp2_0;
+                    line = new Field12(this.bn, w);
+                    f = f.multiply(line);
+                    C = A.square(); X = X.multiply(C); C = C.multiply(A);
+                    D = B.square().multiply(Z).add(C).subtract(X.twice(1));
+                    Y = B.multiply(X.subtract(D)).subtract(Y.multiply(C));
+                    X = A.multiply(D);
+                    Z = Z.multiply(C);
+                }
+            }
+            f = f.finExp();
+        }
+        return f;
+    }
+
 }
 
 export default Pairing

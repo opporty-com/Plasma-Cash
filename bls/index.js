@@ -16,8 +16,8 @@ class BLSSigner {
         return H.multiply(s);
     }
     static verify(pair, Q, H, sQ, sH) {
-        let a = pair.tate(sQ, H);
-        let b = pair.tate(Q, sH);
+        let a = pair.ate(H, sQ);
+        let b = pair.ate(sH, Q);
         return(a.eq(b));
     }
 }
