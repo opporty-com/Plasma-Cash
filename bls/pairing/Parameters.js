@@ -20,7 +20,6 @@ class Parameters {
             this._0 = bigInt.zero;
             this._1 = bigInt.one;
 
-            
             this.m = fieldBits;
             this.b = 3; 
             switch (fieldBits) {
@@ -309,48 +308,6 @@ class Parameters {
         return this.n;
     }
 
-    legendre (v) {
-       
-        let J = 1;
-        let x = new BigInteger(v);
-        let y = this.p;
-        if (x.signum() < 0) {
-            x = x.negate();
-            if (y.testBit(0) && y.testBit(1)) {
-                J = -J;
-            }
-        }
-        while (y.compareTo(this._1) > 0) {
-            x = x.mod(y);
-            if (x.compareTo(y.shiftRight(1)) > 0) {
-                x = y.subtract(x);
-                if (y.testBit(0) && y.testBit(1)) {
-                    J = -J;
-                }
-            }
-            if (x.signum() === 0) {
-                x = this._1;
-                y = this._0;
-                J = 0;
-                break;
-            }
-            while (!x.testBit(0) && !x.testBit(1)) {
-                x = x.shiftRight(2);
-            }
-            if (!x.testBit(0)) {
-                x = x.shiftRight(1);
-                if (y.testBit(0) && (y.testBit(1) === !y.testBit(2))) {
-                    J = -J;
-                }
-            }
-            if (x.testBit(0) && x.testBit(1) && y.testBit(0) && y.testBit(1)) {
-                J = -J;
-            }
-            let t = new BigInteger();
-            t = x; x = y; y = t;
-        }
-        return J;
-    }
 
     sqrt (v) {
         if (new ExNumber(v).signum() === 0) {

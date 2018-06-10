@@ -20,10 +20,10 @@ class Field2  {
                 this.bn = bn;
                 let rand = re;
                 do {
-                    this.re = new BigInteger(this.bn.p.bitLength(), rand);
+                    this.re = new ExNumber(this.bn.p.bitLength(), rand).int();
                 } while (this.re.compareTo(this.bn.p) >= 0);
                 do {
-                    this.im = new BigInteger(this.bn.p.bitLength(), rand);
+                    this.im = new ExNumber(this.bn.p.bitLength(), rand).int();
                 } while (this.im.compareTo(this.bn.p) >= 0);
             }
         }
@@ -113,7 +113,7 @@ class Field2  {
                 i = i.add(this.bn.p);
             }
             return new Field2(this.bn, r, i, false);
-        }    else if (v instanceof BigInteger) {
+        } else if (bigInt.isInstance(v)) {
             
             let r = this.re.subtract(v);
             if (r.signum() < 0) {
@@ -338,7 +338,7 @@ class Field4 {
                 this.re = re;
                 this.im = bn.Fp2_0;
             }
-            else if (re instanceof BigInteger()) {
+            else if (bigInt.isInstance(re)) {
                 let k = re;
                 this.bn = bn;
                 this.re = new Field2(bn, k);
@@ -492,7 +492,7 @@ class Field6 {
             this.v[0] = this.v[1] = this.v[2] = bn.Fp2_0;
         }
         if (arguments.length === 2) {
-            if (k instanceof BigInteger) {
+            if (bigInt.isInstance(k)) {
                 this.bn = bn;
                 this.v = new Array(3);
                 this.v[0] = new Field2(bn, k);
