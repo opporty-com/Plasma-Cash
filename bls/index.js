@@ -1,8 +1,7 @@
 'use strict';
 
 import CryptoRandom from './pairing/Rnd'
-import { Point, Point2 } from './pairing/Points' 
-import { Field2, Field4, Field6, Field12 } from './pairing/Fields' 
+import { Point2 } from './pairing/Points' 
 import Parameters from './pairing/Parameters'
 import { Curve, Curve2 } from './pairing/Curves'
 import Pairing from './pairing/Pairing'
@@ -10,30 +9,29 @@ import bigInt from 'big-integer'
 
 const rng = new CryptoRandom();
 const bn = new Parameters(192);
-const E  = new Curve(bn);
+const E = new Curve(bn);
 const Et = new Curve2(E);
 const pair = new Pairing(Et);
-let Q = E.pointFactory(rng);
+const Q = E.pointFactory(rng);
 
 class SecretKey {
-    
     init() {
         let s = new Array(2);
         rng.nextBytes(s);
         this.s = bigInt(s[0]); 
     }
-
+ 
     getPublicKey() {
-		let pk = new PublicKey();
-		pk.init(this.s);
+        let pk = new PublicKey();
+        pk.init(this.s);
         return pk;
     }
 
     sign(H) {
-		let sig = new Signature();
-		sig.sH = H.multiply(this.s);
-		if (this.id)
-			sig.id = this.id;
+        let sig = new Signature();
+        sig.sH = H.multiply(this.s);
+        if (this.id)
+            sig.id = this.id;
         return sig;
     }
 
@@ -47,53 +45,51 @@ class SecretKey {
             msk[i].init();
         }
         return msk;
-	}
-	
-	share(n, k)
-	{
-		let msk = this.getMasterSecretKey(k);
-		let secVec = new Array(n);
-		let ids = new Array(n);
-		for (let i = 0; i < n; i++) {
-			let id = i + 1;
-			ids[i] = id;
-			secVec[i] = new SecretKey();
-			secVec[i].s = Polynomial.eval(msk, id);
-			secVec[i].id = id;
-		}
+    }
 
-		return secVec;
-	}
+    share(n, k)
+    {
+        let msk = this.getMasterSecretKey(k);
+        let secVec = new Array(n);
+        let ids = new Array(n);
+        for (let i = 0; i < n; i++) {
+            let id = i + 1;
+            ids[i] = id;
+            secVec[i] = new SecretKey();
+            secVec[i].s = Polynomial.eval(msk, id);
+            secVec[i].id = id;
+        }
 
-	recover(vec) 
-	{
-		let s = Polynomial.lagrange(vec);
-		this.s = s;
-		this.id = 0;
-	}
+        return secVec;
+    }
+
+    recover(vec) 
+    {
+        let s = Polynomial.lagrange(vec);
+        this.s = s;
+        this.id = 0;
+    }
 }
 
 class Signature {
-	recover(signVec) 
-	{
-		this.sH = Polynomial.lagrange(signVec);
-		return this;
-	}
+    recover(signVec) 
+    {
+        this.sH = Polynomial.lagrange(signVec);
+        return this;
+    }
 }
 
 class PublicKey {
-    //G2 sQ;
-	init(s)
-	{
-		this.sQ = Q.multiply(s);
-	}
-
-	verify(sign, H) 
-	{
-		let a = pair.ate(H, this.sQ);
+    init(s)
+    {
+        this.sQ = Q.multiply(s);
+    }
+    verify(sign, H) 
+    {
+        let a = pair.ate(H, this.sQ);
         let b = pair.ate(sign.sH, Q);
-		return(a.eq(b));
-	}
+        return(a.eq(b));
+    }
 }
 
 class Polynomial {
@@ -108,76 +104,69 @@ class Polynomial {
             c[i] = bigInt(s[0]);
         }
     }
-	static eval(msk, x) {
-		let s = bigInt.zero;
-		for (let i =0 ; i < msk.length; i++) {
-			s = s.add(msk[i].s.multiply(x ** i));
-		}	
-		return s;    
-	}
+    static eval(msk, x) {
+        let s = bigInt.zero;
+        for (let i =0 ; i < msk.length; i++) {
+            s = s.add(msk[i].s.multiply(x ** i));
+        }
+        return s;    
+    }
+    static calcDelta(S)
+    {
+        let k = S.length;
+        if (k < 2) throw Error("bad size"+k);
+        let delta = new Array(k);
+        let a = bigInt(S[0]);
+        for (let i = 1; i < k; i++) {
+            a = a.multiply(bigInt(S[i]));
+        }
+        for (let i = 0; i < k; i++) {
+            let b = bigInt(S[i]);
+            for (let j = 0; j < k; j++) {
+                if (j != i) {
+                    let v = bigInt(S[j]).subtract(S[i]);
+                    if (v == 0) throw Error("S has same id "+ i + ' '+j);
+                    b = b.multiply(v);
+                }
+            }
+            delta[i] = a.divide(b);
+        }
+        return delta;
+    }
 
-	static calcDelta(S)
-	{
-		let k = S.length;
-		if (k < 2) throw Error("bad size"+k);
-		let delta = new Array(k);
-		let a = bigInt(S[0]);
-		for (let i = 1; i < k; i++) {
-			a = a.multiply(bigInt(S[i]));
-		}
-		for (let i = 0; i < k; i++) {
-			let b = bigInt(S[i]);
-			for (let j = 0; j < k; j++) {
-				if (j != i) {
-					let v = bigInt(S[j]).subtract(S[i]);
-					if (v == 0) throw Error("S has same id "+ i + ' '+j);
-					b = b.multiply(v);
-				}
-			}
-			delta[i] = a.divide(b);
-		}
-		
-		return delta;
-	}
-
-	static lagrange(vec) {
-		let S = new Array(vec.length);
-		for (let i = 0; i < vec.length; i++) {
-			S[i] = vec[i].id;
-		}
-		let delta = Polynomial.calcDelta(S);
-		let r;
-		if (vec[0].s) {
-			r = bigInt.zero;
-		} else {
-			r = new Point2(Et);
-		}
-		for (let i = 0; i < delta.length; i++) {
-			if (vec[i].s) {
-				r = r.add(vec[i].s.multiply(delta[i]));
-			} else {
-				r = r.add(vec[i].sH.multiply(delta[i]));
-			}
-		}
-		return r;
-	}
+    static lagrange(vec) {
+        let S = new Array(vec.length);
+        for (let i = 0; i < vec.length; i++) {
+            S[i] = vec[i].id;
+        }
+        let delta = Polynomial.calcDelta(S);
+        let r;
+        if (vec[0].s) 
+            r = bigInt.zero;
+         else 
+            r = new Point2(Et);
+        
+        for (let i = 0; i < delta.length; i++) {
+            if (vec[i].s) 
+                r = r.add(vec[i].s.multiply(delta[i]));
+            else 
+                r = r.add(vec[i].sH.multiply(delta[i]));
+        }
+        return r;
+    }
 }
 
-
-
 class BLSSigner {
-	
-	static sign(Et, H,s) {
+    static sign(H,s) {
         return H.multiply(s);
-	}
-	
+    }
+
     static verify(pair, Q, H, sQ, sH) {
         let a = pair.ate(H, sQ);
         let b = pair.ate(sH, Q);
         return(a.eq(b));
     }
 }
-
 
 const br = [192, 256];
 
@@ -267,7 +256,7 @@ prvVec[1] = vec[1];
 prv = new SecretKey();
 prv.recover(prvVec);
 if (prv.s.equals(prv0.s)) {
-	throw Error("Error shares 2-5 equal original key!");
+    throw Error("Error shares 2-5 equal original key!");
 }
 
 let sign = new Array(3);
@@ -279,7 +268,7 @@ let sig = new Signature();
 sig.recover(sign);
 
 if (!sig.sH.eq(sig0.sH)) {
-	throw Error('Error: can\'t restore signature!');
+    throw Error('Error: can\'t restore signature!');
 }
 
 // 2-5 recover doesn't work
@@ -290,5 +279,5 @@ sign[1] = signVec[1];
 sig.recover(sign);
 
 if (sig.sH.eq(sig0.sH)) {
-	throw Error('Error: unlikely we can restore 2-n signature!');
+    throw Error('Error: unlikely we can restore 2-n signature!');
 }
