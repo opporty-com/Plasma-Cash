@@ -29,7 +29,7 @@ index.js implements k-n threshold signatures
  npm install
  babel-node index.js
 ```
-
+```
 SecretKey.init()
 ```
 Randomize `s`. secret key is a random number.
