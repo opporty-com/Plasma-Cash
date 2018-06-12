@@ -46,7 +46,7 @@ class Pairing {
             for (let i = bn.n.bitLength() - 2; i >= 0; i--) {
                 f = f.square().multiply(this.slope(V, V, Q));
                 V = V.twice(1);
-                if (new ExNumber(bn.n).testBit(i)) {
+                if (ExNumber.testBit(bn.n, i)) {
                     f = f.multiply(this.slope(V, P, Q));
                     V = V.add(P);
                 }
@@ -95,7 +95,7 @@ class Pairing {
                 } else {
                     f = new Field12(line);
                 }
-                if (new ExNumber(ord).testBit(i)) {
+                if (ExNumber.testBit(ord, i)) {
                     A = X.subtract(Z.multiply(Q.x)); B = Y.subtract(Z.multiply(Q.y));
                     
                     w[0] = A.multiply(P.y); 

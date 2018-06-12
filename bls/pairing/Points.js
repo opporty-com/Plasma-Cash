@@ -30,35 +30,30 @@ class Point {
         }
 
         if (arguments.length === 3) {
-            
             if (bigInt.isInstance(x) && bigInt.isInstance(y)) {
                 this.E = E;
                 let p = E.bn.p;
-                this.x = new ExNumber(x).mod(p);
-                this.y = new ExNumber(y).mod(p);
+                this.x = ExNumber.mod(x, p);
+                this.y = ExNumber.mod(y, p);
                 this.z = E.bn._1;
-            }
-            
-            else if (bigInt.isInstance(x)) {
+            } else if (bigInt.isInstance(x)) {
                 let yBit = y;
                 this.E = E;
                 let p = E.bn.p;
-                this.x = new ExNumber(x).mod(p);
+                this.x = ExNumber.mod(x, p);
                 if (x.signum() === 0) throw new Error("The given point does not belong to the given elliptic curve");
                 else {
                     this.y = E.bn.sqrt(new ExNumber(x.multiply(x).multiply(x).add(E.b)).mod(p));
                     if (this.y === null) throw new Error("The given point does not belong to the given elliptic curve");
-                    if (this.y.testBit(0) !== ((yBit & 1) === 1)) this.y = p.subtract(y);
+                    if (ExNumber.testBit(this.y, 0) !== ((yBit & 1) === 1)) this.y = p.subtract(y);
                 }
                 this.z = E.bn._1;
                 console.assert(!E.contains(this));
-            }
-            
-            else if (bigInt.isInstance(y)) {
+            } else if (bigInt.isInstance(y)) {
                 let xTrit = x;
                 this.E = E;
                 let p = E.bn.p;
-                this.y = new ExNumber(y).mod(p);
+                this.y = ExNumber.mod(y, p);
                 if (y.signum() === 0) throw new Error("The given point does not belong to the given elliptic curve");
                 else {
                     this.x = E.bn.cbrt(new ExNumber(y.multiply(y).subtract(E.b)).mod(p));
@@ -92,17 +87,17 @@ class Point {
     }
 
     zero() {
-        return new ExNumber(this.z).signum() === 0;
+        return ExNumber.signum(this.z) === 0;
     }
 
     eq(Q) {
         if (!(Q instanceof Point && this.same(Q))) return false;
         let P = Q;
-        if (new ExNumber(this.z).signum() === 0 || new ExNumber(P.z).signum() === 0) return this.z.eq(P.z);
+        if (ExNumber.signum(this.z) === 0 || ExNumber.signum(P.z) === 0) return this.z.eq(P.z);
         let p = this.E.bn.p;
         let z2 = this.z.multiply(this.z).mod(p), z3 = this.z.multiply(z2).mod(p),
             pz2 = P.z.multiply(P.z).mod(p), pz3 = P.z.multiply(pz2).mod(p);
-        return new ExNumber(this.x.multiply(pz2).subtract(P.x.multiply(z2)).mod(p)).signum() === 0 && new ExNumber(this.y.multiply(pz3).subtract(P.y.multiply(z3)).mod(p)).signum() === 0;
+        return ExNumber.signum(this.x.multiply(pz2).subtract(P.x.multiply(z2)).mod(p)) === 0 &&  ExNumber.signum(this.y.multiply(pz3).subtract(P.y.multiply(z3)).mod(p)) === 0;
     }
 
     same(Q) {
@@ -110,7 +105,7 @@ class Point {
     }
 
     norm() {
-        if (new ExNumber(this.z).signum() === 0 || this.z.compareTo(this.E.bn._1) === 0) return this;
+        if (ExNumber.signum(this.z) === 0 || this.z.compareTo(this.E.bn._1) === 0) return this;
         let p = this.E.bn.p;
         let zinv = null;
         try {
@@ -123,16 +118,16 @@ class Point {
     }
 
     isNormal () {
-        return (this.z.signum() === 0 || this.z.compareTo(E.bn._1) === 0);
+        return (ExNumber.signum(this.z) === 0 || this.z.compareTo(E.bn._1) === 0);
     }
 
     neg () {
-        return new Point(this.E, this.x, (new ExNumber(this.y).signum() !== 0) ? this.E.bn.p.subtract(this.y) : this.y, this.z);
+        return new Point(this.E, this.x, (ExNumber.signum(this.y) !== 0) ? this.E.bn.p.subtract(this.y) : this.y, this.z);
     }
 
     opposite (P) {
         if (!same(P)) return false;
-        if (this.z.signum() === 0 || P.zero()) return this.z.compareTo(P.z) === 0;
+        if (ExNumber.signum(this.z) === 0 || P.zero()) return this.z.compareTo(P.z) === 0;
         let p = E.bn.p;
         let z2 = this.z.multiply(this.z);
         let z3 = this.z.multiply(z2).mod(p);
@@ -211,13 +206,14 @@ class Point {
 
     multiply(k) {
         if(this.preComp === null) {
+            
             if(k.compareTo(this.E.bn._1) === 0) {
                 return this;
             }
             let bn = this.E.bn;
             let P = this.norm();
             
-            if (new ExNumber(k).signum() < 0) {
+            if (ExNumber.signum(k) < 0) {
                 k = k.negate();
                 P = P.neg();
             }
@@ -256,11 +252,11 @@ class Point {
             let hV = new Array(16);
             let P = this.norm();
             Y = Y.norm();
-            if (new ExNumber(ks).signum() < 0) {
+            if (ExNumber.signum(ks) < 0) {
                 ks = ks.negate();
                 P = P.neg();
             }
-            if (new ExNumber(kr).signum() < 0) {
+            if (ExNumber.signum(kr) < 0) {
                 kr = kr.negate();
                 Y = Y.neg();
             }
@@ -277,7 +273,7 @@ class Point {
             let t = Math.max(kr.bitLength(), ks.bitLength());
             let R = this.E.infinity;
             for (let i = (((t+1)>>1)<<1)-1; i>=0; i-=2) {
-                let j = (new ExNumber(kr).testBit(i)?8:0) | (new ExNumber(ks).testBit(i)?4:0) | (new ExNumber(kr).testBit(i-1)?2:0) | (new ExNumber(ks).testBit(i-1)?1:0);
+                let j = (ExNumber.testBit(kr, i)?8:0) | (ExNumber.testBit(ks, i)?4:0) | (ExNumber.testBit(kr, i-1)?2:0) | (ExNumber.testBit(ks, i-1)?1:0);
                 R = R.twice(2).add(hV[j]);
             }
             return R;
@@ -309,22 +305,20 @@ class Point {
         }
     }
 
-    
-
     toByteArray(formFlags) {
         let len = Math.floor((this.E.bn.p.bitLength() + 7)/8);
         let resLen = 1, pc = 0;
         let P = this.norm();
         let osX = null, osY = null;
         if (!P.zero()) {
-            osX = P.x.toByteArray();
+            osX = ExNumber.toByteArray(P.x);
             resLen += len;
             if ((formFlags & 2) !== 0) {
-                pc |= 2 | (P.y.testBit(0) ? 1 : 0);
+                pc |= 2 | (ExNumber.testBit(P.y, 0) ? 1 : 0);
             }
             if ((formFlags & 4) !== 0) {
                 pc |= 4;
-                osY = P.y.toByteArray();
+                osY = ExNumber.toByteArray(P.y);
                 resLen += len;
             }
         }
@@ -398,7 +392,7 @@ class Point2 {
                     if (this.y === null) {
                         throw new Error("pointNotOnCurve");
                     }
-                    if (this.y.re.testBit(0) !== ((yBit & 1) === 1)) {
+                    if (ExNumber.testBit(this.y.re, 0) !== ((yBit & 1) === 1)) {
                         this.y = this.y.neg();
                     }
                 }
@@ -576,12 +570,18 @@ class Point2 {
     multiply (k) {
        
         let P = this.norm();
-        if (new ExNumber(k).signum() < 0) {
+        if (!bigInt.isInstance(k)) {
+            k = bigInt(k);
+        }
+        if (ExNumber.signum(k) < 0) {
             k = k.negate();
             P = P.neg();
         }
 
-        let e = new ExNumber(k).toByteArray();
+        if (!bigInt.isInstance(k)) {
+            k = bigInt(k);
+        }
+        let e = ExNumber.toByteArray(k);
         let mP = new Array(16);
         mP[0] = this.E.infinity;
         mP[1] = P;
@@ -601,19 +601,19 @@ class Point2 {
     simul (kP, P, kQ, Q, kR, R, kS, S) {
         let hV = new Array(16);
         P = P.norm();
-        if (new ExNumber(kP).signum() < 0) {
+        if (ExNumber.signum(kP) < 0) {
             kP = kP.negate(); P = P.neg();
         }
         Q = Q.norm();
-        if (new ExNumber(kQ).signum() < 0) {
+        if (ExNumber.signum(kQ) < 0) {
             kQ = kQ.negate(); Q = Q.neg();
         }
         R = R.norm();
-        if (new ExNumber(kR).signum() < 0) {
+        if (ExNumber.signum(kR) < 0) {
             kR = kR.negate(); R = R.neg();
         }
         S = S.norm();
-        if (new ExNumber(kS).signum() < 0) {
+        if (ExNumber.signum(kS) < 0) {
             kS = kS.negate(); S = S.neg();
         }
         hV[0] = this.E.infinity;
@@ -626,7 +626,7 @@ class Point2 {
         let t = Math.max(Math.max(kP.bitLength(), kQ.bitLength()), Math.max(kR.bitLength(), kS.bitLength()));
         let V = this.E.infinity;
         for (let i=t-1; i>=0; i--) {
-            let j = (new ExNumber(kS).testBit(i)?8:0) | (new ExNumber(kR).testBit(i)?4:0) | (new ExNumber(kQ).testBit(i) ?   2 : 0) | (new ExNumber(kP).testBit(i)?1:0);
+            let j = (ExNumber.testBit(kS, i)?8:0) | (ExNumber.testBit(kR, i)?4:0) | (new ExNumber.testBit(kQ, i) ?   2 : 0) | (new ExNumber.testBit(kP, i)?1:0);
             V = V.twice(2).add(hV[j]);
         }
         return V.norm();
