@@ -21,7 +21,7 @@ class Curve {
         if (rand instanceof CryptoRandom) {
             let x, y;
             do {
-                x = new ExNumber(2*this.bn.p.bitLength(), rand).mod(this.bn.p);
+                x = ExNumber.mod(  ExNumber.construct(2*this.bn.p.bitLength(), rand), this.bn.p);
                 y = this.bn.sqrt(x.multiply(x).multiply(x).add(this.b));
             } while (y === null);
             return new Point(this, x, y);
@@ -59,7 +59,7 @@ class Curve2 {
             this.Fp2_1 = E.bn.Fp2_1;
             this.Fp2_i = E.bn.Fp2_i;
             this.infinity = new Point2(this);
-            if ((new ExNumber(E.b)).intValue() === 3) {
+            if (ExNumber.intValue(E.b) === 3) {
                 
                 this.bt = new Field2(E.bn, E.b).mulV(); 
                 this.xt = this.Fp2_1;
@@ -97,8 +97,8 @@ class Curve2 {
     pointFactory(rand) {
         let k;
         do {
-            k = new ExNumber(this.E.bn.n.bitLength(), rand).mod(this.E.bn.n);
-        } while (new ExNumber(k).signum() === 0);
+            k = ExNumber.mod( ExNumber.construct(this.E.bn.n.bitLength(), rand), this.E.bn.n);
+        } while (ExNumber.signum(k) === 0);
         return this.Gt.multiply(k);
     }
 
@@ -120,7 +120,7 @@ class Curve2 {
         let A = this.infinity;
         for (let i = 0, w = 0; i < this.pp16Gt.length; i++, w >>>= 4) {
             if ((i & 7) === 0) {
-                w = new ExNumber(k).intValue();
+                w = ExNumber.intValue(k);
                 k = k.shiftRight(32);
             }
             A = A.add(this.pp16Gt[i][w & 0xf]);

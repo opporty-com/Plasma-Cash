@@ -230,20 +230,18 @@ class Parameters {
            
             this.rho = this._6.multiply(this.u).multiply(this._3.multiply(this.u).multiply(this.u.shiftLeft(1).add(this._1)).add(this._1)).add(this._1);
            
-            if ((new ExNumber(this.rho)).signum() < 0) {
+            if (ExNumber.signum(this.rho) < 0) {
                 this.rho = this.rho.negate();
             }
            
             this.optOrd = this._6.multiply(this.u).add(this._2);
            
-            if ((new ExNumber(this.optOrd)).signum() < 0) {
+            if (ExNumber.signum(this.optOrd) < 0) {
                 this.optOrd = this.optOrd.negate();
             }
            
             this.sqrtExponent = this.p.add(this._1).shiftRight(2);
             this.cbrtExponent = this.p.add(this.p).add(this._1).divide(this._9);
-
-          
 
             this.sqrtExponent2 = this.p.multiply(this.p).add(this._7).shiftRight(4);
 
@@ -253,7 +251,7 @@ class Parameters {
             this.zeta1sigma = this.zeta1.multiply(this.sigma).mod(this.p);
 
             this.invSqrtMinus2 = this.p.subtract(this._2).modPow(this.p.subtract(this._1).subtract(this.p.add(this._1).shiftRight(2)), this.p);
-            this.sqrtI = new Field2(this, this.invSqrtMinus2, ((new ExNumber(this.invSqrtMinus2)).signum() !== 0) ? this.p.subtract(this.invSqrtMinus2) : this.invSqrtMinus2, false);
+            this.sqrtI = new Field2(this, this.invSqrtMinus2, (ExNumber.signum(this.invSqrtMinus2) !== 0) ? this.p.subtract(this.invSqrtMinus2) : this.invSqrtMinus2, false);
             this.Fp2_0 = new Field2(this, this._0);
             this.Fp2_1 = new Field2(this, this._1);
             this.Fp2_i = new Field2(this, this._0, this._1, false);
@@ -310,17 +308,17 @@ class Parameters {
 
 
     sqrt (v) {
-        if (new ExNumber(v).signum() === 0) {
+        if (ExNumber.signum(v) === 0) {
             return this._0;
         }
        
-        if (new ExNumber(this.p).testBit(1)) {
+        if (ExNumber.testBit(this.p, 1)) {
             let r = v.modPow(this.p.shiftRight(2).add(this._1), this.p);
            
-            return new ExNumber(r.multiply(r).subtract(v).mod(this.p)).signum() === 0 ? r : null;
+            return ExNumber.signum((r.multiply(r).subtract(v).mod(this.p))) === 0 ? r : null;
         }
        
-        if (this.p.testBit(2)) {
+        if (ExNumber.testBit(this.p, 2)) {
             let twog = v.shiftLeft(1).mod(this.p);
             let gamma = twog.modPow(this.p.shiftRight(3), this.p);
             let i = twog.multiply(gamma).multiply(gamma).mod(this.p);
@@ -329,7 +327,7 @@ class Parameters {
             return r.multiply(r).subtract(v).mod(this.p).signum() === 0 ? r : null;
         }
        
-        if (this.p.testBit(3)) {
+        if (ExNumber.testBit(this.p,3)) {
             let twou = this.p.shiftRight(2);
             let s0 = v.shiftLeft(1).modPow(twou, this.p);
             let s = s0;
@@ -347,7 +345,7 @@ class Parameters {
             return r.multiply(r).subtract(v).mod(this.p).signum() === 0 ? r : null;
         }
        
-        if (this.p.testBit(4)) {
+        if (ExNumber.testBit(this.p, 4)) {
             let twou = this.p.shiftRight(3);
             let s0 = v.shiftLeft(1).modPow(twou, this.p);
             let s = s0;
@@ -396,7 +394,7 @@ class Parameters {
         let d_2 = P.multiply(P).subtract(this._2).mod(this.p);
         let l = k.bitLength() - 1;
         for (let j = l - 1; j >= 1; j--) {
-            if (k.testBit(j)) {
+            if (ExNumber.testBit(k, j)) {
                 d_1 = d_1.multiply(d_2).subtract(P).mod(this.p);
                 d_2 = d_2.multiply(d_2).subtract(this._2).mod(this.p);
             } else {
@@ -404,7 +402,7 @@ class Parameters {
                 d_1 = d_1.multiply(d_1).subtract(this._2).mod(this.p);
             }
         }
-        return (k.testBit(0)) ? d_1.multiply(d_2).subtract(P).mod(this.p) : d_1.multiply(d_1).subtract(this._2).mod(this.p);
+        return (ExNumber.testBit(k, 0)) ? d_1.multiply(d_2).subtract(P).mod(this.p) : d_1.multiply(d_1).subtract(this._2).mod(this.p);
     }
 
 }

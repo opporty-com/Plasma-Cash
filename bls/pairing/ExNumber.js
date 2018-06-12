@@ -2,9 +2,9 @@ import bigInt from 'big-integer'
 
 class ExNumber {
 
-    constructor(n, b) {
+    static construct(n, b) {
         if (typeof n === 'number'){
-            this.randomN(n, b);
+            return bigInt.randBetween(bigInt.zero, bigInt(2).pow(n) );
         } else if (typeof n === 'string' ) {
             if (typeof b === 'number') {
                 this.n = bigInt(n, b);
@@ -12,54 +12,45 @@ class ExNumber {
             this.n = bigInt(n);
         } else
             this.n = n; 
+
+        return this.n;
     }
 
-    mod(p) {
-        if (this.n < 0) {
+    static mod(bign, p) {
+        if (bign < 0) {
             if (typeof p === 'number') {
-                return p-(this.n.negate().mod(5));
+                return p-(bign.negate().mod(5));
             } else
-                return p.subtract(this.n.negate().mod(p));
+                return p.subtract(bign.negate().mod(p));
         }
-        return this.n.mod(p);
+        return bign.mod(p);
 
     }
 
-    randomN(nbits, b) {
-        this.n = bigInt.randBetween(bigInt.zero, bigInt(2).pow(nbits) );
-    }
-
-    toByteArray() {
-        let ar = this.n.toArray(256).value;
+    static toByteArray(bign) {
+        let ar = bign.toArray(256).value;
         for (let b in ar) {
             if (ar[b]>128) ar[b]=-256+ar[b];
         }
         return ar;
     }
 
-    neg() {
-        return bigInt.zero.subtract(this.n);
+    static intValue(bign) {
+        return bign.toJSNumber() | 0;
     }
 
-    intValue() {
-        return this.n.toJSNumber() | 0;
-    }
-
-    signum() {
-        if (this.n.isZero()) {
+    static signum(bign) {
+        if (bign.isZero()) {
             return 0;
-        } else if (this.n.isNegative()) {
+        } else if (bign.isNegative()) {
             return -1;
         } else {
             return 1;
         }
     }
-    testBit(n) {
-        return ( !this.n.and( bigInt.one.shiftLeft(n) ).isZero() );
-    }
-
-    int() {
-        return this.n;
+    
+    static testBit(bign, n) {
+        return ( !bign.and( bigInt.one.shiftLeft(n) ).isZero() );
     }
 }
 
