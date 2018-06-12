@@ -15,7 +15,7 @@ const pair = new Pairing(Et);
 const Q = E.pointFactory(rng);
 
 class SecretKey {
-    init() {
+    constructor() {
         let s = new Array(2);
         rng.nextBytes(s);
         this.s = bigInt(s[0]); 
@@ -40,10 +40,9 @@ class SecretKey {
         if (k <= 1) throw Error("bad k "+ k); 
         let msk = new Array(k);
         msk[0] = this;
-        for (let i = 1; i < k; i++) {
+        for (let i = 1; i < k; i++) 
             msk[i] = new SecretKey();
-            msk[i].init();
-        }
+        
         return msk;
     }
 
@@ -93,9 +92,8 @@ class PublicKey {
 }
 
 class Polynomial {
-    static init(s, k)
-    {
-        if (k < 2) throw Error("bls:Polynomial:init:bad k "+ k) ;
+    static init(s, k) {
+        if (k < 2) throw Error("bad k "+ k);
         this.c = new Array(k);
         c[0] = s;
         for (let  i = 1; i < c.length; i++) {
@@ -145,7 +143,7 @@ class Polynomial {
             r = bigInt.zero;
          else 
             r = new Point2(Et);
-        
+
         for (let i = 0; i < delta.length; i++) {
             if (vec[i].s) 
                 r = r.add(vec[i].s.multiply(delta[i]));
@@ -160,7 +158,6 @@ class BLSSigner {
     static sign(H,s) {
         return H.multiply(s);
     }
-
     static verify(pair, Q, H, sQ, sH) {
         let a = pair.ate(H, sQ);
         let b = pair.ate(sH, Q);
@@ -168,7 +165,7 @@ class BLSSigner {
     }
 }
 
-const br = [192, 256];
+let H = Et.pointFactory(rng);
 
 console.log('-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-')
 console.log(' BLS Signature over EC pairings')
@@ -182,27 +179,26 @@ console.log('  sign(H, s) -> sH')
 console.log('  verify(H, sQ, sH) -> e(sQ, H(m)) = e(Q, s H(m)<br><br>')
 console.log('-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-')
 
-let H = Et.pointFactory(rng);
+console.time('sign');
+const s = new SecretKey();
 
-for (let b of br) {
+console.log('s',s);
+const sQ = s.getPublicKey();
+console.log('sQ',sQ);
+const sH = s.sign(H);
+console.log('sH', sH)
+const sH2 = new SecretKey().sign(H);
+console.log('\x1b[37m', ' Q  = (' + (Q.x)     + ', ' + (Q.y)     + ', ' + (Q.z)     + ')' );
+console.log('\x1b[37m', ' sQ = (' + (sQ.x)    + ', ' + (sQ.y)    + ', ' + (sQ.z)    + ')');
+console.log('\x1b[37m', ' H  = (' + (H.x.re)  + ', ' + (H.y.re)  + ', ' + (H.z.re)  + ')');
+console.log('\x1b[37m', ' sH = (' + (sH.sH.x.re) + ', ' + (sH.sH.y.re) + ', ' + (sH.sH.z.re) + ')');
+console.log('\x1b[33m', ' Verify(Q,sQ,H,sH) = ' + sQ.verify(sH, H) + '');
+console.log('\x1b[31m', ' Verify(Q,sQ,H,s2H) = ' + sQ.verify(sH2, H)+'');
 
-    console.time('sign');
-    const s = bigInt(5);
-    const Q = E.pointFactory(rng);
-    const sQ = Q.multiply(s);
-    const sH = BLSSigner.sign(Et,  H,  s);
-    const sH2 = BLSSigner.sign(Et, H, 4);
-    console.log('\x1b[37m', ' Q ('+b+') = (' + (Q.x)+ ', ' +(Q.y)+ ', ' +(Q.z)+')');
-    console.log('\x1b[37m', ' sQ('+b+') = (' + (sQ.x)+ ', ' +(sQ.y)+ ', ' +(sQ.z)+')');
-    console.log('\x1b[37m', ' H ('+b+') = (' + (H.x.re)+ ', ' +(H.y.re)+ ', ' +(H.z.re)+')');
-    console.log('\x1b[37m', ' sH('+b+') = (' + (sH.x.re)+ ', ' +(sH.y.re)+ ', ' +(sH.z.re)+')');
-    console.log('\x1b[33m', ' Verify(Q,sQ,H,sH) = ' + BLSSigner.verify(pair, Q,H,sQ,sH)+'');
-    console.log('\x1b[31m', ' Verify(Q,sQ,H,s2H) = ' + BLSSigner.verify(pair, Q,H,sQ,sH2)+'');
+console.timeEnd('sign');
 
-    console.timeEnd('sign');
- 
-    console.log('\x1b[32m','-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-')
-}
+console.log('\x1b[32m','-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-+*+-')
+
 /*
  * Start testing threshold signature (k, n) - (3, 5)
  */
@@ -210,24 +206,23 @@ const n = 5;
 const k = 3;
 let prv0 = new SecretKey();
 
-prv0.init();
 let sig0 = new Signature(); 
 sig0 = prv0.sign(H);
 
 let pub0 = prv0.getPublicKey(pub0);
-let vec = prv0.share(5, 3);
+let vec = prv0.share(n, k);
 
 let signVec = new Array(n);
 for (let i = 0; i < n; i++) {
-	signVec[i] = vec[i].sign(H);
+    signVec[i] = vec[i].sign(H);
 
-	let pub = vec[i].getPublicKey();
-	if (pub == pub0) {
-		throw new Error("error pub key");
-	}
-	if (!pub.verify(signVec[i], H)) {
-		throw Error("verify error");
-	}
+    let pub = vec[i].getPublicKey();
+    if (pub == pub0) {
+        throw new Error("error pub key");
+    }
+    if (!pub.verify(signVec[i], H)) {
+        throw Error("verify error");
+    }
 }
 
 // 3-n
@@ -239,14 +234,14 @@ prvVec[2] = vec[2];
 let prv = new SecretKey();
 prv.recover(prvVec);
 if (!prv.s.equals(prv0.s)) {
-	throw Error("Error wrong shares");
+    throw Error("Error wrong shares");
 }
 
 // n-n
 prv = new SecretKey();
 prv.recover(vec);
 if (!prv.s.equals(prv0.s)) {
-	throw Error("Error wrong shares");
+    throw Error("Error: wrong shares");
 }
 
 // 2-n (n = 5)
@@ -256,7 +251,7 @@ prvVec[1] = vec[1];
 prv = new SecretKey();
 prv.recover(prvVec);
 if (prv.s.equals(prv0.s)) {
-    throw Error("Error shares 2-5 equal original key!");
+    throw Error("Error: shares 2-5 equal original key!");
 }
 
 let sign = new Array(3);
@@ -268,7 +263,7 @@ let sig = new Signature();
 sig.recover(sign);
 
 if (!sig.sH.eq(sig0.sH)) {
-    throw Error('Error: can\'t restore signature!');
+    throw Error('Error: can\'t recover signature!');
 }
 
 // 2-5 recover doesn't work
@@ -279,5 +274,5 @@ sign[1] = signVec[1];
 sig.recover(sign);
 
 if (sig.sH.eq(sig0.sH)) {
-    throw Error('Error: unlikely we can restore 2-n signature!');
+    throw Error('Error: unlikely we can recover 2-n signature!');
 }

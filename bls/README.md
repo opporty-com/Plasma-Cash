@@ -30,4 +30,46 @@ index.js implements k-n threshold signatures
  babel-node index.js
 ```
 
+SecretKey.init()
+```
+Randomize `s`. secret key is a random number.
+
+```
+SecretKey.getPublicKey()
+```
+Get public key `sQ` for the secret key `s`.
+
+
+```
+SecretKey.sign(m)
+```
+Creste sign `s H(m)` from message m.
+
+```
+PublicKey.verify(sign, m)
+```
+Verify sign from public key and m and return true if signature is valid.
+
+```
+e(sQ, H(m)) == e(Q, s H(m))
+```
+
+```
+SecretKey.getMasterSecretKey()
+```
+
+Create k-out-of-n secret sharing for the secret key.
+
+
+```
+Polynomial.eval(msk, x) 
+```
+
+Calculate f(x) = msk[0] + msk[1] x + ... + msk[k-1] x^{k-1}.
+
+```
+Signature.recover(signVec)
+```
+
+Recovers original signature
 
