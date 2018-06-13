@@ -14,6 +14,8 @@ import txPool from '../app/lib/txPool';
 import contractHandler from '../app/lib/contracts/plasma';
 import depositEventHandler from '../app/lib/handlers/DepositEventHandler';
 const BN = ethUtil.BN;
+import yargs from 'yargs';
+const argv = yargs.argv;
 
 function* getNextAddress(addresses) {
   let currentAddress = 0;
@@ -63,6 +65,8 @@ let accounts = [
 describe('ChildChain', function () {
   
   var nextAddressGen;
+  let depositCount = argv.deposit_count || 10;
+  console.log('deposits to create: ' , depositCount);
   
   before(async function() {
     for (let addr of accounts) {
@@ -90,7 +94,7 @@ describe('ChildChain', function () {
   
         let depostisToCreate = [];
   
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < depositCount; i++) {
           let data = {
             depositor: nextAddressGen.next().value,
             amount: amount.add(additional.mul(new BN(i + 1))).toString(),
@@ -101,7 +105,7 @@ describe('ChildChain', function () {
   
           await depositEventHandler({ returnValues: data });
         }
-  
+
         expect(depostisToCreate.length).to.equal(txPool.length);
   
         let newBlock = await txPool.createNewBlock();

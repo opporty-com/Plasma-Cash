@@ -10,7 +10,9 @@
     "build": "babel server.js -d dist && babel app -d dist/app",
     "test-child-chain": "mocha --require babel-register --require babel-polyfill --timeout 1600000 --reporter spec ./test/test_child_chain.js",
     "test-merkle": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle.js",
-    "test-merkle-patricia": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle_patricia.js"
+    "test-merkle-patricia": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle_patricia.js",
+    "test-create-deposits": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_create_deposits.js",
+    "test-api-load": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_api_load.js"
   },
   "dependencies": {
     "ajv": "^5.2.3",
@@ -37,7 +39,8 @@
     "web3": "1.0.0-beta.21",
     "web3-utils": "1.0.0-beta.28",
     "winston": "^2.3.1",
-    "winston-daily-rotate-file": "^1.4.3"
+    "winston-daily-rotate-file": "^1.4.3",
+    "yargs": "^11.0.0"
   },
   "devDependencies": {
     "babel-plugin-module-alias": "^1.6.0",
@@ -46,7 +49,8 @@
     "babel-preset-stage-2": "^6.24.1",
     "babel-register": "^6.26.0",
     "chai": "^4.1.2",
-    "mocha": "^5.1.1"
+    "mocha": "^5.1.1",
+    "supertest": "^3.1.0"
   },
   "engines": {
     "node": ">=7.0",

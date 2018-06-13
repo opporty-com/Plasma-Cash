@@ -23,3 +23,5 @@ BlockCreator.start();
 app.listen(SERVER_PORT, function () {
   logger.info('Process ' + process.pid + ' is listening on ' + SERVER_PORT);
 });
+
+module.exports = app;

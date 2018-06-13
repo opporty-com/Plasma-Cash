@@ -18,6 +18,7 @@ import txPool from 'lib/txPool';
 async function processDepositEvent(event){
   const { depositor, amount, depositBlock, blockNumber } = event.returnValues;
   let depositBlockIndexKey = Buffer.concat([config.prefixes.tokenIdPrefix, ethUtil.toBuffer(depositBlock)]);
+  console.log('processDepositEvent -------1---------------------------------------------');
 
   try {
     const existingdepositBlockIndex = await levelDB.get(depositBlockIndexKey);
@@ -38,7 +39,7 @@ async function processDepositEvent(event){
   tx.signature = signature;
 
   if (tx.validate()) {
-    txPool.addTransaction(tx);
+    await txPool.addTransaction(tx);
     logger.info('Create deposit transaction ', depositBlock);        
   }
   else {
