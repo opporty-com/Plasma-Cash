@@ -13,6 +13,7 @@ import { getBlock } from 'lib/helpers/block';
 import txPool from 'lib/txPool';
 
 import { createDeposits } from 'lib/test';
+import TestTransactionsCreator from 'lib/txTestController';
 
 router.route('/')
   .get(ValidateMiddleware('getTx'), async function(req, res, next) {
@@ -107,18 +108,30 @@ router.route('/getHashToSign')
     }
   })
 
-  router.route('/createTestDeposits')
-    .post(function(req, res, next) {
-      try { 
-        let data = req.body;
-        let count = data.count || null;
-        return createDeposits({deposits: count})
-          .then(ctreated => res.json({ ctreated }))
-      }
-      catch(error){
-        next(error);
-      }
-    })
-    
+router.route('/createTestDeposits')
+  .post(function(req, res, next) {
+    try { 
+      let data = req.body;
+      let count = data.count || null;
+      return createDeposits({deposits: count})
+        .then(ctreated => res.json({ ctreated }))
+    }
+    catch(error){
+      next(error);
+    }
+  })
+
+router.route('/createTestTransaction')
+  .post(function(req, res, next) {
+    try { 
+      let data = req.body;
+      let count = data.count || 1;
+      return TestTransactionsCreator.createNewTransactions(count)
+        .then(ctreated => res.json(ctreated && ctreated.getJson()))
+    }
+    catch(error){
+      next(error);
+    }
+  })
     
 module.exports = router;

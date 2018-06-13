@@ -68,6 +68,8 @@ class TXPool {
 
         let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());
         if (utxoOwnerAddress != address) {
+          console.log('checkTransaction ----------------4 -: ');
+
           return false;
         }
       }

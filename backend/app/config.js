@@ -17,5 +17,6 @@ module.exports = {
   web3HttpProvider: process.env.WEB3_HTTP_PROVIDER,
   blockCreationPeriod: 30000,
   startBlockNumber: 1, // first nlock number in Root contract
-  contractblockStep: 1
+  contractblockStep: 1,
+  isDevelopment: process.env.NODE_ENV == 'development'
 };
