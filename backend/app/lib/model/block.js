@@ -14,15 +14,22 @@ class Block {
       this.blockNumber = decodedData && decodedData[0];
       this.merkleRootHash = decodedData && decodedData[1];
       this.transactions = decodedData && decodedData[2];
-    
     } else if (data && typeof data === 'object') {
       this.blockNumber = data.blockNumber;
       this.transactions = data.transactions || [];
 
-      let leaves = this.transactions.map(tx => {
-        return { key: tx.token_id, hash: tx.getHash() };
-      });
+      let leaves = [];
+      let existingTxKeys = {};
+      for (let i = 0, l = this.transactions.length; i < l; i++) {
+        let tx = this.transactions[i];
+        let key = tx.token_id.toString();
+        if (!existingTxKeys[key]) {
+          existingTxKeys[key] = true;
+          leaves.push({ key: tx.token_id, hash: tx.getHash() });
+        }
+      }
 
+      this.txCount = leaves.length;
       this.merkle = new PatriciaMerkle(leaves);
       this.merkle.buildTree();
       this.merkleRootHash = this.merkle.getMerkleRoot();

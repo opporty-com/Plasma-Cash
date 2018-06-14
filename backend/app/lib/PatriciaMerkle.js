@@ -7,12 +7,16 @@ import RLP from 'rlp';
 class Merkle {
   constructor (leaves) {
     this.leaves = [];
-    leaves.forEach(leaf => {
-      this.leaves.push({
-        key: this.toBinaryString(leaf.key),
-        hash: this.toBuffer(leaf.hash)
-      });
-    });
+    let existingKeys = {};
+    for (let i = 0, l = leaves.length; i < l; i++) {
+      let leaf = leaves[i];
+      let key = this.toBinaryString(leaf.key);
+      if (!existingKeys[key]) {
+        existingKeys[key] = true;
+        this.leaves.push({ key, hash: this.toBuffer(leaf.hash) });
+      }
+    }
+
     this.iterations = 0;
   }
 
@@ -23,9 +27,10 @@ class Merkle {
   buildNode(childNodes, key = '', level = 0) {
     let node = { key };
     this.iterations++;
+
     if (childNodes.length == 1) {
       let nodeKey = level == 0 ? childNodes[0].key : childNodes[0].key.slice(level - 1);
-      node.key = nodeKey;    
+      node.key = nodeKey;
 
       let nodeHashes = Buffer.concat([Buffer.from(ethUtil.sha3(nodeKey)), childNodes[0].hash]);
       node.hash = ethUtil.sha3(nodeHashes);
@@ -34,6 +39,7 @@ class Merkle {
 
     let leftChilds = [];
     let rightChilds = [];
+
     childNodes.forEach((node) => {
       if (node.key[level] == '1') {
         rightChilds.push(node);

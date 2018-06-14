@@ -1,0 +1,9 @@
+config:
+  target: 'http://localhost'
+  phases:
+    - duration: 10
+      arrivalRate: 300
+scenarios:
+  - flow:
+    - post:
+        url: "/tx/createTestTransaction"
