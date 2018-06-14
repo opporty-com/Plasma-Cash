@@ -1,8 +1,8 @@
 module.exports = {
-  plasmaContractAddress: process.env.PLASMA_CONTRACT_ADDRESS,
-  plasmaOperatorAddress: process.env.PLASMA_OPERATOR_ADDRESS,
-  plasmaOperatorPassword: process.env.PLASMA_OPERATOR_PASSWORD,
-  plasmaOperatorKey: process.env.PLASMA_OPERATOR_PRIVATE,
+  plasmaContractAddress: process.env.PLASMA_CONTRACT_ADDRESS ? process.env.PLASMA_CONTRACT_ADDRESS : '0x6a29207b76FD354eBd3AE4b45903a7c247f03D0a',
+  plasmaOperatorAddress: process.env.PLASMA_OPERATOR_ADDRESS ? process.env.PLASMA_OPERATOR_ADDRESS : '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70',
+  plasmaOperatorPassword: process.env.PLASMA_OPERATOR_PASSWORD ? process.env.PLASMA_OPERATOR_PASSWORD : '123123123',
+  plasmaOperatorKey: process.env.PLASMA_OPERATOR_PRIVATE ? process.env.PLASMA_OPERATOR_PRIVATE : '',
   prefixes: { 
     utxoPrefix: Buffer.from('utxo'),
     utxoWithAddressPrefix: Buffer.from('autxo'),
@@ -14,7 +14,7 @@ module.exports = {
     lastEventProcessedBlockPrefix: Buffer.from('lastEventProcessed')
   },
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
-  web3HttpProvider: process.env.WEB3_HTTP_PROVIDER,
+  web3HttpProvider: 'http://192.168.254.152:8545',
   blockCreationPeriod: 30000,
   startBlockNumber: 1, // first nlock number in Root contract
   contractblockStep: 1,

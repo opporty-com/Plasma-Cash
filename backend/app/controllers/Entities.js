@@ -3,16 +3,14 @@
 import Router from 'router';
 const router = new Router();
 import levelDB from 'lib/db';
-import contractHandler from 'lib/contracts/plasma';
-import web3     from 'lib/web3';
-import RLP from 'rlp';
+
 import config from "../config";
 import ethUtil from 'ethereumjs-util'; 
 const BN = ethUtil.BN;
 
 import Block from 'lib/model/block';
 const { prefixes: { utxoPrefix } } = config;
-import { PlasmaTransaction } from 'lib/model/tx';
+
 import { getAllUtxos } from 'lib/tx';
 import ValidateMiddleware  from 'lib/validate';
 
@@ -84,10 +82,13 @@ router.route('/utxo')
       next(error);
     }
   })
+
+  
   
 
   router.route('/utxoCount')
     .get(async function(req, res, next) {
+
       try { 
         let count = 0;
         const start = Buffer.concat([utxoPrefix, 

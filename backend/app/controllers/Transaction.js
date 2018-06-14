@@ -121,15 +121,20 @@ router.route('/createTestDeposits')
     }
   })
 
+  router.route('/empty')
+    .get(async function(req,res,next) {
+        res.end();
+    })
+
 router.route('/createTestTransaction')
-  .post(function(req, res, next) {
+  .get(function(req, res, next) {
     try { 
       return TestTransactionsCreator.createNewTransactions()
         .then(ctreated => {
           if (!ctreated) {
-            return res.status(400).send();
+            return res.status(400).json();
           }
-          return res.json(ctreated && ctreated.getJson());
+          return res.end();
         })
     }
     catch(error){

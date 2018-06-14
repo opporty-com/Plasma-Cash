@@ -35,7 +35,7 @@ function createDepositTransaction(addressTo, amountBN, token_id) {
   return tx;
 }
 
-async function createSignedTransaction(data) {
+function createSignedTransaction(data) {
   let txData = {};
   txData.prev_hash = ethUtil.toBuffer(ethUtil.addHexPrefix(data.prev_hash));
   txData.prev_block = data.prev_block;

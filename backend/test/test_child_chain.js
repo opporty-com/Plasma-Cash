@@ -1,18 +1,16 @@
 'use strict';
 
-var assert = require('assert');
-import chai           from 'chai';
+import chai from 'chai';
 var expect = chai.expect;
 
-import web3           from '../app/lib/web3';
-import ethUtil        from 'ethereumjs-util';
+import web3 from '../app/lib/web3';
+import ethUtil from 'ethereumjs-util';
 import { getAllUtxos } from '../app/lib/tx';
 import { createSignedTransaction } from '../app/lib/tx';
 import config from "../app/config";
 import RLP from 'rlp';
 import txPool from '../app/lib/txPool';
-import contractHandler from '../app/lib/contracts/plasma';
-import depositEventHandler from '../app/lib/handlers/DepositEventHandler';
+
 const BN = ethUtil.BN;
 
 function* getNextAddress(addresses) {
@@ -118,12 +116,7 @@ describe('ChildChain', function () {
       expect(utxosBeforeTest).to.have.lengthOf.above(1);
     });
   
-    it('should create transactions from utxos and write block', async function () {
-      let start = Date.now();
-      let errors = 0;
-      let added = 0;
-      let addedPool = 0;
-  
+    it('should create transactions from utxos and write block', async function () {  
       let queryAll = [];
       let txQueryAll = [];
       let createdTxs = [];
