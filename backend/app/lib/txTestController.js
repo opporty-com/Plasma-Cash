@@ -1,19 +1,12 @@
 
-// import depositEventHandler from 'lib/handlers/DepositEventHandler';
 import { createSignedTransaction } from 'lib/tx';
-// import levelDB from 'lib/db';
 import web3 from 'lib/web3';
-// import Promise from 'bluebird';
-// import {
-//   blockNumberLength
-// } from 'lib/dataStructureLengths';
+import Promise from 'bluebird';
+
 import config from "../config";
-// const { prefixes: { utxoPrefix } } = config;
 const ethUtil = require('ethereumjs-util'); 
 import RLP from 'rlp';
-// import txPool from 'lib/txPool';
-// const BN = ethUtil.BN;
-// import contractHandler from 'lib/contracts/plasma';
+
 import txPool from 'lib/txPool';
 
 
@@ -35,12 +28,14 @@ class TestTransactionsCreator {
     
     this.nextAddressGen = getNextAddress(accounts);
     this.nextAddressGen.next();
+    this.blockCreatePromise = Promise.resolve(true);
   }
   
   async init() {
     try {
       for (let address of accounts) {
         await web3.eth.personal.unlockAccount(address, config.plasmaOperatorPassword, 0);
+        console.log('Unlock account: ', address);
         this.ready = true
       }
     }
@@ -51,6 +46,15 @@ class TestTransactionsCreator {
   
   async createNewTransactions(count = 0) {
     if (!this.ready) { return false }
+    
+    if (this.blockCreateInProgress) {
+      try {
+        await this.blockCreatePromise;
+      }
+      catch (err) {
+        console.log('err', err);
+      }
+    }
     
     let utxo = await this.getNextUtxo();
     if (!utxo) {
@@ -64,11 +68,11 @@ class TestTransactionsCreator {
       token_id: utxo.token_id.toString(),
       new_owner: this.nextAddressGen.next(utxo.new_owner).value
     };
-    
+
     let txDataForRlp = [ethUtil.addHexPrefix(txData.prev_hash), txData.prev_block, ethUtil.toBuffer(txData.token_id), txData.new_owner];
     let txRlpEncoded = ethUtil.sha3(RLP.encode(txDataForRlp)).toString('hex');
 
-    let signature = await web3.eth.sign(ethUtil.addHexPrefix(txRlpEncoded), txData.new_owner);
+    let signature = await web3.eth.sign(ethUtil.addHexPrefix(txRlpEncoded), utxo.new_owner);
     txData.signature = signature;
     let createdTx = await createSignedTransaction(txData);
     let savedTx = await txPool.addTransaction(createdTx);
@@ -78,14 +82,20 @@ class TestTransactionsCreator {
   
   async getNextUtxo() {
     if (!(this.utxos && this.utxos.length)) {
-      this.utxos = await getAllUtxos();
+      if (!this.blockCreateInProgress) {
+        this.blockCreateInProgress = true;
+        this.blockCreatePromise = txPool.createNewBlock()
+        await this.blockCreatePromise;
+        this.blockCreateInProgress = false;
+        this.utxos = await getAllUtxos();
+      }
     }
     if (!(this.utxos && this.utxos.length)) {
       return null;
     }
     let utxo = this.utxos.shift();
     utxo.new_owner = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
-
+  
     if (!accounts.some(addr => addr == utxo.new_owner)) {
       return this.getNextUtxo();
     }

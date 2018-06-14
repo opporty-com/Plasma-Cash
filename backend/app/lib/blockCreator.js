@@ -29,7 +29,7 @@ class BlockCreator {
 
   start() {
     this.initBlockPeriodicalCreation();
-    // this.startBlockSubmittingToParent();
+    this.startBlockSubmittingToParent();
     this.startCheckingContractForEvents();
   }
     

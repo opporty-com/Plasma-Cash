@@ -36,7 +36,7 @@ class TXPool {
     if (!isValid) {
       return false;
     }
-    
+
     this.transactions.push(tx);
     return tx;
   }
@@ -68,8 +68,6 @@ class TXPool {
 
         let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());
         if (utxoOwnerAddress != address) {
-          console.log('checkTransaction ----------------4 -: ');
-
           return false;
         }
       }
@@ -144,7 +142,7 @@ class TXPool {
       await levelDB.batch(queryAll);
       
       this.transactions = this.transactions.slice(txCount);
-      console.log('      New block created - transactions: ', txCount);
+      console.log('      New block created - transactions: ', block.txCount);
 
       this.newBlockNumber = this.newBlockNumber.add(new BN(config.contractblockStep));
       this.newBlockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(this.newBlockNumber), blockNumberLength);

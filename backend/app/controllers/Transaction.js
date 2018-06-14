@@ -124,10 +124,13 @@ router.route('/createTestDeposits')
 router.route('/createTestTransaction')
   .post(function(req, res, next) {
     try { 
-      let data = req.body;
-      let count = data.count || 1;
-      return TestTransactionsCreator.createNewTransactions(count)
-        .then(ctreated => res.json(ctreated && ctreated.getJson()))
+      return TestTransactionsCreator.createNewTransactions()
+        .then(ctreated => {
+          if (!ctreated) {
+            return res.status(400).send();
+          }
+          return res.json(ctreated && ctreated.getJson());
+        })
     }
     catch(error){
       next(error);
