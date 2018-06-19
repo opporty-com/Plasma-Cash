@@ -1,5 +1,5 @@
-import levelup from 'levelup';
-import leveldown from 'leveldown';
-const levelDB = levelup(leveldown('/var/lib/leveldb/data'));
+import levelParty from "level-party";
 
-module.exports = levelDB;
+const db = levelParty("/var/lib/leveldb/data");
+
+export default db;
