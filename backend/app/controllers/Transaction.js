@@ -2,7 +2,7 @@
 
 import Router from 'router';
 const router = new Router();
-import levelDB from 'lib/db';
+
 import { logger } from 'lib/logger';
 import ethUtil from 'ethereumjs-util';
 
@@ -12,7 +12,6 @@ import { getBlock } from 'lib/helpers/block';
 
 import txPool from 'lib/txPool';
 
-import { createDeposits } from 'lib/test';
 import TestTransactionsCreator from 'lib/txTestController';
 
 router.route('/')
@@ -73,73 +72,6 @@ router.route('/proof')
     }
   })
   
-router.route('/signed')
-  .post(ValidateMiddleware('createSignedTX'), async function(req, res, next) {
-    try { 
-      let data = req.formData;
-      let tx = await createSignedTransaction(data);
-      
-      if (!tx || !tx.validate()) {
-        return res.json({error: true, message: "invalid transaction"});
-      }
-      let savedTx = await txPool.addTransaction(tx);
-      if (!savedTx) {
-        return res.json({error: true, message: "invalid transaction"});
-      }
-      return res.json(savedTx.getJson());
-    }
-    catch(error){
-      logger.error('accept signed tx error: ', error);
-      next(error);
-    }
-  })
-    
-router.route('/getHashToSign')
-  .post(ValidateMiddleware('getHashToSign'), async function(req, res, next) {
-    try { 
-      let data = req.formData;
-      let tx = await createSignedTransaction(data);
-      let hashForSign = tx && ethUtil.addHexPrefix(tx.getHash(true).toString('hex'));
 
-      return res.json(hashForSign);
-    }
-    catch(error){
-      next(error);
-    }
-  })
-
-router.route('/createTestDeposits')
-  .post(function(req, res, next) {
-    try { 
-      let data = req.body;
-      let count = data.count || null;
-      return createDeposits({deposits: count})
-        .then(ctreated => res.json({ ctreated }))
-    }
-    catch(error){
-      next(error);
-    }
-  })
-
-  router.route('/empty')
-    .get(async function(req,res,next) {
-        res.end();
-    })
-
-router.route('/createTestTransaction')
-  .get(function(req, res, next) {
-    try { 
-      return TestTransactionsCreator.createNewTransactions()
-        .then(ctreated => {
-          if (!ctreated) {
-            return res.status(400).json();
-          }
-          return res.end();
-        })
-    }
-    catch(error){
-      next(error);
-    }
-  })
     
 module.exports = router;

@@ -1,5 +1,10 @@
-import levelup from 'levelup';
+/*import levelup from 'levelup';
 import leveldown from 'leveldown';
-const levelDB = levelup(leveldown('/Users/vladimirkovalcuk/Plasma-Cash/data/leveldb/data'));
 
-module.exports = levelDB;
+import config from '../config';
+let levelDB;
+if (config.dbPath) {
+  levelDB = levelup(leveldown(config.dbPath));
+}
+
+module.exports = levelDB;*/

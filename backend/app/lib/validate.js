@@ -1,8 +1,8 @@
 'use strict';
 
-import Ajv  from 'ajv';
-import fs   from 'fs';
-import path  from 'path';
+import Ajv from 'ajv';
+import fs from 'fs';
+import path from 'path';
 
 const AJV_OPTIONS = {
   removeAdditional: true,
@@ -39,7 +39,7 @@ export function validateRequestBySchema (schemaPath, data) {
 };
 
 function getReqDataKey (method) {
-  let reqDataKey
+  let reqDataKey;
   switch (method) {
     case 'GET':
       reqDataKey = 'query';
@@ -57,14 +57,13 @@ function getReqDataKey (method) {
   return reqDataKey;
 };
 
-
 export default function validate (schemaName = null) {
   if (!schemaName) {
     throw Error('schemaName required');
   }
 
   let schemaPath = `../schema/${schemaName}.json`;
-  
+
   return function (req, res, next) {
     let reqDataKey = getReqDataKey(req.method);
     return validateRequestBySchema(schemaPath, req[reqDataKey])

@@ -4,7 +4,7 @@ import ethUtil from 'ethereumjs-util';
 import levelDB from 'lib/db';
 const BN = ethUtil.BN;
 import config from "../../config";
-const { prefixes: { blockPrefix }, plasmaOperatorAddress } = config;
+
 import { blockNumberLength } from 'lib/dataStructureLengths';
 
 import Block from 'lib/model/block';

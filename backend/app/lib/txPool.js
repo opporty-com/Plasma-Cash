@@ -1,18 +1,14 @@
 'use strict';
 
 import Block from 'lib/model/block';
-import config from "../config";
-import Web3 from 'web3';
+import config from "../../config";
 import ethUtil from 'ethereumjs-util'; 
-const BN = ethUtil.BN;
-
-import levelDB from 'lib/db';
 import { logger } from 'lib/logger';
-import { blockNumberLength, tokenIdLength } from 'lib/dataStructureLengths';
 import { getUTXO } from 'lib/tx';
-const { prefixes: { blockPrefix, utxoPrefix, utxoWithAddressPrefix } } = config;
+import redis from 'lib/redis';
 
-const depositPreviousBlockBn = new BN(0);
+const { prefixes: { blockPrefix, utxoPrefix } } = config;
+const depositPreviousBlockBn = 0;
 
 class TXPool {
   constructor () {
@@ -27,49 +23,46 @@ class TXPool {
   }
 
   async addTransaction(tx) {
-    if (!this.newBlockNumber || !this.newBlockNumberBuffer) {
+    if (!this.newBlockNumber) 
       await this.getLastBlockNumberFromDb();
-    }
-
+    
     let isValid = await this.checkTransaction(tx);
 
-    if (!isValid) {
+    if (!isValid) 
       return false;
-    }
-
+    
     this.transactions.push(tx);
     return tx;
   }
   
-  
   async checkTransaction(transaction) {
     try {
-      if (!transaction) {
+      if (!transaction) 
         return false;
-      }
-      if (!transaction.validate) {
-        return false;
-      }
       
-      if (new BN(transaction.prev_block).eq(depositPreviousBlockBn)) {
+      if (!transaction.validate) 
+        return false;
+      
+      if (transaction.prev_block == depositPreviousBlockBn) {
         let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
         let valid = address == config.plasmaOperatorAddress.toLowerCase();
-        if (!valid) {
+        if (!valid) 
           return false;
-        }
-      } else {      
+        
+      } else {    
+
         let utxo = await getUTXO(transaction.prev_block, transaction.token_id);
 
-        if (!utxo) {
+        if (!utxo) 
           return false;
-        }
+        
         transaction.prev_hash = utxo.getHash();
         let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
-
+        
         let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());
-        if (utxoOwnerAddress != address) {
+        if (utxoOwnerAddress != address) 
           return false;
-        }
+
       }
         
       return true;
@@ -81,72 +74,53 @@ class TXPool {
   }
   
   async getLastBlockNumberFromDb() {
-    let lastBlock;
-    try{
-      lastBlock = await levelDB.get('lastBlockNumber');
-    }
-    catch(error) {
-      lastBlock = ethUtil.setLengthLeft(ethUtil.toBuffer(new BN(0)), blockNumberLength);
-      await levelDB.put('lastBlockNumber', lastBlock);
-    }
-    let lastBlockNumber = Web3.utils.toBN(ethUtil.addHexPrefix(lastBlock.toString('hex')));
-    let newBlockNumber = lastBlockNumber.add(new BN(config.contractblockStep));
+    let lastBlock = await redis.getAsync('lastBlockNumber');
 
-    this.newBlockNumber = newBlockNumber;
-    this.newBlockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(newBlockNumber), blockNumberLength);
+    if (!lastBlock) {
+        redis.setAsync('lastBlockNumber', 0);
+        lastBlock = 0;
+    }
+
+    this.newBlockNumber = lastBlock + config.contractblockStep;
   }
   
   async createNewBlock() {
     try{
-      if (!this.newBlockNumber) {
+      if (!this.newBlockNumber) 
         await this.getLastBlockNumberFromDb();
-      }
       
       let txCount = this.transactions.length;
       let transactions = this.transactions;
       
-      if (txCount == 0) {
+      if (txCount == 0) 
         return false;
-      }
-
-      const newBlockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(this.newBlockNumber), blockNumberLength);
+      
       const blockData = {
-        blockNumber:  newBlockNumberBuffer,
+        blockNumber: this.newBlockNumber,
         transactions: transactions
-      }
+      };
+
       const block = new Block(blockData); 
 
-      let queryAll = [
-        { type: 'put', key: 'lastBlockNumber', value: block.blockNumber },
-        { type: 'put', key: Buffer.concat([blockPrefix, block.blockNumber]), value: block.getRlp() }
-      ];
-      
       for (let tx of block.transactions) {
-        let utxoPrevBlockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(tx.prev_block), blockNumberLength);
-        let tokenIdBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(tx.token_id), tokenIdLength)
 
         let txRlp = tx.getRlp();
+        let utxoNewKey = utxoPrefix + block.blockNumber.toString(16) + tx.token_id.toString("hex");      
+        let utxoOldKey = utxoPrefix + tx.prev_block.toString("hex") + tx.token_id.toString("hex");
         
-        let utxoNewKey = Buffer.concat([utxoPrefix, block.blockNumber, tokenIdBuffer]);      
-        let utxoOldKey = Buffer.concat([utxoPrefix, utxoPrevBlockNumberBuffer, tokenIdBuffer]);
-        
-        let utxoNewKeyWithAddress = Buffer.concat([utxoWithAddressPrefix, ethUtil.toBuffer(tx.new_owner), block.blockNumber, tokenIdBuffer]);
-        let utxoOldKeyWithAddress = Buffer.concat([utxoWithAddressPrefix, ethUtil.toBuffer(tx.getAddressFromSignature()), utxoPrevBlockNumberBuffer, tokenIdBuffer]);
-
-        queryAll.push({ type: 'del', key: utxoOldKey });
-        queryAll.push({ type: 'put', key: utxoNewKey, value: txRlp });
-        queryAll.push({ type: 'del', key: utxoOldKeyWithAddress });
-        queryAll.push({ type: 'put', key: utxoNewKeyWithAddress, value: txRlp });
+        await redis.delAsync( utxoOldKey );
+        await redis.setAsync( utxoNewKey, txRlp ); 
+        //queryAll.push({ type: 'del', key: utxoOldKeyWithAddress });
+        //queryAll.push({ type: 'put', key: utxoNewKeyWithAddress, value: txRlp });
       }
-
-      await levelDB.batch(queryAll);
-      
+      await redis.setAsync( 'lastBlockNumber', block.blockNumber );
+      await redis.setAsync( blockPrefix + block.blockNumber.toString(16) , block.getRlp() );
+    
       this.transactions = this.transactions.slice(txCount);
       console.log('      New block created - transactions: ', block.txCount);
 
-      this.newBlockNumber = this.newBlockNumber.add(new BN(config.contractblockStep));
-      this.newBlockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(this.newBlockNumber), blockNumberLength);
-
+      this.newBlockNumber = this.newBlockNumber + config.contractblockStep;
+    
       return block;
     }
     catch(err){

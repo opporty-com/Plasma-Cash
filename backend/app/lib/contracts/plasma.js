@@ -1,10 +1,7 @@
 'use strict';
 
-import net      from 'net';
-// import web3     from 'web3';
-import web3     from 'lib/web3';
-
-import config   from '../../config';
+import web3 from 'lib/web3';
+import config from '../../../config';
 
 class ContractHandler {
   constructor (options = {}) {

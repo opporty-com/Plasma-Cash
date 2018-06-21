@@ -4,7 +4,7 @@ import Router from 'router';
 const router = new Router();
 import levelDB from 'lib/db';
 
-import config from "../config";
+import config from "../../config";
 import ethUtil from 'ethereumjs-util'; 
 const BN = ethUtil.BN;
 

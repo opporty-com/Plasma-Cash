@@ -1,20 +1,13 @@
 'use strict';
 
-import config from "../config";
-const { prefixes: { blockPrefix, transactionPrefix, utxoPrefix, lastBlockSubmittedToParentPrefix } } = config;
+import config from "../../config";
+const { prefixes: { blockPrefix, lastBlockSubmittedToParentPrefix } } = config;
 import { logger } from 'lib/logger';
-
-const utxoIncludingAddressPrefix = config.utxoIncludingAddressPrefix;
-const blockCreationPeriod = config.blockCreationPeriod;
-
 import txPool from 'lib/txPool';
-import levelDB from 'lib/db';
+import redis from 'lib/redis';
 import contractHandler from 'lib/contracts/plasma';
 import depositEventHandler from 'lib/handlers/DepositEventHandler';
 
-import { blockNumberLength } from 'lib/dataStructureLengths';
-
-const Web3 = require('web3');
 import web3 from 'lib/web3';
 import Block from 'lib/model/block';
 
@@ -33,39 +26,29 @@ class BlockCreator {
     this.startCheckingContractForEvents();
   }
     
-  startCheckingContractForEvents() {
-    let lastBlock;
-    let lastProcessedBlock;
-    let lastCheckedBlock;
+  async startCheckingContractForEvents() {
+    let lastEventProcessed = await redis.getAsync('lastEventProcessed');
+    if (lastEventProcessed)
+      lastEventProcessed = parseInt(lastEventProcessed); 
+    else 
+      lastEventProcessed = 0;
 
-    return levelDB.get(config.prefixes.lastEventProcessedBlockPrefix)
-      .then((res) => {
-        lastCheckedBlock = Web3.utils.toBN(ethUtil.addHexPrefix(res.toString('hex'))).toNumber();
-        console.log('Start Checking Contract For Events', lastCheckedBlock);
-        this.processPeriodicalBlockEventsCheck(lastCheckedBlock);
-      })
-      .catch((err) => {
-        logger.error('Periodical Events Check err', err);
-        lastCheckedBlock = 0;
-        this.processPeriodicalBlockEventsCheck(lastCheckedBlock);
-    });
+    this.processPeriodicalBlockEventsCheck(lastEventProcessed);
   }
   
-  
-
-  
   async initBlockPeriodicalCreation() {
-    if (!(this.options.minTransactionsInBlock && txPool.transactions.length < this.options.minTransactionsInBlock)) {
-      let newBlock = await txPool.createNewBlock();
+    if (this.options.minTransactionsInBlock && txPool.transactions.length >= this.options.minTransactionsInBlock) {
+        await txPool.createNewBlock();
     }
     
-    setTimeout(() => this.initBlockPeriodicalCreation(), blockCreationPeriod)
+    setTimeout(() => this.initBlockPeriodicalCreation(), config.blockCreationPeriod)
     return true;
   }
   
   async processPeriodicalBlockEventsCheck(lastCheckedBlock) {
     try{
       let lastblock = await web3.eth.getBlockNumber();
+
       if (lastblock > lastCheckedBlock) {
         lastCheckedBlock = lastCheckedBlock + 1;
         await this.processBlock(lastCheckedBlock, lastblock);
@@ -93,81 +76,67 @@ class BlockCreator {
         await depositEventHandler(depositEventsInBlock[i]);
       }
     }
-    
-    const blockNumberBN = Web3.utils.toBN(lastBlock);
-    const newBlockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(blockNumberBN), blockNumberLength);
-    await levelDB.put(config.prefixes.lastEventProcessedBlockPrefix, newBlockNumberBuffer);
+
+    await redis.setAsync('lastEventProcessed', lastBlock);
   } 
 
   async startBlockSubmittingToParent() {
-    try {    
-      let lastBlockInDatabase;
-      try{
-        lastBlockInDatabase = await levelDB.get('lastBlockNumber');
-      }
-      catch(error) {
-        lastBlockInDatabase = ethUtil.setLengthLeft(ethUtil.toBuffer(new BN(0)), blockNumberLength);
-        await levelDB.put('lastBlockNumber', lastBlockInDatabase);
-      }
-      lastBlockInDatabase = Web3.utils.toBN(ethUtil.addHexPrefix(lastBlockInDatabase.toString('hex')));
+    try {
+      let lastBlockInDatabase = await redis.getAsync('lastBlockNumber');
+      console.log('lastBlockInDatabase', lastBlockInDatabase);
+      lastBlockInDatabase = lastBlockInDatabase ? parseInt(lastBlockInDatabase) :0 ;
+     
+      let lastSubmittedBlock = await redis.getAsync('lastBlockSubmitted');
+      lastSubmittedBlock = lastSubmittedBlock ? parseInt(lastSubmittedBlock): 0;
 
-      let lastSubmittedBlock;
-      try {
-        lastSubmittedBlock = await levelDB.get(lastBlockSubmittedToParentPrefix);
-      }  catch(error) {
-        lastSubmittedBlock = ethUtil.setLengthLeft(ethUtil.toBuffer(new BN(0)), blockNumberLength);
-      }
-      lastSubmittedBlock = Web3.utils.toBN(ethUtil.addHexPrefix(lastSubmittedBlock.toString('hex')));
-
-      if (!lastBlockInDatabase.gt(lastSubmittedBlock)) {
-        return setTimeout(() => this.startBlockSubmittingToParent(), 10000);
-      }
+      console.log('lastBlockInDatabase lastSubmittedBlock', lastBlockInDatabase, lastSubmittedBlock)
+      
+      if (lastBlockInDatabase <= lastSubmittedBlock) 
+          return setTimeout(() => this.startBlockSubmittingToParent(), 10000);
       
       let currentBlockInParent = await contractHandler.contract.methods.current_blk().call();
-      currentBlockInParent = Web3.utils.toBN(currentBlockInParent);
-      if (!currentBlockInParent.eq(lastSubmittedBlock)) {
-        if (currentBlockInParent.gt(lastSubmittedBlock)) {
-          let lastSubmittedBlockBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(currentBlockInParent), blockNumberLength);
-          await levelDB.put(lastBlockSubmittedToParentPrefix, lastSubmittedBlockBuffer);
-        }
+      currentBlockInParent = currentBlockInParent;
+      if (currentBlockInParent != lastSubmittedBlock) {
+        if (currentBlockInParent > lastSubmittedBlock) 
+          await redis.setAsync('lastBlockSubmitted', currentBlockInParent);
+        
         return setTimeout(() => this.startBlockSubmittingToParent(), 10000);
       }
 
-      lastSubmittedBlock = lastSubmittedBlock.add(new BN(config.contractblockStep));
-      
+      lastSubmittedBlock = lastSubmittedBlock + config.contractblockStep;
       await this.startBlockSubmit(lastSubmittedBlock);
-
-      setTimeout(() => this.startBlockSubmittingToParent(), 10000);
     }
     catch(error) {
-      if (!error.notFound) {
+      if (!error.notFound) 
         logger.error('submiting block error ', error);
-      }
-      setTimeout(() => this.startBlockSubmittingToParent(), 10000);
+      
     }
+    setTimeout(() => this.startBlockSubmittingToParent(), 10000);
   }
   
   async startBlockSubmit(blockNumber) {
-    let blockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(new BN(blockNumber)), blockNumberLength);
-    let blockKey = Buffer.concat([blockPrefix, blockNumberBuffer]);
-    let blockBin = await levelDB.get(blockKey);
+    let blockKey = blockPrefix + blockNumber;
+
+    let blockBin = await redis.getAsync(new Buffer(blockKey));
+
     let block = new Block(blockBin);
     let blockMerkleRootHash = ethUtil.addHexPrefix(block.merkleRootHash.toString('hex'));
     let submitedBlockNumber = ethUtil.bufferToInt(blockNumber);
     
     await web3.eth.personal.unlockAccount(plasmaOperatorAddress, config.plasmaOperatorPassword, 60);
     
-    
-    console.log('block submit - ', submitedBlockNumber);
+    console.log('block submit - ', submitedBlockNumber, blockMerkleRootHash);
     let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submitedBlockNumber).estimateGas({from: plasmaOperatorAddress});
 
-    let res = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submitedBlockNumber).send({from: plasmaOperatorAddress, gas});
-    logger.info('Submitetd block ', blockNumber.toString());
+    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submitedBlockNumber).send({from: plasmaOperatorAddress, gas});
+    logger.info('Submitted block ', blockNumber.toString());
 
-    await levelDB.put(lastBlockSubmittedToParentPrefix, blockNumberBuffer);
+    await redis.setAsync('lastBlockSubmitted', blockNumber);
   } 
 }
 
-const blockCreator = new BlockCreator;
+const blockCreator = new BlockCreator({
+  minTransactionsInBlock: 2
+});
 
 export default blockCreator;

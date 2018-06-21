@@ -3,16 +3,13 @@ import { createSignedTransaction } from 'lib/tx';
 import web3 from 'lib/web3';
 import Promise from 'bluebird';
 
-import config from "../config";
+import config from "../../config";
 const ethUtil = require('ethereumjs-util'); 
 import RLP from 'rlp';
 
 import txPool from 'lib/txPool';
-
-
 import { getAllUtxos } from 'lib/tx';
 
-let statistic = {}
 let accounts = [
   '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70'.toLowerCase(),
   '0x11A618DE3ADe9B85Cd811BF45af03bAd481842Ed'.toLowerCase(), 
@@ -23,19 +20,19 @@ let accounts = [
 
 let prkeys = {};
 prkeys[accounts[0]] = Buffer.from('de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a', 'hex');
-prkeys[accounts[1]] = Buffer.from('86737ebcbdfda1c14a069782b585fed4fb15847206ca179ea8988161ddbb8ad6', 'hex');
+prkeys[accounts[1]] = Buffer.from('86737ebcbdfda1ca069782b585fed4fb15847206ca179ea8988161ddbb8ad6', 'hex');
 prkeys[accounts[2]] = Buffer.from('06889a2975e9db1487e33ea76f82a034660de671d0594e9470d4f7be4b6feaf1', 'hex');
 prkeys[accounts[3]] = Buffer.from('723851e910975a4ff44b2ec28b719c42ae3c9ea33c187abaa018292a02d5e9a9', 'hex');
 prkeys[accounts[4]] = Buffer.from('25d9bb435e7d96e692054668add7f8b857567b2075b9e2f6b0659c4b6c7ed31c', 'hex');
 
 class TestTransactionsCreator {
     constructor (options = {}) {
-    this.ready = false;
-    this.utxos = [];
+        this.ready = false;
+        this.utxos = [];
 
-    this.nextAddressGen = getNextAddress(accounts);
-    this.nextAddressGen.next();
-    this.blockCreatePromise = Promise.resolve(true);
+        this.nextAddressGen = getNextAddress(accounts);
+        this.nextAddressGen.next();
+        this.blockCreatePromise = Promise.resolve(true);
     }
 
     async init() {
@@ -85,7 +82,16 @@ class TestTransactionsCreator {
         let signature = ethUtil.ecsign(txRlpEncoded, prkeys[utxo.new_owner]);
         
         txData.signature = ethUtil.toRpcSig(signature.v, signature.r, signature.s).toString("hex")
-        
+
+        txData = { prev_hash:
+            'ba1e7e0aeb2a2a839cdc93adb219b073badd9c958bd866e528ea3506de2ed4f1',
+           prev_block: 836,
+           token_id:
+            '68498967748904562917158967039893181433635478615129070670870049706669081789704',
+           new_owner: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70',
+           signature:
+            '0xb3720119e892fdfa05e094e2c619a9f7bbc90240e15e53a4801eefd5a0c03b6672f8c1c8a4d784a63553068e0c075b92ad23ebcd3ad15da97eda461b58c9d77101' };
+
         let createdTx = createSignedTransaction(txData);
         return await txPool.addTransaction(createdTx);
         
@@ -104,7 +110,7 @@ class TestTransactionsCreator {
         if (!(this.utxos && this.utxos.length)) {
             return null;
         }
-        let utxo = this.utxos.shift();
+        let utxo = this.utxos[Math.floor(Math.random()*this.utxos)];
         utxo.new_owner = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
 
         if (!accounts.some(addr => addr == utxo.new_owner)) {
