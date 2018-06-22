@@ -22,7 +22,7 @@ async function main() {
     await Promise.all(ar);
     let res = await lget('lastBlockNumber');
     console.timeEnd('t');
-    console.log(res);
+
 
 }
 

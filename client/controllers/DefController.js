@@ -1,5 +1,5 @@
 
-import { getAllUtxos } from '../app/lib/tx';
+import { getAllUtxos } from '../lib/tx';
 import redis from 'lib/redis';
 import { parseM } from '../lib/utils';
 import config from '../config';

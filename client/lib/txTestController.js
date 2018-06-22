@@ -3,7 +3,7 @@ import { createSignedTransaction } from 'lib/tx';
 import web3 from 'lib/web3';
 import Promise from 'bluebird';
 
-import config from "../../config";
+import config from "config";
 const ethUtil = require('ethereumjs-util'); 
 import RLP from 'rlp';
 

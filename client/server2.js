@@ -6,7 +6,7 @@ const numCPUs = require('os').cpus().length;
 
 import Routing from './routing';
 const SERVER_PORT = process.env.PORT || 8081;
-import BlockCreator from './app/lib/blockCreator';
+import BlockCreator from 'lib/blockCreator';
 
 if (cluster.isMaster) {
   console.log(`Master ${process.pid} is running`);

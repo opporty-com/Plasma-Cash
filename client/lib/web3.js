@@ -1,6 +1,6 @@
 import net from 'net';
 import Web3 from 'web3';
-import config from '../../config';
+import config from 'config';
 import fs from 'fs';
 
 let provider;

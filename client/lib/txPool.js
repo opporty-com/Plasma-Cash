@@ -1,7 +1,7 @@
 'use strict';
 
 import Block from 'lib/model/block';
-import config from "../../config";
+import config from "config";
 import ethUtil from 'ethereumjs-util'; 
 import { logger } from 'lib/logger';
 import { getUTXO } from 'lib/tx';

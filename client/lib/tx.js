@@ -4,7 +4,7 @@ import ethUtil from 'ethereumjs-util';
 
 import redis from 'lib/redis';
 const BN = ethUtil.BN;
-import config from "../../config";
+import config from "config";
 const { prefixes: { utxoPrefix } } = config;
 
 import { PlasmaTransaction } from 'lib/model/tx';
@@ -33,7 +33,6 @@ function createSignedTransaction(data) {
 }
 
 async function getUTXO(blockNumber, token_id) {
-  console.log('getUTXO', blockNumber, token_id)
   let q = utxoPrefix + blockNumber.toString(16) + token_id.toString();
   let data = await redis.getAsync(q);
   

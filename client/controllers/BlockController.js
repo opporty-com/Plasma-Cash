@@ -1,6 +1,6 @@
 import config from '../config';
-import redis from '../app/lib/redis';
-import Block  from '../app/lib/model/block';
+import redis from '../lib/redis';
+import Block  from '../lib/model/block';
 
 class BlockController {
   static async get(req, res) {

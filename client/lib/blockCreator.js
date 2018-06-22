@@ -1,6 +1,6 @@
 'use strict';
 
-import config from "../../config";
+import config from 'config';
 import { logger } from 'lib/logger';
 import txPool from 'lib/txPool';
 import redis from 'lib/redis';

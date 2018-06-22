@@ -1,11 +1,10 @@
-import { logger } from '../app/lib/logger';
-import { createSignedTransaction, getUTXO } from '../app/lib/tx';
-import txPool from '../app/lib/txPool';
-import { createDeposits } from '../app/lib/test';
+import { logger } from '../lib/logger';
+import { createSignedTransaction, getUTXO } from '../lib/tx';
+import txPool from '../lib/txPool';
+import { createDeposits } from '../lib/test';
 import ethUtil from 'ethereumjs-util';
-import TestTransactionsCreator from '../app/lib/txTestController';
-import { getBlock } from '../app/lib/helpers/block';
-
+import TestTransactionsCreator from '../lib/txTestController';
+import { getBlock } from '../lib/helpers/block';
 import { parseM } from '../lib/utils';
 
 class TxController {
@@ -13,20 +12,14 @@ class TxController {
     await parseM(req);
     try { 
       let { block: blockNumber, token_id, getHash } = req.body;
-      console.log('blockNumber', blockNumber);
+      
       let block = await getBlock(blockNumber);      
       if (!block) {
         res.statusCode = 404;
         return res.end('Block not found');
       }
-      console.log('get block ', block);
+
       let tx = block.getTxByTokenId(token_id);
-
-      block.transactions.forEach(function(tx) {
-        console.log('tok_id', tx[2].toString());
-        console.log('token_id', token_id);
-      })
-
 
       if (!tx) {
         res.statusCode = 404;
@@ -75,7 +68,6 @@ class TxController {
 
   static async getHashToSign(req, res) {
     try { 
-      console.log('getHashToSign');
       await parseM(req);
       let data = req.body;
       let tx = await createSignedTransaction(data);
@@ -105,11 +97,8 @@ class TxController {
   }
 
   static async signed(req, res) {
-    // console.log('signed')
-    console.log('signedd');
     await parseM(req);
 
-    console.log(req.body)
     try { 
       let data = req.body;
       let tx = await createSignedTransaction(data);

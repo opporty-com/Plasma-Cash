@@ -1,5 +1,5 @@
 import web3 from 'lib/web3';
-import config from "../../config";
+import config from "config";
 import contractHandler from 'lib/contracts/plasma';
 
 const ethUtil = require('ethereumjs-util'); 

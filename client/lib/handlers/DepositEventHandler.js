@@ -2,7 +2,7 @@
 
 const Web3 = require('web3');
 
-import config from "../../../config";
+import config from 'config';
 import ethUtil from 'ethereumjs-util';
 import web3 from 'lib/web3';
 import redis from 'lib/redis';
