@@ -12,7 +12,7 @@ import { PlasmaTransaction } from 'lib/model/tx';
 function createDepositTransaction(addressTo, amountBN, token_id) {
   let txData = {
     prev_hash: '',
-    prev_block: new BN(0),
+    prev_block: 0,
     token_id,
     new_owner: ethUtil.addHexPrefix(addressTo)
   };
@@ -33,9 +33,8 @@ function createSignedTransaction(data) {
 }
 
 async function getUTXO(blockNumber, token_id) {
-
-  let q = utxoPrefix + blockNumber.toString(16) + token_id.toString('hex');
-  
+  console.log('getUTXO', blockNumber, token_id)
+  let q = utxoPrefix + blockNumber.toString(16) + token_id.toString();
   let data = await redis.getAsync(q);
   
   if (data) 

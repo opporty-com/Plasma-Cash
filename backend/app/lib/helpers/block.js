@@ -1,19 +1,14 @@
 'use strict';
 
-import ethUtil from 'ethereumjs-util';
-import levelDB from 'lib/db';
-const BN = ethUtil.BN;
-import config from "../../config";
-
-import { blockNumberLength } from 'lib/dataStructureLengths';
+import redis from 'lib/redis';
+import config from "../../../config";
 
 import Block from 'lib/model/block';
 
 async function getBlock(blockNumber) {
   try {
-    let blockNumberBuffer = ethUtil.setLengthLeft(ethUtil.toBuffer(new BN(blockNumber)), blockNumberLength)
-    let key = Buffer.concat([config.prefixes.blockPrefix, blockNumberBuffer]);
-    let data = await levelDB.get(key);
+    let key = config.prefixes.blockPrefix + blockNumber;
+    let data = await redis.getAsync(new Buffer(key));
 
     return new Block(data);
   }

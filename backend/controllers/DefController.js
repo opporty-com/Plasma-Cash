@@ -1,24 +1,32 @@
-const util = require('util');
+
 import { getAllUtxos } from '../app/lib/tx';
 import redis from 'lib/redis';
-
-function parseMulti(req, cb) {
-  let body = [];
-  req.on('data', (chunk) => {
-      body.push(chunk);
-  }).on('end', () => {
-      if (body)
-      try {
-        req.body = JSON.parse(Buffer.concat(body).toString());
-      } catch (e) {
-        req.body = {};
-      }
-      return cb();
-  });
-}
-let parseM = util.promisify(parseMulti); 
+import { parseM } from '../lib/utils';
+import config from '../config';
 
 class DefController {
+
+  static async deposits(req, res) {
+    await parseM(req);
+    try {
+      let deposits = [];
+
+      redis.keys(config.prefixes.tokenIdPrefix+'*', function(err, result) {
+        if (err) {
+          res.statusCode = 400;
+          return res.end('error');
+        }
+        redis.mget(result, function(err2, res2) {
+          deposits = result;
+          res.statusCode = 200;
+          return res.end(JSON.stringify(deposits));
+        })
+      })
+    } catch(error) {
+      res.statusCode = 400;
+      res.end(error.toString());
+    }
+  }
 
   static async utxo(req, res) {
     await parseM(req);

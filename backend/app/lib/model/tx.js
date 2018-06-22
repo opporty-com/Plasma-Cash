@@ -7,7 +7,7 @@ import { removeHexPrefix } from 'lib/helpers/utills';
 
 const transactionFields = [
   { name: 'prev_hash' },
-  { name: 'prev_block' },
+  { name: 'prev_block', int: true, default: 0 },
   { name: 'token_id', isDecimal: true},
   { name: 'new_owner' },
   { name: 'signature' }
@@ -27,7 +27,13 @@ function initFields(self, fields, data) {
     fields.forEach(field => {
       let value = data && data[field.name];
       if (value) {
-        if (!(value instanceof Buffer)) {
+        if (field.int && typeof(value)!=='number') {
+          if (value instanceof Buffer) {
+            value = value.readUIntBE();
+          } else {
+            value = parseInt(value);
+          }
+        } else if (!(value instanceof Buffer) && typeof field.int === 'undefined' ) {
           value = ethUtil.toBuffer(field.isDecimal ? removeHexPrefix(value) : value);
         }
       } else {

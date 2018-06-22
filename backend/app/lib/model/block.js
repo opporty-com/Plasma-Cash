@@ -63,6 +63,10 @@ class Block {
     if (!this.merkle) {
       this.buildTree();
     }
+
+    if (!(token_id instanceof Buffer)) {
+      token_id = ethUtil.toBuffer(removeHexPrefix(token_id));
+    }
     
     return this.merkle.getProof(token_id, returnhex);
   }
@@ -114,6 +118,7 @@ class Block {
     }
     let txsAreRlp = this.transactions[0] && !(this.transactions[0] instanceof PlasmaTransaction);
     let txsTokenIdKey = txsAreRlp ? 2 : 'token_id';
+    console.log('token_id',token_id);
     transaction = this.transactions.find(tx => tx && token_id.equals(tx[txsTokenIdKey]));
 
     if (transaction && !(transaction instanceof PlasmaTransaction)) {

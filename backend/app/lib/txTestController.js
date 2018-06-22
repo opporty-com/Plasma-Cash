@@ -52,72 +52,64 @@ class TestTransactionsCreator {
     }
 
     async createNewTransactions(count = 0) {
-        return true;
-        if (!this.ready) { return false }
-       
-        if (this.blockCreateInProgress) {
-            try {
-                await this.blockCreatePromise;
-            }
-            catch (err) {
-                console.log('err', err);
-            }
+      if (!this.ready) { return false }
+    
+      if (this.blockCreateInProgress) {
+        try {
+          await this.blockCreatePromise;
         }
-       
-        let utxo = await this.getNextUtxo();
-        if (!utxo) {
-            return false;
+        catch (err) {
+          console.log('err', err);
         }
-       
-        let txData = {
-            prev_hash:  utxo.getHash().toString('hex'),
-            prev_block: utxo.blockNumber,
-            token_id: utxo.token_id.toString(),
-            new_owner: this.nextAddressGen.next(utxo.new_owner).value
-        };
-
-        let txDataForRlp = [ethUtil.addHexPrefix(txData.prev_hash), txData.prev_block, ethUtil.toBuffer(txData.token_id), txData.new_owner];
-        let txRlpEncoded = ethUtil.hashPersonalMessage(ethUtil.sha3(RLP.encode(txDataForRlp)));
-       
-        let signature = ethUtil.ecsign(txRlpEncoded, prkeys[utxo.new_owner]);
-        
-        txData.signature = ethUtil.toRpcSig(signature.v, signature.r, signature.s).toString("hex")
-
-        txData = { prev_hash:
-            'ba1e7e0aeb2a2a839cdc93adb219b073badd9c958bd866e528ea3506de2ed4f1',
-           prev_block: 836,
-           token_id:
-            '68498967748904562917158967039893181433635478615129070670870049706669081789704',
-           new_owner: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70',
-           signature:
-            '0xb3720119e892fdfa05e094e2c619a9f7bbc90240e15e53a4801eefd5a0c03b6672f8c1c8a4d784a63553068e0c075b92ad23ebcd3ad15da97eda461b58c9d77101' };
-
-        let createdTx = createSignedTransaction(txData);
-        return await txPool.addTransaction(createdTx);
+      }
+      
+      let utxo = await this.getNextUtxo();
+      console.log('utxo', utxo);
+      if (!utxo) {
+        return false;
+      }
+      
+      let txData = {
+        prev_hash:  utxo.getHash().toString('hex'),
+        prev_block: utxo.blockNumber,
+        token_id: utxo.token_id.toString(),
+        new_owner: this.nextAddressGen.next(utxo.new_owner).value
+      };
+  
+      let txDataForRlp = [ethUtil.addHexPrefix(txData.prev_hash), txData.prev_block, ethUtil.toBuffer(txData.token_id), txData.new_owner];
+      let txRlpEncoded = ethUtil.sha3(RLP.encode(txDataForRlp)).toString('hex');
+  
+      let signature = await web3.eth.sign(ethUtil.addHexPrefix(txRlpEncoded), utxo.new_owner);
+      txData.signature = signature;
+      console.log('createSignedTransaction', txData);
+      let createdTx = await createSignedTransaction(txData);
+      let savedTx = await txPool.addTransaction(createdTx);
+  
+      return savedTx;
         
     }
 
     async getNextUtxo() {
-        if (!(this.utxos && this.utxos.length)) {
-            if (!this.blockCreateInProgress) {
-            this.blockCreateInProgress = true;
-            this.blockCreatePromise = txPool.createNewBlock()
-            await this.blockCreatePromise;
-            this.blockCreateInProgress = false;
-            this.utxos = await getAllUtxos();
-            }
+      if (!(this.utxos && this.utxos.length)) {
+        if (!this.blockCreateInProgress) {
+          this.blockCreateInProgress = true;
+          this.blockCreatePromise = txPool.createNewBlock()
+          await this.blockCreatePromise;
+          this.blockCreateInProgress = false;
+          this.utxos = await getAllUtxos();
         }
-        if (!(this.utxos && this.utxos.length)) {
-            return null;
-        }
-        let utxo = this.utxos[Math.floor(Math.random()*this.utxos)];
-        utxo.new_owner = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
-
-        if (!accounts.some(addr => addr == utxo.new_owner)) {
-            return this.getNextUtxo();
-        }
-
-        return utxo;
+      }
+      if (!(this.utxos && this.utxos.length)) {
+        return null;
+      }
+      let utxo = this.utxos.shift();
+      utxo.new_owner = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
+    
+      if (!accounts.some(addr => addr == utxo.new_owner)) {
+        return this.getNextUtxo();
+      }
+      
+      return utxo;
     }
 
     }

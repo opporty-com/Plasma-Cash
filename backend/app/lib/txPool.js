@@ -103,13 +103,14 @@ class TXPool {
       const block = new Block(blockData); 
 
       for (let tx of block.transactions) {
-
-        let txRlp = tx.getRlp();
-        let utxoNewKey = utxoPrefix + block.blockNumber.toString(16) + tx.token_id.toString("hex");      
-        let utxoOldKey = utxoPrefix + tx.prev_block.toString("hex") + tx.token_id.toString("hex");
+        let utxo = tx;
+        utxo.blockNumber = block.blockNumber;
+        let utxoRlp = utxo.getRlp();
+        let utxoNewKey = utxoPrefix + block.blockNumber.toString(16) + tx.token_id.toString();      
+        let utxoOldKey = utxoPrefix + tx.prev_block.toString(16) + tx.token_id.toString();
         
         await redis.delAsync( utxoOldKey );
-        await redis.setAsync( utxoNewKey, txRlp ); 
+        await redis.setAsync( utxoNewKey, utxoRlp ); 
         //queryAll.push({ type: 'del', key: utxoOldKeyWithAddress });
         //queryAll.push({ type: 'put', key: utxoNewKeyWithAddress, value: txRlp });
       }

@@ -13,7 +13,7 @@ import txPool from 'lib/txPool';
 async function processDepositEvent(event){
   const { depositor, amount, depositBlock, blockNumber } = event.returnValues;
   let depositBlockIndexKey = config.prefixes.tokenIdPrefix + depositBlock;
-  console.log('processDepositEvent ---------');
+  console.log('processDepositEvent ---');
 
   const existingdepositBlockIndex = await redis.getAsync(depositBlockIndexKey);
 
@@ -28,6 +28,7 @@ async function processDepositEvent(event){
   tx.signature = signature;
 
   if (tx.validate()) {
+
     await txPool.addTransaction(tx);
     logger.info(' ', depositBlock);
   }

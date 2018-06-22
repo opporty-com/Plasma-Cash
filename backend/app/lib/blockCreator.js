@@ -1,13 +1,11 @@
 'use strict';
 
 import config from "../../config";
-const { prefixes: { blockPrefix, lastBlockSubmittedToParentPrefix } } = config;
 import { logger } from 'lib/logger';
 import txPool from 'lib/txPool';
 import redis from 'lib/redis';
 import contractHandler from 'lib/contracts/plasma';
 import depositEventHandler from 'lib/handlers/DepositEventHandler';
-
 import web3 from 'lib/web3';
 import Block from 'lib/model/block';
 
@@ -83,8 +81,8 @@ class BlockCreator {
   async startBlockSubmittingToParent() {
     try {
       let lastBlockInDatabase = await redis.getAsync('lastBlockNumber');
-      console.log('lastBlockInDatabase', lastBlockInDatabase);
-      lastBlockInDatabase = lastBlockInDatabase ? parseInt(lastBlockInDatabase) :0 ;
+      
+      lastBlockInDatabase = lastBlockInDatabase ? parseInt(lastBlockInDatabase) : 0 ;
      
       let lastSubmittedBlock = await redis.getAsync('lastBlockSubmitted');
       lastSubmittedBlock = lastSubmittedBlock ? parseInt(lastSubmittedBlock): 0;
@@ -115,21 +113,19 @@ class BlockCreator {
   }
   
   async startBlockSubmit(blockNumber) {
-    let blockKey = blockPrefix + blockNumber;
-
+    let blockKey = config.prefixes.blockPrefix + blockNumber.toString(16);
     let blockBin = await redis.getAsync(new Buffer(blockKey));
-
     let block = new Block(blockBin);
     let blockMerkleRootHash = ethUtil.addHexPrefix(block.merkleRootHash.toString('hex'));
-    let submitedBlockNumber = ethUtil.bufferToInt(blockNumber);
+    let submittedBlockNumber = ethUtil.bufferToInt(blockNumber);
     
     await web3.eth.personal.unlockAccount(plasmaOperatorAddress, config.plasmaOperatorPassword, 60);
     
-    console.log('block submit - ', submitedBlockNumber, blockMerkleRootHash);
-    let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submitedBlockNumber).estimateGas({from: plasmaOperatorAddress});
+    console.log('block submit - ', submittedBlockNumber, blockMerkleRootHash);
+    let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).estimateGas({from: plasmaOperatorAddress});
 
-    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submitedBlockNumber).send({from: plasmaOperatorAddress, gas});
-    logger.info('Submitted block ', blockNumber.toString());
+    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).send({from: plasmaOperatorAddress, gas});
+    logger.info('Submitted block - ', blockNumber.toString());
 
     await redis.setAsync('lastBlockSubmitted', blockNumber);
   } 
