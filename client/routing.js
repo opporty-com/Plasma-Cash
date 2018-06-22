@@ -19,7 +19,7 @@ class Routing {
       }
     } else if (parts.length >= 3) {
       let controller = Routing.capitalize(parts[1]) + 'Controller';
-      console.log('controller', controller)
+      
       let action = parts[2];
       if (typeof controllers[controller][action] === 'function')
         return controllers[controller][action](req, res);
