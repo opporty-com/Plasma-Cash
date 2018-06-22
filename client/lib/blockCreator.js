@@ -10,7 +10,6 @@ import web3 from 'lib/web3';
 import Block from 'lib/model/block';
 
 const ethUtil = require('ethereumjs-util'); 
-const BN = ethUtil.BN;
 const plasmaOperatorAddress = config.plasmaOperatorAddress;
 
 class BlockCreator {
@@ -35,7 +34,10 @@ class BlockCreator {
   }
   
   async initBlockPeriodicalCreation() {
-    if (this.options.minTransactionsInBlock && txPool.transactions.length >= this.options.minTransactionsInBlock) {
+    let poollen = await txPool.length();
+    console.log('initBlockPeriodicalCreation', poollen, this.options.minTransactionsInBlock);
+
+    if (this.options.minTransactionsInBlock && poollen >= this.options.minTransactionsInBlock) {
         await txPool.createNewBlock();
     }
     
@@ -81,7 +83,6 @@ class BlockCreator {
   async startBlockSubmittingToParent() {
     try {
       let lastBlockInDatabase = await redis.getAsync('lastBlockNumber');
-      
       lastBlockInDatabase = lastBlockInDatabase ? parseInt(lastBlockInDatabase) : 0 ;
      
       let lastSubmittedBlock = await redis.getAsync('lastBlockSubmitted');

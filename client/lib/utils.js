@@ -5,7 +5,6 @@ function parseMulti(req, cb) {
     req.on('data', (chunk) => {
       body.push(chunk);
     }).on('end', () => {
-      console.log('body', body)
       let bodys = Buffer.concat(body).toString();
       if (bodys.length > 0) {
         try {

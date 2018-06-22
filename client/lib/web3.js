@@ -17,7 +17,7 @@ if (config.web3HttpProvider) {
 let web3 = new Web3(provider);
 
 web3.eth.net.isListening()
-  .then(() => console.log('is connected'))
+  .then(() => console.log('Node is connected'))
   .catch(e => console.log('Wow. Something went wrong'));
 
 module.exports = web3;

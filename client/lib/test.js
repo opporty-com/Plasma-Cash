@@ -34,7 +34,7 @@ async function createDeposits(options = {}) {
       
       contractHandler.contract.methods.deposit().estimateGas({from: address, value: amount})
         .then(gas => {
-            console.log('14');
+            console.log('done deposit to contract!');
           return contractHandler.contract.methods.deposit().send({from: address, gas, value: amount});
         })
       created++;

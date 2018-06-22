@@ -33,8 +33,9 @@ function createSignedTransaction(data) {
 }
 
 async function getUTXO(blockNumber, token_id) {
-  let q = utxoPrefix + blockNumber.toString(16) + token_id.toString();
-  let data = await redis.getAsync(q);
+  let q = utxoPrefix + '_'+ blockNumber.toString(16) +'_'+ token_id.toString();
+
+  let data = await redis.getAsync(new Buffer(q));
   
   if (data) 
       return new PlasmaTransaction(data);
@@ -48,19 +49,53 @@ async function getAllUtxos(options = {}) {
       let res3 = res.map(function(el) {
         return new Buffer(el);
       })
- 
-      redis.mget(res3, function(err2, res2) {
-        
-        let utxos = res2.map(function(el) {
-          let t = new PlasmaTransaction(el);
-          if (options.json) {
-            t = t.getJson();
-          }
-          return t;
-        });
-        
-        resolve(utxos);
+      if (res3.length) {
+        redis.mget(res3, function(err2, res2) {
+          
+          let utxos = res2.map(function(el) {
+            let t = new PlasmaTransaction(el);
+            if (options.json) {
+              t = t.getJson();
+            }
+            return t;
+          });
+          
+          resolve(utxos);
+        })
+      } else {
+        resolve([]);
+      }
+    });
+  })
+}
+
+async function getAllUtxosWithKeys(options = {}) {
+  return await new Promise((resolve, reject) => {
+    redis.keys('utxo*', function(err, res) {
+      let res3 = res.map(function(el) {
+        return new Buffer(el);
       })
+      if (res3.length) {
+        redis.mget(res3, function(err2, res2) {
+          
+          let utxos = res2.map(function(el) {
+            let t = new PlasmaTransaction(el);
+            if (options.json) {
+              t = t.getJson();
+            }
+            return t;
+          });
+
+          let result = {};
+          for (let i in res3) {
+            result[res3[i]] = utxos[i];
+          }
+          
+          resolve(result);
+        })
+      } else {
+        resolve([]);
+      }
     });
   })
 }
@@ -69,5 +104,6 @@ module.exports = {
   createDepositTransaction,
   createSignedTransaction,
   getUTXO,
-  getAllUtxos
+  getAllUtxos,
+  getAllUtxosWithKeys
 };

@@ -2,13 +2,13 @@
 import { createSignedTransaction } from 'lib/tx';
 import web3 from 'lib/web3';
 import Promise from 'bluebird';
-
+import redis from 'lib/redis';
 import config from "config";
 const ethUtil = require('ethereumjs-util'); 
 import RLP from 'rlp';
 
 import txPool from 'lib/txPool';
-import { getAllUtxos } from 'lib/tx';
+import { getAllUtxos, getAllUtxosWithKeys } from 'lib/tx';
 
 let accounts = [
   '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70'.toLowerCase(),
@@ -20,30 +20,70 @@ let accounts = [
 
 let prkeys = {};
 prkeys[accounts[0]] = Buffer.from('de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a', 'hex');
-prkeys[accounts[1]] = Buffer.from('86737ebcbdfda1ca069782b585fed4fb15847206ca179ea8988161ddbb8ad6', 'hex');
+prkeys[accounts[1]] = Buffer.from('86737ebcbdfda1c14a069782b585fed4fb15847206ca179ea8988161ddbb8ad6', 'hex');
 prkeys[accounts[2]] = Buffer.from('06889a2975e9db1487e33ea76f82a034660de671d0594e9470d4f7be4b6feaf1', 'hex');
 prkeys[accounts[3]] = Buffer.from('723851e910975a4ff44b2ec28b719c42ae3c9ea33c187abaa018292a02d5e9a9', 'hex');
 prkeys[accounts[4]] = Buffer.from('25d9bb435e7d96e692054668add7f8b857567b2075b9e2f6b0659c4b6c7ed31c', 'hex');
 
 class TestTransactionsCreator {
-    constructor (options = {}) {
+    constructor () {
         this.ready = false;
         this.utxos = [];
-
+        this.alltransactions = [];
+        
         this.nextAddressGen = getNextAddress(accounts);
         this.nextAddressGen.next();
         this.blockCreatePromise = Promise.resolve(true);
     }
 
+    async createTransactionsFromUTXO() {
+      this.utxos = await getAllUtxosWithKeys();
+      this.alltransactions = [];
+
+      for (let i in this.utxos) {
+          let utxo = this.utxos[i];
+          let blockNumber = parseInt(i.split('_')[1]);
+          
+          try {
+            let txData = {
+              prev_hash:  utxo.getHash().toString('hex'),
+              prev_block: blockNumber,
+              token_id: utxo.token_id.toString(),
+              new_owner: this.nextAddressGen.next(utxo.new_owner).value
+            };
+            let txDataForRlp = [ethUtil.addHexPrefix(txData.prev_hash), txData.prev_block, ethUtil.toBuffer(txData.token_id), txData.new_owner];
+            let txRlpEncoded = ethUtil.hashPersonalMessage(ethUtil.sha3(RLP.encode(txDataForRlp)));
+            
+            if (utxo.new_owner instanceof Buffer)
+              utxo.new_owner = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
+
+            let signature = ethUtil.ecsign(txRlpEncoded, prkeys[utxo.new_owner]);
+            
+            txData.signature = ethUtil.toRpcSig(signature.v, signature.r, signature.s).toString("hex");
+            let createdTx = createSignedTransaction(txData);
+            this.alltransactions.push(createdTx);
+          } catch (e) {
+            console.log(e);
+          }
+      }
+
+      console.log('number of transactions', this.alltransactions.length);
+    
+  }
+
     async init() {
-        console.log('INIT!');
+        await redis.setAsync('currentTX', 0);
         try {
+
             for (let address of accounts) {
-            console.log('account', address);    
-            await web3.eth.personal.unlockAccount(address, config.plasmaOperatorPassword, 0);
-            console.log('Unlock account: ', address);
-            this.ready = true
+   
+              await web3.eth.personal.unlockAccount(address, config.plasmaOperatorPassword, 0);
+              console.log('Unlock account: ', address);
+              
             }
+            await this.createTransactionsFromUTXO();
+            setInterval(()=> this.createTransactionsFromUTXO(), 60000);
+            this.ready = true;
         }
         catch (err) {
             console.log('error', err);
@@ -51,42 +91,27 @@ class TestTransactionsCreator {
         }
     }
 
+    async getCurrentTX() {
+      let ctx = await redis.getAsync('currentTX');
+      ctx = parseInt(ctx);
+      let tx = this.alltransactions[ctx];
+      await redis.setAsync('currentTX', ctx + 1);
+      if (ctx==this.alltransactions.length) await redis.setAsync('currentTX', 0);
+      return tx;
+    }
+
     async createNewTransactions(count = 0) {
       if (!this.ready) { return false }
-    
-      if (this.blockCreateInProgress) {
-        try {
-          await this.blockCreatePromise;
-        }
-        catch (err) {
-          console.log('err', err);
-        }
-      }
-      
-      let utxo = await this.getNextUtxo();
-      console.log('utxo', utxo);
-      if (!utxo) {
+ 
+      if (this.alltransactions.length == 0) {
+        await this.createTransactionsFromUTXO();
         return false;
       }
-      
-      let txData = {
-        prev_hash:  utxo.getHash().toString('hex'),
-        prev_block: utxo.blockNumber,
-        token_id: utxo.token_id.toString(),
-        new_owner: this.nextAddressGen.next(utxo.new_owner).value
-      };
-  
-      let txDataForRlp = [ethUtil.addHexPrefix(txData.prev_hash), txData.prev_block, ethUtil.toBuffer(txData.token_id), txData.new_owner];
-      let txRlpEncoded = ethUtil.sha3(RLP.encode(txDataForRlp)).toString('hex');
-  
-      let signature = await web3.eth.sign(ethUtil.addHexPrefix(txRlpEncoded), utxo.new_owner);
-      txData.signature = signature;
-      console.log('createSignedTransaction', txData);
-      let createdTx = await createSignedTransaction(txData);
-      let savedTx = await txPool.addTransaction(createdTx);
-  
+
+      let tx = await this.getCurrentTX();
+      let savedTx = await txPool.addTransaction(tx);
+
       return savedTx;
-        
     }
 
     async getNextUtxo() {
@@ -117,28 +142,26 @@ class TestTransactionsCreator {
     function* getNextAddress(addresses) {
         let currentAddress = 0;
         let addressToExclude;
-
         while(true) {
-        if (!addresses[++currentAddress]) {
-            currentAddress = 0;
+          if (!addresses[++currentAddress]) {
+              currentAddress = 0;
+          }
+          if (addressToExclude && addresses[currentAddress] == addressToExclude) {
+              if (!addresses[++currentAddress]) {
+              currentAddress = 0;
+              if (addresses[currentAddress] == addressToExclude) {
+                  currentAddress++;
+              }
+              }
+          }
+          addressToExclude = yield addresses[currentAddress];
         }
-        if (addressToExclude && addresses[currentAddress] == addressToExclude) {
-            if (!addresses[++currentAddress]) {
-            currentAddress = 0;
-            if (addresses[currentAddress] == addressToExclude) {
-                currentAddress++;
-            }
-            }
-        }
-        addressToExclude = yield addresses[currentAddress];
-    }
 }
 
 
 const testTransactionsCreator = new TestTransactionsCreator;
 
-//if (config.isDevelopment) {
-  testTransactionsCreator.init();
-//}
+
+setTimeout(()=> testTransactionsCreator.init(), 2000);
 
 export default testTransactionsCreator;

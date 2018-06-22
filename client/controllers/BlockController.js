@@ -7,7 +7,6 @@ class BlockController {
     try {
       let params = req.url.split('/');
       const blockNumber = parseInt(params[3]);
-      console.log('blockNumber', blockNumber)
       if (!blockNumber) {
         res.statusCode = 400;
         return res.end("invalid block number");

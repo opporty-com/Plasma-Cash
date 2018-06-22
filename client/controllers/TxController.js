@@ -43,10 +43,9 @@ class TxController {
             res.statusCode = 400;
             return res.end();
           }
-          return res.end(ctreated && ctreated.getJson());
+          return res.end(JSON.stringify(ctreated.getJson()));
         })
-    }
-    catch(error) {
+    } catch(error) {
       res.statusCode = 400;
       res.end();
     }
@@ -57,7 +56,6 @@ class TxController {
     try { 
       let data = req.body;
       let count = data.count || null;
-      console.log('count', count)
       return createDeposits({deposits: count})
         .then(ctreated => res.end( ctreated.toString() ))
     } catch(error) {
