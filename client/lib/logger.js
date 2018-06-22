@@ -7,7 +7,7 @@ winston.transports.DailyRotateFile = require('winston-daily-rotate-file');
 
 const tsFormat = () => (moment().format('DD:MM:YYYY HH:mm:ss.SSS'));
 
-const LoggerInstance = (name = null, logDir = '/Users/vladimirkovalcuk/logs') => {
+const LoggerInstance = (name = null, logDir = '/home/ubuntu/Plasma-Cash/logs') => {
   const logDirError = `${logDir}/${name ? name + '/' : ''}error`;
   const logDirInfo = `${logDir}/${name ? name + '/' : ''}info`;
 
