@@ -17,6 +17,5 @@ module.exports = {
   blockCreationPeriod: 30000,
   startBlockNumber: 1, // first nlock number in Root contract
   contractblockStep: 1,
-  isDevelopment: process.env.NODE_ENV == 'development',
-  dbPath: '/Users/vladimirkovalcuk/Plasma-Cash/data/leveldb/data'
+  isDevelopment: process.env.NODE_ENV == 'development'
 };
