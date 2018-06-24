@@ -27,7 +27,7 @@ class TXPool {
       await this.getLastBlockNumberFromDb();
     
     let isValid = await this.checkTransaction(tx);
-
+    console.log('isValid',isValid);
     if (!isValid) 
       return false;
     
@@ -53,15 +53,16 @@ class TXPool {
       } else {
 
         let utxo = await getUTXO(transaction.prev_block, transaction.token_id);
-
+	console.log('utxo',utxo);
         if (!utxo) 
           return false;
         
         transaction.prev_hash = utxo.getHash();
         let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
-        
+        console.log('address',address);
         let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());
-        if (utxoOwnerAddress != address) 
+        console.log('utxoOwnerAddress', utxoOwnerAddress);
+	if (utxoOwnerAddress != address) 
           return false;
 
       }
@@ -112,14 +113,18 @@ class TXPool {
         let utxo = tx;
         utxo.blockNumber = block.blockNumber;
         let utxoRlp = utxo.getRlp();
-        let utxoNewKey = utxoPrefix + "_" + block.blockNumber.toString(16) + "_"+ tx.token_id.toString(); 
+        let utxoNewKey = utxoPrefix + "_" + block.blockNumber.toString(10) + "_"+ tx.token_id.toString(); 
         let utxoOldKey;
-        if (tx.prev_block instanceof Buffer) {
-           utxoOldKey = utxoPrefix + "_"+ tx.prev_block.toString("hex") + "_"+ tx.token_id.toString();
-        }  else     
-           utxoOldKey = utxoPrefix + "_"+ tx.prev_block.toString(16) + "_"+ tx.token_id.toString();
-        console.log('del async', utxoOldKey);
-        await redis.delAsync( utxoOldKey );
+        let pblk = tx.prev_block;
+        if (pblk instanceof Buffer) {
+          pblk = pblk.readUIntBE();
+        }
+          if (pblk) {
+            
+             utxoOldKey = utxoPrefix + "_"+ tx.prev_block.toString(10) + "_"+ tx.token_id.toString();
+          console.log('del async', utxoOldKey);
+          await redis.delAsync( utxoOldKey );
+        }
         await redis.setAsync( utxoNewKey, utxoRlp );
       }
       await redis.setAsync( 'lastBlockNumber', block.blockNumber );

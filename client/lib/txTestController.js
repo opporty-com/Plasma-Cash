@@ -43,7 +43,7 @@ class TestTransactionsCreator {
       for (let i in this.utxos) {
           let utxo = this.utxos[i];
           let blockNumber = parseInt(i.split('_')[1]);
-          
+	//console.log('blockNumber',blockNumber);          
           try {
             let txData = {
               prev_hash:  utxo.getHash().toString('hex'),
@@ -109,36 +109,13 @@ class TestTransactionsCreator {
       }
 
       let tx = await this.getCurrentTX();
+	console.log('tx',tx);
       let savedTx = await txPool.addTransaction(tx);
 
       return savedTx;
     }
 
-    async getNextUtxo() {
-      if (!(this.utxos && this.utxos.length)) {
-        if (!this.blockCreateInProgress) {
-          this.blockCreateInProgress = true;
-          this.blockCreatePromise = txPool.createNewBlock()
-          await this.blockCreatePromise;
-          this.blockCreateInProgress = false;
-          this.utxos = await getAllUtxos();
-        }
-      }
-      if (!(this.utxos && this.utxos.length)) {
-        return null;
-      }
-      let utxo = this.utxos.shift();
-      utxo.new_owner = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
-    
-      if (!accounts.some(addr => addr == utxo.new_owner)) {
-        return this.getNextUtxo();
-      }
-      
-      return utxo;
-    }
-
-    }
-
+}
     function* getNextAddress(addresses) {
         let currentAddress = 0;
         let addressToExclude;
@@ -148,15 +125,16 @@ class TestTransactionsCreator {
           }
           if (addressToExclude && addresses[currentAddress] == addressToExclude) {
               if (!addresses[++currentAddress]) {
-              currentAddress = 0;
-              if (addresses[currentAddress] == addressToExclude) {
+                  currentAddress = 0;
+                 if (addresses[currentAddress] == addressToExclude) {
                   currentAddress++;
-              }
+                 }
               }
           }
           addressToExclude = yield addresses[currentAddress];
         }
-}
+      }
+
 
 
 const testTransactionsCreator = new TestTransactionsCreator;

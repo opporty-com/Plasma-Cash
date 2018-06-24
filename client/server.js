@@ -1,27 +1,28 @@
 'use strict';
 
-const express         = require('express');
-const bodyParser      = require('body-parser');
-const RouterModule    = require('./app/router');
-import { logger } from './app/lib/logger';
+const cluster = require('cluster');
+const http = require('http');
+const numCPUs = require('os').cpus().length;
+
+import Routing from './routing';
 const SERVER_PORT = process.env.PORT || 8081;
-const REQUEST_BODY_LIMIT_SIZE = process.env.REQUEST_BODY_LIMIT_SIZE || 11534336;
 import BlockCreator from 'lib/blockCreator';
 
-let app = express();
+if (cluster.isMaster) {
+  console.log(`Master ${process.pid} is running`);
+  BlockCreator.start();
+  // Fork workers.
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-app.disable('x-powered-by');
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`worker ${worker.process.pid} died`);
+  });
+} else {
+  // Workers can share any TCP connection
+  // In this case it is an HTTP server
+  http.createServer(Routing.route).listen(SERVER_PORT);
 
-app.use(bodyParser.json({limit: REQUEST_BODY_LIMIT_SIZE}));
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(RouterModule.router);
-
-require('./app/lib/errorHandler')(app);
-
-BlockCreator.start();
-
-app.listen(8081, function () {
-  logger.info('Process ' + process.pid + ' is listening on ' + SERVER_PORT);
-});
-
-module.exports = app;
+  console.log(`Worker ${process.pid} started`);
+}
