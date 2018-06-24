@@ -36,19 +36,16 @@ class TxController {
   }
   
   static createTestTransaction(req, res) {
-    try { 
-      return TestTransactionsCreator.createNewTransactions()
+      return TestTransactionsCreator.createNewTransactions(req)
         .then(ctreated => {
           if (!ctreated) {
             res.statusCode = 400;
             return res.end();
           }
-          return res.end(JSON.stringify(ctreated.getJson()));
-        })
-    } catch(error) {
-      res.statusCode = 400;
-      res.end();
-    }
+          return res.end();
+        }).catch(function(e){res.end(e.toString())
+
+        });
   }
 
   static async createTestDeposits(req, res) {
@@ -74,23 +71,6 @@ class TxController {
       return res.end(hashForSign);
     } catch(error) {
       res.end(error.toString());
-    }
-  }
-
-  static createTestTransactions(req, res) {
-    try { 
-      return TestTransactionsCreator.createNewTransactions()
-        .then(ctreated => {
-          if (!ctreated) {
-            res.statusCode = 400;
-            return res.end();
-          }
-          res.statusCode = 200;
-          return res.end();
-        })
-    }
-    catch(error) {
-      next(error);
     }
   }
 

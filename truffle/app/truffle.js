@@ -6,10 +6,10 @@ module.exports = {
   // to customize your Truffle configuration!
   networks: {
     development: {
-      host: process.env.HOST || "localhost",
+      host: "172.31.9.86",
       port: 8545,
       from: "0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70",
-      network_id: "*" // Match any network id
+      network_id: 999 // Match any network id
     },
     test: {
       host: "localhost",

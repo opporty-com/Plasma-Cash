@@ -67,23 +67,18 @@ class TestTransactionsCreator {
           }
       }
 
-      console.log('number of transactions', this.alltransactions.length);
-    
+      console.log('TXcount - ', this.alltransactions.length);
+
   }
 
     async init() {
-        await redis.setAsync('currentTX', 0);
         try {
-
             for (let address of accounts) {
-   
               await web3.eth.personal.unlockAccount(address, config.plasmaOperatorPassword, 0);
               console.log('Unlock account: ', address);
-              
             }
             await this.createTransactionsFromUTXO();
             setInterval(()=> this.createTransactionsFromUTXO(), 60000);
-            this.ready = true;
         }
         catch (err) {
             console.log('error', err);
@@ -91,28 +86,8 @@ class TestTransactionsCreator {
         }
     }
 
-    async getCurrentTX() {
-      let ctx = await redis.getAsync('currentTX');
-      ctx = parseInt(ctx);
-      let tx = this.alltransactions[ctx];
-      await redis.setAsync('currentTX', ctx + 1);
-      if (ctx==this.alltransactions.length) await redis.setAsync('currentTX', 0);
-      return tx;
-    }
-
-    async createNewTransactions(count = 0) {
-      if (!this.ready) { return false }
- 
-      if (this.alltransactions.length == 0) {
-        await this.createTransactionsFromUTXO();
-        return false;
-      }
-
-      let tx = await this.getCurrentTX();
-	console.log('tx',tx);
-      let savedTx = await txPool.addTransaction(tx);
-
-      return savedTx;
+    async createNewTransactions(req) {
+      return await txPool.addTransaction(this.alltransactions[parseInt(req.headers['test'])]);
     }
 
 }

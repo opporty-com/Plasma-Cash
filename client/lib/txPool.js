@@ -27,7 +27,7 @@ class TXPool {
       await this.getLastBlockNumberFromDb();
     
     let isValid = await this.checkTransaction(tx);
-    console.log('isValid',isValid);
+    //console.log('isValid',isValid);
     if (!isValid) 
       return false;
     
@@ -37,11 +37,6 @@ class TXPool {
 
   async checkTransaction(transaction) {
     try {
-      if (!transaction)
-        return false;
-      
-      if (!transaction.validate)
-        return false;
 
       if (transaction.prev_block == depositPreviousBlockBn) {
         let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
@@ -53,24 +48,22 @@ class TXPool {
       } else {
 
         let utxo = await getUTXO(transaction.prev_block, transaction.token_id);
-	console.log('utxo',utxo);
+//	console.log('utxo',utxo);
         if (!utxo) 
           return false;
         
         transaction.prev_hash = utxo.getHash();
         let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
-        console.log('address',address);
+  //      console.log('address',address);
         let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());
-        console.log('utxoOwnerAddress', utxoOwnerAddress);
+    //    console.log('utxoOwnerAddress', utxoOwnerAddress);
 	if (utxoOwnerAddress != address) 
           return false;
 
       }
       return true;
-    }
-    catch (error) {
-      console.log('checkTransaction error: ', error);
-      return false;
+    } catch (e) {
+		return false;
     }
   }
 
@@ -106,12 +99,13 @@ class TXPool {
         blockNumber: this.newBlockNumber,
         transactions: transactions
       };
-
-      const block = new Block(blockData); 
+  //    console.log('txCountLength', txCount);
+      const block = new Block(blockData);
+//      console.log('blockTXLength', block.transactions.length);
 
       for (let tx of block.transactions) {
         let utxo = tx;
-        utxo.blockNumber = block.blockNumber;
+        //utxo.blockNumber = block.blockNumber;
         let utxoRlp = utxo.getRlp();
         let utxoNewKey = utxoPrefix + "_" + block.blockNumber.toString(10) + "_"+ tx.token_id.toString(); 
         let utxoOldKey;
@@ -135,7 +129,7 @@ class TXPool {
       }
       await redis.lremAsync('txs', 0, 'DELETED');
       
-      console.log('      New block created - transactions: ', block.txCount);
+      console.log('      New block created - transactions: ', block.transactions.length);
 
       this.newBlockNumber = this.newBlockNumber + config.contractblockStep;
     
