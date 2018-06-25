@@ -87,6 +87,8 @@ class TestTransactionsCreator {
     }
 
     async createNewTransactions(req) {
+
+//return Promise.resolve(true);
       return await txPool.addTransaction(this.alltransactions[parseInt(req.headers['test'])]);
     }
 

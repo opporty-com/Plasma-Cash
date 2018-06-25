@@ -35,13 +35,13 @@ class BlockCreator {
   
   async initBlockPeriodicalCreation() {
     let poollen = await txPool.length();
-    console.log('initBlockPeriodicalCreation', poollen, this.options.minTransactionsInBlock);
+    console.log('Creating New Block - len', poollen, this.options.minTransactionsInBlock);
 
     if (this.options.minTransactionsInBlock && poollen >= this.options.minTransactionsInBlock) {
         await txPool.createNewBlock();
     }
     
-    setTimeout(() => this.initBlockPeriodicalCreation(), config.blockCreationPeriod)
+    setTimeout(() => this.initBlockPeriodicalCreation(), 60000)
     return true;
   }
   
@@ -66,6 +66,9 @@ class BlockCreator {
   }
     
   async processBlock(lastCheckedBlock, lastBlock) {
+    
+
+    console.log('Process Block for Deposit Events - ', lastBlock);
     const depositEventsInBlock = await contractHandler.contract.getPastEvents("DepositAdded", {
       fromBlock: lastCheckedBlock,
       toBlock: lastBlock
@@ -88,10 +91,10 @@ class BlockCreator {
       let lastSubmittedBlock = await redis.getAsync('lastBlockSubmitted');
       lastSubmittedBlock = lastSubmittedBlock ? parseInt(lastSubmittedBlock): 0;
 
-      console.log('lastBlockInDatabase lastSubmittedBlock', lastBlockInDatabase, lastSubmittedBlock)
+      console.log('CheckForSubmitBlock - lastBlockInDatabase lastSubmittedBlock', lastBlockInDatabase, lastSubmittedBlock)
       
       if (lastBlockInDatabase <= lastSubmittedBlock) 
-          return setTimeout(() => this.startBlockSubmittingToParent(), 10000);
+          return setTimeout(() => this.startBlockSubmittingToParent(), 30000);
       
       let currentBlockInParent = await contractHandler.contract.methods.current_blk().call();
       currentBlockInParent = currentBlockInParent;
@@ -99,7 +102,7 @@ class BlockCreator {
         if (currentBlockInParent > lastSubmittedBlock) 
           await redis.setAsync('lastBlockSubmitted', currentBlockInParent);
         
-        return setTimeout(() => this.startBlockSubmittingToParent(), 10000);
+        return setTimeout(() => this.startBlockSubmittingToParent(), 30000);
       }
 
       lastSubmittedBlock = lastSubmittedBlock + config.contractblockStep;
@@ -108,32 +111,32 @@ class BlockCreator {
     catch(error) {
       if (!error.notFound) 
         logger.error('submiting block error ', error);
-      
+
     }
-    setTimeout(() => this.startBlockSubmittingToParent(), 10000);
+    setTimeout(() => this.startBlockSubmittingToParent(), 30000);
   }
-  
+
   async startBlockSubmit(blockNumber) {
     let blockKey = config.prefixes.blockPrefix + blockNumber.toString(16);
     let blockBin = await redis.getAsync(new Buffer(blockKey));
     let block = new Block(blockBin);
     let blockMerkleRootHash = ethUtil.addHexPrefix(block.merkleRootHash.toString('hex'));
     let submittedBlockNumber = ethUtil.bufferToInt(blockNumber);
-    
+
     await web3.eth.personal.unlockAccount(plasmaOperatorAddress, config.plasmaOperatorPassword, 60);
-    
-    console.log('block submit - ', submittedBlockNumber, blockMerkleRootHash);
+
+    console.log('Block submit track - ', submittedBlockNumber, blockMerkleRootHash);
     let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).estimateGas({from: plasmaOperatorAddress});
 
     await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).send({from: plasmaOperatorAddress, gas});
     logger.info('Submitted block - ', blockNumber.toString());
 
     await redis.setAsync('lastBlockSubmitted', blockNumber);
-  } 
+  }
 }
 
 const blockCreator = new BlockCreator({
-  minTransactionsInBlock: 2
+  minTransactionsInBlock: 5
 });
 
 export default blockCreator;

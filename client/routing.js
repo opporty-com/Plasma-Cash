@@ -13,11 +13,11 @@ class Routing {
   }
   static route(req, res) {
     let parts = req.url.split('/');
-    if (parts.length == 2) {
+    if (parts.length <= 2) {
       if (DefController.hasOwnProperty(parts[1])) {
         return DefController[parts[1]](req, res);
       }
-    } else if (parts.length >= 3) {
+    } else {
       let controller = Routing.capitalize(parts[1]) + 'Controller';
       
       let action = parts[2];

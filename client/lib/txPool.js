@@ -23,16 +23,16 @@ class TXPool {
   }
 
   async addTransaction(tx) {
-    if (!this.newBlockNumber) 
-      await this.getLastBlockNumberFromDb();
+    //if (!this.newBlockNumber) 
+    //  await this.getLastBlockNumberFromDb();
     
-    let isValid = await this.checkTransaction(tx);
+    // await this.checkTransaction(tx);
     //console.log('isValid',isValid);
-    if (!isValid) 
+    if (!(await this.checkTransaction(tx)))
       return false;
     
-    await redis.rpushAsync('txs', tx.getRlp(false));
-    return tx;
+    redis.rpushAsync('txs', tx.getRlp(false));
+    return true;
   }
 
   async checkTransaction(transaction) {
@@ -63,7 +63,7 @@ class TXPool {
       }
       return true;
     } catch (e) {
-		return false;
+      return false;
     }
   }
 

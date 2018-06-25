@@ -1,5 +1,5 @@
 let redis = require('redis');
-let client = redis.createClient({
+let client = redis.createClient( {
   detect_buffers: true
 });
 let util = require('util');
