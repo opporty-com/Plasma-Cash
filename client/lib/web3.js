@@ -1,9 +1,7 @@
 import net from 'net';
 import Web3 from 'web3';
-import { logger } from 'lib/logger';
 import config from 'config';
 import fs from 'fs';
-const cluster = require('cluster');
 
 let provider;
 

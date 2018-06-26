@@ -1,8 +1,8 @@
 import web3 from 'lib/web3';
 import config from "config";
 import contractHandler from 'lib/contracts/plasma';
+import ethUtil from 'ethereumjs-util';
 
-const ethUtil = require('ethereumjs-util'); 
 const BN = ethUtil.BN;
 
 let accounts = [
@@ -27,11 +27,9 @@ async function createDeposits(options = {}) {
       let address = nextAddressGen.next().value;
       let amount = new BN('1000000000000000');
       let add = new BN('10000000000000');
-      add = add.mul(new BN(i + 1));
-    
+      add = add.mul(new BN(i + 1));    
       amount = amount.add(add).toString();
-      console.log('amount', amount);
-      
+    
       contractHandler.contract.methods.deposit().estimateGas({from: address, value: amount})
         .then(gas => {
             console.log('done deposit to contract!');
@@ -66,4 +64,4 @@ function* getNextAddress(addresses) {
   }
 }
 
-module.exports = { createDeposits };
+export default { createDeposits };

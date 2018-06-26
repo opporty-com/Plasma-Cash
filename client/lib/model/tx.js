@@ -1,7 +1,7 @@
 'use strict';
 
 import RLP from 'rlp';
-const ethUtil = require('ethereumjs-util');
+import ethUtil from 'ethereumjs-util';
 
 const transactionFields = [
   { name: 'prev_hash' },

@@ -3,10 +3,10 @@
 const Promise = require('bluebird');
 const request = require('supertest');
 const app = require('../server.js');
-import { createSignedTransaction } from '../app/lib/tx';
+
 import RLP from 'rlp';
 const ethUtil = require('ethereumjs-util');
-import web3           from '../app/lib/web3';
+import web3 from '../app/lib/web3';
 import config from "../app/config";
 import chai from 'chai';
 var expect = chai.expect;

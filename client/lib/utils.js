@@ -1,4 +1,4 @@
-const util = require('util');
+import util from 'util';
 
 function parseMulti(req, cb) {
   let body = [];

@@ -1,6 +1,6 @@
 'use strict';
 
-const Web3 = require('web3');
+import Web3 from 'web3';
 
 import config from 'config';
 import ethUtil from 'ethereumjs-util';
