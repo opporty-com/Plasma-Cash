@@ -8,9 +8,7 @@ import contractHandler from 'lib/contracts/plasma';
 import depositEventHandler from 'lib/handlers/DepositEventHandler';
 import web3 from 'lib/web3';
 import Block from 'lib/model/block';
-
-const ethUtil = require('ethereumjs-util'); 
-const plasmaOperatorAddress = config.plasmaOperatorAddress;
+import ethUtil from 'ethereumjs-util'; 
 
 class BlockCreator {
   constructor (options = {}) {
@@ -20,118 +18,91 @@ class BlockCreator {
   start() {
     this.initBlockPeriodicalCreation();
     this.startBlockSubmittingToParent();
-    this.startCheckingContractForEvents();
+    this.blockEventsCheck(null);
   }
-    
-  async startCheckingContractForEvents() {
-    let lastEventProcessed = await redis.getAsync('lastEventProcessed');
-    if (lastEventProcessed)
-      lastEventProcessed = parseInt(lastEventProcessed); 
-    else 
-      lastEventProcessed = 0;
 
-    this.processPeriodicalBlockEventsCheck(lastEventProcessed);
-  }
-  
   async initBlockPeriodicalCreation() {
     let poollen = await txPool.length();
-    console.log('Creating New Block - len', poollen, this.options.minTransactionsInBlock);
+    logger.info('Creating New Block - len ', poollen, 'tx, ', this.options.minTransactionsInBlock);
 
     if (this.options.minTransactionsInBlock && poollen >= this.options.minTransactionsInBlock) {
         await txPool.createNewBlock();
     }
     
-    setTimeout(() => this.initBlockPeriodicalCreation(), 60000)
+    setTimeout(this.initBlockPeriodicalCreation.bind(this), config.blockPeriod)
     return true;
   }
-  
-  async processPeriodicalBlockEventsCheck(lastCheckedBlock) {
-    try{
-      let lastblock = await web3.eth.getBlockNumber();
-
-      if (lastblock > lastCheckedBlock) {
-        lastCheckedBlock = lastCheckedBlock + 1;
-        await this.processBlock(lastCheckedBlock, lastblock);
-        setTimeout(() => this.processPeriodicalBlockEventsCheck(lastblock), 5000);
-        return;
-      } else {
-        setTimeout(() => this.processPeriodicalBlockEventsCheck(lastblock), 5000);
-        return;
-      }
-    }
-    catch(error) {
-      logger.error("processPeriodicalBlockEventsCheck error " + error);
-      setTimeout(() => this.processPeriodicalBlockEventsCheck(lastCheckedBlock), 5000);
-    }
-  }
-    
-  async processBlock(lastCheckedBlock, lastBlock) {
-    
-
-    console.log('Process Block for Deposit Events - ', lastBlock);
-    const depositEventsInBlock = await contractHandler.contract.getPastEvents("DepositAdded", {
-      fromBlock: lastCheckedBlock,
-      toBlock: lastBlock
-    });
-
-    if (depositEventsInBlock.length > 0) {
-      for (let i = 0, length = depositEventsInBlock.length; i< length; i++){
-        await depositEventHandler(depositEventsInBlock[i]);
-      }
-    }
-
-    await redis.setAsync('lastEventProcessed', lastBlock);
-  } 
 
   async startBlockSubmittingToParent() {
     try {
       let lastBlockInDatabase = await redis.getAsync('lastBlockNumber');
-      lastBlockInDatabase = lastBlockInDatabase ? parseInt(lastBlockInDatabase) : 0 ;
-     
+      lastBlockInDatabase = lastBlockInDatabase ? parseInt(lastBlockInDatabase) : 0;
       let lastSubmittedBlock = await redis.getAsync('lastBlockSubmitted');
       lastSubmittedBlock = lastSubmittedBlock ? parseInt(lastSubmittedBlock): 0;
 
-      console.log('CheckForSubmitBlock - lastBlockInDatabase lastSubmittedBlock', lastBlockInDatabase, lastSubmittedBlock)
+      logger.info('LastBlockInDatabase, LastSubmittedBlock', lastBlockInDatabase, lastSubmittedBlock)
       
-      if (lastBlockInDatabase <= lastSubmittedBlock) 
-          return setTimeout(() => this.startBlockSubmittingToParent(), 30000);
-      
-      let currentBlockInParent = await contractHandler.contract.methods.current_blk().call();
-      currentBlockInParent = currentBlockInParent;
-      if (currentBlockInParent != lastSubmittedBlock) {
-        if (currentBlockInParent > lastSubmittedBlock) 
-          await redis.setAsync('lastBlockSubmitted', currentBlockInParent);
-        
-        return setTimeout(() => this.startBlockSubmittingToParent(), 30000);
+      if (lastBlockInDatabase > lastSubmittedBlock) {
+        let currentBlockInParent = await contractHandler.contract.methods.current_blk().call();
+        if (currentBlockInParent != lastSubmittedBlock) {
+          if (currentBlockInParent > lastSubmittedBlock) 
+            await redis.setAsync('lastBlockSubmitted', currentBlockInParent);
+        } else {
+          lastSubmittedBlock += config.contractblockStep;
+          this.startBlockSubmit(lastSubmittedBlock);
+        }
       }
-
-      lastSubmittedBlock = lastSubmittedBlock + config.contractblockStep;
-      await this.startBlockSubmit(lastSubmittedBlock);
+    } catch(error) {
+      logger.error('Submiting block error ', error);
     }
-    catch(error) {
-      if (!error.notFound) 
-        logger.error('submiting block error ', error);
-
+    setTimeout(this.startBlockSubmittingToParent.bind(this), 30000);
+  }
+  
+  async blockEventsCheck(lastCheckedBlock) {
+    let lastBlock;
+    if (lastCheckedBlock == null) {
+      lastCheckedBlock = await redis.getAsync('lastEventProcessed');
+      lastCheckedBlock = lastCheckedBlock ? parseInt(lastCheckedBlock) : 0;
     }
-    setTimeout(() => this.startBlockSubmittingToParent(), 30000);
+    try {
+      lastBlock = await web3.eth.getBlockNumber();
+      if (lastBlock > lastCheckedBlock) {
+        lastCheckedBlock++;
+
+        logger.info('Process Block for Deposit Events - ', lastBlock);
+
+        const depositEventsInBlock = await contractHandler.contract.getPastEvents("DepositAdded", {
+          fromBlock: lastCheckedBlock,
+          toBlock: lastBlock
+        });
+
+        if (depositEventsInBlock.length > 0) {
+          for (let i = 0, length = depositEventsInBlock.length; i < length; ++i)
+            depositEventHandler(depositEventsInBlock[i]);
+        }
+        redis.setAsync('lastEventProcessed', lastBlock);
+      }
+    } catch(error) {
+      logger.error("blockEventsCheck error " + error);
+      lastBlock = lastCheckedBlock;
+    }
+    setTimeout(() => this.blockEventsCheck(lastBlock), 5000);
   }
 
   async startBlockSubmit(blockNumber) {
-    let blockKey = config.prefixes.blockPrefix + blockNumber.toString(16);
-    let blockBin = await redis.getAsync(new Buffer(blockKey));
-    let block = new Block(blockBin);
+    let blockKey = 'block' + blockNumber.toString(16);
+    let block = new Block(await redis.getAsync(Buffer.from(blockKey)));
     let blockMerkleRootHash = ethUtil.addHexPrefix(block.merkleRootHash.toString('hex'));
     let submittedBlockNumber = ethUtil.bufferToInt(blockNumber);
 
-    await web3.eth.personal.unlockAccount(plasmaOperatorAddress, config.plasmaOperatorPassword, 60);
+    await web3.eth.personal.unlockAccount(config.plasmaOperatorAddress, config.plasmaOperatorPassword, 60);
 
-    console.log('Block submit track - ', submittedBlockNumber, blockMerkleRootHash);
+    logger.info('Block submit #', submittedBlockNumber, blockMerkleRootHash);
     let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).estimateGas({from: plasmaOperatorAddress});
+    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).send({from: config.plasmaOperatorAddress, gas});
+    logger.info('Submitted block #', blockNumber);
 
-    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).send({from: plasmaOperatorAddress, gas});
-    logger.info('Submitted block - ', blockNumber.toString());
-
-    await redis.setAsync('lastBlockSubmitted', blockNumber);
+    redis.setAsync('lastBlockSubmitted', blockNumber);
   }
 }
 

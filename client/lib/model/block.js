@@ -5,7 +5,6 @@ import PatriciaMerkle from 'lib/PatriciaMerkle';
 import { PlasmaTransaction } from 'lib/model/tx';
 import RLP from 'rlp';
 import ethUtil from 'ethereumjs-util';
-import { removeHexPrefix } from 'lib/helpers/utills';
 
 class Block {
   constructor (data) {
@@ -65,7 +64,7 @@ class Block {
     }
 
     if (!(token_id instanceof Buffer)) {
-      token_id = ethUtil.toBuffer(removeHexPrefix(token_id));
+      token_id = ethUtil.toBuffer(ethUtil.stripHexPrefix(token_id));
     }
     
     return this.merkle.getProof(token_id, returnhex);
@@ -114,11 +113,10 @@ class Block {
   getTxByTokenId(token_id) {
     let transaction;
     if (!(token_id instanceof Buffer)) {
-      token_id = ethUtil.toBuffer(removeHexPrefix(token_id));
+      token_id = ethUtil.toBuffer(ethUtil.stripHexPrefix(token_id));
     }
     let txsAreRlp = this.transactions[0] && !(this.transactions[0] instanceof PlasmaTransaction);
     let txsTokenIdKey = txsAreRlp ? 2 : 'token_id';
-    console.log('token_id',token_id);
     transaction = this.transactions.find(tx => tx && token_id.equals(tx[txsTokenIdKey]));
 
     if (transaction && !(transaction instanceof PlasmaTransaction)) {
@@ -129,4 +127,4 @@ class Block {
   }
 }
 
-module.exports = Block;
+export default Block;

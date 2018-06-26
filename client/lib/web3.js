@@ -1,7 +1,9 @@
 import net from 'net';
 import Web3 from 'web3';
+import { logger } from 'lib/logger';
 import config from 'config';
 import fs from 'fs';
+const cluster = require('cluster');
 
 let provider;
 
@@ -16,8 +18,4 @@ if (config.web3HttpProvider) {
 
 let web3 = new Web3(provider);
 
-web3.eth.net.isListening()
-  .then(() => console.log('Node is connected'))
-  .catch(e => console.log('Wow. Something went wrong'));
-
-module.exports = web3;
+export default web3;

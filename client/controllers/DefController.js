@@ -2,7 +2,6 @@
 import { getAllUtxos } from '../lib/tx';
 import redis from 'lib/redis';
 import { parseM } from '../lib/utils';
-import config from '../config';
 
 class DefController {
 
@@ -11,7 +10,7 @@ class DefController {
     try {
       let deposits = [];
 
-      redis.keys(config.prefixes.tokenIdPrefix+'*', function(err, result) {
+      redis.keys('tokenId*', function(err, result) {
         if (err) {
           res.statusCode = 400;
           return res.end('error');

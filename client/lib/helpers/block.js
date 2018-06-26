@@ -7,8 +7,8 @@ import Block from 'lib/model/block';
 
 async function getBlock(blockNumber) {
   try {
-    let key = config.prefixes.blockPrefix + blockNumber;
-    let data = await redis.getAsync(new Buffer(key));
+    let key = 'block' + blockNumber;
+    let data = await redis.getAsync(Buffer.from(key));
 
     return new Block(data);
   }

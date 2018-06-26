@@ -1,28 +1,40 @@
 'use strict';
 
-const cluster = require('cluster');
-const http = require('http');
-const numCPUs = require('os').cpus().length;
-
-import Routing from './routing';
-const SERVER_PORT = process.env.PORT || 8081;
+import cluster from 'cluster';
+import web3 from 'lib/web3';
+import http from 'http';
 import BlockCreator from 'lib/blockCreator';
+import Routing from './routing';
+import { logger } from 'lib/logger';
 
-if (cluster.isMaster) {
-  console.log(`Master ${process.pid} is running`);
-  BlockCreator.start();
-  // Fork workers.
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
+let numCPUs = require('os').cpus().length;
+const port = process.env.PORT || 8081;
 
-  cluster.on('exit', (worker, code, signal) => {
-    console.log(`worker ${worker.process.pid} died`);
-  });
-} else {
-  // Workers can share any TCP connection
-  // In this case it is an HTTP server
-  http.createServer(Routing.route).listen(SERVER_PORT);
+(async () => {
+  try {
+    await web3.eth.net.isListening();
+    logger.info('web3 is connected');
+    if (cluster.isMaster) {
+      logger.info('Master ', process.pid, ' is running - starting block creator...');
+      BlockCreator.start();
 
-  console.log(`Worker ${process.pid} started`);
-}
+      for (let i = 0; i < numCPUs; i++) {
+        cluster.fork();
+      }
+        
+      cluster.on('exit', (worker) => {
+        logger.info('Worker ${worker.process.pid} died');
+      });
+    } else {
+      http.createServer(Routing.route).listen(port);
+    
+      logger.info('Worker ', process.pid, ' started');
+    }
+  } catch (e) {
+    logger.error('Web3 instance is not available');
+    logger.info('BYE');
+    process.exit();
+  }  
+})();
+
+

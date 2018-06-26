@@ -8,9 +8,6 @@ import { getUTXO } from 'lib/tx';
 import redis from 'lib/redis';
 import { PlasmaTransaction } from 'lib/model/tx';
 
-const { prefixes: { blockPrefix, utxoPrefix } } = config;
-const depositPreviousBlockBn = 0;
-
 class TXPool {
   constructor () {
     this.newBlockNumber;
@@ -22,23 +19,17 @@ class TXPool {
     return await redis.llenAsync('txs');
   }
 
-  async addTransaction(tx) {
-    //if (!this.newBlockNumber) 
-    //  await this.getLastBlockNumberFromDb();
-    
-    // await this.checkTransaction(tx);
-    //console.log('isValid',isValid);
+  async addTransaction(tx) {    
     if (!(await this.checkTransaction(tx)))
       return false;
     
     redis.rpushAsync('txs', tx.getRlp(false));
-    return true;
+    return tx;
   }
 
   async checkTransaction(transaction) {
     try {
-
-      if (transaction.prev_block == depositPreviousBlockBn) {
+      if (transaction.prev_block == 0) {
         let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
         let valid = address == config.plasmaOperatorAddress.toLowerCase();
 
@@ -46,18 +37,15 @@ class TXPool {
           return false;
         
       } else {
-
         let utxo = await getUTXO(transaction.prev_block, transaction.token_id);
-//	console.log('utxo',utxo);
         if (!utxo) 
           return false;
         
         transaction.prev_hash = utxo.getHash();
         let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
-  //      console.log('address',address);
         let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());
-    //    console.log('utxoOwnerAddress', utxoOwnerAddress);
-	if (utxoOwnerAddress != address) 
+
+        if (utxoOwnerAddress != address) 
           return false;
 
       }
@@ -81,7 +69,7 @@ class TXPool {
   }
 
   async createNewBlock() {
-    try{
+    try {
       if (!this.newBlockNumber) 
         await this.getLastBlockNumberFromDb();
       
@@ -99,37 +87,35 @@ class TXPool {
         blockNumber: this.newBlockNumber,
         transactions: transactions
       };
-  //    console.log('txCountLength', txCount);
+
       const block = new Block(blockData);
-//      console.log('blockTXLength', block.transactions.length);
 
       for (let tx of block.transactions) {
         let utxo = tx;
-        //utxo.blockNumber = block.blockNumber;
+
         let utxoRlp = utxo.getRlp();
-        let utxoNewKey = utxoPrefix + "_" + block.blockNumber.toString(10) + "_"+ tx.token_id.toString(); 
+        let utxoNewKey = "utxo_" + block.blockNumber.toString(10) + "_"+ tx.token_id.toString(); 
         let utxoOldKey;
         let pblk = tx.prev_block;
-        if (pblk instanceof Buffer) {
+        if (pblk instanceof Buffer) 
           pblk = pblk.readUIntBE();
-        }
-          if (pblk) {
-            
-             utxoOldKey = utxoPrefix + "_"+ tx.prev_block.toString(10) + "_"+ tx.token_id.toString();
-          console.log('del async', utxoOldKey);
+        
+        if (pblk) {
+          utxoOldKey = "utxo_"+ tx.prev_block.toString(10) + "_"+ tx.token_id.toString();
+
           await redis.delAsync( utxoOldKey );
         }
         await redis.setAsync( utxoNewKey, utxoRlp );
       }
       await redis.setAsync( 'lastBlockNumber', block.blockNumber );
-      await redis.setAsync( blockPrefix + block.blockNumber.toString(16) , block.getRlp() );
+      await redis.setAsync( 'block' + block.blockNumber.toString(16) , block.getRlp() );
       
-      for (let i=0; i<txCount; i++) {
+      for (let i=0; i<txCount; i++) 
         await redis.lsetAsync('txs' , i, 'DELETED');
-      }
+      
       await redis.lremAsync('txs', 0, 'DELETED');
       
-      console.log('      New block created - transactions: ', block.transactions.length);
+      logger.info('New block created - transactions: ', block.transactions.length);
 
       this.newBlockNumber = this.newBlockNumber + config.contractblockStep;
     

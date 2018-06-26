@@ -2,8 +2,6 @@
 
 import RLP from 'rlp';
 const ethUtil = require('ethereumjs-util');
-const BN = ethUtil.BN;
-import { removeHexPrefix } from 'lib/helpers/utills';
 
 const transactionFields = [
   { name: 'prev_hash' },
@@ -34,7 +32,7 @@ function initFields(self, fields, data) {
             value = parseInt(value);
           }
         } else if (!(value instanceof Buffer) && typeof field.int === 'undefined' ) {
-          value = ethUtil.toBuffer(field.isDecimal ? removeHexPrefix(value) : value);
+          value = ethUtil.toBuffer(field.isDecimal ? ethUtil.stripHexPrefix(value) : value);
         }
       } else {
         value = field.default;
@@ -125,4 +123,4 @@ class PlasmaTransaction {
   }
 }
 
-module.exports = { PlasmaTransaction };
+export default PlasmaTransaction;

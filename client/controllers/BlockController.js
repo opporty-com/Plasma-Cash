@@ -11,8 +11,8 @@ class BlockController {
         res.statusCode = 400;
         return res.end("invalid block number");
       }
-      const key = config.prefixes.blockPrefix + blockNumber.toString(16);
-      const blockRlp = await redis.getAsync(new Buffer(key));
+      const key = 'block' + blockNumber.toString(16);
+      const blockRlp = await redis.getAsync(Buffer.from(key));
       const block = new Block(blockRlp);
       let resJson = block.getJson();
       return res.end(JSON.stringify(resJson));

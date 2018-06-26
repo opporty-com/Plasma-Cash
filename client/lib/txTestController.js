@@ -2,13 +2,11 @@
 import { createSignedTransaction } from 'lib/tx';
 import web3 from 'lib/web3';
 import Promise from 'bluebird';
-import redis from 'lib/redis';
 import config from "config";
 const ethUtil = require('ethereumjs-util'); 
 import RLP from 'rlp';
-
 import txPool from 'lib/txPool';
-import { getAllUtxos, getAllUtxosWithKeys } from 'lib/tx';
+import { getAllUtxosWithKeys } from 'lib/tx';
 
 let accounts = [
   '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70'.toLowerCase(),
@@ -43,7 +41,7 @@ class TestTransactionsCreator {
       for (let i in this.utxos) {
           let utxo = this.utxos[i];
           let blockNumber = parseInt(i.split('_')[1]);
-	//console.log('blockNumber',blockNumber);          
+
           try {
             let txData = {
               prev_hash:  utxo.getHash().toString('hex'),
@@ -68,7 +66,6 @@ class TestTransactionsCreator {
       }
 
       console.log('TXcount - ', this.alltransactions.length);
-
   }
 
     async init() {
@@ -87,8 +84,6 @@ class TestTransactionsCreator {
     }
 
     async createNewTransactions(req) {
-
-//return Promise.resolve(true);
       return await txPool.addTransaction(this.alltransactions[parseInt(req.headers['test'])]);
     }
 
@@ -112,11 +107,9 @@ class TestTransactionsCreator {
         }
       }
 
-
-
 const testTransactionsCreator = new TestTransactionsCreator;
 
-
-setTimeout(()=> testTransactionsCreator.init(), 2000);
+if (config.isDevelopment)
+  testTransactionsCreator.init();
 
 export default testTransactionsCreator;

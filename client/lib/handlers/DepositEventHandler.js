@@ -9,12 +9,11 @@ import redis from 'lib/redis';
 import { createDepositTransaction } from 'lib/tx';
 import { logger } from 'lib/logger';
 import txPool from 'lib/txPool';
+
 let x = 0;
 async function processDepositEvent(event){
-  const { depositor, amount, depositBlock, blockNumber } = event.returnValues;
-  let depositBlockIndexKey = config.prefixes.tokenIdPrefix + depositBlock;
-  //console.log('processDepositEvent ---');
-
+  const { depositor, amount, depositBlock } = event.returnValues;
+  const depositBlockIndexKey = 'tokenId' + depositBlock;
   const existingdepositBlockIndex = await redis.getAsync(depositBlockIndexKey);
 
   if (!existingdepositBlockIndex) 
@@ -28,7 +27,6 @@ async function processDepositEvent(event){
   tx.signature = signature;
 
   if (tx.validate()) {
-
     await txPool.addTransaction(tx);
     logger.info(' DEPOSIT#', x++, ' ', depositBlock);
   }

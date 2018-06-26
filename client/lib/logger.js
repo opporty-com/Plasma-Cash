@@ -1,13 +1,26 @@
 'use strict';
 import winston  from 'winston';
-import { mkdirSyncRecursive } from 'lib/helpers/utills';
+import fs from 'fs';
+import config from 'config';
 
 const moment = require('moment-timezone').tz.setDefault(process.env.TIME_ZONE || 'America/New_York');
 winston.transports.DailyRotateFile = require('winston-daily-rotate-file');
 
 const tsFormat = () => (moment().format('DD:MM:YYYY HH:mm:ss.SSS'));
 
-const LoggerInstance = (name = null, logDir = '/home/ubuntu/Plasma-Cash/logs') => {
+const mkdirSyncRecursive = (directory) => {
+  if (!fs.existsSync(directory)) {
+    let path = directory.replace(/\/$/, '').split('/');
+    for (let i = 1; i <= path.length; i++) {
+      let segment = path.slice(0, i).join('/');
+      if (segment.length > 10 && !fs.existsSync(segment)) {
+        fs.mkdirSync(segment);
+      }
+    }
+  }
+};
+
+const LoggerInstance = (name = null, logDir = config.logDir) => {
   const logDirError = `${logDir}/${name ? name + '/' : ''}error`;
   const logDirInfo = `${logDir}/${name ? name + '/' : ''}info`;
 

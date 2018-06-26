@@ -1,12 +1,7 @@
 'use strict';
 
 import ethUtil from 'ethereumjs-util';
-
 import redis from 'lib/redis';
-const BN = ethUtil.BN;
-import config from "config";
-const { prefixes: { utxoPrefix } } = config;
-
 import { PlasmaTransaction } from 'lib/model/tx';
 
 function createDepositTransaction(addressTo, amountBN, token_id) {
@@ -33,7 +28,7 @@ function createSignedTransaction(data) {
 }
 
 async function getUTXO(blockNumber, token_id) {
-  let q = utxoPrefix + '_'+ blockNumber.toString(16) +'_'+ token_id.toString();
+  let q = 'utxo_'+ blockNumber.toString(16) +'_'+ token_id.toString();
 
   let data = await redis.getAsync(new Buffer(q));
   
@@ -47,7 +42,7 @@ async function getAllUtxos(options = {}) {
   return await new Promise((resolve, reject) => {
     redis.keys('utxo*', function(err, res) {
       let res3 = res.map(function(el) {
-        return new Buffer(el);
+        return Buffer.from(el);
       })
       if (res3.length) {
         redis.mget(res3, function(err2, res2) {
@@ -73,7 +68,7 @@ async function getAllUtxosWithKeys(options = {}) {
   return await new Promise((resolve, reject) => {
     redis.keys('utxo*', function(err, res) {
       let res3 = res.map(function(el) {
-        return new Buffer(el);
+        return Buffer.from(el);
       })
       if (res3.length) {
         redis.mget(res3, function(err2, res2) {
@@ -100,7 +95,7 @@ async function getAllUtxosWithKeys(options = {}) {
   })
 }
 
-module.exports = {
+export {
   createDepositTransaction,
   createSignedTransaction,
   getUTXO,

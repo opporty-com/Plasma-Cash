@@ -36,17 +36,16 @@ class TxController {
   }
   
   static createTestTransaction(req, res) {
-     //return res.end();
      return txPool.addTransaction(TestTransactionsCreator.alltransactions[parseInt(req.headers['test'])])
         .then(ctreated => {
           if (!ctreated) {
             res.statusCode = 400;
             return res.end();
           }
-          return res.end();
-        }).catch(function(e){return res.end(e.toString())
-
-        });
+          return res.end(JSON.stringify(ctreated));
+        }).catch(function(e) {
+          return res.end(e.toString())
+      });
   }
 
   static async createTestDeposits(req, res) {
