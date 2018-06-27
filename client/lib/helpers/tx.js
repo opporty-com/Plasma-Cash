@@ -2,7 +2,8 @@
 
 import ethUtil from 'ethereumjs-util';
 import redis from 'lib/redis';
-import { PlasmaTransaction } from 'lib/model/tx';
+import PlasmaTransaction from 'lib/model/tx';
+
 
 function createDepositTransaction(addressTo, amountBN, token_id) {
   let txData = {
@@ -11,7 +12,7 @@ function createDepositTransaction(addressTo, amountBN, token_id) {
     token_id,
     new_owner: ethUtil.addHexPrefix(addressTo)
   };
-  
+
   return new PlasmaTransaction(txData);
 }
 

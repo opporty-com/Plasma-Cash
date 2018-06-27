@@ -1,4 +1,5 @@
-import config from '../config';
+'use strict';
+
 import redis from '../lib/redis';
 import Block  from '../lib/model/block';
 

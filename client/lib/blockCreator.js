@@ -98,7 +98,7 @@ class BlockCreator {
     await web3.eth.personal.unlockAccount(config.plasmaOperatorAddress, config.plasmaOperatorPassword, 60);
 
     logger.info('Block submit #', submittedBlockNumber, blockMerkleRootHash);
-    let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).estimateGas({from: plasmaOperatorAddress});
+    let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).estimateGas({from: config.plasmaOperatorAddress});
     await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, submittedBlockNumber).send({from: config.plasmaOperatorAddress, gas});
     logger.info('Submitted block #', blockNumber);
 

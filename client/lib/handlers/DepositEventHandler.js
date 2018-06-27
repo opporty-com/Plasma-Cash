@@ -6,7 +6,7 @@ import config from 'config';
 import ethUtil from 'ethereumjs-util';
 import web3 from 'lib/web3';
 import redis from 'lib/redis';
-import { createDepositTransaction } from 'lib/tx';
+import { createDepositTransaction } from 'lib/helpers/tx';
 import { logger } from 'lib/logger';
 import txPool from 'lib/txPool';
 

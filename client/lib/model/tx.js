@@ -15,7 +15,13 @@ function initFields(self, fields, data) {
   if (data instanceof Buffer) {
     let decodedData = RLP.decode(data);
     fields.forEach((field, i) => {
-      self[field.name] = decodedData[i];
+      if (field.int) {
+        if (decodedData[i].length) 
+          self[field.name] = decodedData[i].readUIntBE();
+        else 
+          self[field.name] = 0;
+      } else
+        self[field.name] = decodedData[i];
     });
   } else if (Array.isArray(data) && data.length) {
     fields.forEach((field, i) => {
@@ -102,7 +108,6 @@ class PlasmaTransaction {
   }
 
   validate () {
-      
     let isValid = true;
     if (!this.new_owner || !this.signature || !this.token_id) {
       isValid = false;

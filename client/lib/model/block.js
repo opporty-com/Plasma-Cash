@@ -2,7 +2,7 @@
 
 import PatriciaMerkle from 'lib/PatriciaMerkle';
 
-import { PlasmaTransaction } from 'lib/model/tx';
+import PlasmaTransaction from 'lib/model/tx';
 import RLP from 'rlp';
 import ethUtil from 'ethereumjs-util';
 

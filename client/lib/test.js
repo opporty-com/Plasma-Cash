@@ -34,6 +34,8 @@ async function createDeposits(options = {}) {
         .then(gas => {
             console.log('done deposit to contract!');
           return contractHandler.contract.methods.deposit().send({from: address, gas, value: amount});
+        }).catch(error => {
+          console.log('error' , error.toString())
         })
       created++;
     }
@@ -64,4 +66,4 @@ function* getNextAddress(addresses) {
   }
 }
 
-export default { createDeposits };
+export { createDeposits };

@@ -1,11 +1,13 @@
-import { logger } from '../lib/logger';
-import { createSignedTransaction, getUTXO } from '../lib/tx';
-import txPool from '../lib/txPool';
-import { createDeposits } from '../lib/test';
+'use strict';
+
+import { logger } from 'lib/logger';
+import { createSignedTransaction } from 'lib/helpers/tx';
+import txPool from 'lib/txPool';
+import { createDeposits } from 'lib/test';
 import ethUtil from 'ethereumjs-util';
-import TestTransactionsCreator from '../lib/txTestController';
-import { getBlock } from '../lib/helpers/block';
-import { parseM } from '../lib/utils';
+import TestTransactionsCreator from 'lib/txTestController';
+import { getBlock } from 'lib/helpers/block';
+import { parseM } from 'lib/utils';
 
 class TxController {
   static async get(req, res) {
@@ -42,7 +44,7 @@ class TxController {
             res.statusCode = 400;
             return res.end();
           }
-          return res.end(JSON.stringify(ctreated));
+          return res.end(JSON.stringify(ctreated.getJson()));
         }).catch(function(e) {
           return res.end(e.toString())
       });
@@ -50,20 +52,20 @@ class TxController {
 
   static async createTestDeposits(req, res) {
     await parseM(req);
-    try { 
+    try {
       let data = req.body;
       let count = data.count || null;
       return createDeposits({deposits: count})
         .then(ctreated => res.end( ctreated.toString() ))
     } catch(error) {
       res.statusCode = 400;
-      res.end(error);
+      res.end(error.toString());
     }
   }
 
   static async getHashToSign(req, res) {
-    try { 
-      await parseM(req);
+    await parseM(req);
+    try {
       let data = req.body;
       let tx = await createSignedTransaction(data);
       let hashForSign = tx && ethUtil.addHexPrefix(tx.getHash(true).toString('hex'));

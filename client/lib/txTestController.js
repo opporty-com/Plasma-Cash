@@ -1,12 +1,13 @@
 
-import { createSignedTransaction } from 'lib/tx';
+import { createSignedTransaction } from 'lib/helpers/tx';
 import web3 from 'lib/web3';
 import Promise from 'bluebird';
 import config from "config";
 const ethUtil = require('ethereumjs-util'); 
 import RLP from 'rlp';
 import txPool from 'lib/txPool';
-import { getAllUtxosWithKeys } from 'lib/tx';
+import { getAllUtxosWithKeys } from 'lib/helpers/tx';
+import { PlasmaTransaction } from 'lib/model/tx';
 
 let accounts = [
   '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70'.toLowerCase(),
@@ -109,7 +110,7 @@ class TestTransactionsCreator {
 
 const testTransactionsCreator = new TestTransactionsCreator;
 
-if (config.isDevelopment)
+//if (config.isDevelopment)
   testTransactionsCreator.init();
 
 export default testTransactionsCreator;

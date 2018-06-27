@@ -1,8 +1,6 @@
 'use strict';
 
 import redis from 'lib/redis';
-import config from 'config';
-
 import Block from 'lib/model/block';
 
 async function getBlock(blockNumber) {
@@ -20,6 +18,4 @@ async function getBlock(blockNumber) {
   }
 }
 
-module.exports = {
-  getBlock
-};
+export default { getBlock };

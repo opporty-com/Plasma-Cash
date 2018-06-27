@@ -1,11 +1,13 @@
-let redis = require('redis');
+import redis from 'redis';
+import util from 'util';
+
 let client = redis.createClient( {
   detect_buffers: true
 });
-let util = require('util');
+
 const getAsync = util.promisify(client.get).bind(client);
 const setAsync = util.promisify(client.set).bind(client);
-const delAsync = util.promisify(client.get).bind(client);
+const delAsync = util.promisify(client.del).bind(client);
 const lpushAsync = util.promisify(client.lpush).bind(client);
 const rpushAsync = util.promisify(client.rpush).bind(client);
 const lrangeAsync = util.promisify(client.lrange).bind(client);
@@ -22,4 +24,4 @@ client.lrangeAsync = lrangeAsync;
 client.lremAsync = lremAsync;
 client.lsetAsync = lsetAsync;
 
-module.exports = client;
+export default client;

@@ -1,3 +1,5 @@
+'use strict';
+
 import TxController from './controllers/TxController';
 import BlockController from './controllers/BlockController';
 import DefController from './controllers/DefController';
@@ -6,6 +8,7 @@ const controllers = {
   TxController,
   BlockController
 };
+
 
 class Routing {
   static capitalize(string) {

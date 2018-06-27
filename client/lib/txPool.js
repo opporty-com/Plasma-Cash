@@ -4,9 +4,9 @@ import Block from 'lib/model/block';
 import config from "config";
 import ethUtil from 'ethereumjs-util'; 
 import { logger } from 'lib/logger';
-import { getUTXO } from 'lib/tx';
+import { getUTXO } from 'lib/helpers/tx';
 import redis from 'lib/redis';
-import { PlasmaTransaction } from 'lib/model/tx';
+import PlasmaTransaction  from 'lib/model/tx';
 
 class TXPool {
   constructor () {
@@ -22,7 +22,6 @@ class TXPool {
   async addTransaction(tx) {    
     if (!(await this.checkTransaction(tx)))
       return false;
-    
     redis.rpushAsync('txs', tx.getRlp(false));
     return tx;
   }
@@ -73,52 +72,40 @@ class TXPool {
       if (!this.newBlockNumber) 
         await this.getLastBlockNumberFromDb();
       
-      let txCount = await this.length();
-      
-      let transactions = await redis.lrangeAsync(new Buffer('txs'), 0, txCount);
+      let transactions = await redis.lrangeAsync(new Buffer('txs'), 0, -1);
       transactions = transactions.map(function(el) {
         return new PlasmaTransaction(el);
-      })
+      });
       
-      if (txCount == 0) 
+      if (transactions.length == 0) 
         return false;
       
-      const blockData = {
+      const block = new Block({
         blockNumber: this.newBlockNumber,
         transactions: transactions
-      };
+      });
 
-      const block = new Block(blockData);
+      for (let utxo of block.transactions) {
+        console.log('utxo', utxo);
+        let utxoNewKey = "utxo_" + block.blockNumber.toString(10) + "_"+ utxo.token_id.toString(); 
 
-      for (let tx of block.transactions) {
-        let utxo = tx;
-
-        let utxoRlp = utxo.getRlp();
-        let utxoNewKey = "utxo_" + block.blockNumber.toString(10) + "_"+ tx.token_id.toString(); 
-        let utxoOldKey;
-        let pblk = tx.prev_block;
-        if (pblk instanceof Buffer) 
-          pblk = pblk.readUIntBE();
-        
-        if (pblk) {
-          utxoOldKey = "utxo_"+ tx.prev_block.toString(10) + "_"+ tx.token_id.toString();
-
+        if (utxo.prev_block != 0) {
+          let utxoOldKey = "utxo_"+ utxo.prev_block.toString(10) + "_"+ utxo.token_id.toString();
+          console.log('DEL', utxoOldKey);
           await redis.delAsync( utxoOldKey );
         }
-        await redis.setAsync( utxoNewKey, utxoRlp );
+        await redis.setAsync( utxoNewKey, utxo.getRlp() );
       }
       await redis.setAsync( 'lastBlockNumber', block.blockNumber );
       await redis.setAsync( 'block' + block.blockNumber.toString(16) , block.getRlp() );
       
-      for (let i=0; i<txCount; i++) 
-        await redis.lsetAsync('txs' , i, 'DELETED');
-      
-      await redis.lremAsync('txs', 0, 'DELETED');
+      for (let i=0; i < block.transactions.length; i++)
+        await redis.lsetAsync('txs', i, 'DELETED');
+      redis.lremAsync('txs', 0, 'DELETED');
       
       logger.info('New block created - transactions: ', block.transactions.length);
 
-      this.newBlockNumber = this.newBlockNumber + config.contractblockStep;
-    
+      this.newBlockNumber += config.contractblockStep;
       return block;
     }
     catch(err){

@@ -13,7 +13,7 @@ const port = process.env.PORT || 8081;
 (async () => {
   try {
     await web3.eth.net.isListening();
-    logger.info('web3 is connected');
+
     if (cluster.isMaster) {
       logger.info('Master ', process.pid, ' is running - starting block creator...');
       BlockCreator.start();
@@ -28,7 +28,7 @@ const port = process.env.PORT || 8081;
     } else {
       http.createServer(Routing.route).listen(port);
     
-      logger.info('Worker ', process.pid, ' started');
+      logger.info('Worker', process.pid, ' started, web3 is connected');
     }
   } catch (e) {
     logger.error('Web3 instance is not available');

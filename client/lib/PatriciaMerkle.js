@@ -2,7 +2,6 @@
 
 import ethUtil from 'ethereumjs-util';
 const BN = ethUtil.BN;
-import RLP from 'rlp';
 
 class Merkle {
   constructor (leaves) {

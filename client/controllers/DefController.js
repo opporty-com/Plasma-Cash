@@ -1,5 +1,7 @@
 
-import { getAllUtxos } from '../lib/tx';
+'use strict';
+
+import { getAllUtxos } from 'lib/helpers/tx';
 import redis from 'lib/redis';
 import { parseM } from '../lib/utils';
 
