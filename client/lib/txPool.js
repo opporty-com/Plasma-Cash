@@ -86,18 +86,16 @@ class TXPool {
       });
 
       for (let utxo of block.transactions) {
-        console.log('utxo', utxo);
         let utxoNewKey = "utxo_" + block.blockNumber.toString(10) + "_"+ utxo.token_id.toString(); 
 
         if (utxo.prev_block != 0) {
           let utxoOldKey = "utxo_"+ utxo.prev_block.toString(10) + "_"+ utxo.token_id.toString();
-          console.log('DEL', utxoOldKey);
           await redis.delAsync( utxoOldKey );
         }
         await redis.setAsync( utxoNewKey, utxo.getRlp() );
       }
       await redis.setAsync( 'lastBlockNumber', block.blockNumber );
-      await redis.setAsync( 'block' + block.blockNumber.toString(16) , block.getRlp() );
+      await redis.setAsync( 'block' + block.blockNumber.toString(10) , block.getRlp() );
       
       for (let i=0; i < block.transactions.length; i++)
         await redis.lsetAsync('txs', i, 'DELETED');

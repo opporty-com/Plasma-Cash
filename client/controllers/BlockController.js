@@ -12,7 +12,7 @@ class BlockController {
         res.statusCode = 400;
         return res.end("invalid block number");
       }
-      const key = 'block' + blockNumber.toString(16);
+      const key = 'block' + blockNumber.toString(10);
       const blockRlp = await redis.getAsync(Buffer.from(key));
       const block = new Block(blockRlp);
       let resJson = block.getJson();

@@ -90,7 +90,7 @@ class BlockCreator {
   }
 
   async startBlockSubmit(blockNumber) {
-    let blockKey = 'block' + blockNumber.toString(16);
+    let blockKey = 'block' + blockNumber.toString(10);
     let block = new Block(await redis.getAsync(Buffer.from(blockKey)));
     let blockMerkleRootHash = ethUtil.addHexPrefix(block.merkleRootHash.toString('hex'));
     let submittedBlockNumber = ethUtil.bufferToInt(blockNumber);
