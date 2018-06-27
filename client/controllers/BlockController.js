@@ -1,7 +1,8 @@
 'use strict';
 
-import redis from '../lib/redis';
-import Block  from '../lib/model/block';
+import { logger } from 'lib/logger';
+import { getBlock } from 'lib/helpers/block';
+import { parseM } from 'lib/utils';
 
 class BlockController {
   static async get(req, res) {
@@ -10,18 +11,47 @@ class BlockController {
       const blockNumber = parseInt(params[3]);
       if (!blockNumber) {
         res.statusCode = 400;
-        return res.end("invalid block number");
+        return res.end("Invalid block number");
       }
-      const key = 'block' + blockNumber.toString(10);
-      const blockRlp = await redis.getAsync(Buffer.from(key));
-      const block = new Block(blockRlp);
-      let resJson = block.getJson();
-      return res.end(JSON.stringify(resJson));
+      let block = await getBlock(blockNumber);
+      return res.end(JSON.stringify(block.getJson()));
     } catch(error) {
       res.statusCode = 400;
       res.end(error.toString());
     }
   }
+
+  static async proof(req, res) {
+    await parseM(req);
+    try { 
+      let { block: blockNumber, token_id } = req.body;
+      if (!blockNumber) {
+        throw new Error('No block number in request');
+      }
+      let block = await getBlock(blockNumber);
+      let proof = block.getProof(token_id, true)
+
+      return res.end(JSON.stringify({ proof }));
+    }
+    catch(error) {
+      res.statusCode = 400;
+      res.end(error.toString());
+    }
+  }
+
+  static async checkProof(req, res) {
+    await parseM(req);
+    try { 
+      let { block: blockNumber, hash, proof } = req.body;
+      let block = await getBlock(blockNumber);
+      return res.end(JSON.stringify(block.checkProof(proof, hash)));
+    }
+    catch(error) {
+      res.statusCode = 400;
+      res.end(error.toString());
+    }
+  }
+
 }
 
 export default BlockController;

@@ -3,7 +3,7 @@
 
 import { getAllUtxos } from 'lib/helpers/tx';
 import redis from 'lib/redis';
-import { parseM } from '../lib/utils';
+import { parseM } from 'lib/utils';
 
 class DefController {
 

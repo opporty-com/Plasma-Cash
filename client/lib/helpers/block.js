@@ -1,21 +1,21 @@
 'use strict';
 
+import { logger } from 'lib/logger';
 import redis from 'lib/redis';
 import Block from 'lib/model/block';
 
 async function getBlock(blockNumber) {
   try {
-    let key = 'block' + blockNumber;
-    let data = await redis.getAsync(Buffer.from(key));
+    const block = await redis.getAsync(Buffer.from('block' + blockNumber));
+    if (!block)
+      throw new Error('Block not found');
 
-    return new Block(data);
+    return new Block(block);
   }
   catch(error) {
-    if (error.type !== "NotFoundError"){
-      throw error;
-    }
-    return null;
+    logger.info("ERROR" + error.toString());
   }
+  return null;
 }
 
-export default { getBlock };
+export { getBlock };
