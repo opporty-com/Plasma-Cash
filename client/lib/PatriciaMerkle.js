@@ -95,7 +95,7 @@ class Merkle {
         if (returnBinary) {
           proof.unshift(node.rightChild.hash);
           proof.unshift(Buffer.from(ethUtil.sha3(nodeKey)));
-          proof.unshift(new Buffer([0x01]));
+          proof.unshift(Buffer.from([0x01]));
         } else {
           proof.unshift({right : node.rightChild.hash, key: ethUtil.sha3(nodeKey) });
         }
@@ -105,7 +105,7 @@ class Merkle {
         if (returnBinary) {
           proof.unshift(node.leftChild.hash);
           proof.unshift(Buffer.from(ethUtil.sha3(nodeKey)));
-          proof.unshift(new Buffer([0x00]));
+          proof.unshift(Buffer.from([0x00]));
         } else {
           proof.unshift({left: node.leftChild.hash, key: ethUtil.sha3(nodeKey) });
         }

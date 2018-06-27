@@ -72,7 +72,7 @@ class TXPool {
       if (!this.newBlockNumber) 
         await this.getLastBlockNumberFromDb();
       
-      let transactions = await redis.lrangeAsync(new Buffer('txs'), 0, -1);
+      let transactions = await redis.lrangeAsync(Buffer.from('txs'), 0, -1);
       transactions = transactions.map(function(el) {
         return new PlasmaTransaction(el);
       });

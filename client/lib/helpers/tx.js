@@ -31,7 +31,7 @@ function createSignedTransaction(data) {
 async function getUTXO(blockNumber, token_id) {
   let q = 'utxo_'+ blockNumber.toString(16) +'_'+ token_id.toString();
 
-  let data = await redis.getAsync(new Buffer(q));
+  let data = await redis.getAsync(Buffer.from(q));
   
   if (data) 
       return new PlasmaTransaction(data);

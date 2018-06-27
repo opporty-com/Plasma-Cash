@@ -7,7 +7,7 @@ const ethUtil = require('ethereumjs-util');
 import RLP from 'rlp';
 import txPool from 'lib/txPool';
 import { getAllUtxosWithKeys } from 'lib/helpers/tx';
-import { PlasmaTransaction } from 'lib/model/tx';
+
 
 let accounts = [
   '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70'.toLowerCase(),
