@@ -1,6 +1,5 @@
 version: '3.3'
 services:
-
   backend:
     build: ./backend
     ports:
@@ -15,10 +14,10 @@ services:
       NODE_ENV: development
       LOG_LEVEL: "debug"
       PRODUCTION_MODE: "OFF"
-      PLASMA_CONTRACT_ADDRESS: '0x6134cf6bd676ff7abd287a02b54774de9fd2b79a'
+      PLASMA_CONTRACT_ADDRESS: '0x6a29207b76FD354eBd3AE4b45903a7c247f03D0a'
       PLASMA_OPERATOR_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
       PLASMA_OPERATOR_PRIVATE: ''
-      PLASMA_OPERATOR_PASSWORD: ''
+      PLASMA_OPERATOR_PASSWORD: '123123123'
       WEB3_HTTP_PROVIDER: ''
     command: 'npm run development'
     logging:

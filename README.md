@@ -12,7 +12,7 @@
 
 ### GET /block/[id]
 
-Example: http://localhost/block/1
+Example: http://localhost/block/get/1
 
 Response body:
 ```javascript
