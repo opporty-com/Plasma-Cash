@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">lib/logger.js | backend</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="backend"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="backend"><meta property="twitter:description" content="backend"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/PatriciaMerkle.js~Merkle.html">Merkle</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/SparseMerkle.js~Merkle.html">Merkle</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/blockCreator.js~BlockCreator.html">BlockCreator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/txPool.js~TXPool.html">TXPool</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/txTestController.js~TestTransactionsCreator.html">TestTransactionsCreator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createDeposits">createDeposits</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-validate">validate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-validateRequestBySchema">validateRequestBySchema</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-blockCreator">blockCreator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-logger">logger</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-client">client</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-txPool">txPool</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-testTransactionsCreator">testTransactionsCreator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-parseM">parseM</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts">contracts</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/contracts/plasma.js~ContractHandler.html">ContractHandler</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-contractHandler">contractHandler</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#handlers">handlers</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-processDepositEvent">processDepositEvent</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#helpers">helpers</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getBlock">getBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createDepositTransaction">createDepositTransaction</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createSignedTransaction">createSignedTransaction</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllUtxos">getAllUtxos</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllUtxosWithKeys">getAllUtxosWithKeys</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getUTXO">getUTXO</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#model">model</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/model/block.js~Block.html">Block</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/model/tx.js~PlasmaTransaction.html">PlasmaTransaction</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">lib/logger.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">&apos;use strict&apos;;
+
+import winston  from &apos;winston&apos;;
+import fs from &apos;fs&apos;;
+import config from &apos;config&apos;;
+
+const moment = require(&apos;moment-timezone&apos;).tz.setDefault(process.env.TIME_ZONE || &apos;America/New_York&apos;);
+winston.transports.DailyRotateFile = require(&apos;winston-daily-rotate-file&apos;);
+
+const tsFormat = () =&gt; (moment().format(&apos;DD:MM:YYYY HH:mm:ss.SSS&apos;));
+
+const mkdirSyncRecursive = (directory) =&gt; {
+  if (!fs.existsSync(directory)) {
+    let path = directory.replace(/\/$/, &apos;&apos;).split(&apos;/&apos;);
+    for (let i = 1; i &lt;= path.length; i++) {
+      let segment = path.slice(0, i).join(&apos;/&apos;);
+      if (segment.length &gt; 10 &amp;&amp; !fs.existsSync(segment)) {
+        fs.mkdirSync(segment);
+      }
+    }
+  }
+};
+
+const LoggerInstance = (name = null, logDir = config.logDir) =&gt; {
+  const logDirError = `${logDir}/${name ? name + &apos;/&apos; : &apos;&apos;}error`;
+  const logDirInfo = `${logDir}/${name ? name + &apos;/&apos; : &apos;&apos;}info`;
+
+  mkdirSyncRecursive(logDir);
+  mkdirSyncRecursive(logDirError);
+  mkdirSyncRecursive(logDirInfo);
+
+  const winstonInstance =  new winston.Logger({
+    level:&apos;debug&apos;,
+    emitErrs: true,
+    transports: [
+      new (winston.transports.Console)({
+        name: &apos;console&apos;,
+        handleExceptions: false,
+        prettyPrint: true,
+        silent:false,
+        timestamp: tsFormat,
+        depth: 5,
+        colorize: true,
+        json: false
+      }),
+      new (winston.transports.DailyRotateFile)({
+        name: &apos;error&apos;,
+        filename: `${logDirError}/-error.log`,
+        timestamp: tsFormat,
+        datePattern: &apos;yyyy-MM-dd&apos;,
+        prepend: true,
+        level: &apos;error&apos;
+      }),
+      new (winston.transports.DailyRotateFile)({
+        level:&apos;info&apos;,
+        name: &apos;info&apos;,
+        filename: `${logDirInfo}/-info.log`,
+        handleExceptions: false,
+        prettyPrint: true,
+        depth: 5,
+        silent:false,
+        json: true,
+        colorize: true,
+        timestamp: tsFormat,
+        datePattern: &apos;yyyy-MM-dd&apos;,
+        prepend: true,
+        stderrLevels: [&apos;info&apos;]
+      })
+    ],
+
+    exceptionHandlers: [
+      new winston.transports.File({ filename: `${logDir}/log-exceptions.log`, timestamp: tsFormat }),
+      new (winston.transports.Console)({
+        colorize: true,
+        handleExceptions: true,
+        prettyPrint: true
+      })
+    ],
+    exitOnError: true
+  });
+  winstonInstance.level = process.env.LOG_LEVEL || &apos;info&apos;;
+  return winstonInstance;
+};
+
+const logger = LoggerInstance();
+
+export {
+  logger
+};
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

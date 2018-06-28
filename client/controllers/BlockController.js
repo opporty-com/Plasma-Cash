@@ -1,6 +1,6 @@
 'use strict';
 
-import { logger } from 'lib/logger';
+
 import { getBlock } from 'lib/helpers/block';
 import { parseM } from 'lib/utils';
 

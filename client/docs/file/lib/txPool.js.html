@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">lib/txPool.js | backend</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<meta name="description" content="backend"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="backend"><meta property="twitter:description" content="backend"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/PatriciaMerkle.js~Merkle.html">Merkle</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/SparseMerkle.js~Merkle.html">Merkle</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/blockCreator.js~BlockCreator.html">BlockCreator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/txPool.js~TXPool.html">TXPool</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/txTestController.js~TestTransactionsCreator.html">TestTransactionsCreator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createDeposits">createDeposits</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-validate">validate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-validateRequestBySchema">validateRequestBySchema</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-blockCreator">blockCreator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-logger">logger</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-client">client</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-txPool">txPool</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-testTransactionsCreator">testTransactionsCreator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-parseM">parseM</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contracts">contracts</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/contracts/plasma.js~ContractHandler.html">ContractHandler</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-contractHandler">contractHandler</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#handlers">handlers</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-processDepositEvent">processDepositEvent</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#helpers">helpers</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getBlock">getBlock</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createDepositTransaction">createDepositTransaction</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-createSignedTransaction">createSignedTransaction</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllUtxos">getAllUtxos</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getAllUtxosWithKeys">getAllUtxosWithKeys</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-getUTXO">getUTXO</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#model">model</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/model/block.js~Block.html">Block</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/lib/model/tx.js~PlasmaTransaction.html">PlasmaTransaction</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">lib/txPool.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">&apos;use strict&apos;;
+
+import Block from &apos;lib/model/block&apos;;
+import config from &quot;config&quot;;
+import ethUtil from &apos;ethereumjs-util&apos;; 
+import { logger } from &apos;lib/logger&apos;;
+import { getUTXO } from &apos;lib/helpers/tx&apos;;
+import redis from &apos;lib/redis&apos;;
+import PlasmaTransaction  from &apos;lib/model/tx&apos;;
+
+/**
+ * TxPool - mempool for transactions
+ */
+class TXPool {
+  constructor () {
+    this.newBlockNumber;
+    this.newBlockNumberBuffer;
+    this.inputKeys = {};
+  }
+
+  async length() {
+    return await redis.llenAsync(&apos;txs&apos;);
+  }
+
+  async addTransaction(tx) {    
+    if (!(await this.checkTransaction(tx)))
+      return false;
+    redis.rpushAsync(&apos;txs&apos;, tx.getRlp(false));
+    return tx;
+  }
+
+  async checkTransaction(transaction) {
+    try {
+      if (transaction.prev_block == 0) {
+        let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature(&apos;hex&apos;).toLowerCase());    
+        let valid = address == config.plasmaOperatorAddress.toLowerCase();
+
+        if (!valid) 
+          return false;
+        
+      } else {
+        let utxo = await getUTXO(transaction.prev_block, transaction.token_id);
+        if (!utxo) 
+          return false;
+        
+        transaction.prev_hash = utxo.getHash();
+        let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature(&apos;hex&apos;).toLowerCase());    
+        let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString(&apos;hex&apos;).toLowerCase());
+
+        if (utxoOwnerAddress != address) 
+          return false;
+
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async getLastBlockNumberFromDb() {
+    let lastBlock = await redis.getAsync(&apos;lastBlockNumber&apos;);
+
+    if (!lastBlock) {
+        redis.setAsync(&apos;lastBlockNumber&apos;, 0);
+        lastBlock = 0;
+    } else {
+      lastBlock = parseInt(lastBlock);
+    }
+
+    this.newBlockNumber = lastBlock + config.contractblockStep;
+  }
+
+  async createNewBlock() {
+    try {
+      if (!this.newBlockNumber) 
+        await this.getLastBlockNumberFromDb();
+      
+      let transactions = await redis.lrangeAsync(Buffer.from(&apos;txs&apos;), 0, -1);
+      transactions = transactions.map(function(el) {
+        return new PlasmaTransaction(el);
+      });
+      
+      if (transactions.length == 0) 
+        return false;
+      
+      const block = new Block({
+        blockNumber: this.newBlockNumber,
+        transactions: transactions
+      });
+
+      for (let utxo of block.transactions) {
+        let utxoNewKey = &quot;utxo_&quot; + block.blockNumber.toString(10) + &quot;_&quot;+ utxo.token_id.toString(); 
+
+        if (utxo.prev_block != 0) {
+          let utxoOldKey = &quot;utxo_&quot;+ utxo.prev_block.toString(10) + &quot;_&quot;+ utxo.token_id.toString();
+          await redis.delAsync( utxoOldKey );
+        }
+        await redis.setAsync( utxoNewKey, utxo.getRlp() );
+      }
+      await redis.setAsync( &apos;lastBlockNumber&apos;, block.blockNumber );
+      await redis.setAsync( &apos;block&apos; + block.blockNumber.toString(10) , block.getRlp() );
+      
+      for (let i=0; i &lt; block.transactions.length; i++)
+        await redis.lsetAsync(&apos;txs&apos;, i, &apos;DELETED&apos;);
+      redis.lremAsync(&apos;txs&apos;, 0, &apos;DELETED&apos;);
+      
+      logger.info(&apos;New block created - transactions: &apos;, block.transactions.length);
+
+      this.newBlockNumber += config.contractblockStep;
+      return block;
+    }
+    catch(err){
+      logger.error(&apos;createNewBlock error &apos;, err);
+    }
+  }
+};
+
+const txPool = new TXPool();
+
+export default txPool;
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

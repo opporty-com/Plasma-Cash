@@ -5,7 +5,7 @@ import Promise from 'bluebird';
 import config from "config";
 const ethUtil = require('ethereumjs-util'); 
 import RLP from 'rlp';
-import txPool from 'lib/txPool';
+
 import { getAllUtxosWithKeys } from 'lib/helpers/tx';
 
 
@@ -83,11 +83,6 @@ class TestTransactionsCreator {
             this.ready = false;
         }
     }
-
-    async createNewTransactions(req) {
-      return await txPool.addTransaction(this.alltransactions[parseInt(req.headers['test'])]);
-    }
-
 }
     function* getNextAddress(addresses) {
         let currentAddress = 0;

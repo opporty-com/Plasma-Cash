@@ -106,15 +106,6 @@ class PlasmaTransaction {
     }
     return null;
   }
-
-  validate () {
-    let isValid = true;
-    if (!this.new_owner || !this.signature || !this.token_id) {
-      isValid = false;
-    }
-
-    return isValid;
-  }
   
   getJson() {
     let data = {};

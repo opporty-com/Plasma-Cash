@@ -2,12 +2,13 @@
 
 import config from 'config';
 import { logger } from 'lib/logger';
-import txPool from 'lib/txPool';
+import { txMemPool } from 'lib/TxMemPool';
 import redis from 'lib/redis';
 import contractHandler from 'lib/contracts/plasma';
 import depositEventHandler from 'lib/handlers/DepositEventHandler';
 import web3 from 'lib/web3';
 import Block from 'lib/model/block';
+import { createNewBlock } from 'lib/helpers/block';
 import ethUtil from 'ethereumjs-util'; 
 
 class BlockCreator {
@@ -22,15 +23,13 @@ class BlockCreator {
   }
 
   async initBlockPeriodicalCreation() {
-    let poollen = await txPool.length();
+    let poollen = await txMemPool.size();
     logger.info('Creating New Block - len ', poollen, 'tx, ', this.options.minTransactionsInBlock);
 
-    if (this.options.minTransactionsInBlock && poollen >= this.options.minTransactionsInBlock) {
-        await txPool.createNewBlock();
-    }
+    if (this.options.minTransactionsInBlock && poollen >= this.options.minTransactionsInBlock) 
+      await createNewBlock();
     
-    setTimeout(this.initBlockPeriodicalCreation.bind(this), config.blockPeriod)
-    return true;
+    return setTimeout(this.initBlockPeriodicalCreation.bind(this), config.blockPeriod);
   }
 
   async startBlockSubmittingToParent() {

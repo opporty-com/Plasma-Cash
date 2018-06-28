@@ -10,8 +10,8 @@ import { getAllUtxos } from '../app/lib/tx';
 import { createSignedTransaction } from '../app/lib/tx';
 import config from "../app/config";
 import RLP from 'rlp';
-import txPool from '../app/lib/txPool';
-import contractHandler from '../app/lib/contracts/plasma';
+import { txMemPool, TxMemPool } from 'lib/TxMemPool';
+
 import depositEventHandler from '../app/lib/handlers/DepositEventHandler';
 const BN = ethUtil.BN;
 import yargs from 'yargs';
@@ -106,9 +106,9 @@ describe('ChildChain', function () {
           await depositEventHandler({ returnValues: data });
         }
 
-        expect(depostisToCreate.length).to.equal(txPool.length);
+        expect(depostisToCreate.length).to.equal(txMemPool.length);
   
-        let newBlock = await txPool.createNewBlock();
+        let newBlock = await txMemPool.createNewBlock();
   
         let newUtxos = await getAllUtxos(null, {});
   

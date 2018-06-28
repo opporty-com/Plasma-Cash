@@ -3,7 +3,7 @@
 import ethUtil from 'ethereumjs-util';
 import redis from 'lib/redis';
 import PlasmaTransaction from 'lib/model/tx';
-
+import config from 'config';
 
 function createDepositTransaction(addressTo, amountBN, token_id) {
   let txData = {
@@ -26,6 +26,13 @@ function createSignedTransaction(data) {
   };
 
   return new PlasmaTransaction(txData);
+}
+
+function checkTransaction(tx) {
+  if (!tx.new_owner || !tx.signature || !tx.token_id) 
+    return false;
+  
+  return true;
 }
 
 async function getUTXO(blockNumber, token_id) {
@@ -96,10 +103,41 @@ async function getAllUtxosWithKeys(options = {}) {
   })
 }
 
+async function checkInputs(transaction) {
+  try {
+    if (transaction.prev_block == 0) {
+      let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());
+      let valid = address == config.plasmaOperatorAddress.toLowerCase();
+
+      if (!valid) 
+        return false;
+      
+    } else {
+      let utxo = await getUTXO(transaction.prev_block, transaction.token_id);
+      if (!utxo)
+        return false;
+      
+      transaction.prev_hash = utxo.getHash();
+      let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
+      let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());
+
+      if (utxoOwnerAddress != address)
+        return false;
+
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+
 export {
   createDepositTransaction,
   createSignedTransaction,
   getUTXO,
   getAllUtxos,
-  getAllUtxosWithKeys
+  getAllUtxosWithKeys,
+  checkTransaction,
+  checkInputs
 };

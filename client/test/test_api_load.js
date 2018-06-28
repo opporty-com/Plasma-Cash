@@ -5,9 +5,9 @@ const request = require('supertest');
 const app = require('../server.js');
 
 import RLP from 'rlp';
-const ethUtil = require('ethereumjs-util');
-import web3 from '../app/lib/web3';
-import config from "../app/config";
+import ethUtil from 'ethereumjs-util';
+import web3 from '/lib/web3';
+import config from 'config';
 import chai from 'chai';
 var expect = chai.expect;
 

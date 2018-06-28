@@ -56,6 +56,19 @@ class DefController {
     }
   }
 
+  static async getRawMempool(req, res) {
+    try { 
+      let all = await redis.hgetallAsync('txpool');
+      res.statusCode = 200;
+      res.end(JSON.stringify(all));
+      
+    } catch(error){
+      res.statusCode = 400;
+      res.end(error.toString());
+    }
+
+  }
+
 }
 
 export default DefController;

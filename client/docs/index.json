@@ -1,0 +1,3832 @@
+[
+  {
+    "__docId__": 1,
+    "kind": "external",
+    "name": "Infinity",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Infinity",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 2,
+    "kind": "external",
+    "name": "NaN",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~NaN",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 3,
+    "kind": "external",
+    "name": "undefined",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~undefined",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 4,
+    "kind": "external",
+    "name": "null",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~null",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 5,
+    "kind": "external",
+    "name": "Object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Object",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 6,
+    "kind": "external",
+    "name": "object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~object",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 7,
+    "kind": "external",
+    "name": "Function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Function",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 8,
+    "kind": "external",
+    "name": "function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~function",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 9,
+    "kind": "external",
+    "name": "Boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Boolean",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 10,
+    "kind": "external",
+    "name": "boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~boolean",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 11,
+    "kind": "external",
+    "name": "Symbol",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Symbol",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 12,
+    "kind": "external",
+    "name": "Error",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Error",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 13,
+    "kind": "external",
+    "name": "EvalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~EvalError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 14,
+    "kind": "external",
+    "name": "InternalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~InternalError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 15,
+    "kind": "external",
+    "name": "RangeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~RangeError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 16,
+    "kind": "external",
+    "name": "ReferenceError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~ReferenceError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 17,
+    "kind": "external",
+    "name": "SyntaxError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~SyntaxError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 18,
+    "kind": "external",
+    "name": "TypeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~TypeError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 19,
+    "kind": "external",
+    "name": "URIError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~URIError",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 20,
+    "kind": "external",
+    "name": "Number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Number",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 21,
+    "kind": "external",
+    "name": "number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~number",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 22,
+    "kind": "external",
+    "name": "Date",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Date",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 23,
+    "kind": "external",
+    "name": "String",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~String",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 24,
+    "kind": "external",
+    "name": "string",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~string",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 25,
+    "kind": "external",
+    "name": "RegExp",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~RegExp",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 26,
+    "kind": "external",
+    "name": "Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 27,
+    "kind": "external",
+    "name": "Int8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Int8Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 28,
+    "kind": "external",
+    "name": "Uint8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Uint8Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 29,
+    "kind": "external",
+    "name": "Uint8ClampedArray",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Uint8ClampedArray",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 30,
+    "kind": "external",
+    "name": "Int16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Int16Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 31,
+    "kind": "external",
+    "name": "Uint16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Uint16Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 32,
+    "kind": "external",
+    "name": "Int32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Int32Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 33,
+    "kind": "external",
+    "name": "Uint32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Uint32Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 34,
+    "kind": "external",
+    "name": "Float32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Float32Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 35,
+    "kind": "external",
+    "name": "Float64Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Float64Array",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 36,
+    "kind": "external",
+    "name": "Map",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Map",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 37,
+    "kind": "external",
+    "name": "Set",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Set",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 38,
+    "kind": "external",
+    "name": "WeakMap",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~WeakMap",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 39,
+    "kind": "external",
+    "name": "WeakSet",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~WeakSet",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 40,
+    "kind": "external",
+    "name": "ArrayBuffer",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~ArrayBuffer",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 41,
+    "kind": "external",
+    "name": "DataView",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~DataView",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 42,
+    "kind": "external",
+    "name": "JSON",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~JSON",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 43,
+    "kind": "external",
+    "name": "Promise",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Promise",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 44,
+    "kind": "external",
+    "name": "Generator",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Generator",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 45,
+    "kind": "external",
+    "name": "GeneratorFunction",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~GeneratorFunction",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 46,
+    "kind": "external",
+    "name": "Reflect",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Reflect",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 47,
+    "kind": "external",
+    "name": "Proxy",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
+    "memberof": "lib/.external-ecmascript.js",
+    "static": true,
+    "longname": "lib/.external-ecmascript.js~Proxy",
+    "access": "public",
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 48,
+    "kind": "file",
+    "name": "lib/PatriciaMerkle.js",
+    "content": "'use strict';\n\nimport ethUtil from 'ethereumjs-util';\nconst BN = ethUtil.BN;\n\nclass Merkle {\n  constructor (leaves) {\n    this.leaves = [];\n    let existingKeys = {};\n    for (let i = 0, l = leaves.length; i < l; i++) {\n      let leaf = leaves[i];\n      let key = this.toBinaryString(leaf.key);\n      if (!existingKeys[key]) {\n        existingKeys[key] = true;\n        this.leaves.push({ key, hash: this.toBuffer(leaf.hash) });\n      }\n    }\n\n    this.iterations = 0;\n  }\n\n  getMerkleRoot() {\n    return this.rootNode && this.rootNode.hash;\n  }\n\n  buildNode(childNodes, key = '', level = 0) {\n    let node = { key };\n    this.iterations++;\n\n    if (childNodes.length == 1) {\n      let nodeKey = level == 0 ? childNodes[0].key : childNodes[0].key.slice(level - 1);\n      node.key = nodeKey;\n\n      let nodeHashes = Buffer.concat([Buffer.from(ethUtil.sha3(nodeKey)), childNodes[0].hash]);\n      node.hash = ethUtil.sha3(nodeHashes);\n      return node;\n    }\n\n    let leftChilds = [];\n    let rightChilds = [];\n\n    childNodes.forEach((node) => {\n      if (node.key[level] == '1') {\n        rightChilds.push(node);\n      } else {\n        leftChilds.push(node);\n      }\n    })\n\n    if (leftChilds.length && rightChilds.length) {\n      node.leftChild = this.buildNode(leftChilds, '0', level + 1);\n      node.rightChild = this.buildNode(rightChilds, '1', level + 1);\n      let nodeHashes = Buffer.concat([Buffer.from(ethUtil.sha3(node.key)), node.leftChild.hash, node.rightChild.hash]);\n      node.hash = ethUtil.sha3(nodeHashes);\n    } else if (leftChilds.length && !rightChilds.length) {\n      node = this.buildNode(leftChilds, key + '0', level + 1);\n    } else if (!leftChilds.length && rightChilds.length) {\n      node = this.buildNode(rightChilds, key + '1', level + 1);\n    } else if (!leftChilds.length && !rightChilds.length) {\n      throw new Error('invalid tree');\n    }\n\n    return node;\n  }\n\n  buildTree() {\n    this.rootNode = this.buildNode(this.leaves);\n  }\n\n  getProof(token_id, returnBinary) {\n    let proof = [];\n    let key = this.toBinaryString(token_id);\n    let node = this.rootNode;\n    \n    while (key.length) {\n      let nodeKey;\n      let itemKey;\n      nodeKey = node.key;\n      itemKey = key.slice(0, nodeKey.length);\n\n      if (nodeKey && nodeKey != itemKey) {\n        return null;\n      }\n      if (nodeKey.length == key.length) {\n        if (returnBinary) {\n          proof.unshift(Buffer.from(ethUtil.sha3(nodeKey)));\n        } else {\n          proof.unshift({ key: ethUtil.sha3(nodeKey) });\n        }\n        break;\n      }\n\n      let isLeftItem = key[nodeKey.length] == '1' ? false : true;\n      if (isLeftItem) {\n        if (returnBinary) {\n          proof.unshift(node.rightChild.hash);\n          proof.unshift(Buffer.from(ethUtil.sha3(nodeKey)));\n          proof.unshift(Buffer.from([0x01]));\n        } else {\n          proof.unshift({right : node.rightChild.hash, key: ethUtil.sha3(nodeKey) });\n        }\n        node = node.leftChild;\n        key = key.slice(nodeKey.length);\n      } else {\n        if (returnBinary) {\n          proof.unshift(node.leftChild.hash);\n          proof.unshift(Buffer.from(ethUtil.sha3(nodeKey)));\n          proof.unshift(Buffer.from([0x00]));\n        } else {\n          proof.unshift({left: node.leftChild.hash, key: ethUtil.sha3(nodeKey) });\n        }\n        node = node.rightChild;\n        key = key.slice(nodeKey.length);\n      }\n    }\n\n    return returnBinary ? Buffer.concat(proof).toString('hex') : proof;\n  }\n\n  checkProof(proof, leafHash, merkleRoot) {\n    if (!merkleRoot || !leafHash || !proof) {\n      return false;\n    }\n    let hash = leafHash instanceof Buffer ? leafHash : Buffer.from(leafHash, 'hex');\n\n    if (Array.isArray(proof)) {\n      proof.forEach((node, index) => {\n        let nodeHashes;\n        if (node.right || node.left) {\n          nodeHashes = node.right ? Buffer.concat([Buffer.from(node.key), hash, node.right]) : Buffer.concat([Buffer.from(node.key), node.left, hash]);\n        } else {\n          nodeHashes = Buffer.concat([Buffer.from(node.key), hash]);\n        }\n        hash = ethUtil.sha3(nodeHashes);\n      })\n    } else {\n      proof = Buffer.from(proof, 'hex');\n      let right = Buffer.from('01', 'hex');\n      let keyLeafHash = proof.slice(0, 32);\n      hash = ethUtil.sha3(Buffer.concat([keyLeafHash, hash ]));\n\n      for (let i = 32, length = proof.length; i < length; i += 65) {\n        let typeByte = proof.slice(i, i + 1);    \n        let keyLeafHash = proof.slice(i + 1, i + 33);\n        let neighborLeafHash = proof.slice(i + 33, i + 65);\n        let isRigthNeighbor = typeByte.equals(right);\n        hash = isRigthNeighbor ? ethUtil.sha3(Buffer.concat([keyLeafHash, hash, neighborLeafHash ])) : ethUtil.sha3(Buffer.concat([keyLeafHash, neighborLeafHash, hash ]));\n      }\n    }\n\n    return hash.toString('hex') == merkleRoot.toString('hex');\n  }\n\n  isEvenLeaf(leafKey) {\n    return leafKey[leafKey.length - 1] == '0';\n  }\n\n  isHex (value) {\n    var hexRegex = /^[0-9A-Fa-f]{2,}$/;\n    return hexRegex.test(value);\n  }\n\n  toBinaryString_(value) {\n    let hexValue = this.toHexString(value);\n\n    if (hexValue) {\n      return this.hexToBin(hexValue);\n    } else {\n      throw new Error(`Unsupported format: ${value}`);\n    }\n  }\n\n  toBinaryString(value) {\n    if (value instanceof Buffer) {\n      value = value.toString();\n    }\n    return new BN(value, 10).toString(2).padStart(256, '0');\n  }\n\n  toHexString(value) {\n    if (value instanceof Buffer) {\n      return value.toString('hex');\n    } else if (this.isHex(value)) {\n      return value;\n    }\n    return null;\n  }\n\n  toBuffer(value) {\n    if (value instanceof Buffer) {\n      return value;\n    }\n    return Buffer.from(value, 'hex');\n  }\n\n  hexToBin(str) {\n    return str.split('').map(item => parseInt(item, 16).toString(2).padStart(4, '0')).join('');\n  }\n}\n\nexport default Merkle;",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/PatriciaMerkle.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 49,
+    "kind": "variable",
+    "name": "BN",
+    "memberof": "lib/PatriciaMerkle.js",
+    "static": true,
+    "longname": "lib/PatriciaMerkle.js~BN",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/PatriciaMerkle.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 50,
+    "kind": "class",
+    "name": "Merkle",
+    "memberof": "lib/PatriciaMerkle.js",
+    "static": true,
+    "longname": "lib/PatriciaMerkle.js~Merkle",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/PatriciaMerkle.js",
+    "importStyle": "Merkle",
+    "description": null,
+    "lineNumber": 6,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 51,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#constructor",
+    "access": "public",
+    "description": null,
+    "lineNumber": 7,
+    "undocument": true
+  },
+  {
+    "__docId__": 52,
+    "kind": "member",
+    "name": "leaves",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#leaves",
+    "access": "public",
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*[]"
+      ]
+    }
+  },
+  {
+    "__docId__": 53,
+    "kind": "member",
+    "name": "iterations",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#iterations",
+    "access": "public",
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "type": {
+      "types": [
+        "number"
+      ]
+    }
+  },
+  {
+    "__docId__": 54,
+    "kind": "method",
+    "name": "getMerkleRoot",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#getMerkleRoot",
+    "access": "public",
+    "description": null,
+    "lineNumber": 22,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 55,
+    "kind": "method",
+    "name": "buildNode",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#buildNode",
+    "access": "public",
+    "description": null,
+    "lineNumber": 26,
+    "undocument": true,
+    "params": [
+      {
+        "name": "childNodes",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "key",
+        "optional": true,
+        "types": [
+          "string"
+        ],
+        "defaultRaw": "",
+        "defaultValue": ""
+      },
+      {
+        "name": "level",
+        "optional": true,
+        "types": [
+          "number"
+        ],
+        "defaultRaw": 0,
+        "defaultValue": "0"
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 56,
+    "kind": "method",
+    "name": "buildTree",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#buildTree",
+    "access": "public",
+    "description": null,
+    "lineNumber": 66,
+    "undocument": true,
+    "params": [],
+    "return": null
+  },
+  {
+    "__docId__": 57,
+    "kind": "member",
+    "name": "rootNode",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#rootNode",
+    "access": "public",
+    "description": null,
+    "lineNumber": 67,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 58,
+    "kind": "method",
+    "name": "getProof",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#getProof",
+    "access": "public",
+    "description": null,
+    "lineNumber": 70,
+    "undocument": true,
+    "params": [
+      {
+        "name": "token_id",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "returnBinary",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 59,
+    "kind": "method",
+    "name": "checkProof",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#checkProof",
+    "access": "public",
+    "description": null,
+    "lineNumber": 120,
+    "undocument": true,
+    "params": [
+      {
+        "name": "proof",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "leafHash",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "merkleRoot",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 60,
+    "kind": "method",
+    "name": "isEvenLeaf",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#isEvenLeaf",
+    "access": "public",
+    "description": null,
+    "lineNumber": 154,
+    "undocument": true,
+    "params": [
+      {
+        "name": "leafKey",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 61,
+    "kind": "method",
+    "name": "isHex",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#isHex",
+    "access": "public",
+    "description": null,
+    "lineNumber": 158,
+    "undocument": true,
+    "params": [
+      {
+        "name": "value",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 62,
+    "kind": "method",
+    "name": "toBinaryString_",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#toBinaryString_",
+    "access": "public",
+    "description": null,
+    "lineNumber": 163,
+    "undocument": true,
+    "params": [
+      {
+        "name": "value",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 63,
+    "kind": "method",
+    "name": "toBinaryString",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#toBinaryString",
+    "access": "public",
+    "description": null,
+    "lineNumber": 173,
+    "undocument": true,
+    "params": [
+      {
+        "name": "value",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 64,
+    "kind": "method",
+    "name": "toHexString",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#toHexString",
+    "access": "public",
+    "description": null,
+    "lineNumber": 180,
+    "undocument": true,
+    "params": [
+      {
+        "name": "value",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 65,
+    "kind": "method",
+    "name": "toBuffer",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#toBuffer",
+    "access": "public",
+    "description": null,
+    "lineNumber": 189,
+    "undocument": true,
+    "params": [
+      {
+        "name": "value",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 66,
+    "kind": "method",
+    "name": "hexToBin",
+    "memberof": "lib/PatriciaMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/PatriciaMerkle.js~Merkle#hexToBin",
+    "access": "public",
+    "description": null,
+    "lineNumber": 196,
+    "undocument": true,
+    "params": [
+      {
+        "name": "str",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 67,
+    "kind": "file",
+    "name": "lib/SparseMerkle.js",
+    "content": "'use strict';\n\nimport ethUtil from 'ethereumjs-util';\nconst BN = ethUtil.BN;\n\nclass Merkle {\n  constructor (leaves) {\n    this.leaves = {};\n    leaves.forEach(leaf => {\n      this.leaves[this.toBinaryString(leaf.key)] = ethUtil.toBuffer(leaf.hash);\n    });\n\n    this.depth = 256;\n    this.defaultHashes = [new Buffer(32)];\n\n    for (let index = 0; index < this.depth - 1; index++) {\n      this.defaultHashes.push(ethUtil.sha3(Buffer.concat([ this.defaultHashes[index], this.defaultHashes[index] ])));\n    }\n  }\n\n  getMerkleRoot() {\n    return this.levels[0] && this.levels[0].merkleRoot;\n  }\n\n  buildTree() {\n    if (Object.keys(this.leaves).length > 0) {\n      this.levels = [];\n      this.levels.unshift(this.leaves);\n      for (let level = 0; level < this.depth; level++) {\n        let currentLevel = this.levels[0];\n        let nextLevel = {};\n\n        Object.keys(currentLevel).forEach(leafKey => {\n          let leafHash = currentLevel[leafKey];\n          let isEvenLeaf = this.isEvenLeaf(leafKey);\n          let parentLeafKey = leafKey.slice(0, -1);\n          let neighborLeafKey = parentLeafKey + (isEvenLeaf ? '1' : '0');\n\n          let neighborLeafHash = currentLevel[neighborLeafKey];\n          if (!neighborLeafHash) {\n            neighborLeafHash = this.defaultHashes[level];\n          }\n\n          if (!nextLevel[parentLeafKey]) {\n            let parentLeafHash = isEvenLeaf ? ethUtil.sha3(Buffer.concat([ leafHash, neighborLeafHash ])) : ethUtil.sha3(Buffer.concat([ neighborLeafHash, leafHash ]));\n            if (level == this.depth - 1) {\n              nextLevel['merkleRoot'] = parentLeafHash;\n            } else {\n              nextLevel[parentLeafKey] = parentLeafHash;\n            }\n          }\n        });\n\n        this.levels.unshift(nextLevel);\n      }\n    }\n  }\n\n  getProof(token_id, returnBinary) {\n    if (!this.levels || this.levels.length < 256) {\n      this.buildTree();\n    }\n\n    let proof = [];\n    let leafKey = this.toBinaryString(token_id);\n\n    for (let level = this.depth; level >= 1; level--) {\n      let currentKey = leafKey.slice(0, level);\n      let isEvenLeaf = this.isEvenLeaf(currentKey);\n\n      let neighborLeafKey = currentKey.slice(0, -1) + (isEvenLeaf ? '1' : '0');\n      let currentLevel = this.levels[level];\n      let neighborLeafHash = currentLevel[neighborLeafKey];\n            \n      if (!neighborLeafHash) {\n        neighborLeafHash = this.defaultHashes[this.depth - level];\n      }\n\n      if (returnBinary) {\n        proof.push(new Buffer(isEvenLeaf ? [0x01] : [0x00]));\n        proof.push(neighborLeafHash);\n      } else {\n        proof.push({ [isEvenLeaf ? 'right' : 'left']: neighborLeafHash });\n      }\n      \n\n    }\n    \n    return returnBinary ? Buffer.concat(proof).toString('hex') : proof;\n  }\n\n  checkProof(proof, leafHash, merkleRoot) {\n    if (!merkleRoot || !leafHash || !proof) {\n      return false;\n    }\n    let hash = leafHash instanceof Buffer ? leafHash : Buffer.from(leafHash, 'hex')\n    \n    if (Array.isArray(proof)) {\n      for (let level = 0; level < proof.length; level++) {\n        let currentProofHash = proof[level];\n        hash = currentProofHash.right ? ethUtil.sha3(Buffer.concat([ hash, currentProofHash.right ])) : ethUtil.sha3(Buffer.concat([ currentProofHash.left, hash ]));\n      }\n    } else {\n      proof = Buffer.from(proof, 'hex');\n      let right = Buffer.from('01', 'hex');\n      for (let start = 0, i = 33, length = proof.length; i <= length; i += 33) {\n        let neighborLeafHash = proof.slice(start + 1, i);\n        let typeByte = proof.slice(start, start + 1);\n        let isRigthNeighbor = typeByte.equals(right);\n        hash = isRigthNeighbor ? ethUtil.sha3(Buffer.concat([ hash, neighborLeafHash ])) : ethUtil.sha3(Buffer.concat([ neighborLeafHash, hash ]));\n        start = i;\n      }\n    }\n    \n    return hash.toString('hex') == merkleRoot.toString('hex');\n  }\n\n  isEvenLeaf(leafKey) {\n    return leafKey[leafKey.length - 1] == '0';\n  }\n\n  isHex (value) {\n    var hexRegex = /^[0-9A-Fa-f]{2,}$/;\n    return hexRegex.test(value);\n  }\n\n  toBinaryString_(value) {\n    let hexValue = this.toHexString(value);\n\n    if (hexValue) {\n      return this.hexToBin(hexValue);\n    } else {\n      throw new Error(`Unsupported format: ${value}`);\n    }\n  }\n\n  toBinaryString(value) {\n    if (value instanceof Buffer) {\n      value = value.toString();\n    }\n    return new BN(value, 10).toString(2).padStart(256, '0');\n  }\n\n  toHexString(value) {\n    if (value instanceof Buffer) {\n      return value.toString('hex');\n    } else if (this.isHex(value)) {\n      return value;\n    }\n    return null;\n  }\n\n  hexToBin(str) {\n    return str.split('').map(item => parseInt(item, 16).toString(2).padStart(4, '0')).join('');\n  }\n}\n\nexport default Merkle;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/SparseMerkle.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 68,
+    "kind": "variable",
+    "name": "BN",
+    "memberof": "lib/SparseMerkle.js",
+    "static": true,
+    "longname": "lib/SparseMerkle.js~BN",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/SparseMerkle.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 69,
+    "kind": "class",
+    "name": "Merkle",
+    "memberof": "lib/SparseMerkle.js",
+    "static": true,
+    "longname": "lib/SparseMerkle.js~Merkle",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/SparseMerkle.js",
+    "importStyle": "Merkle",
+    "description": null,
+    "lineNumber": 6,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 70,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#constructor",
+    "access": "public",
+    "description": null,
+    "lineNumber": 7,
+    "undocument": true
+  },
+  {
+    "__docId__": 71,
+    "kind": "member",
+    "name": "leaves",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#leaves",
+    "access": "public",
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "type": {
+      "types": [
+        "{}"
+      ]
+    }
+  },
+  {
+    "__docId__": 72,
+    "kind": "member",
+    "name": "depth",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#depth",
+    "access": "public",
+    "description": null,
+    "lineNumber": 13,
+    "undocument": true,
+    "type": {
+      "types": [
+        "number"
+      ]
+    }
+  },
+  {
+    "__docId__": 73,
+    "kind": "member",
+    "name": "defaultHashes",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#defaultHashes",
+    "access": "public",
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "type": {
+      "types": [
+        "undefined[]"
+      ]
+    }
+  },
+  {
+    "__docId__": 74,
+    "kind": "method",
+    "name": "getMerkleRoot",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#getMerkleRoot",
+    "access": "public",
+    "description": null,
+    "lineNumber": 21,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 75,
+    "kind": "method",
+    "name": "buildTree",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#buildTree",
+    "access": "public",
+    "description": null,
+    "lineNumber": 25,
+    "undocument": true,
+    "params": [],
+    "return": null
+  },
+  {
+    "__docId__": 76,
+    "kind": "member",
+    "name": "levels",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#levels",
+    "access": "public",
+    "description": null,
+    "lineNumber": 27,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*[]"
+      ]
+    }
+  },
+  {
+    "__docId__": 77,
+    "kind": "method",
+    "name": "getProof",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#getProof",
+    "access": "public",
+    "description": null,
+    "lineNumber": 59,
+    "undocument": true,
+    "params": [
+      {
+        "name": "token_id",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "returnBinary",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 78,
+    "kind": "method",
+    "name": "checkProof",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#checkProof",
+    "access": "public",
+    "description": null,
+    "lineNumber": 92,
+    "undocument": true,
+    "params": [
+      {
+        "name": "proof",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "leafHash",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "merkleRoot",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 79,
+    "kind": "method",
+    "name": "isEvenLeaf",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#isEvenLeaf",
+    "access": "public",
+    "description": null,
+    "lineNumber": 118,
+    "undocument": true,
+    "params": [
+      {
+        "name": "leafKey",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 80,
+    "kind": "method",
+    "name": "isHex",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#isHex",
+    "access": "public",
+    "description": null,
+    "lineNumber": 122,
+    "undocument": true,
+    "params": [
+      {
+        "name": "value",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 81,
+    "kind": "method",
+    "name": "toBinaryString_",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#toBinaryString_",
+    "access": "public",
+    "description": null,
+    "lineNumber": 127,
+    "undocument": true,
+    "params": [
+      {
+        "name": "value",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 82,
+    "kind": "method",
+    "name": "toBinaryString",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#toBinaryString",
+    "access": "public",
+    "description": null,
+    "lineNumber": 137,
+    "undocument": true,
+    "params": [
+      {
+        "name": "value",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 83,
+    "kind": "method",
+    "name": "toHexString",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#toHexString",
+    "access": "public",
+    "description": null,
+    "lineNumber": 144,
+    "undocument": true,
+    "params": [
+      {
+        "name": "value",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 84,
+    "kind": "method",
+    "name": "hexToBin",
+    "memberof": "lib/SparseMerkle.js~Merkle",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/SparseMerkle.js~Merkle#hexToBin",
+    "access": "public",
+    "description": null,
+    "lineNumber": 153,
+    "undocument": true,
+    "params": [
+      {
+        "name": "str",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 85,
+    "kind": "file",
+    "name": "lib/blockCreator.js",
+    "content": "'use strict';\n\nimport config from 'config';\nimport { logger } from 'lib/logger';\nimport txPool from 'lib/txPool';\nimport redis from 'lib/redis';\nimport contractHandler from 'lib/contracts/plasma';\nimport depositEventHandler from 'lib/handlers/DepositEventHandler';\nimport web3 from 'lib/web3';\nimport Block from 'lib/model/block';\nimport ethUtil from 'ethereumjs-util'; \n\nclass BlockCreator {\n  constructor (options = {}) {\n    this.options = options || {};\n  }\n\n  start() {\n    this.initBlockPeriodicalCreation();\n    this.startBlockSubmittingToParent();\n    this.blockEventsCheck(null);\n  }\n\n  async initBlockPeriodicalCreation() {\n    let poollen = await txPool.length();\n    logger.info('Creating New Block - len ', poollen, 'tx, ', this.options.minTransactionsInBlock);\n\n    if (this.options.minTransactionsInBlock && poollen >= this.options.minTransactionsInBlock) {\n      await txPool.createNewBlock();\n    }\n    \n    setTimeout(this.initBlockPeriodicalCreation.bind(this), config.blockPeriod)\n    return true;\n  }\n\n  async startBlockSubmittingToParent() {\n    try {\n      let lastBlockInDatabase = await redis.getAsync('lastBlockNumber');\n      lastBlockInDatabase = lastBlockInDatabase ? parseInt(lastBlockInDatabase) : 0;\n      let lastSubmittedBlock = await redis.getAsync('lastBlockSubmitted');\n      lastSubmittedBlock = lastSubmittedBlock ? parseInt(lastSubmittedBlock): 0;\n\n      logger.info('LastBlockInDatabase, LastSubmittedBlock', lastBlockInDatabase, lastSubmittedBlock)\n      \n      if (lastBlockInDatabase > lastSubmittedBlock) {\n        let currentBlockInParent = await contractHandler.contract.methods.current_blk().call();\n        if (currentBlockInParent != lastSubmittedBlock) {\n          if (currentBlockInParent > lastSubmittedBlock) \n            await redis.setAsync('lastBlockSubmitted', currentBlockInParent);\n        } else {\n          lastSubmittedBlock += config.contractblockStep;\n          this.startBlockSubmit(lastSubmittedBlock);\n        }\n      }\n    } catch(error) {\n      logger.error('Submiting block error ', error);\n    }\n    setTimeout(this.startBlockSubmittingToParent.bind(this), 30000);\n  }\n  \n  async blockEventsCheck(lastCheckedBlock) {\n    let lastBlock;\n    if (lastCheckedBlock == null) {\n      lastCheckedBlock = await redis.getAsync('lastEventProcessed');\n      lastCheckedBlock = lastCheckedBlock ? parseInt(lastCheckedBlock) : 0;\n    }\n    try {\n      lastBlock = await web3.eth.getBlockNumber();\n      if (lastBlock > lastCheckedBlock) {\n        lastCheckedBlock++;\n\n        logger.info('Process Block for Deposit Events - ', lastBlock);\n\n        const depositEventsInBlock = await contractHandler.contract.getPastEvents(\"DepositAdded\", {\n          fromBlock: lastCheckedBlock,\n          toBlock: lastBlock\n        });\n\n        if (depositEventsInBlock.length > 0) {\n          for (let i = 0, length = depositEventsInBlock.length; i < length; ++i)\n            depositEventHandler(depositEventsInBlock[i]);\n        }\n        redis.setAsync('lastEventProcessed', lastBlock);\n      }\n    } catch(error) {\n      logger.error(\"blockEventsCheck error \" + error);\n      lastBlock = lastCheckedBlock;\n    }\n    setTimeout(() => this.blockEventsCheck(lastBlock), 5000);\n  }\n\n  async startBlockSubmit(blockNumber) {\n    let blockKey = 'block' + blockNumber.toString(10);\n    let block = new Block(await redis.getAsync(Buffer.from(blockKey)));\n    let blockMerkleRootHash = ethUtil.addHexPrefix(block.merkleRootHash.toString('hex'));\n   \n    await web3.eth.personal.unlockAccount(config.plasmaOperatorAddress, config.plasmaOperatorPassword, 60);\n\n    logger.info('Block submit #', blockNumber, blockMerkleRootHash);\n    let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({from: config.plasmaOperatorAddress});\n    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({from: config.plasmaOperatorAddress, gas});\n    logger.info('Submitted block #', blockNumber);\n\n    redis.setAsync('lastBlockSubmitted', blockNumber);\n  }\n}\n\nconst blockCreator = new BlockCreator({\n  minTransactionsInBlock: 5\n});\n\nexport default blockCreator;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/blockCreator.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 86,
+    "kind": "class",
+    "name": "BlockCreator",
+    "memberof": "lib/blockCreator.js",
+    "static": true,
+    "longname": "lib/blockCreator.js~BlockCreator",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/blockCreator.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 13,
+    "pseudoExport": true,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 87,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/blockCreator.js~BlockCreator",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/blockCreator.js~BlockCreator#constructor",
+    "access": "public",
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true
+  },
+  {
+    "__docId__": 88,
+    "kind": "member",
+    "name": "options",
+    "memberof": "lib/blockCreator.js~BlockCreator",
+    "static": false,
+    "longname": "lib/blockCreator.js~BlockCreator#options",
+    "access": "public",
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 89,
+    "kind": "method",
+    "name": "start",
+    "memberof": "lib/blockCreator.js~BlockCreator",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/blockCreator.js~BlockCreator#start",
+    "access": "public",
+    "description": null,
+    "lineNumber": 18,
+    "undocument": true,
+    "params": [],
+    "return": null
+  },
+  {
+    "__docId__": 90,
+    "kind": "method",
+    "name": "initBlockPeriodicalCreation",
+    "memberof": "lib/blockCreator.js~BlockCreator",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/blockCreator.js~BlockCreator#initBlockPeriodicalCreation",
+    "access": "public",
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "__docId__": 91,
+    "kind": "method",
+    "name": "startBlockSubmittingToParent",
+    "memberof": "lib/blockCreator.js~BlockCreator",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/blockCreator.js~BlockCreator#startBlockSubmittingToParent",
+    "access": "public",
+    "description": null,
+    "lineNumber": 36,
+    "undocument": true,
+    "params": [],
+    "return": null
+  },
+  {
+    "__docId__": 92,
+    "kind": "method",
+    "name": "blockEventsCheck",
+    "memberof": "lib/blockCreator.js~BlockCreator",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/blockCreator.js~BlockCreator#blockEventsCheck",
+    "access": "public",
+    "description": null,
+    "lineNumber": 61,
+    "undocument": true,
+    "params": [
+      {
+        "name": "lastCheckedBlock",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": null
+  },
+  {
+    "__docId__": 93,
+    "kind": "method",
+    "name": "startBlockSubmit",
+    "memberof": "lib/blockCreator.js~BlockCreator",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/blockCreator.js~BlockCreator#startBlockSubmit",
+    "access": "public",
+    "description": null,
+    "lineNumber": 92,
+    "undocument": true,
+    "params": [
+      {
+        "name": "blockNumber",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": null
+  },
+  {
+    "__docId__": 94,
+    "kind": "variable",
+    "name": "blockCreator",
+    "memberof": "lib/blockCreator.js",
+    "static": true,
+    "longname": "lib/blockCreator.js~blockCreator",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/blockCreator.js",
+    "importStyle": "blockCreator",
+    "description": null,
+    "lineNumber": 112,
+    "undocument": true,
+    "type": {
+      "types": [
+        "lib/blockCreator.js~BlockCreator"
+      ]
+    }
+  },
+  {
+    "__docId__": 95,
+    "kind": "file",
+    "name": "lib/contracts/plasma.js",
+    "content": "'use strict';\n\nimport web3 from 'lib/web3';\nimport config from 'config';\n\nclass ContractHandler {\n  constructor (options = {}) {\n    this.gethIpc = config.gethIpc;\n    this.address = config.plasmaContractAddress;\n    this.abi = require('./Root_abi.json');\n\n    this.initContract();\n  }\n\n  initContract() {\n    if (!web3.utils.isAddress(this.address)) { throw new Error('Contract address not valid'); }\n    if (!this.abi) { throw new Error('Contract abi not set'); }\n    if (!this.address) { throw new Error('Contract address not set'); }\n    this.contract = new web3.eth.Contract(this.abi, this.address);\n  }\n}\n\nconst contractHandler = new ContractHandler();\n\nexport default contractHandler;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/contracts/plasma.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 96,
+    "kind": "class",
+    "name": "ContractHandler",
+    "memberof": "lib/contracts/plasma.js",
+    "static": true,
+    "longname": "lib/contracts/plasma.js~ContractHandler",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/contracts/plasma.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 6,
+    "pseudoExport": true,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 97,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/contracts/plasma.js~ContractHandler",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/contracts/plasma.js~ContractHandler#constructor",
+    "access": "public",
+    "description": null,
+    "lineNumber": 7,
+    "undocument": true
+  },
+  {
+    "__docId__": 98,
+    "kind": "member",
+    "name": "gethIpc",
+    "memberof": "lib/contracts/plasma.js~ContractHandler",
+    "static": false,
+    "longname": "lib/contracts/plasma.js~ContractHandler#gethIpc",
+    "access": "public",
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 99,
+    "kind": "member",
+    "name": "address",
+    "memberof": "lib/contracts/plasma.js~ContractHandler",
+    "static": false,
+    "longname": "lib/contracts/plasma.js~ContractHandler#address",
+    "access": "public",
+    "description": null,
+    "lineNumber": 9,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 100,
+    "kind": "member",
+    "name": "abi",
+    "memberof": "lib/contracts/plasma.js~ContractHandler",
+    "static": false,
+    "longname": "lib/contracts/plasma.js~ContractHandler#abi",
+    "access": "public",
+    "description": null,
+    "lineNumber": 10,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 101,
+    "kind": "method",
+    "name": "initContract",
+    "memberof": "lib/contracts/plasma.js~ContractHandler",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/contracts/plasma.js~ContractHandler#initContract",
+    "access": "public",
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "params": [],
+    "return": null
+  },
+  {
+    "__docId__": 102,
+    "kind": "member",
+    "name": "contract",
+    "memberof": "lib/contracts/plasma.js~ContractHandler",
+    "static": false,
+    "longname": "lib/contracts/plasma.js~ContractHandler#contract",
+    "access": "public",
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 103,
+    "kind": "variable",
+    "name": "contractHandler",
+    "memberof": "lib/contracts/plasma.js",
+    "static": true,
+    "longname": "lib/contracts/plasma.js~contractHandler",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/contracts/plasma.js",
+    "importStyle": "contractHandler",
+    "description": null,
+    "lineNumber": 25,
+    "undocument": true,
+    "type": {
+      "types": [
+        "lib/contracts/plasma.js~ContractHandler"
+      ]
+    }
+  },
+  {
+    "__docId__": 104,
+    "kind": "file",
+    "name": "lib/handlers/DepositEventHandler.js",
+    "content": "'use strict';\n\nimport Web3 from 'web3';\n\nimport config from 'config';\nimport ethUtil from 'ethereumjs-util';\nimport web3 from 'lib/web3';\nimport redis from 'lib/redis';\nimport { createDepositTransaction } from 'lib/helpers/tx';\nimport { logger } from 'lib/logger';\nimport txPool from 'lib/txPool';\n\nlet x = 0;\nasync function processDepositEvent(event){\n  const { depositor, amount, depositBlock } = event.returnValues;\n  const depositBlockIndexKey = 'tokenId' + depositBlock;\n  const existingdepositBlockIndex = await redis.getAsync(depositBlockIndexKey);\n\n  if (!existingdepositBlockIndex) \n    await redis.setAsync(depositBlockIndexKey, 1);  \n\n  const tx = await createDepositTransaction(depositor, new Web3.utils.BN(amount), depositBlock);\n\n  let txRlpEncoded = tx.getHash(true).toString('hex');\n  const signature = await web3.eth.sign(ethUtil.addHexPrefix(txRlpEncoded), config.plasmaOperatorAddress);\n\n  tx.signature = signature;\n\n  if (tx.validate()) {\n    await txPool.addTransaction(tx);\n    logger.info(' DEPOSIT#', x++, ' ', depositBlock);\n  }\n  else \n    logger.error('Deposit TX error ');\n}\n\nexport default processDepositEvent;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/handlers/DepositEventHandler.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 105,
+    "kind": "variable",
+    "name": "x",
+    "memberof": "lib/handlers/DepositEventHandler.js",
+    "static": true,
+    "longname": "lib/handlers/DepositEventHandler.js~x",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/handlers/DepositEventHandler.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 13,
+    "undocument": true,
+    "type": {
+      "types": [
+        "number"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 106,
+    "kind": "function",
+    "name": "processDepositEvent",
+    "memberof": "lib/handlers/DepositEventHandler.js",
+    "generator": false,
+    "async": true,
+    "static": true,
+    "longname": "lib/handlers/DepositEventHandler.js~processDepositEvent",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/handlers/DepositEventHandler.js",
+    "importStyle": "processDepositEvent",
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "params": [
+      {
+        "name": "event",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": null
+  },
+  {
+    "__docId__": 107,
+    "kind": "file",
+    "name": "lib/helpers/block.js",
+    "content": "'use strict';\n\nimport { logger } from 'lib/logger';\nimport redis from 'lib/redis';\nimport Block from 'lib/model/block';\n\nasync function getBlock(blockNumber) {\n  try {\n    const block = await redis.getAsync(Buffer.from('block' + blockNumber));\n    if (!block)\n      throw new Error('Block not found');\n\n    return new Block(block);\n  }\n  catch(error) {\n    logger.info(\"ERROR\" + error.toString());\n  }\n  return null;\n}\n\nexport { getBlock };\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/helpers/block.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 108,
+    "kind": "function",
+    "name": "getBlock",
+    "memberof": "lib/helpers/block.js",
+    "generator": false,
+    "async": true,
+    "static": true,
+    "longname": "lib/helpers/block.js~getBlock",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/helpers/block.js",
+    "importStyle": "{getBlock}",
+    "description": null,
+    "lineNumber": 7,
+    "undocument": true,
+    "params": [
+      {
+        "name": "blockNumber",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 109,
+    "kind": "file",
+    "name": "lib/helpers/tx.js",
+    "content": "'use strict';\n\nimport ethUtil from 'ethereumjs-util';\nimport redis from 'lib/redis';\nimport PlasmaTransaction from 'lib/model/tx';\n\n\nfunction createDepositTransaction(addressTo, amountBN, token_id) {\n  let txData = {\n    prev_hash: '',\n    prev_block: 0,\n    token_id,\n    new_owner: ethUtil.addHexPrefix(addressTo)\n  };\n\n  return new PlasmaTransaction(txData);\n}\n\nfunction createSignedTransaction(data) {\n  let txData = {\n    prev_hash: ethUtil.toBuffer(ethUtil.addHexPrefix(data.prev_hash)),\n    prev_block: data.prev_block,\n    token_id: data.token_id,\n    new_owner: data.new_owner,\n    signature: data.signature\n  };\n\n  return new PlasmaTransaction(txData);\n}\n\nasync function getUTXO(blockNumber, token_id) {\n  let q = 'utxo_'+ blockNumber.toString(16) +'_'+ token_id.toString();\n\n  let data = await redis.getAsync(Buffer.from(q));\n  \n  if (data) \n      return new PlasmaTransaction(data);\n  \n  return null;\n}\n\nasync function getAllUtxos(options = {}) {\n  return await new Promise((resolve, reject) => {\n    redis.keys('utxo*', function(err, res) {\n      let res3 = res.map(function(el) {\n        return Buffer.from(el);\n      })\n      if (res3.length) {\n        redis.mget(res3, function(err2, res2) {\n          \n          let utxos = res2.map(function(el) {\n            let t = new PlasmaTransaction(el);\n            if (options.json) {\n              t = t.getJson();\n            }\n            return t;\n          });\n          \n          resolve(utxos);\n        })\n      } else {\n        resolve([]);\n      }\n    });\n  })\n}\n\nasync function getAllUtxosWithKeys(options = {}) {\n  return await new Promise((resolve, reject) => {\n    redis.keys('utxo*', function(err, res) {\n      let res3 = res.map(function(el) {\n        return Buffer.from(el);\n      })\n      if (res3.length) {\n        redis.mget(res3, function(err2, res2) {\n          \n          let utxos = res2.map(function(el) {\n            let t = new PlasmaTransaction(el);\n            if (options.json) {\n              t = t.getJson();\n            }\n            return t;\n          });\n\n          let result = {};\n          for (let i in res3) {\n            result[res3[i]] = utxos[i];\n          }\n          \n          resolve(result);\n        })\n      } else {\n        resolve([]);\n      }\n    });\n  })\n}\n\nexport {\n  createDepositTransaction,\n  createSignedTransaction,\n  getUTXO,\n  getAllUtxos,\n  getAllUtxosWithKeys\n};\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/helpers/tx.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 110,
+    "kind": "function",
+    "name": "createDepositTransaction",
+    "memberof": "lib/helpers/tx.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/helpers/tx.js~createDepositTransaction",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/helpers/tx.js",
+    "importStyle": "{createDepositTransaction}",
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "params": [
+      {
+        "name": "addressTo",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "amountBN",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "token_id",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 111,
+    "kind": "function",
+    "name": "createSignedTransaction",
+    "memberof": "lib/helpers/tx.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/helpers/tx.js~createSignedTransaction",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/helpers/tx.js",
+    "importStyle": "{createSignedTransaction}",
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "params": [
+      {
+        "name": "data",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 112,
+    "kind": "function",
+    "name": "getUTXO",
+    "memberof": "lib/helpers/tx.js",
+    "generator": false,
+    "async": true,
+    "static": true,
+    "longname": "lib/helpers/tx.js~getUTXO",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/helpers/tx.js",
+    "importStyle": "{getUTXO}",
+    "description": null,
+    "lineNumber": 31,
+    "undocument": true,
+    "params": [
+      {
+        "name": "blockNumber",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "token_id",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 113,
+    "kind": "function",
+    "name": "getAllUtxos",
+    "memberof": "lib/helpers/tx.js",
+    "generator": false,
+    "async": true,
+    "static": true,
+    "longname": "lib/helpers/tx.js~getAllUtxos",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/helpers/tx.js",
+    "importStyle": "{getAllUtxos}",
+    "description": null,
+    "lineNumber": 42,
+    "undocument": true,
+    "params": [
+      {
+        "name": "options",
+        "optional": true,
+        "types": [
+          "{}"
+        ],
+        "defaultRaw": {},
+        "defaultValue": "{}"
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 114,
+    "kind": "function",
+    "name": "getAllUtxosWithKeys",
+    "memberof": "lib/helpers/tx.js",
+    "generator": false,
+    "async": true,
+    "static": true,
+    "longname": "lib/helpers/tx.js~getAllUtxosWithKeys",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/helpers/tx.js",
+    "importStyle": "{getAllUtxosWithKeys}",
+    "description": null,
+    "lineNumber": 68,
+    "undocument": true,
+    "params": [
+      {
+        "name": "options",
+        "optional": true,
+        "types": [
+          "{}"
+        ],
+        "defaultRaw": {},
+        "defaultValue": "{}"
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 115,
+    "kind": "file",
+    "name": "lib/logger.js",
+    "content": "'use strict';\n\nimport winston  from 'winston';\nimport fs from 'fs';\nimport config from 'config';\n\nconst moment = require('moment-timezone').tz.setDefault(process.env.TIME_ZONE || 'America/New_York');\nwinston.transports.DailyRotateFile = require('winston-daily-rotate-file');\n\nconst tsFormat = () => (moment().format('DD:MM:YYYY HH:mm:ss.SSS'));\n\nconst mkdirSyncRecursive = (directory) => {\n  if (!fs.existsSync(directory)) {\n    let path = directory.replace(/\\/$/, '').split('/');\n    for (let i = 1; i <= path.length; i++) {\n      let segment = path.slice(0, i).join('/');\n      if (segment.length > 10 && !fs.existsSync(segment)) {\n        fs.mkdirSync(segment);\n      }\n    }\n  }\n};\n\nconst LoggerInstance = (name = null, logDir = config.logDir) => {\n  const logDirError = `${logDir}/${name ? name + '/' : ''}error`;\n  const logDirInfo = `${logDir}/${name ? name + '/' : ''}info`;\n\n  mkdirSyncRecursive(logDir);\n  mkdirSyncRecursive(logDirError);\n  mkdirSyncRecursive(logDirInfo);\n\n  const winstonInstance =  new winston.Logger({\n    level:'debug',\n    emitErrs: true,\n    transports: [\n      new (winston.transports.Console)({\n        name: 'console',\n        handleExceptions: false,\n        prettyPrint: true,\n        silent:false,\n        timestamp: tsFormat,\n        depth: 5,\n        colorize: true,\n        json: false\n      }),\n      new (winston.transports.DailyRotateFile)({\n        name: 'error',\n        filename: `${logDirError}/-error.log`,\n        timestamp: tsFormat,\n        datePattern: 'yyyy-MM-dd',\n        prepend: true,\n        level: 'error'\n      }),\n      new (winston.transports.DailyRotateFile)({\n        level:'info',\n        name: 'info',\n        filename: `${logDirInfo}/-info.log`,\n        handleExceptions: false,\n        prettyPrint: true,\n        depth: 5,\n        silent:false,\n        json: true,\n        colorize: true,\n        timestamp: tsFormat,\n        datePattern: 'yyyy-MM-dd',\n        prepend: true,\n        stderrLevels: ['info']\n      })\n    ],\n\n    exceptionHandlers: [\n      new winston.transports.File({ filename: `${logDir}/log-exceptions.log`, timestamp: tsFormat }),\n      new (winston.transports.Console)({\n        colorize: true,\n        handleExceptions: true,\n        prettyPrint: true\n      })\n    ],\n    exitOnError: true\n  });\n  winstonInstance.level = process.env.LOG_LEVEL || 'info';\n  return winstonInstance;\n};\n\nconst logger = LoggerInstance();\n\nexport {\n  logger\n};\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/logger.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 116,
+    "kind": "variable",
+    "name": "moment",
+    "memberof": "lib/logger.js",
+    "static": true,
+    "longname": "lib/logger.js~moment",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/logger.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 7,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 117,
+    "kind": "function",
+    "name": "tsFormat",
+    "memberof": "lib/logger.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/logger.js~tsFormat",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/logger.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 10,
+    "undocument": true,
+    "params": [],
+    "return": null,
+    "ignore": true
+  },
+  {
+    "__docId__": 118,
+    "kind": "function",
+    "name": "mkdirSyncRecursive",
+    "memberof": "lib/logger.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/logger.js~mkdirSyncRecursive",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/logger.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "params": [
+      {
+        "name": "directory",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": null,
+    "ignore": true
+  },
+  {
+    "__docId__": 119,
+    "kind": "function",
+    "name": "LoggerInstance",
+    "memberof": "lib/logger.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/logger.js~LoggerInstance",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/logger.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "params": [
+      {
+        "name": "name",
+        "optional": true,
+        "types": [
+          "undefined"
+        ],
+        "defaultValue": "undefined"
+      },
+      {
+        "name": "logDir",
+        "optional": true,
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 120,
+    "kind": "variable",
+    "name": "logger",
+    "memberof": "lib/logger.js",
+    "static": true,
+    "longname": "lib/logger.js~logger",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/logger.js",
+    "importStyle": "{logger}",
+    "description": null,
+    "lineNumber": 85,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 121,
+    "kind": "file",
+    "name": "lib/model/block.js",
+    "content": "'use strict';\n\nimport PatriciaMerkle from 'lib/PatriciaMerkle';\n\nimport PlasmaTransaction from 'lib/model/tx';\nimport RLP from 'rlp';\nimport ethUtil from 'ethereumjs-util';\n\nclass Block {\n  constructor (data) {\n    \n      if (Buffer.isBuffer(data)) {\n        let decodedData = RLP.decode(data);\n        this.blockNumber = decodedData && decodedData[0];\n        this.merkleRootHash = decodedData && decodedData[1];\n        this.transactions = decodedData && decodedData[2];\n      } else if (data && typeof data === 'object') {\n        this.blockNumber = data.blockNumber;\n        this.transactions = data.transactions || [];\n\n        let leaves = [];\n        let existingTxKeys = {};\n        for (let i = 0, l = this.transactions.length; i < l; i++) {\n          let tx = this.transactions[i];\n          let key = tx.token_id.toString();\n          if (!existingTxKeys[key]) {\n            existingTxKeys[key] = true;\n            leaves.push({ key: tx.token_id, hash: tx.getHash() });\n          }\n        }\n\n        this.txCount = leaves.length;\n        this.merkle = new PatriciaMerkle(leaves);\n        this.merkle.buildTree();\n        this.merkleRootHash = this.merkle.getMerkleRoot();\n      }\n   \n  }\n\n  getRlp() {\n    if (this._rlp) {\n      return this._rlp;\n    }\n    let transactions = this.transactions;\n    if (transactions[0] && transactions[0] instanceof PlasmaTransaction) {\n      transactions = transactions.map(tx => tx.getRaw());\n    }\n\n    this._rlp = RLP.encode([this.blockNumber, this.merkleRootHash, transactions]);\n    return this._rlp;\n  }\n\n  toJson() {\n    let data = [\n      this.blockNumber,\n      this.merkleRootHash,\n      this.transactions\n    ];\n\n    return ethUtil.baToJSON(data);\n  }\n  \n  getProof(token_id, returnhex) {  \n    if (!this.merkle) {\n      this.buildTree();\n    }\n\n    if (!(token_id instanceof Buffer)) {\n      token_id = ethUtil.toBuffer(ethUtil.stripHexPrefix(token_id));\n    }\n    \n    return this.merkle.getProof(token_id, returnhex);\n  }\n    \n  checkProof(proof, hash) {  \n    if (!this.merkle) {\n      this.buildTree();\n    }\n    \n    return this.merkle.checkProof(proof, hash, this.merkleRootHash);\n  }\n  \n  buildTree() {\n    if (this.transactions[0] && !(this.transactions[0] instanceof PlasmaTransaction)) {\n      this.transactions = this.transactions.map(tx => new PlasmaTransaction(tx));\n    }\n    let leaves = this.transactions.map(tx => {\n      return { key: tx.token_id, hash: tx.getHash() };\n    });\n\n    this.merkle = new PatriciaMerkle(leaves);\n    this.merkle.buildTree();\n    this.merkleRootHash = this.merkle.getMerkleRoot();\n  }\n\n  \n  getJson() {\n    let data = {\n      blockNumber: ethUtil.bufferToInt(this.blockNumber.toString()),\n      merkleRootHash: this.merkleRootHash.toString('hex'),\n    };\n    \n    let transactions = this.transactions;\n\n    if (transactions[0] && !(transactions[0] instanceof PlasmaTransaction)) {\n      transactions = transactions.map(tx => (new PlasmaTransaction(tx)).getJson());\n    } else {\n      transactions = transactions.map(tx => tx.getJson());\n    }\n    \n    data.transactions = transactions;\n    return data;\n  }\n  \n  getTxByTokenId(token_id) {\n    let transaction;\n    if (!(token_id instanceof Buffer)) {\n      token_id = ethUtil.toBuffer(ethUtil.stripHexPrefix(token_id));\n    }\n    let txsAreRlp = this.transactions[0] && !(this.transactions[0] instanceof PlasmaTransaction);\n    let txsTokenIdKey = txsAreRlp ? 2 : 'token_id';\n    transaction = this.transactions.find(tx => tx && token_id.equals(tx[txsTokenIdKey]));\n\n    if (transaction && !(transaction instanceof PlasmaTransaction)) {\n      transaction = new PlasmaTransaction(transaction);\n    }\n    \n    return transaction;\n  }\n}\n\nexport default Block;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/model/block.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 122,
+    "kind": "class",
+    "name": "Block",
+    "memberof": "lib/model/block.js",
+    "static": true,
+    "longname": "lib/model/block.js~Block",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/model/block.js",
+    "importStyle": "Block",
+    "description": null,
+    "lineNumber": 9,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 123,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/model/block.js~Block",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/block.js~Block#constructor",
+    "access": "public",
+    "description": null,
+    "lineNumber": 10,
+    "undocument": true
+  },
+  {
+    "__docId__": 124,
+    "kind": "member",
+    "name": "blockNumber",
+    "memberof": "lib/model/block.js~Block",
+    "static": false,
+    "longname": "lib/model/block.js~Block#blockNumber",
+    "access": "public",
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 125,
+    "kind": "member",
+    "name": "merkleRootHash",
+    "memberof": "lib/model/block.js~Block",
+    "static": false,
+    "longname": "lib/model/block.js~Block#merkleRootHash",
+    "access": "public",
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 126,
+    "kind": "member",
+    "name": "transactions",
+    "memberof": "lib/model/block.js~Block",
+    "static": false,
+    "longname": "lib/model/block.js~Block#transactions",
+    "access": "public",
+    "description": null,
+    "lineNumber": 16,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 129,
+    "kind": "member",
+    "name": "txCount",
+    "memberof": "lib/model/block.js~Block",
+    "static": false,
+    "longname": "lib/model/block.js~Block#txCount",
+    "access": "public",
+    "description": null,
+    "lineNumber": 32,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 130,
+    "kind": "member",
+    "name": "merkle",
+    "memberof": "lib/model/block.js~Block",
+    "static": false,
+    "longname": "lib/model/block.js~Block#merkle",
+    "access": "public",
+    "description": null,
+    "lineNumber": 33,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 132,
+    "kind": "method",
+    "name": "getRlp",
+    "memberof": "lib/model/block.js~Block",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/block.js~Block#getRlp",
+    "access": "public",
+    "description": null,
+    "lineNumber": 40,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 133,
+    "kind": "member",
+    "name": "_rlp",
+    "memberof": "lib/model/block.js~Block",
+    "static": false,
+    "longname": "lib/model/block.js~Block#_rlp",
+    "access": "private",
+    "description": null,
+    "lineNumber": 49,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 134,
+    "kind": "method",
+    "name": "toJson",
+    "memberof": "lib/model/block.js~Block",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/block.js~Block#toJson",
+    "access": "public",
+    "description": null,
+    "lineNumber": 53,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 135,
+    "kind": "method",
+    "name": "getProof",
+    "memberof": "lib/model/block.js~Block",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/block.js~Block#getProof",
+    "access": "public",
+    "description": null,
+    "lineNumber": 63,
+    "undocument": true,
+    "params": [
+      {
+        "name": "token_id",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "returnhex",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 136,
+    "kind": "method",
+    "name": "checkProof",
+    "memberof": "lib/model/block.js~Block",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/block.js~Block#checkProof",
+    "access": "public",
+    "description": null,
+    "lineNumber": 75,
+    "undocument": true,
+    "params": [
+      {
+        "name": "proof",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "hash",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 137,
+    "kind": "method",
+    "name": "buildTree",
+    "memberof": "lib/model/block.js~Block",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/block.js~Block#buildTree",
+    "access": "public",
+    "description": null,
+    "lineNumber": 83,
+    "undocument": true,
+    "params": [],
+    "return": null
+  },
+  {
+    "__docId__": 141,
+    "kind": "method",
+    "name": "getJson",
+    "memberof": "lib/model/block.js~Block",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/block.js~Block#getJson",
+    "access": "public",
+    "description": null,
+    "lineNumber": 97,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 142,
+    "kind": "method",
+    "name": "getTxByTokenId",
+    "memberof": "lib/model/block.js~Block",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/block.js~Block#getTxByTokenId",
+    "access": "public",
+    "description": null,
+    "lineNumber": 115,
+    "undocument": true,
+    "params": [
+      {
+        "name": "token_id",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 143,
+    "kind": "file",
+    "name": "lib/model/tx.js",
+    "content": "'use strict';\n\nimport RLP from 'rlp';\nimport ethUtil from 'ethereumjs-util';\n\nconst transactionFields = [\n  { name: 'prev_hash' },\n  { name: 'prev_block', int: true, default: 0 },\n  { name: 'token_id', isDecimal: true},\n  { name: 'new_owner' },\n  { name: 'signature' }\n];\n\nfunction initFields(self, fields, data) {\n  if (data instanceof Buffer) {\n    let decodedData = RLP.decode(data);\n    fields.forEach((field, i) => {\n      if (field.int) {\n        if (decodedData[i].length) \n          self[field.name] = decodedData[i].readUIntBE();\n        else \n          self[field.name] = 0;\n      } else\n        self[field.name] = decodedData[i];\n    });\n  } else if (Array.isArray(data) && data.length) {\n    fields.forEach((field, i) => {\n      self[field.name] = data[i];\n    });\n  }  else if (data && typeof data === 'object') {\n    fields.forEach(field => {\n      let value = data && data[field.name];\n      if (value) {\n        if (field.int && typeof(value)!=='number') {\n          if (value instanceof Buffer) {\n            value = value.readUIntBE();\n          } else {\n            value = parseInt(value);\n          }\n        } else if (!(value instanceof Buffer) && typeof field.int === 'undefined' ) {\n          value = ethUtil.toBuffer(field.isDecimal ? ethUtil.stripHexPrefix(value) : value);\n        }\n      } else {\n        value = field.default;\n      }\n      self[field.name] = value;\n    });\n  }\n}\n\nclass PlasmaTransaction {\n  constructor (data) {\n    data = data || {};\n\n    initFields(this, transactionFields, data);\n  }\n\n  getRlp(excludeSignature) {\n    let fieldName = excludeSignature ? '_rlpNoSignature' : '_rlp';\n    if (this[fieldName]) {\n      return this[fieldName];\n    }\n    let dataToEncode = [\n      this.prev_hash instanceof Buffer ? this.prev_hash : ethUtil.addHexPrefix(this.prev_hash),\n      this.prev_block,\n      ethUtil.toBuffer(this.token_id),\n      this.new_owner\n    ];\n    if (!(excludeSignature)) {\n      dataToEncode.push(this.signature);\n    }\n\n    this[fieldName] = RLP.encode(dataToEncode);\n    return this[fieldName];\n  }\n\n  getHash(excludeSignature) {\n    let fieldName = excludeSignature ? '_hashNoSignature' : '_hash';\n    if (this[fieldName]) {\n      return this[fieldName];\n    }\n\n    this[fieldName] = ethUtil.sha3(this.getRlp(excludeSignature));\n    return this[fieldName];\n  }\n\n  getRaw() {\n    return transactionFields.map(field => this[field.name]);\n  }\n\n  getAddressFromSignature(hex) {\n    if (this._address) {\n      return hex && this._address instanceof Buffer ? ethUtil.bufferToHex(this._address) : this._address;\n    }\n\n    let txRlpHashed = ethUtil.hashPersonalMessage(this.getHash(true));\n    if (this.signature) {\n      let { v, r, s } = ethUtil.fromRpcSig(ethUtil.addHexPrefix(this.signature));\n      let publicAddress = ethUtil.ecrecover(txRlpHashed, v, r, s);\n      let address = ethUtil.pubToAddress(publicAddress);\n      this._address = address;\n      if (hex) {\n        address = ethUtil.bufferToHex(address);\n      }\n      return address;\n    }\n    return null;\n  }\n\n  validate () {\n    let isValid = true;\n    if (!this.new_owner || !this.signature || !this.token_id) {\n      isValid = false;\n    }\n\n    return isValid;\n  }\n  \n  getJson() {\n    let data = {};\n    data.prev_hash = ethUtil.addHexPrefix(this.prev_hash.toString('hex'));\n    data.prev_block = ethUtil.bufferToInt(this.prev_block);\n    data.token_id = this.token_id.toString();\n    data.new_owner = ethUtil.addHexPrefix(this.new_owner.toString('hex'));\n    data.signature = ethUtil.addHexPrefix(this.signature.toString('hex'));\n\n    return data;\n  }\n}\n\nexport default PlasmaTransaction;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/model/tx.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 144,
+    "kind": "variable",
+    "name": "transactionFields",
+    "memberof": "lib/model/tx.js",
+    "static": true,
+    "longname": "lib/model/tx.js~transactionFields",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/model/tx.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 6,
+    "undocument": true,
+    "type": {
+      "types": [
+        "undefined[]"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 145,
+    "kind": "function",
+    "name": "initFields",
+    "memberof": "lib/model/tx.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/model/tx.js~initFields",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/model/tx.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "params": [
+      {
+        "name": "self",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "fields",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "data",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": null,
+    "ignore": true
+  },
+  {
+    "__docId__": 146,
+    "kind": "class",
+    "name": "PlasmaTransaction",
+    "memberof": "lib/model/tx.js",
+    "static": true,
+    "longname": "lib/model/tx.js~PlasmaTransaction",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/model/tx.js",
+    "importStyle": "PlasmaTransaction",
+    "description": null,
+    "lineNumber": 51,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 147,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/model/tx.js~PlasmaTransaction",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/tx.js~PlasmaTransaction#constructor",
+    "access": "public",
+    "description": null,
+    "lineNumber": 52,
+    "undocument": true
+  },
+  {
+    "__docId__": 148,
+    "kind": "method",
+    "name": "getRlp",
+    "memberof": "lib/model/tx.js~PlasmaTransaction",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/tx.js~PlasmaTransaction#getRlp",
+    "access": "public",
+    "description": null,
+    "lineNumber": 58,
+    "undocument": true,
+    "params": [
+      {
+        "name": "excludeSignature",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 149,
+    "kind": "member",
+    "name": "[fieldName]",
+    "memberof": "lib/model/tx.js~PlasmaTransaction",
+    "static": false,
+    "longname": "lib/model/tx.js~PlasmaTransaction#[fieldName]",
+    "access": "public",
+    "description": null,
+    "lineNumber": 73,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 150,
+    "kind": "method",
+    "name": "getHash",
+    "memberof": "lib/model/tx.js~PlasmaTransaction",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/tx.js~PlasmaTransaction#getHash",
+    "access": "public",
+    "description": null,
+    "lineNumber": 77,
+    "undocument": true,
+    "params": [
+      {
+        "name": "excludeSignature",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 152,
+    "kind": "method",
+    "name": "getRaw",
+    "memberof": "lib/model/tx.js~PlasmaTransaction",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/tx.js~PlasmaTransaction#getRaw",
+    "access": "public",
+    "description": null,
+    "lineNumber": 87,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 153,
+    "kind": "method",
+    "name": "getAddressFromSignature",
+    "memberof": "lib/model/tx.js~PlasmaTransaction",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/tx.js~PlasmaTransaction#getAddressFromSignature",
+    "access": "public",
+    "description": null,
+    "lineNumber": 91,
+    "undocument": true,
+    "params": [
+      {
+        "name": "hex",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 154,
+    "kind": "member",
+    "name": "_address",
+    "memberof": "lib/model/tx.js~PlasmaTransaction",
+    "static": false,
+    "longname": "lib/model/tx.js~PlasmaTransaction#_address",
+    "access": "private",
+    "description": null,
+    "lineNumber": 101,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 155,
+    "kind": "method",
+    "name": "validate",
+    "memberof": "lib/model/tx.js~PlasmaTransaction",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/tx.js~PlasmaTransaction#validate",
+    "access": "public",
+    "description": null,
+    "lineNumber": 110,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 156,
+    "kind": "method",
+    "name": "getJson",
+    "memberof": "lib/model/tx.js~PlasmaTransaction",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/model/tx.js~PlasmaTransaction#getJson",
+    "access": "public",
+    "description": null,
+    "lineNumber": 119,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 157,
+    "kind": "file",
+    "name": "lib/redis.js",
+    "content": "import redis from 'redis';\nimport util from 'util';\n\nlet client = redis.createClient( {\n  detect_buffers: true\n});\n\nconst getAsync = util.promisify(client.get).bind(client);\nconst setAsync = util.promisify(client.set).bind(client);\nconst delAsync = util.promisify(client.del).bind(client);\nconst lpushAsync = util.promisify(client.lpush).bind(client);\nconst rpushAsync = util.promisify(client.rpush).bind(client);\nconst lrangeAsync = util.promisify(client.lrange).bind(client);\nconst lremAsync = util.promisify(client.lrem).bind(client);\nconst llenAsync = util.promisify(client.llen).bind(client);\nconst lsetAsync = util.promisify(client.lset).bind(client);\nclient.getAsync = getAsync;\nclient.setAsync = setAsync;\nclient.delAsync = delAsync;\nclient.lpushAsync = lpushAsync;\nclient.llenAsync = llenAsync;\nclient.rpushAsync = rpushAsync;\nclient.lrangeAsync = lrangeAsync;\nclient.lremAsync = lremAsync;\nclient.lsetAsync = lsetAsync;\n\nexport default client;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/redis.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 158,
+    "kind": "variable",
+    "name": "getAsync",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~getAsync",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 159,
+    "kind": "variable",
+    "name": "setAsync",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~setAsync",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 9,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 160,
+    "kind": "variable",
+    "name": "delAsync",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~delAsync",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 10,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 161,
+    "kind": "variable",
+    "name": "lpushAsync",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~lpushAsync",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 11,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 162,
+    "kind": "variable",
+    "name": "rpushAsync",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~rpushAsync",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 163,
+    "kind": "variable",
+    "name": "lrangeAsync",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~lrangeAsync",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 13,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 164,
+    "kind": "variable",
+    "name": "lremAsync",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~lremAsync",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 165,
+    "kind": "variable",
+    "name": "llenAsync",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~llenAsync",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 166,
+    "kind": "variable",
+    "name": "lsetAsync",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~lsetAsync",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 16,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 167,
+    "kind": "variable",
+    "name": "client",
+    "memberof": "lib/redis.js",
+    "static": true,
+    "longname": "lib/redis.js~client",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/redis.js",
+    "importStyle": "client",
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 168,
+    "kind": "file",
+    "name": "lib/test.js",
+    "content": "import web3 from 'lib/web3';\nimport config from \"config\";\nimport contractHandler from 'lib/contracts/plasma';\nimport ethUtil from 'ethereumjs-util';\n\nconst BN = ethUtil.BN;\n\nlet accounts = [\n  '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70',\n  '0x11A618DE3ADe9B85Cd811BF45af03bAd481842Ed', \n  '0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe',\n  '0x9345a4d4a43815c613cf9e9db1920b9c9eeb8dc7',\n  '0x220cD6eBB62F9aD170C9bf7984F22A3afc023E7d'\n];\nasync function createDeposits(options = {}) {\n\n  for (let addr of accounts) {\n    await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 90000);\n    console.log('unlockAccount', addr);\n  }\n  let deposits = options.deposits || 5;\n  var nextAddressGen = getNextAddress(accounts);\n\n  let created = 0;\n  for (let i = 0; i < deposits; i++) {\n    try {\n      let address = nextAddressGen.next().value;\n      let amount = new BN('1000000000000000');\n      let add = new BN('10000000000000');\n      add = add.mul(new BN(i + 1));    \n      amount = amount.add(add).toString();\n    \n      contractHandler.contract.methods.deposit().estimateGas({from: address, value: amount})\n        .then(gas => {\n            console.log('done deposit to contract!');\n          return contractHandler.contract.methods.deposit().send({from: address, gas, value: amount});\n        }).catch(error => {\n          console.log('error' , error.toString())\n        })\n      created++;\n    }\n    catch (error){\n      console.log('Create deposit error', error);\n    }\n  }\n  return created;\n}\n\nfunction* getNextAddress(addresses) {\n  let currentAddress = 0;\n  let address;\n  \n  while(true) {\n    if (!addresses[++currentAddress]) {\n      currentAddress = 0;\n    }\n    if (address && addresses[currentAddress] == address) {\n      if (!addresses[++currentAddress]) {\n        currentAddress = 0;\n        if (addresses[currentAddress] == address) {\n          currentAddress++;\n        }\n      }\n    }\n    address = yield addresses[currentAddress];\n  }\n}\n\nexport { createDeposits };\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/test.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 169,
+    "kind": "variable",
+    "name": "BN",
+    "memberof": "lib/test.js",
+    "static": true,
+    "longname": "lib/test.js~BN",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/test.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 6,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 170,
+    "kind": "variable",
+    "name": "accounts",
+    "memberof": "lib/test.js",
+    "static": true,
+    "longname": "lib/test.js~accounts",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/test.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "type": {
+      "types": [
+        "string[]"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 171,
+    "kind": "function",
+    "name": "getNextAddress",
+    "memberof": "lib/test.js",
+    "generator": true,
+    "async": false,
+    "static": true,
+    "longname": "lib/test.js~getNextAddress",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/test.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 49,
+    "undocument": true,
+    "params": [
+      {
+        "name": "addresses",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": null,
+    "ignore": true
+  },
+  {
+    "__docId__": 172,
+    "kind": "function",
+    "name": "createDeposits",
+    "memberof": "lib/test.js",
+    "generator": false,
+    "async": true,
+    "static": true,
+    "longname": "lib/test.js~createDeposits",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/test.js",
+    "importStyle": "{createDeposits}",
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "params": [
+      {
+        "name": "options",
+        "optional": true,
+        "types": [
+          "{}"
+        ],
+        "defaultRaw": {},
+        "defaultValue": "{}"
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 173,
+    "kind": "file",
+    "name": "lib/txPool.js",
+    "content": "'use strict';\n\nimport Block from 'lib/model/block';\nimport config from \"config\";\nimport ethUtil from 'ethereumjs-util'; \nimport { logger } from 'lib/logger';\nimport { getUTXO } from 'lib/helpers/tx';\nimport redis from 'lib/redis';\nimport PlasmaTransaction  from 'lib/model/tx';\n\n/**\n * TxPool - mempool for transactions\n */\nclass TXPool {\n  constructor () {\n    this.newBlockNumber;\n    this.newBlockNumberBuffer;\n    this.inputKeys = {};\n  }\n\n  async length() {\n    return await redis.llenAsync('txs');\n  }\n\n  async addTransaction(tx) {    \n    if (!(await this.checkTransaction(tx)))\n      return false;\n    redis.rpushAsync('txs', tx.getRlp(false));\n    return tx;\n  }\n\n  async checkTransaction(transaction) {\n    try {\n      if (transaction.prev_block == 0) {\n        let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    \n        let valid = address == config.plasmaOperatorAddress.toLowerCase();\n\n        if (!valid) \n          return false;\n        \n      } else {\n        let utxo = await getUTXO(transaction.prev_block, transaction.token_id);\n        if (!utxo) \n          return false;\n        \n        transaction.prev_hash = utxo.getHash();\n        let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    \n        let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());\n\n        if (utxoOwnerAddress != address) \n          return false;\n\n      }\n      return true;\n    } catch (e) {\n      return false;\n    }\n  }\n\n  async getLastBlockNumberFromDb() {\n    let lastBlock = await redis.getAsync('lastBlockNumber');\n\n    if (!lastBlock) {\n        redis.setAsync('lastBlockNumber', 0);\n        lastBlock = 0;\n    } else {\n      lastBlock = parseInt(lastBlock);\n    }\n\n    this.newBlockNumber = lastBlock + config.contractblockStep;\n  }\n\n  async createNewBlock() {\n    try {\n      if (!this.newBlockNumber) \n        await this.getLastBlockNumberFromDb();\n      \n      let transactions = await redis.lrangeAsync(Buffer.from('txs'), 0, -1);\n      transactions = transactions.map(function(el) {\n        return new PlasmaTransaction(el);\n      });\n      \n      if (transactions.length == 0) \n        return false;\n      \n      const block = new Block({\n        blockNumber: this.newBlockNumber,\n        transactions: transactions\n      });\n\n      for (let utxo of block.transactions) {\n        let utxoNewKey = \"utxo_\" + block.blockNumber.toString(10) + \"_\"+ utxo.token_id.toString(); \n\n        if (utxo.prev_block != 0) {\n          let utxoOldKey = \"utxo_\"+ utxo.prev_block.toString(10) + \"_\"+ utxo.token_id.toString();\n          await redis.delAsync( utxoOldKey );\n        }\n        await redis.setAsync( utxoNewKey, utxo.getRlp() );\n      }\n      await redis.setAsync( 'lastBlockNumber', block.blockNumber );\n      await redis.setAsync( 'block' + block.blockNumber.toString(10) , block.getRlp() );\n      \n      for (let i=0; i < block.transactions.length; i++)\n        await redis.lsetAsync('txs', i, 'DELETED');\n      redis.lremAsync('txs', 0, 'DELETED');\n      \n      logger.info('New block created - transactions: ', block.transactions.length);\n\n      this.newBlockNumber += config.contractblockStep;\n      return block;\n    }\n    catch(err){\n      logger.error('createNewBlock error ', err);\n    }\n  }\n};\n\nconst txPool = new TXPool();\n\nexport default txPool;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/txPool.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 174,
+    "kind": "class",
+    "name": "TXPool",
+    "memberof": "lib/txPool.js",
+    "static": true,
+    "longname": "lib/txPool.js~TXPool",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/txPool.js",
+    "importStyle": null,
+    "description": "TxPool - mempool for transactions",
+    "lineNumber": 14,
+    "pseudoExport": true,
+    "interface": false
+  },
+  {
+    "__docId__": 175,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/txPool.js~TXPool",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/txPool.js~TXPool#constructor",
+    "access": "public",
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true
+  },
+  {
+    "__docId__": 176,
+    "kind": "member",
+    "name": "inputKeys",
+    "memberof": "lib/txPool.js~TXPool",
+    "static": false,
+    "longname": "lib/txPool.js~TXPool#inputKeys",
+    "access": "public",
+    "description": null,
+    "lineNumber": 18,
+    "undocument": true,
+    "type": {
+      "types": [
+        "{}"
+      ]
+    }
+  },
+  {
+    "__docId__": 177,
+    "kind": "method",
+    "name": "length",
+    "memberof": "lib/txPool.js~TXPool",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/txPool.js~TXPool#length",
+    "access": "public",
+    "description": null,
+    "lineNumber": 21,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 178,
+    "kind": "method",
+    "name": "addTransaction",
+    "memberof": "lib/txPool.js~TXPool",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/txPool.js~TXPool#addTransaction",
+    "access": "public",
+    "description": null,
+    "lineNumber": 25,
+    "undocument": true,
+    "params": [
+      {
+        "name": "tx",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 179,
+    "kind": "method",
+    "name": "checkTransaction",
+    "memberof": "lib/txPool.js~TXPool",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/txPool.js~TXPool#checkTransaction",
+    "access": "public",
+    "description": null,
+    "lineNumber": 32,
+    "undocument": true,
+    "params": [
+      {
+        "name": "transaction",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "__docId__": 180,
+    "kind": "method",
+    "name": "getLastBlockNumberFromDb",
+    "memberof": "lib/txPool.js~TXPool",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/txPool.js~TXPool#getLastBlockNumberFromDb",
+    "access": "public",
+    "description": null,
+    "lineNumber": 60,
+    "undocument": true,
+    "params": [],
+    "return": null
+  },
+  {
+    "__docId__": 181,
+    "kind": "member",
+    "name": "newBlockNumber",
+    "memberof": "lib/txPool.js~TXPool",
+    "static": false,
+    "longname": "lib/txPool.js~TXPool#newBlockNumber",
+    "access": "public",
+    "description": null,
+    "lineNumber": 70,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 182,
+    "kind": "method",
+    "name": "createNewBlock",
+    "memberof": "lib/txPool.js~TXPool",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/txPool.js~TXPool#createNewBlock",
+    "access": "public",
+    "description": null,
+    "lineNumber": 73,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 184,
+    "kind": "variable",
+    "name": "txPool",
+    "memberof": "lib/txPool.js",
+    "static": true,
+    "longname": "lib/txPool.js~txPool",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/txPool.js",
+    "importStyle": "txPool",
+    "description": null,
+    "lineNumber": 120,
+    "undocument": true,
+    "type": {
+      "types": [
+        "lib/txPool.js~TXPool"
+      ]
+    }
+  },
+  {
+    "__docId__": 185,
+    "kind": "file",
+    "name": "lib/txTestController.js",
+    "content": "\nimport { createSignedTransaction } from 'lib/helpers/tx';\nimport web3 from 'lib/web3';\nimport Promise from 'bluebird';\nimport config from \"config\";\nconst ethUtil = require('ethereumjs-util'); \nimport RLP from 'rlp';\nimport txPool from 'lib/txPool';\nimport { getAllUtxosWithKeys } from 'lib/helpers/tx';\n\n\nlet accounts = [\n  '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70'.toLowerCase(),\n  '0x11A618DE3ADe9B85Cd811BF45af03bAd481842Ed'.toLowerCase(), \n  '0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe'.toLowerCase(),\n  '0x9345a4d4a43815c613cf9e9db1920b9c9eeb8dc7'.toLowerCase(),\n  '0x220cD6eBB62F9aD170C9bf7984F22A3afc023E7d'.toLowerCase()\n];\n\nlet prkeys = {};\nprkeys[accounts[0]] = Buffer.from('de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a', 'hex');\nprkeys[accounts[1]] = Buffer.from('86737ebcbdfda1c14a069782b585fed4fb15847206ca179ea8988161ddbb8ad6', 'hex');\nprkeys[accounts[2]] = Buffer.from('06889a2975e9db1487e33ea76f82a034660de671d0594e9470d4f7be4b6feaf1', 'hex');\nprkeys[accounts[3]] = Buffer.from('723851e910975a4ff44b2ec28b719c42ae3c9ea33c187abaa018292a02d5e9a9', 'hex');\nprkeys[accounts[4]] = Buffer.from('25d9bb435e7d96e692054668add7f8b857567b2075b9e2f6b0659c4b6c7ed31c', 'hex');\n\nclass TestTransactionsCreator {\n    constructor () {\n        this.ready = false;\n        this.utxos = [];\n        this.alltransactions = [];\n        \n        this.nextAddressGen = getNextAddress(accounts);\n        this.nextAddressGen.next();\n        this.blockCreatePromise = Promise.resolve(true);\n    }\n\n    async createTransactionsFromUTXO() {\n      this.utxos = await getAllUtxosWithKeys();\n      this.alltransactions = [];\n\n      for (let i in this.utxos) {\n          let utxo = this.utxos[i];\n          let blockNumber = parseInt(i.split('_')[1]);\n\n          try {\n            let txData = {\n              prev_hash:  utxo.getHash().toString('hex'),\n              prev_block: blockNumber,\n              token_id: utxo.token_id.toString(),\n              new_owner: this.nextAddressGen.next(utxo.new_owner).value\n            };\n            let txDataForRlp = [ethUtil.addHexPrefix(txData.prev_hash), txData.prev_block, ethUtil.toBuffer(txData.token_id), txData.new_owner];\n            let txRlpEncoded = ethUtil.hashPersonalMessage(ethUtil.sha3(RLP.encode(txDataForRlp)));\n            \n            if (utxo.new_owner instanceof Buffer)\n              utxo.new_owner = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();\n\n            let signature = ethUtil.ecsign(txRlpEncoded, prkeys[utxo.new_owner]);\n            \n            txData.signature = ethUtil.toRpcSig(signature.v, signature.r, signature.s).toString(\"hex\");\n            let createdTx = createSignedTransaction(txData);\n            this.alltransactions.push(createdTx);\n          } catch (e) {\n            console.log(e);\n          }\n      }\n\n      console.log('TXcount - ', this.alltransactions.length);\n  }\n\n    async init() {\n        try {\n            for (let address of accounts) {\n              await web3.eth.personal.unlockAccount(address, config.plasmaOperatorPassword, 0);\n              console.log('Unlock account: ', address);\n            }\n            await this.createTransactionsFromUTXO();\n            setInterval(()=> this.createTransactionsFromUTXO(), 60000);\n        }\n        catch (err) {\n            console.log('error', err);\n            this.ready = false;\n        }\n    }\n\n    async createNewTransactions(req) {\n      return await txPool.addTransaction(this.alltransactions[parseInt(req.headers['test'])]);\n    }\n\n}\n    function* getNextAddress(addresses) {\n        let currentAddress = 0;\n        let addressToExclude;\n        while(true) {\n          if (!addresses[++currentAddress]) {\n              currentAddress = 0;\n          }\n          if (addressToExclude && addresses[currentAddress] == addressToExclude) {\n              if (!addresses[++currentAddress]) {\n                  currentAddress = 0;\n                 if (addresses[currentAddress] == addressToExclude) {\n                  currentAddress++;\n                 }\n              }\n          }\n          addressToExclude = yield addresses[currentAddress];\n        }\n      }\n\nconst testTransactionsCreator = new TestTransactionsCreator;\n\n//if (config.isDevelopment)\n  testTransactionsCreator.init();\n\nexport default testTransactionsCreator;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/txTestController.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 186,
+    "kind": "variable",
+    "name": "ethUtil",
+    "memberof": "lib/txTestController.js",
+    "static": true,
+    "longname": "lib/txTestController.js~ethUtil",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/txTestController.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 6,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 187,
+    "kind": "variable",
+    "name": "accounts",
+    "memberof": "lib/txTestController.js",
+    "static": true,
+    "longname": "lib/txTestController.js~accounts",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/txTestController.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "type": {
+      "types": [
+        "undefined[]"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 188,
+    "kind": "variable",
+    "name": "prkeys",
+    "memberof": "lib/txTestController.js",
+    "static": true,
+    "longname": "lib/txTestController.js~prkeys",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/txTestController.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 20,
+    "undocument": true,
+    "type": {
+      "types": [
+        "{}"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 189,
+    "kind": "function",
+    "name": "getNextAddress",
+    "memberof": "lib/txTestController.js",
+    "generator": true,
+    "async": false,
+    "static": true,
+    "longname": "lib/txTestController.js~getNextAddress",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/txTestController.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 92,
+    "undocument": true,
+    "params": [
+      {
+        "name": "addresses",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": null,
+    "ignore": true
+  },
+  {
+    "__docId__": 190,
+    "kind": "class",
+    "name": "TestTransactionsCreator",
+    "memberof": "lib/txTestController.js",
+    "static": true,
+    "longname": "lib/txTestController.js~TestTransactionsCreator",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/txTestController.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 27,
+    "pseudoExport": true,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 191,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/txTestController.js~TestTransactionsCreator",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/txTestController.js~TestTransactionsCreator#constructor",
+    "access": "public",
+    "description": null,
+    "lineNumber": 28,
+    "undocument": true
+  },
+  {
+    "__docId__": 192,
+    "kind": "member",
+    "name": "ready",
+    "memberof": "lib/txTestController.js~TestTransactionsCreator",
+    "static": false,
+    "longname": "lib/txTestController.js~TestTransactionsCreator#ready",
+    "access": "public",
+    "description": null,
+    "lineNumber": 29,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "__docId__": 193,
+    "kind": "member",
+    "name": "utxos",
+    "memberof": "lib/txTestController.js~TestTransactionsCreator",
+    "static": false,
+    "longname": "lib/txTestController.js~TestTransactionsCreator#utxos",
+    "access": "public",
+    "description": null,
+    "lineNumber": 30,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*[]"
+      ]
+    }
+  },
+  {
+    "__docId__": 194,
+    "kind": "member",
+    "name": "alltransactions",
+    "memberof": "lib/txTestController.js~TestTransactionsCreator",
+    "static": false,
+    "longname": "lib/txTestController.js~TestTransactionsCreator#alltransactions",
+    "access": "public",
+    "description": null,
+    "lineNumber": 31,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*[]"
+      ]
+    }
+  },
+  {
+    "__docId__": 195,
+    "kind": "member",
+    "name": "nextAddressGen",
+    "memberof": "lib/txTestController.js~TestTransactionsCreator",
+    "static": false,
+    "longname": "lib/txTestController.js~TestTransactionsCreator#nextAddressGen",
+    "access": "public",
+    "description": null,
+    "lineNumber": 33,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 196,
+    "kind": "member",
+    "name": "blockCreatePromise",
+    "memberof": "lib/txTestController.js~TestTransactionsCreator",
+    "static": false,
+    "longname": "lib/txTestController.js~TestTransactionsCreator#blockCreatePromise",
+    "access": "public",
+    "description": null,
+    "lineNumber": 35,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 197,
+    "kind": "method",
+    "name": "createTransactionsFromUTXO",
+    "memberof": "lib/txTestController.js~TestTransactionsCreator",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/txTestController.js~TestTransactionsCreator#createTransactionsFromUTXO",
+    "access": "public",
+    "description": null,
+    "lineNumber": 38,
+    "undocument": true,
+    "params": [],
+    "return": null
+  },
+  {
+    "__docId__": 200,
+    "kind": "method",
+    "name": "init",
+    "memberof": "lib/txTestController.js~TestTransactionsCreator",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/txTestController.js~TestTransactionsCreator#init",
+    "access": "public",
+    "description": null,
+    "lineNumber": 72,
+    "undocument": true,
+    "params": [],
+    "return": null
+  },
+  {
+    "__docId__": 202,
+    "kind": "method",
+    "name": "createNewTransactions",
+    "memberof": "lib/txTestController.js~TestTransactionsCreator",
+    "generator": false,
+    "async": true,
+    "static": false,
+    "longname": "lib/txTestController.js~TestTransactionsCreator#createNewTransactions",
+    "access": "public",
+    "description": null,
+    "lineNumber": 87,
+    "undocument": true,
+    "params": [
+      {
+        "name": "req",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 203,
+    "kind": "variable",
+    "name": "testTransactionsCreator",
+    "memberof": "lib/txTestController.js",
+    "static": true,
+    "longname": "lib/txTestController.js~testTransactionsCreator",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/txTestController.js",
+    "importStyle": "testTransactionsCreator",
+    "description": null,
+    "lineNumber": 116,
+    "undocument": true,
+    "type": {
+      "types": [
+        "lib/txTestController.js~TestTransactionsCreator"
+      ]
+    }
+  },
+  {
+    "__docId__": 204,
+    "kind": "file",
+    "name": "lib/utils.js",
+    "content": "import util from 'util';\n\nfunction parseMulti(req, cb) {\n  let body = [];\n  req.on('data', (chunk) => {\n    body.push(chunk);\n  }).on('end', () => {\n    let bodys = Buffer.concat(body).toString();\n    if (bodys.length > 0) {\n      try {\n        req.body = JSON.parse(bodys);\n      } catch (e) {\n        req.body = '';\n      }\n    }\n    return cb();\n  });\n}\nlet parseM = util.promisify(parseMulti); \n\nexport { parseM };",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/utils.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 205,
+    "kind": "function",
+    "name": "parseMulti",
+    "memberof": "lib/utils.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/utils.js~parseMulti",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/utils.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "params": [
+      {
+        "name": "req",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "cb",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": null,
+    "ignore": true
+  },
+  {
+    "__docId__": 206,
+    "kind": "variable",
+    "name": "parseM",
+    "memberof": "lib/utils.js",
+    "static": true,
+    "longname": "lib/utils.js~parseM",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/utils.js",
+    "importStyle": "{parseM}",
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 207,
+    "kind": "file",
+    "name": "lib/validate.js",
+    "content": "'use strict';\n\nimport Ajv from 'ajv';\nimport fs from 'fs';\nimport path from 'path';\n\nconst AJV_OPTIONS = {\n  removeAdditional: true,\n  coerceTypes: true,\n  useDefaults: true,\n  allErrors: true,\n  errorDataPath: 'property',\n  jsonPointers: true // ajv-errors required\n};\nconst ajv = new Ajv(AJV_OPTIONS);\n\nexport function validateRequestBySchema (schemaPath, data) {\n  return new Promise((resolve, reject) => {\n    let schema;\n    if (fs.existsSync(path.join(__dirname, schemaPath))) {\n      schema = require(schemaPath);\n    }  else {\n      throw new Error(`schema ${schemaPath} not found`);\n    }\n\n    let valid = {errors:[]};\n\n    let validate = ajv.compile(schema);\n    if (!validate(data)) {\n      valid.errors = validate.errors;\n    }\n\n    if (valid.errors.length) {\n      reject({ status: 422, message: valid.errors, type:'json-schema' });\n    } else {\n      resolve(data);\n    }\n  });\n};\n\nfunction getReqDataKey (method) {\n  let reqDataKey;\n  switch (method) {\n    case 'GET':\n      reqDataKey = 'query';\n      break;\n    case 'POST':\n      reqDataKey = 'body';\n      break;\n    case 'PUT':\n      reqDataKey = 'body';\n      break;\n    case 'DELETE':\n      reqDataKey = 'body';\n      break;\n  }\n  return reqDataKey;\n};\n\nexport default function validate (schemaName = null) {\n  if (!schemaName) {\n    throw Error('schemaName required');\n  }\n\n  let schemaPath = `../schema/${schemaName}.json`;\n\n  return function (req, res, next) {\n    let reqDataKey = getReqDataKey(req.method);\n    return validateRequestBySchema(schemaPath, req[reqDataKey])\n      .then((formData) => {\n        req.formData = formData;\n        return next();\n      })\n      .catch(err => next(err));\n  };\n};\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/validate.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 208,
+    "kind": "variable",
+    "name": "AJV_OPTIONS",
+    "memberof": "lib/validate.js",
+    "static": true,
+    "longname": "lib/validate.js~AJV_OPTIONS",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/validate.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 7,
+    "undocument": true,
+    "type": {
+      "types": [
+        "{\"removeAdditional\": boolean, \"coerceTypes\": boolean, \"useDefaults\": boolean, \"allErrors\": boolean, \"errorDataPath\": string, \"jsonPointers\": boolean}"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 209,
+    "kind": "variable",
+    "name": "ajv",
+    "memberof": "lib/validate.js",
+    "static": true,
+    "longname": "lib/validate.js~ajv",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/validate.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 210,
+    "kind": "function",
+    "name": "validateRequestBySchema",
+    "memberof": "lib/validate.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/validate.js~validateRequestBySchema",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/validate.js",
+    "importStyle": "{validateRequestBySchema}",
+    "description": null,
+    "lineNumber": 17,
+    "undocument": true,
+    "params": [
+      {
+        "name": "schemaPath",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "data",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 211,
+    "kind": "function",
+    "name": "getReqDataKey",
+    "memberof": "lib/validate.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/validate.js~getReqDataKey",
+    "access": "public",
+    "export": false,
+    "importPath": "backend/lib/validate.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 41,
+    "undocument": true,
+    "params": [
+      {
+        "name": "method",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "ignore": true
+  },
+  {
+    "__docId__": 212,
+    "kind": "function",
+    "name": "validate",
+    "memberof": "lib/validate.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/validate.js~validate",
+    "access": "public",
+    "export": true,
+    "importPath": "backend/lib/validate.js",
+    "importStyle": "validate",
+    "description": null,
+    "lineNumber": 60,
+    "undocument": true,
+    "params": [
+      {
+        "name": "schemaName",
+        "optional": true,
+        "types": [
+          "undefined"
+        ],
+        "defaultValue": "undefined"
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 213,
+    "kind": "file",
+    "name": "lib/web3.js",
+    "content": "'use strict';\n\nimport net from 'net';\nimport Web3 from 'web3';\nimport config from 'config';\nimport fs from 'fs';\n\nlet provider;\n\nif (config.web3HttpProvider) {\n  provider = new Web3(new Web3.providers.HttpProvider(config.web3HttpProvider));\n} else {\n  if (!fs.existsSync(config.gethIpc)) {\n    throw new Error(`Not exists geth.ipc  ${config.gethIpc}`);\n  }\n  provider = new Web3(new Web3.providers.IpcProvider(config.gethIpc, net));\n}\n\nlet web3 = new Web3(provider);\n\nexport default web3;\n",
+    "static": true,
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/lib/web3.js",
+    "access": "public",
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "kind": "index",
+    "content": "",
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/README.md",
+    "name": "./README.md",
+    "static": true,
+    "access": "public"
+  },
+  {
+    "kind": "packageJSON",
+    "content": "{\n  \"name\": \"backend\",\n  \"version\": \"0.0.1\",\n  \"description\": \"backend\",\n  \"main\": \"server.js\",\n  \"private\": true,\n  \"scripts\": {\n    \"development\": \"nodemon --exec babel-node server.js\",\n    \"start\": \"npm run build && node dist/server.js\",\n    \"build\": \"babel server.js -d dist && babel app -d dist/app\",\n    \"test-child-chain\": \"mocha --require babel-register --require babel-polyfill --timeout 1600000 --reporter spec ./test/test_child_chain.js\",\n    \"test-merkle\": \"mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle.js\",\n    \"test-merkle-patricia\": \"mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle_patricia.js\",\n    \"test-create-deposits\": \"mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_create_deposits.js\",\n    \"test-api-load\": \"mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_api_load.js\"\n  },\n  \"dependencies\": {\n    \"ajv\": \"^5.2.3\",\n    \"ajv-errors\": \"^1.0.0\",\n    \"babel-plugin-module-resolver\": \"^3.1.1\",\n    \"bluebird\": \"^3.5.1\",\n    \"es6-promisify\": \"^6.0.0\",\n    \"ethereum-input-data-decoder\": \"0.0.3\",\n    \"ethereumjs-abi\": \"^0.6.5\",\n    \"ethereumjs-util\": \"^5.1.2\",\n    \"ethereumjs-wallet\": \"^0.6.0\",\n    \"express\": \"^4.16.1\",\n    \"gm\": \"^1.23.0\",\n    \"lodash\": \"^4.17.4\",\n    \"merkle-tools\": \"1.4.0\",\n    \"moment\": \"^2.18.1\",\n    \"moment-timezone\": \"^0.5.13\",\n    \"npm\": \"^6.1.0\",\n    \"redis\": \"^2.8.0\",\n    \"request\": \"^2.83.0\",\n    \"request-promise\": \"^4.2.2\",\n    \"router\": \"^1.3.2\",\n    \"solc\": \"^0.4.19\",\n    \"truffle-contract\": \"^3.0.1\",\n    \"web3\": \"1.0.0-beta.21\",\n    \"web3-utils\": \"1.0.0-beta.28\",\n    \"winston\": \"^2.3.1\",\n    \"winston-daily-rotate-file\": \"^1.4.3\",\n    \"yargs\": \"^11.0.0\"\n  },\n  \"devDependencies\": {\n    \"babel-plugin-module-alias\": \"^1.6.0\",\n    \"babel-polyfill\": \"^6.26.0\",\n    \"babel-preset-es2015\": \"^6.24.1\",\n    \"babel-preset-stage-2\": \"^6.24.1\",\n    \"babel-register\": \"^6.26.0\",\n    \"chai\": \"^4.1.2\",\n    \"esdoc\": \"^1.1.0\",\n    \"esdoc-standard-plugin\": \"^1.0.0\",\n    \"mocha\": \"^5.1.1\",\n    \"supertest\": \"^3.1.0\"\n  },\n  \"engines\": {\n    \"node\": \">=7.0\",\n    \"npm\": \">=3.0\"\n  },\n  \"license\": \"Proprietary\"\n}\n",
+    "longname": "/Users/vladimirkovalcuk/Plasma-Cash/client/package.json",
+    "name": "package.json",
+    "static": true,
+    "access": "public"
+  }
+]

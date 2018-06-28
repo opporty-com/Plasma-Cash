@@ -2,16 +2,14 @@
 
 import chai from 'chai';
 var expect = chai.expect;
-
-import web3 from '../app/lib/web3';
+import web3 from 'lib/web3';
 import ethUtil from 'ethereumjs-util';
-import { getAllUtxos } from '../app/lib/tx';
-import { createSignedTransaction } from '../app/lib/tx';
-import config from "../app/config";
+import { getAllUtxos } from 'lib/tx';
+import { createSignedTransaction } from 'lib/tx';
+import config from "config";
 import RLP from 'rlp';
-import txPool from '../app/lib/txPool';
+import { txMemPool, TxMemPool } from 'lib/TxMemPool';
 
-const BN = ethUtil.BN;
 
 function* getNextAddress(addresses) {
   let currentAddress = 0;
@@ -130,7 +128,7 @@ describe('ChildChain', function () {
       await Promise.all(txQueryAll);
   
       for (let createdTx of createdTxs) {
-        queryAll.push(txPool.addTransaction(createdTx));
+        queryAll.push( TXMemPool.acceptToMemoryPool(txMemPool, createdTx) );
       }
   
       await Promise.all(queryAll)
@@ -138,9 +136,9 @@ describe('ChildChain', function () {
       console.log('txs created: ', createdTxs.length);
       console.log('time: ', (t1 - t0)/1000 ,' s')
   
-      expect(txPool.length).to.equal(utxosBeforeTest.length);
+      expect(txMemPool.length).to.equal(utxosBeforeTest.length);
   
-      let newBlock = await txPool.createNewBlock();
+      let newBlock = await txMemPool.createNewBlock();
       expect(newBlock).to.exist;
   
       let newUtxos = await getAllUtxos(null, {});

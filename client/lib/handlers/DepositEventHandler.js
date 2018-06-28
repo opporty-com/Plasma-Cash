@@ -6,9 +6,9 @@ import config from 'config';
 import ethUtil from 'ethereumjs-util';
 import web3 from 'lib/web3';
 import redis from 'lib/redis';
-import { createDepositTransaction } from 'lib/helpers/tx';
+import { createDepositTransaction, checkTransaction } from 'lib/helpers/tx';
 import { logger } from 'lib/logger';
-import txPool from 'lib/txPool';
+import { txMemPool, TxMemPool } from 'lib/TxMemPool';
 
 let x = 0;
 async function processDepositEvent(event){
@@ -26,12 +26,9 @@ async function processDepositEvent(event){
 
   tx.signature = signature;
 
-  if (tx.validate()) {
-    await txPool.addTransaction(tx);
-    logger.info(' DEPOSIT#', x++, ' ', depositBlock);
-  }
-  else 
-    logger.error('Deposit TX error ');
+  await  TxMemPool.acceptToMemoryPool(txMemPool, tx); 
+  logger.info(' DEPOSIT#', x++, ' ', depositBlock);
+
 }
 
 export default processDepositEvent;

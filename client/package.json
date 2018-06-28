@@ -12,7 +12,8 @@
     "test-merkle": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle.js",
     "test-merkle-patricia": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle_patricia.js",
     "test-create-deposits": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_create_deposits.js",
-    "test-api-load": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_api_load.js"
+    "test-api-load": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_api_load.js",
+    "test-mempool": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_txpool.js"
   },
   "dependencies": {
     "ajv": "^5.2.3",
@@ -50,6 +51,8 @@
     "babel-preset-stage-2": "^6.24.1",
     "babel-register": "^6.26.0",
     "chai": "^4.1.2",
+    "esdoc": "^1.1.0",
+    "esdoc-standard-plugin": "^1.0.0",
     "mocha": "^5.1.1",
     "supertest": "^3.1.0"
   },

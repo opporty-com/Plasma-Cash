@@ -19,14 +19,9 @@ class Block {
         this.transactions = data.transactions || [];
 
         let leaves = [];
-        let existingTxKeys = {};
         for (let i = 0, l = this.transactions.length; i < l; i++) {
           let tx = this.transactions[i];
-          let key = tx.token_id.toString();
-          if (!existingTxKeys[key]) {
-            existingTxKeys[key] = true;
-            leaves.push({ key: tx.token_id, hash: tx.getHash() });
-          }
+          leaves.push({ key: tx.token_id, hash: tx.getHash() });
         }
 
         this.txCount = leaves.length;

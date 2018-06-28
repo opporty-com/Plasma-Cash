@@ -1,0 +1,240 @@
+{
+  "coverage": "0.72%",
+  "expectCount": 138,
+  "actualCount": 1,
+  "files": {
+    "lib/PatriciaMerkle.js": {
+      "expectCount": 18,
+      "actualCount": 0,
+      "undocumentLines": [
+        4,
+        6,
+        7,
+        8,
+        19,
+        22,
+        26,
+        66,
+        67,
+        70,
+        120,
+        154,
+        158,
+        163,
+        173,
+        180,
+        189,
+        196
+      ]
+    },
+    "lib/SparseMerkle.js": {
+      "expectCount": 17,
+      "actualCount": 0,
+      "undocumentLines": [
+        4,
+        6,
+        7,
+        8,
+        13,
+        14,
+        21,
+        25,
+        27,
+        59,
+        92,
+        118,
+        122,
+        127,
+        137,
+        144,
+        153
+      ]
+    },
+    "lib/blockCreator.js": {
+      "expectCount": 9,
+      "actualCount": 0,
+      "undocumentLines": [
+        13,
+        14,
+        15,
+        18,
+        24,
+        36,
+        61,
+        92,
+        112
+      ]
+    },
+    "lib/contracts/plasma.js": {
+      "expectCount": 8,
+      "actualCount": 0,
+      "undocumentLines": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        15,
+        19,
+        25
+      ]
+    },
+    "lib/handlers/DepositEventHandler.js": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        13,
+        14
+      ]
+    },
+    "lib/helpers/block.js": {
+      "expectCount": 1,
+      "actualCount": 0,
+      "undocumentLines": [
+        7
+      ]
+    },
+    "lib/helpers/tx.js": {
+      "expectCount": 5,
+      "actualCount": 0,
+      "undocumentLines": [
+        8,
+        19,
+        31,
+        42,
+        68
+      ]
+    },
+    "lib/logger.js": {
+      "expectCount": 5,
+      "actualCount": 0,
+      "undocumentLines": [
+        7,
+        10,
+        12,
+        24,
+        85
+      ]
+    },
+    "lib/model/block.js": {
+      "expectCount": 15,
+      "actualCount": 0,
+      "undocumentLines": [
+        9,
+        10,
+        14,
+        15,
+        16,
+        32,
+        33,
+        40,
+        49,
+        53,
+        63,
+        75,
+        83,
+        97,
+        115
+      ]
+    },
+    "lib/model/tx.js": {
+      "expectCount": 12,
+      "actualCount": 0,
+      "undocumentLines": [
+        6,
+        14,
+        51,
+        52,
+        58,
+        73,
+        77,
+        87,
+        91,
+        101,
+        110,
+        119
+      ]
+    },
+    "lib/redis.js": {
+      "expectCount": 10,
+      "actualCount": 0,
+      "undocumentLines": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        4
+      ]
+    },
+    "lib/test.js": {
+      "expectCount": 4,
+      "actualCount": 0,
+      "undocumentLines": [
+        6,
+        8,
+        49,
+        15
+      ]
+    },
+    "lib/TxMemPool.js": {
+      "expectCount": 10,
+      "actualCount": 1,
+      "undocumentLines": [
+        15,
+        18,
+        21,
+        25,
+        32,
+        60,
+        70,
+        73,
+        120
+      ]
+    },
+    "lib/txTestController.js": {
+      "expectCount": 15,
+      "actualCount": 0,
+      "undocumentLines": [
+        6,
+        12,
+        20,
+        92,
+        27,
+        28,
+        29,
+        30,
+        31,
+        33,
+        35,
+        38,
+        72,
+        87,
+        116
+      ]
+    },
+    "lib/utils.js": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        3,
+        19
+      ]
+    },
+    "lib/validate.js": {
+      "expectCount": 5,
+      "actualCount": 0,
+      "undocumentLines": [
+        7,
+        15,
+        17,
+        41,
+        60
+      ]
+    }
+  }
+}

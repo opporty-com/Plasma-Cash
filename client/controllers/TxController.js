@@ -1,8 +1,8 @@
 'use strict';
 
 import { logger } from 'lib/logger';
-import { createSignedTransaction } from 'lib/helpers/tx';
-import txPool from 'lib/txPool';
+import { createSignedTransaction, checkTransaction } from 'lib/helpers/tx';
+import { txMemPool, TxMemPool } from 'lib/TxMemPool';
 import { createDeposits } from 'lib/test';
 import ethUtil from 'ethereumjs-util';
 import TestTransactionsCreator from 'lib/txTestController';
@@ -38,7 +38,8 @@ class TxController {
   }
   
   static createTestTransaction(req, res) {
-     return txPool.addTransaction(TestTransactionsCreator.alltransactions[parseInt(req.headers['test'])])
+    let tx = TestTransactionsCreator.alltransactions[parseInt(req.headers['test'])];
+     return TxMemPool.acceptToMemoryPool(txMemPool, tx)
         .then(ctreated => {
           if (!ctreated) {
             res.statusCode = 400;
@@ -83,12 +84,12 @@ class TxController {
       let data = req.body;
       let tx = await createSignedTransaction(data);
 
-      if (!tx || !tx.validate()) {
+      if ( !tx || !checkTransaction(tx) ) {
         res.statusCode = 400;
         return res.end('invalid transaction');
       }
 
-      let savedTx = await txPool.addTransaction(tx);
+      let savedTx = await TXMemPool.acceptToMemoryPool(txMemPool, tx); 
       if (!savedTx) {
         res.statusCode = 400;
         return res.end('invalid transaction');
@@ -100,46 +101,7 @@ class TxController {
     }
   }
 
-  static async proof(req, res) {
-    await parseM(req);
-    try { 
-      let { block: blockNumber, token_id } = req.body;
-      let block = await getBlock(blockNumber);
-      if (!block) {
-        res.statusCode = 404;
-        return res.end('Not Found');
-      }
-
-      let proof = block.getProof(token_id, true)
-
-      return res.end(JSON.stringify({ proof }));
-    }
-    catch(error) {
-      res.statusCode = 400;
-      res.end(error.toString());
-    }
-  }
-
-  static async checkProof(req, res) {
-    await parseM(req);
-    try { 
-      let { block: blockNumber, hash, proof } = req.body;
-
-      let block = await getBlock(blockNumber);
-      if (!block) {
-        res.statusCode = 404;
-        return res.end('Not Found');
-      }
-      
-      let proofIsValid = block.checkProof(proof, hash);
-
-      return res.end(JSON.stringify(proofIsValid));
-    }
-    catch(error){
-      res.statusCode = 400;
-      res.end(error.toString());
-    }
-  }
+  
 
 }
 
