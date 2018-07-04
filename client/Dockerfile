@@ -1,6 +1,6 @@
-FROM node:slim
+FROM node:10.5.0
 
-RUN apt-get update && apt-get -y install graphicsmagick git make gcc g++ python
+RUN apt-get update && apt-get -y install git make gcc g++ python
 
 RUN mkdir -p /usr/src/app
 

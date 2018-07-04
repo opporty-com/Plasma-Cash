@@ -1,14 +1,14 @@
 version: '3.3'
 services:
   backend:
-    build: ./backend
+    build: ./client
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - "./backend:/usr/src/app"
+      - "./client:/usr/src/app"
       - "./data/leveldb:/var/lib/leveldb/data"
-      - "./data/logs/backend:/usr/src/app/app/logs"
+      - "./data/logs/client:/usr/src/app/app/logs"
       - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
     environment:
       NODE_ENV: development
@@ -24,4 +24,3 @@ services:
       options:
         max-size: 1000m
     restart: 'no'
-
