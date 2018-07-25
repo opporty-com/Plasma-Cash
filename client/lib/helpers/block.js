@@ -3,7 +3,7 @@
 import { logger } from 'lib/logger';
 import redis from 'lib/redis';
 import Block from 'lib/model/block';
-import { txMemPool } from 'lib/txMemPool';
+import { txMemPool } from 'lib/TxMemPool';
 import config from 'config';
 
 async function getBlock(blockNumber) {
