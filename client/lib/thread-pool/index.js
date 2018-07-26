@@ -42,6 +42,13 @@ class FixedThreadPool {
           eval: true
         })
     );
+    this.apocalypse = false
+  }
+
+  destroy() {
+
+    this.apocalypse = true
+
   }
 
   submit(
@@ -58,8 +65,17 @@ class FixedThreadPool {
     if (this.queue.length > 0 && this.freeWorkers.length > 0) {
       const { fn, data, resolve, reject } = this.queue.shift();
       const worker = this.freeWorkers.shift();
-      const rawData = {};
 
+      if (this.apocalypse) {
+        worker.terminate()
+        if (this.freeWorkers) {
+          this.queue.push({ fn, data, resolve, reject })
+          this.executeNext()
+        }
+        return void 0
+      }
+      
+      const rawData = {};
       if (typeof data === "object") {
         // data.str = data.str + ` from thread with id: ${worker.threadId}`
         Object.entries(data).forEach(([key, value]) => {
@@ -82,7 +98,7 @@ class FixedThreadPool {
           } else if (action === '__error__') {
             this.freeWorkers.push(worker);
             this.executeNext();
-            const error = deserialize(result);         
+            const error = deserialize(result);
             reject(error);
           }
         }
