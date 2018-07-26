@@ -10,12 +10,12 @@ let ThreadWorker = {
       if (action === "__run__") {
         try {
           const hydratedData = data && (data instanceof SharedArrayBuffer ? data : Object.assign(deserialize(data), rawData));
-          deserialize(runnable)(hydratedData).then((result) => {          
-            port.postMessage({ action: "__result__", payload: { result: serialize(result) } });
-            
-          })
+          deserialize(runnable)(hydratedData).then((result) => {  
+          port.postMessage({ action: "__result__", payload: { result: serialize(result) } });
+          }).catch(error => { 
+            port.postMessage({ action: "__error__", payload: { result: serialize(error), error: true } })})
         } catch (e) {
-          port.postMessage({ action: "__error__", payload: { result: serialize(e), msg: e.message, error: true } });
+          port.postMessage({ action: "__error__", payload: { result: serialize(e), error: true } });
         }
       }
     });`,
@@ -82,9 +82,8 @@ class FixedThreadPool {
           } else if (action === '__error__') {
             this.freeWorkers.push(worker);
             this.executeNext();
-            const e = deserialize(result);
-            e.message = msg;
-            reject(e);
+            const error = deserialize(result);         
+            reject(error);
           }
         }
       );
