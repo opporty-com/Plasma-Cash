@@ -13,5 +13,4 @@ describe('TxMemPool', () => {
   after(async () => {
     process.exit();
   });
-
 });

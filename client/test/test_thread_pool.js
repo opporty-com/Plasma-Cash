@@ -1,4 +1,3 @@
-
 'use strict';
 
 const chai = require('chai');
@@ -16,8 +15,10 @@ describe('thread-pool', () => {
     simpleThreadPool.submit(testFunction, { str: dataStr })
       .then((result) => {
         expect(result).to.equal(dataStr)
+  
       }).catch(() => {
         expect(false).to.be.true;
+
       })
 
   });
@@ -32,7 +33,6 @@ describe('thread-pool', () => {
       }).catch(error => {
         expect(error.message).to.equal(dataStr)
       })
-
   });
 
 
@@ -50,6 +50,11 @@ describe('thread-pool', () => {
         })
     }
   });
+
+  after(async () => {
+    simpleThreadPool.destroy()
+  });
+
 });
 
 
@@ -61,4 +66,3 @@ let testFunction = (data) => {
       resolve(data.str)
   })
 }
-
