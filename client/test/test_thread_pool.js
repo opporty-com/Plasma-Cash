@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> f840727b88d062eecfd92d6612627d5cb5eefaca
 'use strict';
 
 const chai = require('chai');
@@ -15,10 +19,15 @@ describe('thread-pool', () => {
     simpleThreadPool.submit(testFunction, { str: dataStr })
       .then((result) => {
         expect(result).to.equal(dataStr)
+<<<<<<< HEAD
   
       }).catch(() => {
         expect(false).to.be.true;
 
+=======
+      }).catch(() => {
+        expect(false).to.be.true;
+>>>>>>> f840727b88d062eecfd92d6612627d5cb5eefaca
       })
 
   });
@@ -33,6 +42,10 @@ describe('thread-pool', () => {
       }).catch(error => {
         expect(error.message).to.equal(dataStr)
       })
+<<<<<<< HEAD
+=======
+
+>>>>>>> f840727b88d062eecfd92d6612627d5cb5eefaca
   });
 
 
@@ -50,11 +63,14 @@ describe('thread-pool', () => {
         })
     }
   });
+<<<<<<< HEAD
 
   after(async () => {
     simpleThreadPool.destroy()
   });
 
+=======
+>>>>>>> f840727b88d062eecfd92d6612627d5cb5eefaca
 });
 
 
@@ -66,3 +82,7 @@ let testFunction = (data) => {
       resolve(data.str)
   })
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> f840727b88d062eecfd92d6612627d5cb5eefaca

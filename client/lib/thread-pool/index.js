@@ -98,7 +98,11 @@ class FixedThreadPool {
           } else if (action === '__error__') {
             this.freeWorkers.push(worker);
             this.executeNext();
+<<<<<<< HEAD
             const error = deserialize(result);
+=======
+            const error = deserialize(result);         
+>>>>>>> f840727b88d062eecfd92d6612627d5cb5eefaca
             reject(error);
           }
         }
