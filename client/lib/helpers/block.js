@@ -74,6 +74,4 @@ async function getLastBlockNumberFromDb() {
   return lastBlock;
 }
 
-
-
 export { getBlock, createNewBlock, getLastBlockNumberFromDb };
