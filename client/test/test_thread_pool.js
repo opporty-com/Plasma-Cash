@@ -9,7 +9,6 @@ let simpleThreadPool = new FixedThreadPool(5)
 describe('thread-pool', () => {
 
   it('should returns the result', async () => {
-
     let dataStr = 'it is a result'
     let result = await simpleThreadPool.submit(testFunction, { str: dataStr })
     expect(result).to.equal(dataStr)
@@ -29,16 +28,14 @@ describe('thread-pool', () => {
 
   it('should handles 10 parallel computations', async () => {
 
-    let counter = 0
     let promises = [];
+    
     for (let a = 0; a < 10; a++) {
-      promises.push(simpleThreadPool.submit( (data) => { return Promise.resolve(data.counter); } , { str: `result № ${a}`, counter:counter++ })); 
+      promises.push(simpleThreadPool.submit( (data) => { return Promise.resolve(data.counter); } , { str: `result № ${a}` })); 
     }
     await Promise.all(promises);
     expect(promises.length).is.equal(10);
-
-    expect(counter).is.equal(10);
-  });
+ });
 
   after(async () => {
     simpleThreadPool.destroy()
