@@ -46,9 +46,8 @@ class FixedThreadPool {
   }
 
   destroy() {
-
     this.apocalypse = true
-
+    this.executeNext();
   }
 
   submit(
@@ -62,19 +61,20 @@ class FixedThreadPool {
   };
 
   executeNext() {
+    if (this.apocalypse) {
+      if(this.freeWorkers.length > 0){
+      const worker = this.freeWorkers.shift();
+      worker.terminate()
+      if (this.freeWorkers) {
+        this.executeNext()
+     }
+      return void 0
+    }
+    }
+
     if (this.queue.length > 0 && this.freeWorkers.length > 0) {
       const { fn, data, resolve, reject } = this.queue.shift();
       const worker = this.freeWorkers.shift();
-
-      if (this.apocalypse) {
-        worker.terminate()
-        if (this.freeWorkers) {
-          this.queue.push({ fn, data, resolve, reject })
-          this.executeNext()
-        }
-        return void 0
-      }
-
       const rawData = {};
       if (typeof data === "object") {
         // data.str = data.str + ` from thread with id: ${worker.threadId}`

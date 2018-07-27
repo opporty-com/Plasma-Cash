@@ -15,12 +15,8 @@ describe('thread-pool', () => {
     simpleThreadPool.submit(testFunction, { str: dataStr })
       .then((result) => {
         expect(result).to.equal(dataStr)
-  
       }).catch(() => {
-        expect(false).to.be.true;
-
       })
-
   });
 
   it('should catch the reject', () => {
@@ -29,34 +25,32 @@ describe('thread-pool', () => {
 
     simpleThreadPool.submit(testFunction, { str: dataStr })
       .then(() => {
-        expect(false).to.be.true;
       }).catch(error => {
         expect(error.message).to.equal(dataStr)
       })
   });
 
-
   it('should handles 10 parallel computations', () => {
     let counter = 0
+
     for (let a = 0; a < 10; a++) {
+
       simpleThreadPool.submit(testFunction, { str: `result № ${a}` })
         .then(() => {
           counter++
           if (counter === 10) {
             expect(counter).to.equal(10)
           }
-        }).catch(error => {
-          console.error('Get the error', error);
         })
     }
-  });
 
-  after(async () => {
-    simpleThreadPool.destroy()
+    after(() => {
+      setTimeout(() => {
+        simpleThreadPool.destroy()
+      }, 500)
+    });
   });
-
 });
-
 
 let testFunction = (data) => {
   return new Promise((resolve, reject) => {
