@@ -30,7 +30,8 @@ describe('thread-pool', () => {
       })
   });
 
-  it('should handles 10 parallel computations', () => {
+  it('should handles 10 parallel computations', async () => {
+
     let counter = 0
 
     for (let a = 0; a < 10; a++) {
@@ -43,12 +44,11 @@ describe('thread-pool', () => {
           }
         })
     }
+  });
 
-    after(() => {
-      setTimeout(() => {
-        simpleThreadPool.destroy()
-      }, 500)
-    });
+  after(async () => {
+    await simpleThreadPool.submit(testFunction, { str: `last submit` })
+    simpleThreadPool.destroy()
   });
 });
 
@@ -56,7 +56,8 @@ let testFunction = (data) => {
   return new Promise((resolve, reject) => {
     if (data.str === 'error')
       reject({ message: data.str, error: true })
-    else
+    else{
       resolve(data.str)
+    }
   })
 }
