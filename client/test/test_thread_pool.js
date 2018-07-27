@@ -29,11 +29,13 @@ describe('thread-pool', () => {
   it('should handles 10 parallel computations', async () => {
 
     let promises = [];
-    
+    let that = {};
+    that.counter = 0;
     for (let a = 0; a < 10; a++) {
-      promises.push(simpleThreadPool.submit( (data) => { return Promise.resolve(data.counter); } , { str: `result № ${a}` })); 
+      promises.push(simpleThreadPool.submit( (data) => { data.that.counter++; return Promise.resolve(data); } , { str: `result № ${a}`, that })); 
     }
-    await Promise.all(promises);
+    let result = await Promise.all(promises);
+    expect(result[0].that.counter).to.be.equal(1);
     expect(promises.length).is.equal(10);
  });
 
