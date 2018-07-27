@@ -30,7 +30,7 @@ describe('thread-pool', () => {
       })
   });
 
-  it('should handles 10 parallel computations', async () => {
+  it('should handles 10 parallel computations', () => {
 
     let counter = 0
 
