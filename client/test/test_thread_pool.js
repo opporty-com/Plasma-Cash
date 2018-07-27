@@ -8,46 +8,39 @@ let simpleThreadPool = new FixedThreadPool(5)
 
 describe('thread-pool', () => {
 
-  it('should returns the result', () => {
+  it('should returns the result', async () => {
 
     let dataStr = 'it is a result'
-
-    simpleThreadPool.submit(testFunction, { str: dataStr })
-      .then((result) => {
-        expect(result).to.equal(dataStr)
-      }).catch(() => {
-      })
+    let result = await simpleThreadPool.submit(testFunction, { str: dataStr })
+    expect(result).to.equal(dataStr)
   });
 
-  it('should catch the reject', () => {
+  it('should catch the reject',  () => {
 
     let dataStr = 'error'
 
     simpleThreadPool.submit(testFunction, { str: dataStr })
       .then(() => {
+        
       }).catch(error => {
         expect(error.message).to.equal(dataStr)
       })
   });
 
-  it('should handles 10 parallel computations', () => {
+  it('should handles 10 parallel computations', async () => {
 
     let counter = 0
-
+    let promises = [];
     for (let a = 0; a < 10; a++) {
-
-      simpleThreadPool.submit(testFunction, { str: `result № ${a}` })
-        .then(() => {
-          counter++
-          if (counter === 10) {
-            expect(counter).to.equal(10)
-          }
-        })
+      promises.push(simpleThreadPool.submit( (data) => { return Promise.resolve(data.counter); } , { str: `result № ${a}`, counter:counter++ })); 
     }
+    await Promise.all(promises);
+    expect(promises.length).is.equal(10);
+
+    expect(counter).is.equal(10);
   });
 
   after(async () => {
-    await simpleThreadPool.submit(testFunction, { str: `last submit` })
     simpleThreadPool.destroy()
   });
 });
