@@ -1,5 +1,5 @@
-import redis from 'redis';
-import util from 'util';
+const redis = require('redis');
+const util = require('util');
 
 let client = redis.createClient( {
   detect_buffers: true
@@ -38,4 +38,4 @@ client.hgetallAsync = hgetallAsync;
 client.hlenAsync = hlenAsync;
 client.hvalsAsync = hvalsAsync;
 
-export default client;
+module.exports = client;
