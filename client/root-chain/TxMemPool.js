@@ -1,8 +1,8 @@
 'use strict';
 
-import { checkTransaction, checkInputs } from 'lib/helpers/tx';
-import redis from 'lib/redis';
-import PlasmaTransaction  from 'lib/model/tx';
+import { checkTransaction, checkInputs } from 'child-chain/child-chain';
+import redis from 'lib/storage/redis';
+import PlasmaTransaction  from 'child-chain/transaction';
 
 /**
  * TxMemPool - stores valid transactions that may be included in the next block

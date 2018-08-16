@@ -1,7 +1,7 @@
 'use strict';
 
 
-import { getBlock } from 'lib/helpers/block';
+import { getBlock } from 'child-chain/block';
 import { parseM } from 'lib/utils';
 
 class BlockController {

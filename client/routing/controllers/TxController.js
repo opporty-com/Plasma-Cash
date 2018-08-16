@@ -1,12 +1,11 @@
 'use strict';
 
 import { logger } from 'lib/logger';
-import { createSignedTransaction, checkTransaction } from 'lib/helpers/tx';
-import { txMemPool, TxMemPool } from 'lib/TxMemPool';
-import { createDeposits } from 'lib/test';
+import { createSignedTransaction, checkTransaction } from 'child-chain/child-chain';
+import { txMemPool, TxMemPool } from 'root-chain/TxMemPool';
 import ethUtil from 'ethereumjs-util';
-import TestTransactionsCreator from 'lib/txTestController';
-import { getBlock } from 'lib/helpers/block';
+import { testTransactionsCreator, createDeposits } from '../txTestController';
+import { getBlock } from 'child-chain/block';
 import { parseM } from 'lib/utils';
 
 class TxController {
@@ -38,7 +37,7 @@ class TxController {
   }
   
   static createTestTransaction(req, res) {
-    let tx = TestTransactionsCreator.alltransactions[parseInt(req.headers['test'])];
+    let tx = testTransactionsCreator.alltransactions[parseInt(req.headers['test'])];
      return TxMemPool.acceptToMemoryPool(txMemPool, tx)
         .then(ctreated => {
           if (!ctreated) {
@@ -100,9 +99,6 @@ class TxController {
       return logger.error('accept signed tx error: ', error);
     }
   }
-
-  
-
 }
 
 export default TxController;

@@ -3,7 +3,7 @@
 import cluster from 'cluster';
 import web3 from 'lib/web3';
 import http from 'http';
-import BlockCreator from 'lib/blockCreator';
+import BlockCreator from 'child-chain/blockCreator';
 import Routing from './routing';
 import { logger } from 'lib/logger';
 
