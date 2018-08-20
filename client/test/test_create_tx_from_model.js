@@ -1,6 +1,6 @@
 'use strict';
 import stubUTXO from 'lib/stubs/stubUTXO.json'
-import PlasmaTransaction from 'lib/model/tx';
+import PlasmaTransaction from 'child-chain/transaction';
 import RLP from 'rlp'
 import chai from 'chai';
 

@@ -1,5 +1,5 @@
 'use strict';
-import { txMemPool, TxMemPool } from 'lib/TxMemPool';
+import { txMemPool, TxMemPool } from 'child-chain/TxMemPool';
 import assert from 'assert';
 describe('TxMemPool', () => {
   it('should valid txmempool', () => {
