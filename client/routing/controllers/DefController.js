@@ -1,7 +1,7 @@
 
 'use strict';
 
-import { getAllUtxos } from 'child-chain/child-chain';
+import { getAllUtxos } from 'child-chain';
 import redis from 'lib/storage/redis';
 import { parseM } from 'lib/utils';
 

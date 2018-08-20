@@ -2,13 +2,13 @@
 
 import config from 'config';
 import { logger } from 'lib/logger';
-import { txMemPool } from 'root-chain/TxMemPool';
+import { txMemPool } from 'child-chain/TxMemPool';
 import redis from 'lib/storage/redis';
 import contractHandler from 'root-chain/contracts/plasma';
-import depositEventHandler from 'root-chain/DepositEventHandler';
+import depositEventHandler from 'child-chain/DepositEventHandler';
 import web3 from 'lib/web3';
-import Block from './block';
-import { createNewBlock } from './child-chain';
+import Block from 'child-chain/block';
+import { createNewBlock } from 'child-chain';
 import ethUtil from 'ethereumjs-util'; 
 
 class BlockCreator {

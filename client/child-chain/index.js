@@ -2,11 +2,11 @@
 
 import { logger } from 'lib/logger';
 import redis from 'lib/storage/redis';
-import Block from './block';
-import { txMemPool } from 'root-chain/TxMemPool';
+import Block from 'child-chain/block';
+import { txMemPool } from 'child-chain/TxMemPool';
 import config from 'config';
 import ethUtil from 'ethereumjs-util';
-import PlasmaTransaction from './transaction';
+import PlasmaTransaction from 'child-chain/transaction';
 
 async function getBlock(blockNumber) {
   try {

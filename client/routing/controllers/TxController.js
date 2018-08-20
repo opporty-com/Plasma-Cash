@@ -1,10 +1,10 @@
 'use strict';
 
 import { logger } from 'lib/logger';
-import { createSignedTransaction, checkTransaction } from 'child-chain/child-chain';
-import { txMemPool, TxMemPool } from 'root-chain/TxMemPool';
+import { createSignedTransaction, checkTransaction } from 'child-chain';
+import { txMemPool, TxMemPool } from 'child-chain/TxMemPool';
 import ethUtil from 'ethereumjs-util';
-import { testTransactionsCreator, createDeposits } from '../txTestController';
+import { testTransactionsCreator, createDeposits } from 'routing/txTestController';
 import { getBlock } from 'child-chain/block';
 import { parseM } from 'lib/utils';
 

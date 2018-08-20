@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('assert');
-import PatriciaMerkle from '../app/lib/PatriciaMerkle';
+import PatriciaMerkle from 'lib/PatriciaMerkle';
 import ethUtil from 'ethereumjs-util';
 const BN = ethUtil.BN;
 

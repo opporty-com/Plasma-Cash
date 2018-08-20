@@ -2,7 +2,7 @@
 
 import PatriciaMerkle from 'lib/PatriciaMerkle';
 
-import PlasmaTransaction from './transaction';
+import PlasmaTransaction from 'child-chain/transaction';
 import RLP from 'rlp';
 import ethUtil from 'ethereumjs-util';
 

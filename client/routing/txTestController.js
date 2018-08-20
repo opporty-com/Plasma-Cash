@@ -1,12 +1,11 @@
 
-import { createSignedTransaction } from 'child-chain/child-chain';
 import web3 from 'lib/web3';
 import Promise from 'bluebird';
 import config from "config";
 const ethUtil = require('ethereumjs-util');
 import RLP from 'rlp';
 
-import { getAllUtxosWithKeys } from 'child-chain/child-chain';
+import { getAllUtxosWithKeys, createSignedTransaction } from 'child-chain';
 
 import contractHandler from 'root-chain/contracts/plasma';
 

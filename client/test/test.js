@@ -1,6 +1,6 @@
 import web3 from 'lib/web3';
 import config from "config";
-import contractHandler from 'lib/contracts/plasma';
+import contractHandler from 'root-chain/contracts/plasma';
 import ethUtil from 'ethereumjs-util';
 
 const BN = ethUtil.BN;
