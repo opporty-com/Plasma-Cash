@@ -4,15 +4,13 @@ var assert = require('assert');
 import chai           from 'chai';
 var expect = chai.expect;
 
-import web3           from '../app/lib/web3';
+import web3           from 'lib/web3';
 import ethUtil        from 'ethereumjs-util';
-import { getAllUtxos } from '../app/lib/tx';
-import { createSignedTransaction } from '../app/lib/tx';
-import config from "../app/config";
+import { getAllUtxos, createSignedTransaction } from 'child-chain';
+import config from "config";
 import RLP from 'rlp';
-import { txMemPool, TxMemPool } from 'lib/TxMemPool';
-
-import depositEventHandler from '../app/lib/handlers/DepositEventHandler';
+import { txMemPool, TxMemPool } from 'child-chain/TxMemPool';
+import depositEventHandler from 'child-chain/DepositEventHandler';
 const BN = ethUtil.BN;
 import yargs from 'yargs';
 const argv = yargs.argv;

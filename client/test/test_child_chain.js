@@ -4,11 +4,10 @@ import chai from 'chai';
 var expect = chai.expect;
 import web3 from 'lib/web3';
 import ethUtil from 'ethereumjs-util';
-import { getAllUtxos } from 'lib/tx';
-import { createSignedTransaction } from 'lib/tx';
+import { createSignedTransaction, getAllUtxos } from 'child-chain';
 import config from "config";
 import RLP from 'rlp';
-import { txMemPool, TxMemPool } from 'lib/TxMemPool';
+import { txMemPool, TxMemPool } from 'child-chain/TxMemPool';
 
 
 function* getNextAddress(addresses) {

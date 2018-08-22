@@ -1,7 +1,7 @@
 'use strict';
 import stubUTXO from 'lib/stubs/stubUTXO.json'
-import { createSignedTransaction } from 'lib/helpers/tx';
-import PlasmaTransaction from 'lib/model/tx';
+import { createSignedTransaction } from 'child-chain';
+import PlasmaTransaction from 'child-chain/transaction';
 import RLP from 'rlp';
 import chai from 'chai';
 import ethUtil from 'ethereumjs-util';

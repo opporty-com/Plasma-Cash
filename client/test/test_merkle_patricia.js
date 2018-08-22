@@ -3,7 +3,7 @@
 import chai           from 'chai';
 var assert = require('assert');
 var expect = chai.expect;
-import PatriciaMerkle from '../app/lib/PatriciaMerkle';
+import PatriciaMerkle from 'lib/PatriciaMerkle';
 import ethUtil from 'ethereumjs-util';
 const BN = ethUtil.BN;
 

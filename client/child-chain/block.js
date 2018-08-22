@@ -2,7 +2,7 @@
 
 import PatriciaMerkle from 'lib/PatriciaMerkle';
 
-import PlasmaTransaction from 'lib/model/tx';
+import PlasmaTransaction from 'child-chain/transaction';
 import RLP from 'rlp';
 import ethUtil from 'ethereumjs-util';
 
@@ -29,7 +29,6 @@ class Block {
         this.merkle.buildTree();
         this.merkleRootHash = this.merkle.getMerkleRoot();
       }
-   
   }
 
   getRlp() {

@@ -1,8 +1,8 @@
 'use strict';
 
-import TxController from './controllers/TxController';
-import BlockController from './controllers/BlockController';
-import DefController from './controllers/DefController';
+import TxController from 'routing/controllers/TxController';
+import BlockController from 'routing/controllers/BlockController';
+import DefController from 'routing/controllers/DefController';
 
 const controllers = {
   TxController,

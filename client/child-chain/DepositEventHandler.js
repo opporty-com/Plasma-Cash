@@ -5,10 +5,10 @@ import Web3 from 'web3';
 import config from 'config';
 import ethUtil from 'ethereumjs-util';
 import web3 from 'lib/web3';
-import redis from 'lib/redis';
-import { createDepositTransaction, checkTransaction } from 'lib/helpers/tx';
+import redis from 'lib/storage/redis';
+import { createDepositTransaction, checkTransaction } from 'child-chain';
 import { logger } from 'lib/logger';
-import { txMemPool, TxMemPool } from 'lib/TxMemPool';
+import { txMemPool, TxMemPool } from 'child-chain/TxMemPool';
 
 let x = 0;
 async function processDepositEvent(event){

@@ -1,8 +1,8 @@
 
 'use strict';
 
-import { getAllUtxos } from 'lib/helpers/tx';
-import redis from 'lib/redis';
+import { getAllUtxos } from 'child-chain';
+import redis from 'lib/storage/redis';
 import { parseM } from 'lib/utils';
 
 class DefController {
