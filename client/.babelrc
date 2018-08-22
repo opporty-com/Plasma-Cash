@@ -5,8 +5,8 @@
       { "src": "lib", "expose": "lib" },
       { "src": "child-chain", "expose": "child-chain" },
       { "src": "root-chain", "expose": "root-chain" },
-      { "src": "model", "expose": "model" },
-      { "src": "controllers", "expose": "controllers" },
+      { "src": "consensus", "expose": "consensus" },
+      { "src": "routing", "expose": "routing" },
       { "src": "config", "expose": "config" }
     ]]
   ]

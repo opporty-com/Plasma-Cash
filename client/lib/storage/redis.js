@@ -2,8 +2,17 @@ const redis = require('redis');
 const util = require('util');
 
 let client = redis.createClient( {
-  detect_buffers: true
+  detect_buffers: true, 
+  host: process.env.REDIS_HOST || '192.168.254.12'
 });
+
+client.on('connect', ()=>{
+  console.log('Redis storage has opened')
+})
+
+client.on('close', ()=>{
+  console.log('Redis storage has closed')
+})
 
 const getAsync = util.promisify(client.get).bind(client);
 const setAsync = util.promisify(client.set).bind(client);

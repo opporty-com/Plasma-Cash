@@ -1,8 +1,9 @@
 'use strict';
 
-
 import { getBlock } from 'child-chain/block';
+import { submitBlock } from 'child-chain';
 import { parseM } from 'lib/utils';
+import { validateKeyForMining, setMinersCandidate } from 'consensus'
 
 class BlockController {
   static async get(req, res) {
@@ -15,7 +16,20 @@ class BlockController {
       }
       let block = await getBlock(blockNumber);
       return res.end(JSON.stringify(block.getJson()));
-    } catch(error) {
+    } catch (error) {
+      res.statusCode = 400;
+      res.end(error.toString());
+    }
+  }
+
+  static async proposeMiner(req, res) {
+    await parseM(req);
+    try {
+      let { private_key } = req.body;
+      let miner_key = await setMinersCandidate(private_key)
+      res.end(JSON.stringify({miner_key}))
+    }
+    catch (error) {
       res.statusCode = 400;
       res.end(error.toString());
     }
@@ -23,7 +37,7 @@ class BlockController {
 
   static async proof(req, res) {
     await parseM(req);
-    try { 
+    try {
       let { block: blockNumber, token_id } = req.body;
       if (!blockNumber) {
         throw new Error('No block number in request');
@@ -33,7 +47,7 @@ class BlockController {
 
       return res.end(JSON.stringify({ proof }));
     }
-    catch(error) {
+    catch (error) {
       res.statusCode = 400;
       res.end(error.toString());
     }
@@ -41,17 +55,16 @@ class BlockController {
 
   static async checkProof(req, res) {
     await parseM(req);
-    try { 
+    try {
       let { block: blockNumber, hash, proof } = req.body;
       let block = await getBlock(blockNumber);
       return res.end(JSON.stringify(block.checkProof(proof, hash)));
     }
-    catch(error) {
+    catch (error) {
       res.statusCode = 400;
       res.end(error.toString());
     }
   }
-
 }
 
 export default BlockController;
