@@ -1,4 +1,5 @@
 import redis from 'lib/storage/redis'
+import { logger } from 'lib/logger'
 
 class MinersQueue {
 
@@ -6,7 +7,7 @@ class MinersQueue {
     this.miners = []
   }
 
-  async init() {
+  init() {
     this.resetMinersQueue()
   }
 
@@ -16,16 +17,25 @@ class MinersQueue {
       if (error) {
         console.error(error.toString());
       }
-      if (!miners) { return false }
+      if (!miners) {
+        logger.error('Miners queue initialized with empty queue')
+        return false
+      }
       else {
-        this.miners = miners
-        return this.setNextMiner()
+        this.miners = []
+        for (let key in miners) {
+          this.miners.push({ miner_key: `${key}`, private_key: miners[key] })
+        }
+        this.currentMiner = this.miners[this.miners.length]        
       }
     })
   };
 
   async addMiner(miner) {
     this.miners.unshift(miner)
+    if(!this.currentMiner){
+      this.currentMiner = miner
+    }
     return miner
   };
 
@@ -43,9 +53,11 @@ class MinersQueue {
   }
 
   async delAllMiners() {
-    redis.hdelAll('miners', (error, result) => {
+    redis.del('miners', (error, result) => {
       if (error) { console.error(error.toString()) }
-      else { return result }
+      else {
+        return result
+      }
     })
   }
 
@@ -56,6 +68,8 @@ class MinersQueue {
   }
 
   async getCurrentMiner() {
+
+    console.log('GET CURRENT MINER', this.currentMiner);
     return this.currentMiner
   }
 
