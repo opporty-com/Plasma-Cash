@@ -5,6 +5,7 @@ class MinersQueue {
 
   constructor() {
     this.miners = []
+    this.currentMiner = ''
   }
 
   init() {
@@ -12,22 +13,24 @@ class MinersQueue {
   }
 
   async resetMinersQueue() {
-
-    redis.hgetall('miners', (error, miners) => {
-      if (error) {
-        console.error(error.toString());
-      }
-      if (!miners) {
-        logger.error('Miners queue initialized with empty queue')
-        return false
-      }
-      else {
-        this.miners = []
-        for (let key in miners) {
-          this.miners.push({ miner_key: `${key}`, private_key: miners[key] })
-        }
-        this.currentMiner = this.miners[this.miners.length]        
-      }
+    return new Promise((resolve)=>{
+          redis.hgetall('miners', (error, miners) => {
+            if (error) {
+              console.error(error.toString());
+            }
+            if (!miners) {
+              logger.error('Miners queue initialized with empty queue')
+              return false
+            }
+            else {
+              this.miners = []
+              for (let key in miners) {
+                this.miners.push({ miner_key: `${key}`, private_key: miners[key] })
+              }
+              this.currentMiner = this.miners[this.miners[0]]  
+              resolve(this.currentMiner)  
+            }
+          })
     })
   };
 
@@ -62,14 +65,16 @@ class MinersQueue {
   }
 
   async setNextMiner() {
+    console.log(this.currentMiner);
+    
     this.miners.unshift(this.currentMiner)
     this.currentMiner = this.miners.pop()
+
+    console.log(this.currentMiner);
     return this.currentMiner
   }
 
   async getCurrentMiner() {
-
-    console.log('GET CURRENT MINER', this.currentMiner);
     return this.currentMiner
   }
 

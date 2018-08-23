@@ -53,14 +53,14 @@ describe('MinersQueue and rightsHandler', async () => {
   it('should correct iterate miners', async () => {
 
     let first_miner = await minersQueue.getCurrentMiner();
-
-    console.log('first miner', first_miner);
     
     miners.should.include.something.that.deep.equals(first_miner);
-    minersQueue.setNextMiner()
+
+    await minersQueue.setNextMiner()
+
     let twice_miner = await minersQueue.getCurrentMiner()
 
-    expect(twice_miner).should.include.something.that.deep.equals(first_miner)
+    miners.should.include.something.that.deep.equals(twice_miner)
 
     expect(first_miner != twice_miner).to.be.true
 
