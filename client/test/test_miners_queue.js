@@ -6,27 +6,26 @@ chai.should()
 chai.use(chai_things)
 const expect = chai.expect;
 
-const george_key = '74be59be09530c69415bbaa2903acf392e1bd4391f4d28d0bf7981792bd3b0fc',
-  peter_key = 'cde1dab74e2de36c9efe4100984aa20495254a77f155f3903bf71ae36a5ed327',
-  salem_key = '10322edd87862cf05815ebdb79462aaec85144ae0483045f01a7f15dcbb924e5',
-  sofiya_key = '73f879a096452e5c35cb36eac480a1cfa9e8e85e2bff2435ee3987bd9675b954',
-  rosetta_key = 'a0ba5cb231fcc35e35b8bec5c0ac4fd874a6109fea9dfdbf54d893ed7cb9fcef',
+const george_address = '0xcDd97e8350e93eeD3224A217A42d28cF0276b67b',
+  peter_address = '0xbc01Cd4A866c557623F83db195C64b0785F62d01',
+  salem_address = '0x4CCa94A907A979f105bf9E1e0FB713ED3A478F86',
+  sofiya_address = '0x3d90A916Af5163cAC1A0e2c822D47eF224E85711',
+  rosetta_address = '0x2AdC318Ac93A7289f83Aa7F26513bC0d15f0Ab3e',
   miners = []
 
 let first_miner = {}, twice_miner = {}, miner_keys = []
 
-
 describe('MinersQueue and rightsHandler', async () => {
 
   it('should set miners', async () => {
-    miner_keys = [george_key, peter_key, salem_key]
+    miner_keys = [george_address, peter_address, salem_address]
     for (let i = 0; i < miner_keys.length; i++) {
       miners.unshift(await setMinersCandidate(miner_keys[i]))
     }
 
     let minersArray = await minersQueue.getAllMiners()
     for (let i = 0; i < minersArray.length; i++) {
-      expect(miner_keys.indexOf(minersArray[i].private_key) != -1).to.be.true
+      expect(miner_keys.indexOf(minersArray[i].address) != -1).to.be.true
     }
   })
 
@@ -36,7 +35,7 @@ describe('MinersQueue and rightsHandler', async () => {
       expect(await validateKeyForMining(miners[i])).to.be.true
     }
 
-    expect(await validateKeyForMining({ miner_key: sofiya_key, private_key: sofiya_key })).to.be.false
+    expect(await validateKeyForMining({ miner_key: sofiya_address, address: sofiya_address })).to.be.false
 
   })
 
@@ -48,7 +47,7 @@ describe('MinersQueue and rightsHandler', async () => {
       expect(await validateKeyForMining(miners[i])).to.be.true
     }
 
-    expect(await validateKeyForMining({ miner_key: sofiya_key, private_key: sofiya_key })).to.be.false
+    expect(await validateKeyForMining({ miner_key: sofiya_address, address: sofiya_address })).to.be.false
   })
 
   it('should correct iterate miners', async () => {
@@ -110,7 +109,7 @@ describe('MinersQueue and rightsHandler', async () => {
 
   it('should add one miner', async () => {
 
-    miners.push(await setMinersCandidate(rosetta_key))
+    miners.push(await setMinersCandidate(rosetta_address))
     let allMiners = await minersQueue.getAllMiners()
     allMiners.should.include.something.that.deep.equals(miners[miners.length-1])
 

@@ -1,5 +1,4 @@
-import { Validator, setMinersCandidate, minersQueue, validateKeyForMining } from 'consensus'
-
+import { Validator, setMinersCandidate, minersQueue, validateAddressForMining } from 'consensus'
 
 class StateValidators {
 
@@ -13,38 +12,55 @@ class StateValidators {
     this.votes = 0
   }
 
-  setCandidate(address) {
-    this.candidates.push(new Validator(address))
+  async setCandidate(address) {
+    let isCandidate = false
+    
+    for (let i = 0; i < this.candidates.length; i++) {
+      if (this.candidates[i].getAddress() === address) {
+        isCandidate = true
+      }
+    }
+    if(!isCandidate){
+      this.candidates.push(new Validator(address))
+      return 'ok'
+    } else {
+      return 'already exist'
+    }
   }
 
   getCandidates() {
     return this.candidates
   }
 
-  voteCandidates() {
+  async voteCandidates() {
 
-    let candidates = this.candidates
+    let candidates = this.candidates.slice(0)
 
     candidates.sort((a, b)=>{
-      if (a.getWeight() <  b.getWeight()){
-        return -1
+      if (a.getWeight() < b.getWeight()){
+        return 1
       }
     })
 
-    thirtyPercent = Math.floor(candidates.length/100*30)
+    let thirtyPercent = Math.floor(candidates.length/100*30)
+    let validators = candidates.splice(0, thirtyPercent)
 
-    let validators = candidates.splice(candidates.length - thirtyPercent, thirtyPercent)
-
-    for(let i = 0; i < candidates.length; i++){
-      address = candidates[i].getAddress()
-      if(validateKeyForMining(address)){
-        minersQueue.delMiner(address)
+    for (let i = 0; i < validators.length; i++) {
+      let address = validators[i].getAddress()
+      let isMiner = await validateAddressForMining(address)
+      if(!isMiner){
+        await setMinersCandidate(validators[i].getAddress())
       }
     }
 
-    for (let i = 0; i < validators.length; i++) {
-      setMinersCandidate(validators[i].getAddress())
+    for(let i = 0; i < candidates.length; i++){
+      let address = candidates[i].getAddress()
+      let isMiner = await validateAddressForMining(address)
+      if(isMiner){
+        minersQueue.delMiner(address)
+      }
     }
+    return validators
   }
 
   reVote(voter){
@@ -98,7 +114,8 @@ class StateValidators {
   // сначала проверка, есть ли ставка с таким вотером и кандидатом,
   // если есть, то проверяется есть ли такой кандидат и ставка просто увеличивается, если нет, то она уменьшается
   // если такой ставки нет, то она создается
-  addStake(stake) {
+  async addStake(stake) {
+
     let candidateExists = false,
       stakeExists = false
 
@@ -113,6 +130,7 @@ class StateValidators {
         }
         if (candidateExists) {
           this.stakes[i].value += stake.value
+          return this.stakes[i]
         } else {
           throw new Error('Denieded stake on a non-existent candidate')
         }
@@ -121,13 +139,14 @@ class StateValidators {
 
     if (!stakeExists) {
       for (let i = 0; i < this.candidates.length; i++) {
-        if (this.candidates[i].getAddress() === candidate) {
+        if (this.candidates[i].getAddress() === stake.candidate) {
           this.candidates[i].addStake({ voter: stake.voter, value: stake.value })
           candidateExists = true
         }
       }
       if (candidateExists) {
         this.stakes.push(stake)
+        return stake
       }
       else {
         throw new Error('Denieded stake on a non-existent candidate')

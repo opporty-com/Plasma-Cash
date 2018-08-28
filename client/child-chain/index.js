@@ -22,6 +22,23 @@ async function getBlock(blockNumber) {
   return null;
 }
 
+async function submitBlock(address, password, blockMerkleRootHash){
+
+  let currentBlockNumber = await ontractHandler.contract.methods.getCurrentBlock()
+
+  let blockNumber = currentBlockNumber + 1
+
+  await web3.eth.personal.unlockAccount(address, password, 60);
+
+  let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({from: address});
+
+  await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({from: address, gas});
+
+  redis.setAsync('lastBlockSubmitted', blockNumber);
+
+
+}
+
 async function createDeposit({ key, amount }) {
 
   let address = web3.utils.isAddress(ethUtil.privateToAddress(ethUtil.keccak256(key)))
@@ -215,6 +232,7 @@ export {
   getBlock,
   createDeposit,
   createNewBlock,
+  submitBlock,
   getLastBlockNumberFromDb,
   createDepositTransaction,
   createSignedTransaction,

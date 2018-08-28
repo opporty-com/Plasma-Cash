@@ -25,7 +25,7 @@ class MinersQueue {
         else {
           this.miners = []
           for (let key in miners) {
-            this.miners.push({ miner_key: `${key}`, private_key: miners[key] })
+            this.miners.push({ miner_key: `${key}`, address: miners[key] })
           }
           this.currentMiner = this.miners[this.miners.length-1]
           resolve(this.currentMiner)
@@ -45,26 +45,50 @@ class MinersQueue {
   async delMiner(miner) {
 
     return new Promise((resolve) => {
-      redis.hdel('miners', miner.miner_key, (error) => {
-        if (error) { console.error(error.toString()); }
-        else {
-          for (let i = 0; i < this.miners.length; i++) {
-            if (this.miners[i].miner_key === miner.miner_key) {
-              this.miners.splice(i, 1)
-            }
+    
+      if(typeof miner === 'string'){
+        for(let i = 0; i<this.miners.length; i++){
+          if(this.miners[i].address === miner){
+            let miner_key = this.miners[i].miner_key
+            redis.hdel('miners', miner_key, (error) => {
+              if (error) { console.error(error.toString()); }
+              else {
+                for (let i = 0; i < this.miners.length; i++) {
+                  if (this.miners[i].miner_key === miner_key) {
+                    this.miners.splice(i, 1)
+                  }
+                }
+                resolve(miner)
+              }
+            })
           }
-          resolve(miner)
         }
-      })
+      } else {
+
+        redis.hdel('miners', miner.miner_key, (error) => {
+          if (error) { console.error(error.toString()); }
+          else {
+            for (let i = 0; i < this.miners.length; i++) {
+              if (this.miners[i].miner_key === miner.miner_key) {
+                this.miners.splice(i, 1)
+              }
+            }
+            resolve(miner)
+          }
+        })
+      }
     })
+
   }
 
   async delAllMiners() {
-    redis.del('miners', (error, result) => {
-      if (error) { console.error(error.toString()) }
-      else {
-        return result
-      }
+    return new Promise((resolve)=>{
+      redis.del('miners', (error, result) => {
+        if (error) { console.error(error.toString()) }
+        else {
+          resolve(result)
+        }
+      })
     })
   }
 

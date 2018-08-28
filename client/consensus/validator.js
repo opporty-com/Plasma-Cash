@@ -8,6 +8,9 @@ class Validator {
   }
 
   addStake({ voter, value }) {
+
+    // console.log('stake', value);
+    
     let stakeExists = false
 
     for (let i = 0; i < this.stakes.length; i++) {

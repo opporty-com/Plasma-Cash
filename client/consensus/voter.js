@@ -9,14 +9,14 @@ class Voter {
   }
 
   init(address) {
-    this.coins = address.getCountCoins
+    this.coins = 10                   //address.getCountCoins
     this.address = address
   }
 
   async addStake(value, candidate) {
     if (this.coins < value) { return false }
-    await stateValidators.addStake({ voter: this.address, candidate, value })
     this.coins -= value
+    return await stateValidators.addStake({ voter: this.address, candidate, value })
   }
 
   wantToVote() {
