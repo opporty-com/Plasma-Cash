@@ -5,7 +5,7 @@ class MinersQueue {
 
   constructor() {
     this.miners = []
-    this.currentMiner = ''
+    this.currentMiner = {}
   }
 
   init() {

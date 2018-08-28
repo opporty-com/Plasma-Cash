@@ -1,2 +1,5 @@
 export * from './minersQueue'
 export * from './rightsHandler'
+export * from './stateValidators'
+export * from './validator'
+export * from './voter'

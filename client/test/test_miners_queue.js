@@ -130,6 +130,7 @@ describe('MinersQueue and rightsHandler', async () => {
     for (let i = 0; i < miners.length; i++) {
       expect(await validateKeyForMining(miners[i])).to.be.false
     }
+    
     expect(minersQueue.getAllMiners()).to.be.empty
 
   })
