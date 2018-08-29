@@ -187,7 +187,7 @@ contract Root {
      * tokens are indivisible and cannot be merged.
      */
     function deposit() public payable {
-
+        
         uint token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
        // token.index = deposit_blk;
         tokens[token_id] = msg.value;
@@ -195,6 +195,7 @@ contract Root {
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
     }
+
     /*
      * Check if current message sender is transaction signer
      */
@@ -386,7 +387,7 @@ contract Root {
         bytes1 flag;
         bytes32 nodeKey;
         bytes32 sibling;
-        
+
         assembly {
             nodeKey := mload(add(proof, 32))
         }
