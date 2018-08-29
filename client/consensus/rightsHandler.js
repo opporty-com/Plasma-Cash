@@ -18,8 +18,7 @@ async function setMinersCandidate(address) {
 
 async function validateKeyForMining({ miner_key, address }) {
   return new Promise((resolve, reject) => {
-
-    if(!miner_key || !address){
+    if(!miner_key && !address){
       console.log('wrong miner_key or address');
       reject(false)
     }

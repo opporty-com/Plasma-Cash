@@ -3,7 +3,9 @@
 import { getBlock } from 'child-chain/block';
 import { submitBlock } from 'child-chain';
 import { parseM } from 'lib/utils';
-import { validateKeyForMining, stateValidators, minersQueue } from 'consensus'
+import { validateKeyForMining, stateValidators, minersQueue, initConsensus } from 'consensus'
+
+initConsensus()
 
 class BlockController {
   static async get(req, res) {
@@ -38,24 +40,29 @@ class BlockController {
   static async submitBlock(req, res){
     await parseM(req);
 
-    let { address, password, miner_key, block_hash } = req.body;
+    let { address, password, miner_key } = req.body;
 
-    if(!(await validateKeyForMining(miner_key))){
+    if(!(await validateKeyForMining({miner_key, address}))){
+      console.log('key is not valid');
       res.statusCode = 403;
-      res.end({message: "is not in validators queue"})
+      return res.end(JSON.stringify({message: "is not in validators queue"}))
     }
 
     let current_miner = await minersQueue.getCurrentMiner()
 
     if(current_miner.address != address){
       res.statusCode = 409;
-      res.end({message: "wait for the validator queue"})
+      return res.end(JSON.stringify({message: "wait for the validator queue"}))
     }
-    let answer = await submitBlock(address, password, block_hash)
+    
+    let answer = await submitBlock(address, password) // + blockHash
 
     await minersQueue.setNextMiner()
     
+    console.log('Next current miner: ', await minersQueue.getCurrentMiner());
+     
     return res.end(JSON.stringify({ answer }));
+    
   }
 
   static async proof(req, res) {

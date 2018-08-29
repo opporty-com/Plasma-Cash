@@ -9,6 +9,7 @@ import config from 'config';
 import ethUtil from 'ethereumjs-util';
 import PlasmaTransaction from 'child-chain/transaction';
 
+
 async function getBlock(blockNumber) {
   try {
     const block = await redis.getAsync(Buffer.from('block' + blockNumber));
@@ -22,20 +23,38 @@ async function getBlock(blockNumber) {
   return null;
 }
 
-async function submitBlock(address, password, blockMerkleRootHash){
+async function submitBlock(address, password){
 
-  let currentBlockNumber = await ontractHandler.contract.methods.getCurrentBlock()
+  let currentBlockNumber = await web3.eth.getBlockNumber()
 
-  let blockNumber = currentBlockNumber + 1
+  let blockNumber = currentBlockNumber+1
 
+  // let blockKey = 'block' + blockNumber.toString(10);
+  // let block = new Block(await redis.getAsync(Buffer.from(blockKey)));
+  // let block = new Block(await redis.getAsync(Buffer.from(blockKey)));
+
+  // console.log('BLOCK', block);
+
+  console.log('BlockNum', blockNumber);
+  
+  let blockMerkleRootHash = ethUtil.addHexPrefix('2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'.toString('hex'));
+  
+  // console.log('[-1]', (await web3.eth.getBlockNumber()).toString());
+  
   await web3.eth.personal.unlockAccount(address, password, 60);
+  
+  console.log('[0]');
+  // let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({from: config.plasmaOperatorAddress});
+  
+  console.log('[1]');
+  await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({from: address, gas: 1000000});
 
-  let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({from: address});
+  console.log('[2]');
+  
+  await redis.setAsync('lastBlockSubmitted', blockNumber);
+  console.log('[3]');
 
-  await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({from: address, gas});
-
-  redis.setAsync('lastBlockSubmitted', blockNumber);
-
+  return 'ok'
 
 }
 

@@ -7,32 +7,20 @@ import BlockCreator from 'child-chain/blockCreator';
 import Routing from './routing';
 import { logger } from 'lib/logger';
 
-let numCPUs = require('os').cpus().length;
-const port = process.env.PORT || 8081;
+const port = process.env.PORT || 443;
 
 (async () => {
   try {
     await web3.eth.net.isListening();
 
-    if (cluster.isMaster) {
-      logger.info('Master ', process.pid, ' is running - starting block creator...');
-      BlockCreator.start();
+    BlockCreator.start();
 
-      for (let i = 0; i < numCPUs; i++) {
-        cluster.fork();
-      }
-        
-      cluster.on('exit', (worker) => {
-        logger.info('Worker ${worker.process.pid} died');
-      });
-    } else {
-      http.createServer(Routing.route).listen(port);
-    
-      logger.info('Worker', process.pid, ' started, web3 is connected');
-    }
-  } catch (e) {
+    http.createServer(Routing.route).listen(port);
+
+  }
+  catch (e) {
     logger.error('Web3 instance is not available');
     logger.info('BYE');
     process.exit();
-  }  
+  }
 })();

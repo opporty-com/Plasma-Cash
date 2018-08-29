@@ -14,13 +14,13 @@ class StateValidators {
 
   async setCandidate(address) {
     let isCandidate = false
-    
+
     for (let i = 0; i < this.candidates.length; i++) {
       if (this.candidates[i].getAddress() === address) {
         isCandidate = true
       }
     }
-    if(!isCandidate){
+    if (!isCandidate) {
       this.candidates.push(new Validator(address))
       return 'ok'
     } else {
@@ -36,40 +36,43 @@ class StateValidators {
 
     let candidates = this.candidates.slice(0)
 
-    candidates.sort((a, b)=>{
-      if (a.getWeight() < b.getWeight()){
+    candidates.sort((a, b) => {
+      let aWeight = a.getWeight(), bWeight = b.getWeight()
+      if (aWeight < bWeight)
         return 1
-      }
+      if (aWeight > bWeight)
+        return -1;
+      return 0;
     })
 
-    let thirtyPercent = Math.floor(candidates.length/100*30)
+    let thirtyPercent = Math.floor(candidates.length / 100 * 30)
     let validators = candidates.splice(0, thirtyPercent)
 
     for (let i = 0; i < validators.length; i++) {
       let address = validators[i].getAddress()
       let isMiner = await validateAddressForMining(address)
-      if(!isMiner){
+      if (!isMiner) {
         await setMinersCandidate(validators[i].getAddress())
       }
     }
 
-    for(let i = 0; i < candidates.length; i++){
+    for (let i = 0; i < candidates.length; i++) {
       let address = candidates[i].getAddress()
       let isMiner = await validateAddressForMining(address)
-      if(isMiner){
+      if (isMiner) {
         minersQueue.delMiner(address)
       }
     }
     return validators
   }
 
-  reVote(voter){
+  reVote(voter) {
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === voter) {
         this.votes += 1
       }
     }
-    if(this.votes >= 2){
+    if (this.votes >= 2) {
       this.voteCandidates()
       this.votes = 0
     }
@@ -78,7 +81,7 @@ class StateValidators {
   removeCandidate(address) {
     for (let i = 0; i < this.candidates.length; i++) {
       if (this.candidates[i].getAddress() === address) {
-        if(validateKeyForMining(address)){
+        if (validateKeyForMining(address)) {
           minersQueue.delMiner(address)
         }
         this.candidates.splice(i, 1)
