@@ -1,5 +1,6 @@
 'use strict';
-
+import web3 from 'lib/web3';
+import contractHandler from 'root-chain/contracts/plasma';
 import { logger } from 'lib/logger';
 import redis from 'lib/storage/redis';
 import Block from 'child-chain/block';
@@ -8,6 +9,7 @@ import config from 'config';
 import ethUtil from 'ethereumjs-util';
 import PlasmaTransaction from 'child-chain/transaction';
 
+
 async function getBlock(blockNumber) {
   try {
     const block = await redis.getAsync(Buffer.from('block' + blockNumber));
@@ -15,10 +17,58 @@ async function getBlock(blockNumber) {
       throw new Error('Block not found');
     return new Block(block);
   }
-  catch(error) {
+  catch (error) {
     logger.info("ERROR" + error.toString());
   }
   return null;
+}
+
+async function submitBlock(address, password){
+
+  let currentBlockNumber = await web3.eth.getBlockNumber()
+
+  let blockNumber = currentBlockNumber+1
+
+  // let blockKey = 'block' + blockNumber.toString(10);
+  // let block = new Block(await redis.getAsync(Buffer.from(blockKey)));
+  // let block = new Block(await redis.getAsync(Buffer.from(blockKey)));
+
+  // console.log('BLOCK', block);
+
+  console.log('BlockNum', blockNumber);
+  
+  let blockMerkleRootHash = ethUtil.addHexPrefix('2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'.toString('hex'));
+  
+  // console.log('[-1]', (await web3.eth.getBlockNumber()).toString());
+  
+  await web3.eth.personal.unlockAccount(address, password, 60);
+  
+  console.log('[0]');
+  // let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({from: config.plasmaOperatorAddress});
+  
+  console.log('[1]');
+  await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({from: address, gas: 1000000});
+
+  console.log('[2]');
+  
+  await redis.setAsync('lastBlockSubmitted', blockNumber);
+  console.log('[3]');
+
+  return 'ok'
+
+}
+
+async function createDeposit({ key, amount }) {
+
+  let address = web3.utils.isAddress(ethUtil.privateToAddress(ethUtil.keccak256(key)))
+
+  contractHandler.contract.methods.deposit().estimateGas({ from: address, value: amount })
+    .then(gas => {
+      console.log('done deposit to contract!');
+      return contractHandler.contract.methods.deposit().send({ from: address, gas, value: amount })
+    }).catch(error => {
+      console.log('child-chain createDeposit() error', error.toString())
+    });
 }
 
 async function createNewBlock() {
@@ -27,34 +77,34 @@ async function createNewBlock() {
   try {
     let lastBlock = await getLastBlockNumberFromDb();
     let newBlockNumber = lastBlock + config.contractblockStep;
-  
+
     let transactions = await txMemPool.txs();
-    
+
     const block = new Block({
       blockNumber: newBlockNumber,
       transactions: transactions
     });
 
     for (let utxo of block.transactions) {
-      let utxoNewKey = "utxo_" + block.blockNumber.toString(10) + "_"+ utxo.token_id.toString(); 
+      let utxoNewKey = "utxo_" + block.blockNumber.toString(10) + "_" + utxo.token_id.toString();
 
       if (utxo.prev_block != 0) {
-        let utxoOldKey = "utxo_"+ utxo.prev_block.toString(10) + "_"+ utxo.token_id.toString();
-        await redis.delAsync( utxoOldKey );
+        let utxoOldKey = "utxo_" + utxo.prev_block.toString(10) + "_" + utxo.token_id.toString();
+        await redis.delAsync(utxoOldKey);
       }
-      await redis.setAsync( utxoNewKey, utxo.getRlp() );
+      await redis.setAsync(utxoNewKey, utxo.getRlp());
 
       //del from pool
       await redis.hdel('txpool', utxo.getHash());
     }
 
-    await redis.setAsync( 'lastBlockNumber', block.blockNumber );
-    await redis.setAsync( 'block' + block.blockNumber.toString(10) , block.getRlp() );
-          
+    await redis.setAsync('lastBlockNumber', block.blockNumber);
+    await redis.setAsync('block' + block.blockNumber.toString(10), block.getRlp());
+
     logger.info('New block created - transactions: ', block.transactions.length);
 
     return block;
-  } catch(err) {
+  } catch (err) {
     logger.error('createNewBlock error ', err);
   }
   //vector<TxPriority> vecPriority;
@@ -66,11 +116,11 @@ async function getLastBlockNumberFromDb() {
   let lastBlock = await redis.getAsync('lastBlockNumber');
 
   if (!lastBlock) {
-      redis.setAsync('lastBlockNumber', 0);
-      lastBlock = 0;
-  } else 
+    redis.setAsync('lastBlockNumber', 0);
+    lastBlock = 0;
+  } else
     lastBlock = parseInt(lastBlock);
-  
+
   return lastBlock;
 }
 
@@ -99,37 +149,37 @@ function createSignedTransaction(data) {
 }
 
 function checkTransaction(tx) {
-  if (!tx.new_owner || !tx.signature || !tx.token_id) 
+  if (!tx.new_owner || !tx.signature || !tx.token_id)
     return false;
   return true;
 }
 
 async function getUTXO(blockNumber, token_id) {
 
-  let q = 'utxo_'+ blockNumber.toString(16) +'_'+ token_id.toString();
+  let q = 'utxo_' + blockNumber.toString(16) + '_' + token_id.toString();
   let data = await redis.getAsync(Buffer.from(q));
-  if (data) 
-      return new PlasmaTransaction(data);
+  if (data)
+    return new PlasmaTransaction(data);
   return null;
 }
 
 async function getAllUtxos(options = {}) {
   return await new Promise((resolve, reject) => {
-    redis.keys('utxo*', function(err, res) {
-      let res3 = res.map(function(el) {
+    redis.keys('utxo*', function (err, res) {
+      let res3 = res.map(function (el) {
         return Buffer.from(el);
       })
       if (res3.length) {
-        redis.mget(res3, function(err2, res2) {
-          
-          let utxos = res2.map(function(el) {
+        redis.mget(res3, function (err2, res2) {
+
+          let utxos = res2.map(function (el) {
             let t = new PlasmaTransaction(el);
             if (options.json) {
               t = t.getJson();
             }
             return t;
           });
-          
+
           resolve(utxos);
         })
       } else {
@@ -141,14 +191,14 @@ async function getAllUtxos(options = {}) {
 
 async function getAllUtxosWithKeys(options = {}) {
   return await new Promise((resolve, reject) => {
-    redis.keys('utxo*', function(err, res) {
-      let res3 = res.map(function(el) {
+    redis.keys('utxo*', function (err, res) {
+      let res3 = res.map(function (el) {
         return Buffer.from(el);
       })
       if (res3.length) {
-        redis.mget(res3, function(err2, res2) {
-          
-          let utxos = res2.map(function(el) {
+        redis.mget(res3, function (err2, res2) {
+
+          let utxos = res2.map(function (el) {
             let t = new PlasmaTransaction(el);
             if (options.json) {
               t = t.getJson();
@@ -174,16 +224,16 @@ async function checkInputs(transaction) {
       let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());
       let valid = address == config.plasmaOperatorAddress.toLowerCase();
 
-      if (!valid) 
+      if (!valid)
         return false;
-      
+
     } else {
       let utxo = await getUTXO(transaction.prev_block, transaction.token_id);
       if (!utxo)
         return false;
-      
+
       transaction.prev_hash = utxo.getHash();
-      let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());    
+      let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase());
       let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase());
 
       if (utxoOwnerAddress != address)
@@ -197,11 +247,18 @@ async function checkInputs(transaction) {
 }
 
 
-export { getBlock, createNewBlock, getLastBlockNumberFromDb, createDepositTransaction,
+export {
+  getBlock,
+  createDeposit,
+  createNewBlock,
+  submitBlock,
+  getLastBlockNumberFromDb,
+  createDepositTransaction,
   createSignedTransaction,
   getUTXO,
   getAllUtxos,
   getAllUtxosWithKeys,
   checkTransaction,
-  checkInputs };
+  checkInputs
+};
 

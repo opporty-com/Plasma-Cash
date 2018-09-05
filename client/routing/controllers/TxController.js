@@ -1,7 +1,7 @@
 'use strict';
 
 import { logger } from 'lib/logger';
-import { createSignedTransaction, checkTransaction } from 'child-chain';
+import { createSignedTransaction, checkTransaction, createDeposit } from 'child-chain';
 import { txMemPool, TxMemPool } from 'child-chain/TxMemPool';
 import ethUtil from 'ethereumjs-util';
 import { testTransactionsCreator, createDeposits } from 'routing/txTestController';
@@ -11,10 +11,10 @@ import { parseM } from 'lib/utils';
 class TxController {
   static async get(req, res) {
     await parseM(req);
-    try { 
+    try {
       let { block: blockNumber, token_id, getHash } = req.body;
-      
-      let block = await getBlock(blockNumber);      
+
+      let block = await getBlock(blockNumber);
       if (!block) {
         res.statusCode = 404;
         return res.end('Block not found');
@@ -26,27 +26,27 @@ class TxController {
         res.statusCode = 404;
         return res.end('Tx not Found');
       }
-      
+
       tx = getHash ? tx.getHash().toString('hex') : tx.getJson();
 
       return res.end(JSON.stringify(tx));
-    } catch(error){
+    } catch (error) {
       res.statusCode = 404;
-      return res.end( 'Error get tx'+error.toString() );
+      return res.end('Error get tx' + error.toString());
     }
   }
-  
+
   static createTestTransaction(req, res) {
     let tx = testTransactionsCreator.alltransactions[parseInt(req.headers['test'])];
-     return TxMemPool.acceptToMemoryPool(txMemPool, tx)
-        .then(ctreated => {
-          if (!ctreated) {
-            res.statusCode = 400;
-            return res.end();
-          }
-          return res.end(JSON.stringify(ctreated.getJson()));
-        }).catch(function(e) {
-          return res.end(e.toString())
+    return TxMemPool.acceptToMemoryPool(txMemPool, tx)
+      .then(ctreated => {
+        if (!ctreated) {
+          res.statusCode = 400;
+          return res.end();
+        }
+        return res.end(JSON.stringify(ctreated.getJson()));
+      }).catch(function (e) {
+        return res.end(e.toString())
       });
   }
 
@@ -55,9 +55,25 @@ class TxController {
     try {
       let data = req.body;
       let count = data.count || null;
-      return createDeposits({deposits: count})
-        .then(ctreated => res.end( ctreated.toString() ))
-    } catch(error) {
+      return createDeposits({ deposits: count })
+        .then(ctreated => res.end(ctreated.toString()))
+    } catch (error) {
+      res.statusCode = 400;
+      res.end(error.toString());
+    }
+  }
+
+  static async deposit(req, res) {
+    await parseM(req);
+    let { key, amount } = req.body || null;
+    if (!key || !amount) {
+      res.statusCode = 400;
+      res.end({ message: 'request body is wrong' });
+    }
+    try {
+      createDeposit({ key, amount })
+        .then(ctreated => { res.end(ctreated) })
+    } catch (error) {
       res.statusCode = 400;
       res.end(error.toString());
     }
@@ -71,7 +87,7 @@ class TxController {
       let hashForSign = tx && ethUtil.addHexPrefix(tx.getHash(true).toString('hex'));
 
       return res.end(hashForSign);
-    } catch(error) {
+    } catch (error) {
       res.end(error.toString());
     }
   }
@@ -79,16 +95,16 @@ class TxController {
   static async signed(req, res) {
     await parseM(req);
 
-    try { 
+    try {
       let data = req.body;
       let tx = await createSignedTransaction(data);
 
-      if ( !tx || !checkTransaction(tx) ) {
+      if (!tx || !checkTransaction(tx)) {
         res.statusCode = 400;
         return res.end('invalid transaction');
       }
 
-      let savedTx = await TXMemPool.acceptToMemoryPool(txMemPool, tx); 
+      let savedTx = await TXMemPool.acceptToMemoryPool(txMemPool, tx);
       if (!savedTx) {
         res.statusCode = 400;
         return res.end('invalid transaction');

@@ -1,6 +1,17 @@
 import util from 'util';
 
-function parseMulti(req, cb) {
+const strRandom = () => {
+  let result       = '';
+  let words        = '0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
+  let max_position = words.length - 1;
+      for(let i = 0; i < 10; ++i ) {
+        let position = Math.floor ( Math.random() * max_position );
+          result = result + words.substring(position, position + 1);
+      }
+  return result;
+}
+
+const parseMulti = (req, cb) => {
   let body = [];
   req.on('data', (chunk) => {
     body.push(chunk);
@@ -18,4 +29,4 @@ function parseMulti(req, cb) {
 }
 let parseM = util.promisify(parseMulti); 
 
-export { parseM };
+export { parseM, strRandom };

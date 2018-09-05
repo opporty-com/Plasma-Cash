@@ -20,6 +20,7 @@
     "ajv-errors": "^1.0.0",
     "babel-plugin-module-resolver": "^3.1.1",
     "bluebird": "^3.5.1",
+    "chai-things": "^0.2.0",
     "es6-promisify": "^6.0.0",
     "ethereum-input-data-decoder": "0.0.3",
     "ethereumjs-abi": "^0.6.5",
