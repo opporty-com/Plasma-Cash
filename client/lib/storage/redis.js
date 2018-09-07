@@ -2,8 +2,7 @@ const redis = require('redis');
 const util = require('util');
 
 let client = redis.createClient( {
-  detect_buffers: true, 
-  host: process.env.REDIS_HOST || '192.168.254.12'
+  detect_buffers: true
 });
 
 client.on('connect', ()=>{
