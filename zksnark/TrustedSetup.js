@@ -32,14 +32,16 @@ function linearCombinationThree(r, A, E, G, flag) {
 }
 
 class TrustedSetup {
-  constructor (E, Et) {
+  constructor (E, Et) 
+  {
     this.E = E;
     this.Et = Et;
     this.pair = new Pairing(Et);
     this.rng = new CryptoRandom();
   }
 
-  createkey(A, B, C, Z, input) {
+  createkey(A, B, C, Z, input) 
+  {
     let t = new Field2(bn2, bigInt(54));
     let alphaA = new Field2(bn2, this.rng);
     let alphaB = new Field2(bn2, bigInt(54));
@@ -112,27 +114,18 @@ class TrustedSetup {
       vk: { pZ, vkA, vkB, vkC, vkG, vkBG1, vkBG2, vkIC} 
     };
 
-    console.log(`result `);
-    console.dir(result);
-
     return result;
-
   }
 
-  prover(A, B, C, Z, pk, r) {
-
+  prover(A, B, C, Z, pk, r) 
+  {
     let Ares = linearCombinationOne(r, A);
     let Bres = linearCombinationOne(r, B);
     let Cres = linearCombinationOne(r, C);
 
-    console.log('Ares.t', Ares.length);
-    console.log('Z', Z.length);
-
     let s1 = new Field2(bn2, bigInt(25));
     let s2 = new Field2(bn2, bigInt(25));
     let s3 = new Field2(bn2, bigInt(25));
-
-
 
     let o = Polynomial.sub(Polynomial.mul(Ares, Bres), Cres);
     let H2 =  Polynomial.polyLongDivField(o, Z) ;
@@ -154,8 +147,8 @@ class TrustedSetup {
     return {pA, pB, pC, pA2, pB2, pC2, pK, pH };
   }
 
-  verify(proof, vk, input) {
-
+  verify(proof, vk, input) 
+  {
     let pAvkA = this.pair.ate(proof.pA, vk.vkA);
     let PA2G2 = this.pair.ate(proof.pA2, this.Et.Gt);
     let pBvkB = this.pair.ate(vk.vkB, proof.pB);

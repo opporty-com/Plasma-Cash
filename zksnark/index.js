@@ -21,22 +21,22 @@ function evalAll(polymatrix, x) {
 }
 
 function linearCombination(r, new_A, new_B, new_C) {
-    let Apoly = [];
-    for (let i=1; i < r.length; i++) {
-      Apoly = Polynomial.add(Apoly, Polynomial.mul([r[i]], new_A[i]));
-    }
-    let Bpoly = []
-    for (let i=1; i < r.length; i++) {
-      Bpoly = Polynomial.add(Bpoly, Polynomial.mul([r[i]], new_B[i]));
-    }
-    let Cpoly = []
-    for (let i=1; i < r.length; i++) {
-      Cpoly = Polynomial.add(Cpoly, Polynomial.mul([r[i]], new_C[i]));
-    }
-    
-    let o = Polynomial.sub(Polynomial.mul(Apoly, Bpoly), Cpoly)
-    
-    return { Apoly, Bpoly, Cpoly, sol:o }
+  let Apoly = [];
+  for (let i=1; i < r.length; i++) {
+    Apoly = Polynomial.add(Apoly, Polynomial.mul([r[i]], new_A[i]));
+  }
+  let Bpoly = []
+  for (let i=1; i < r.length; i++) {
+    Bpoly = Polynomial.add(Bpoly, Polynomial.mul([r[i]], new_B[i]));
+  }
+  let Cpoly = []
+  for (let i=1; i < r.length; i++) {
+    Cpoly = Polynomial.add(Cpoly, Polynomial.mul([r[i]], new_C[i]));
+  }
+  
+  let o = Polynomial.sub(Polynomial.mul(Apoly, Bpoly), Cpoly)
+  
+  return { Apoly, Bpoly, Cpoly, sol:o }
 }
 
 function toR1CS(code, input_vars)
@@ -113,13 +113,6 @@ function toR1CS(code, input_vars)
   console.log ('Verifiable or NOT? => ', result);
 }
 
-
-
-
-
-
-
-
 /*
 let P = new Polynomial([ 2,3,4,5 ], 7);
 let e = P.evaluate(2);
@@ -138,11 +131,7 @@ let Ps = kf.evaluatePolynomial(hid.hidings);
 let Pas = kf.evaluatePolynomial(hid.hidingsalpha);
 console.log('Ps', Ps);
 console.log('Pas', Pas);
-
-
 */
-
-
 
 toR1CS(`
 function qeval(x) {
@@ -151,117 +140,3 @@ function qeval(x) {
 }
 `, [3]);
 
-/*
-let vk = [
-  [0,1],
-  [0,1],
-  [1,0],
-  [0,0],
-  [0,0],
-  [0,0]
-];
-
-let wk = [
-  [0,0],
-  [0,0],
-  [0,0],
-  [1,0],
-  [0,1],
-  [0,0]
-];
-
-let yk = [
-  [0,0],
-  [0,0],
-  [0,0],
-  [0,0],
-  [1,0],
-  [0,1]
-]
-
-let c = [
-  1,
-  2,
-  3,
-  4,
-  12,
-  36
-];
-
-let s = 1;
-
-let vs = bigInt(0);
-let m = 6;
-for (let k = 0; k<m; k++) {
-  vs = vs.add(bigInt(c[k]*vk[k][s]));
-}
-
-console.log('vs= ',vs)
-
-let f5 = new Field2(bn, bigInt("15615256399876043922"));
-
-console.log(`f5 => ${f5}`);
-console.log(`f5+10=9 => ${f5.add(bigInt(10))}`)
-console.log('p',bn.p);
-
-//console.log('Polynomial lagrange => ', Polynomial.lagrange([1,0,1,0]))
-
-
-
-
-let i2 = Polynomial.interpolationOverField(
-  [ new Field2(bn, bigInt("1")),
-    new Field2(bn, bigInt("2")),
-    new Field2(bn, bigInt("3")),
-    new Field2(bn, bigInt("4"))],
-  [  
-    new Field2(bn, bigInt("1")),
-    new Field2(bn, bigInt("0")),
-    new Field2(bn, bigInt("1")),
-    new Field2(bn, bigInt("0"))
-  ]
-);
-
-console.log(`Polynomial over field => ${i2}`);
-
-let evalf5 = Polynomial.evaluateField(i2, new Field2(bn, bigInt("1") ))
-
-console.log(` evaluate  P(4) => ${evalf5}`  );
-
-let divv = Polynomial.div2([ 2, 3, 8 ],[ 1, 2 ]);
-let divv3 = Polynomial.polyLongDiv([ 2, 3, 8 ],[ 1, 2, 0 ]);
-
-let back3 = Polynomial.add2(Polynomial.mul2(divv3.q, [1,2]), divv3.r);
-
-console.log(`8x2+3x+2/2x+1=>  ${divv.quot} + ${divv.remainder} ` );
-console.log(`8x2+3x+2/2x+1=>  ${divv3.q} + ${divv3.r} ` );
-console.log(`back ${back3}`)
-let back = Polynomial.mul2( divv.quot , [ 1, 2 ]  );
-back = Polynomial.add2(back, divv.remainder);
-console.log(`back ${back}`  )
-let divv2 = Polynomial.polyLongDivField(Zglob,[
-  new Field2(bn, bigInt("1")),
-  new Field2(bn, bigInt("2")),
-  new Field2(bn, bigInt("2")),
-  new Field2(bn, bigInt("2")),
-  new Field2(bn, bigInt("2")),
-  new Field2(bn, bn._0),
-  new Field2(bn, bn._0)
-]);
-
-console.log(`8x2+3x+2/2x+1=>  ${divv2.q} + ${divv2.r} `);
-
-let back2 = Polynomial.mul( divv2.q , 
-  [
-    new Field2(bn, bigInt("1")),
-    new Field2(bn, bigInt("2")),
-    new Field2(bn, bigInt("2")),
-    new Field2(bn, bigInt("2")),
-    new Field2(bn, bigInt("2")),
-    new Field2(bn, bn._0),
-    new Field2(bn, bn._0)
-  ]
-  );
-back2 = Polynomial.add(back2, divv2.r);
-console.log(`back2 ${back2}`)
-*/

@@ -20,15 +20,12 @@ async function processDepositEvent(event){
     await redis.setAsync(depositBlockIndexKey, 1);  
 
   const tx = await createDepositTransaction(depositor, new Web3.utils.BN(amount), depositBlock);
-
   let txRlpEncoded = tx.getHash(true).toString('hex');
   const signature = await web3.eth.sign(ethUtil.addHexPrefix(txRlpEncoded), config.plasmaOperatorAddress);
 
   tx.signature = signature;
-
   await  TxMemPool.acceptToMemoryPool(txMemPool, tx); 
   logger.info(' DEPOSIT#', x++, ' ', depositBlock);
-
 }
 
 export default processDepositEvent;

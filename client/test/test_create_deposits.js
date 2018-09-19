@@ -4,8 +4,8 @@ var assert = require('assert');
 import chai           from 'chai';
 var expect = chai.expect;
 
-import web3           from 'lib/web3';
-import ethUtil        from 'ethereumjs-util';
+import web3 from 'lib/web3';
+import ethUtil from 'ethereumjs-util';
 import { getAllUtxos, createSignedTransaction } from 'child-chain';
 import config from "config";
 import RLP from 'rlp';

@@ -6,45 +6,45 @@ pragma solidity 0.4.21;
  */
 
 library ByteUtils {
-    function slice(bytes _bytes, uint _start, uint _length)
-        internal
-        pure
-        returns (bytes)
-    {
-        require(_bytes.length >= (_start + _length));
+  function slice(bytes _bytes, uint _start, uint _length)
+      internal
+      pure
+      returns (bytes)
+  {
+    require(_bytes.length >= (_start + _length));
 
-        bytes memory tempBytes;
+    bytes memory tempBytes;
 
-        assembly {
-            switch iszero(_length)
-            case 0 {
-                tempBytes := mload(0x40)
+    assembly {
+      switch iszero(_length)
+      case 0 {
+          tempBytes := mload(0x40)
 
-                let lengthmod := and(_length, 31)
+          let lengthmod := and(_length, 31)
 
-                let mc := add(add(tempBytes, lengthmod), mul(0x20, iszero(lengthmod)))
-                let end := add(mc, _length)
+          let mc := add(add(tempBytes, lengthmod), mul(0x20, iszero(lengthmod)))
+          let end := add(mc, _length)
 
-                for {
-                    let cc := add(add(add(_bytes, lengthmod), mul(0x20, iszero(lengthmod))), _start)
-                } lt(mc, end) {
-                    mc := add(mc, 0x20)
-                    cc := add(cc, 0x20)
-                } {
-                    mstore(mc, mload(cc))
-                }
+          for {
+              let cc := add(add(add(_bytes, lengthmod), mul(0x20, iszero(lengthmod))), _start)
+          } lt(mc, end) {
+              mc := add(mc, 0x20)
+              cc := add(cc, 0x20)
+          } {
+              mstore(mc, mload(cc))
+          }
 
-                mstore(tempBytes, _length)
+          mstore(tempBytes, _length)
 
-                mstore(0x40, and(add(mc, 31), not(31)))
-            }
-            default {
-                tempBytes := mload(0x40)
+          mstore(0x40, and(add(mc, 31), not(31)))
+      }
+      default {
+          tempBytes := mload(0x40)
 
-                mstore(0x40, add(tempBytes, 0x20))
-            }
-        }
-
-        return tempBytes;
+          mstore(0x40, add(tempBytes, 0x20))
+      }
     }
+
+    return tempBytes;
+  }
 }

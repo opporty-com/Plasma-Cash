@@ -62,8 +62,7 @@ class Polynomial {
     }
     return result.reverse();
   }
-  
-  
+
   // calculate coefficients for Li polynomial
   static interpolation(i, x) {
     let coefficients = new Array(x.length).fill(new Field2(bn2, bn2._0));
@@ -75,7 +74,7 @@ class Polynomial {
         denom = denom.multiply( x[i].subtract(x[j]) );
       }
     }
-    
+
     coefficients[0] = denom.inverse();   
     let new_coefficients;
 
@@ -266,7 +265,7 @@ class Polynomial {
       return {q, r:n2};
   }
 
-  static  polyLongDivField(n, d) {
+  static polyLongDivField(n, d) {
     if (n.length != d.length) {
         throw new Error("Numerator and denominator vectors must have the same size");
     }
@@ -297,9 +296,7 @@ class Polynomial {
        
     }
     return {q, r:n2};
-}
-
-
+ }
 
   static div2(a, b) {
     let o = new Array(a.length - b.length+1).fill(0);

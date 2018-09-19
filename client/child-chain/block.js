@@ -8,27 +8,24 @@ import ethUtil from 'ethereumjs-util';
 
 class Block {
   constructor (data) {
-    
-      if (Buffer.isBuffer(data)) {
-        let decodedData = RLP.decode(data);
-        this.blockNumber = decodedData && decodedData[0];
-        this.merkleRootHash = decodedData && decodedData[1];
-        this.transactions = decodedData && decodedData[2];
-      } else if (data && typeof data === 'object') {
-        this.blockNumber = data.blockNumber;
-        this.transactions = data.transactions || [];
-
-        let leaves = [];
-        for (let i = 0, l = this.transactions.length; i < l; i++) {
-          let tx = this.transactions[i];
-          leaves.push({ key: tx.token_id, hash: tx.getHash() });
-        }
-
-        this.txCount = leaves.length;
-        this.merkle = new PatriciaMerkle(leaves);
-        this.merkle.buildTree();
-        this.merkleRootHash = this.merkle.getMerkleRoot();
+    if (Buffer.isBuffer(data)) {
+      let decodedData = RLP.decode(data);
+      this.blockNumber = decodedData && decodedData[0];
+      this.merkleRootHash = decodedData && decodedData[1];
+      this.transactions = decodedData && decodedData[2];
+    } else if (data && typeof data === 'object') {
+      this.blockNumber = data.blockNumber;
+      this.transactions = data.transactions || [];
+      let leaves = [];
+      for (let i = 0, l = this.transactions.length; i < l; i++) {
+        let tx = this.transactions[i];
+        leaves.push({ key: tx.token_id, hash: tx.getHash() });
       }
+      this.txCount = leaves.length;
+      this.merkle = new PatriciaMerkle(leaves);
+      this.merkle.buildTree();
+      this.merkleRootHash = this.merkle.getMerkleRoot();
+    }
   }
 
   getRlp() {
@@ -39,7 +36,6 @@ class Block {
     if (transactions[0] && transactions[0] instanceof PlasmaTransaction) {
       transactions = transactions.map(tx => tx.getRaw());
     }
-
     this._rlp = RLP.encode([this.blockNumber, this.merkleRootHash, transactions]);
     return this._rlp;
   }

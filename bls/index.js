@@ -15,154 +15,154 @@ const pair = new Pairing(Et);
 const Q = E.pointFactory(rng);
 
 class SecretKey {
-    constructor() {
-        let s = new Array(2);
-        rng.nextBytes(s);
-        this.s = bigInt(s[0]); 
-    }
- 
-    getPublicKey() {
-        let pk = new PublicKey();
-        pk.init(this.s);
-        return pk;
-    }
+  constructor() {
+      let s = new Array(2);
+      rng.nextBytes(s);
+      this.s = bigInt(s[0]); 
+  }
 
-    sign(H) {
-        let sig = new Signature();
-        sig.sH = H.multiply(this.s);
-        if (this.id)
-            sig.id = this.id;
-        return sig;
-    }
+  getPublicKey() {
+      let pk = new PublicKey();
+      pk.init(this.s);
+      return pk;
+  }
 
-    getMasterSecretKey(k) 
-    {
-        if (k <= 1) throw Error("bad k "+ k); 
-        let msk = new Array(k);
-        msk[0] = this;
-        for (let i = 1; i < k; i++) 
-            msk[i] = new SecretKey();
-        
-        return msk;
-    }
+  sign(H) {
+      let sig = new Signature();
+      sig.sH = H.multiply(this.s);
+      if (this.id)
+          sig.id = this.id;
+      return sig;
+  }
 
-    share(n, k)
-    {
-        let msk = this.getMasterSecretKey(k);
-        let secVec = new Array(n);
-        let ids = new Array(n);
-        for (let i = 0; i < n; i++) {
-            let id = i + 1;
-            ids[i] = id;
-            secVec[i] = new SecretKey();
-            secVec[i].s = Polynomial.eval(msk, id);
-            secVec[i].id = id;
-        }
+  getMasterSecretKey(k) 
+  {
+      if (k <= 1) throw Error("bad k "+ k); 
+      let msk = new Array(k);
+      msk[0] = this;
+      for (let i = 1; i < k; i++) 
+          msk[i] = new SecretKey();
+      
+      return msk;
+  }
 
-        return secVec;
-    }
+  share(n, k)
+  {
+      let msk = this.getMasterSecretKey(k);
+      let secVec = new Array(n);
+      let ids = new Array(n);
+      for (let i = 0; i < n; i++) {
+          let id = i + 1;
+          ids[i] = id;
+          secVec[i] = new SecretKey();
+          secVec[i].s = Polynomial.eval(msk, id);
+          secVec[i].id = id;
+      }
 
-    recover(vec) 
-    {
-        let s = Polynomial.lagrange(vec);
-        this.s = s;
-        this.id = 0;
-    }
+      return secVec;
+  }
+
+  recover(vec) 
+  {
+      let s = Polynomial.lagrange(vec);
+      this.s = s;
+      this.id = 0;
+  }
 }
 
 class Signature {
-    recover(signVec) 
-    {
-        this.sH = Polynomial.lagrange(signVec);
-        return this;
-    }
+  recover(signVec) 
+  {
+      this.sH = Polynomial.lagrange(signVec);
+      return this;
+  }
 }
 
 class PublicKey {
-    init(s)
-    {
-        this.sQ = Q.multiply(s);
-    }
-    verify(sign, H) 
-    {
-        let a = pair.ate(H, this.sQ);
-        let b = pair.ate(sign.sH, Q);
-        return(a.eq(b));
-    }
+  init(s)
+  {
+      this.sQ = Q.multiply(s);
+  }
+  verify(sign, H) 
+  {
+      let a = pair.ate(H, this.sQ);
+      let b = pair.ate(sign.sH, Q);
+      return(a.eq(b));
+  }
 }
 
 class Polynomial {
-    static init(s, k) {
-        if (k < 2) throw Error("bad k "+ k);
-        this.c = new Array(k);
-        c[0] = s;
-        for (let  i = 1; i < c.length; i++) {
-            let s = new Array(2);
-            rng.nextBytes(s);
-            c[i] = bigInt(s[0]);
-        }
-    }
-    static eval(msk, x) {
-        let s = bigInt.zero;
-        for (let i =0 ; i < msk.length; i++) {
-            s = s.add(msk[i].s.multiply(x ** i));
-        }
-        return s;    
-    }
-    static calcDelta(S)
-    {
-        let k = S.length;
-        if (k < 2) throw Error("bad size"+k);
-        let delta = new Array(k);
-        let a = bigInt(S[0]);
-        for (let i = 1; i < k; i++) {
-            a = a.multiply(bigInt(S[i]));
-        }
-        for (let i = 0; i < k; i++) {
-            let b = bigInt(S[i]);
-            for (let j = 0; j < k; j++) {
-                if (j != i) {
-                    let v = bigInt(S[j]).subtract(S[i]);
-                    if (v == 0) throw Error("S has same id "+ i + ' '+j);
-                    b = b.multiply(v);
-                }
-            }
-            delta[i] = a.divide(b);
-        }
-        return delta;
-    }
+  static init(s, k) {
+      if (k < 2) throw Error("bad k "+ k);
+      this.c = new Array(k);
+      c[0] = s;
+      for (let  i = 1; i < c.length; i++) {
+          let s = new Array(2);
+          rng.nextBytes(s);
+          c[i] = bigInt(s[0]);
+      }
+  }
+  static eval(msk, x) {
+      let s = bigInt.zero;
+      for (let i =0 ; i < msk.length; i++) {
+          s = s.add(msk[i].s.multiply(x ** i));
+      }
+      return s;    
+  }
+  static calcDelta(S)
+  {
+      let k = S.length;
+      if (k < 2) throw Error("bad size"+k);
+      let delta = new Array(k);
+      let a = bigInt(S[0]);
+      for (let i = 1; i < k; i++) {
+          a = a.multiply(bigInt(S[i]));
+      }
+      for (let i = 0; i < k; i++) {
+          let b = bigInt(S[i]);
+          for (let j = 0; j < k; j++) {
+              if (j != i) {
+                  let v = bigInt(S[j]).subtract(S[i]);
+                  if (v == 0) throw Error("S has same id "+ i + ' '+j);
+                  b = b.multiply(v);
+              }
+          }
+          delta[i] = a.divide(b);
+      }
+      return delta;
+  }
 
-    static lagrange(vec) {
-        let S = new Array(vec.length);
-        for (let i = 0; i < vec.length; i++) {
-            S[i] = vec[i].id;
-        }
-        let delta = Polynomial.calcDelta(S);
-        let r;
-        if (vec[0].s) 
-            r = bigInt.zero;
-         else 
-            r = new Point2(Et);
+  static lagrange(vec) {
+      let S = new Array(vec.length);
+      for (let i = 0; i < vec.length; i++) {
+          S[i] = vec[i].id;
+      }
+      let delta = Polynomial.calcDelta(S);
+      let r;
+      if (vec[0].s) 
+          r = bigInt.zero;
+        else 
+          r = new Point2(Et);
 
-        for (let i = 0; i < delta.length; i++) {
-            if (vec[i].s) 
-                r = r.add(vec[i].s.multiply(delta[i]));
-            else 
-                r = r.add(vec[i].sH.multiply(delta[i]));
-        }
-        return r;
-    }
+      for (let i = 0; i < delta.length; i++) {
+          if (vec[i].s) 
+              r = r.add(vec[i].s.multiply(delta[i]));
+          else 
+              r = r.add(vec[i].sH.multiply(delta[i]));
+      }
+      return r;
+  }
 }
 
 class BLSSigner {
-    static sign(H,s) {
-        return H.multiply(s);
-    }
-    static verify(pair, Q, H, sQ, sH) {
-        let a = pair.ate(H, sQ);
-        let b = pair.ate(sH, Q);
-        return(a.eq(b));
-    }
+  static sign(H,s) {
+      return H.multiply(s);
+  }
+  static verify(pair, Q, H, sQ, sH) {
+      let a = pair.ate(H, sQ);
+      let b = pair.ate(sH, Q);
+      return(a.eq(b));
+  }
 }
 
 let H = Et.pointFactory(rng);
@@ -214,15 +214,15 @@ let vec = prv0.share(n, k);
 
 let signVec = new Array(n);
 for (let i = 0; i < n; i++) {
-    signVec[i] = vec[i].sign(H);
+  signVec[i] = vec[i].sign(H);
 
-    let pub = vec[i].getPublicKey();
-    if (pub == pub0) {
-        throw new Error("error pub key");
-    }
-    if (!pub.verify(signVec[i], H)) {
-        throw Error("verify error");
-    }
+  let pub = vec[i].getPublicKey();
+  if (pub == pub0) {
+      throw new Error("error pub key");
+  }
+  if (!pub.verify(signVec[i], H)) {
+      throw Error("verify error");
+  }
 }
 
 // 3-n

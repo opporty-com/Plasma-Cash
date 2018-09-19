@@ -6,9 +6,6 @@ function isString(value) {return typeof value === 'string';}
 let next_symbol = 0;
 
 class R1CS {
-
-  
-
   static genid() {
     next_symbol += 1;
     return 'sym_'+ next_symbol;
@@ -19,7 +16,7 @@ class R1CS {
     let inputs = [];
     let body = [];
     let returned = false;
-    //console.log(esprima)
+
     let bodycode = esprima.parse(code);
     bodycode = bodycode.body;
     if (bodycode[0].type != 'FunctionDeclaration') {
@@ -27,24 +24,24 @@ class R1CS {
     }
   
     for (let arg of bodycode[0].params) {
-        if (arg.type=='Identifier') {
-          inputs.push(arg.name);
-        } else {
-          throw new Error("Invalid arg");
-        }
+      if (arg.type=='Identifier') {
+        inputs.push(arg.name);
+      } else {
+        throw new Error("Invalid arg");
+      }
     }
   
     for (let c of bodycode[0].body.body) {
-        if (c.type!='VariableDeclaration' && c.type!='ReturnStatement') {
-          throw new Error("Expected variable assignment or return");
-        }
-        
-        if (returned)
-          throw new Error("Cannot do stuff after a return statement");
-  
-        if (c.type == 'ReturnStatement')
-            returned = true;
-        body.push(c)
+      if (c.type!='VariableDeclaration' && c.type!='ReturnStatement') {
+        throw new Error("Expected variable assignment or return");
+      }
+      
+      if (returned)
+        throw new Error("Cannot do stuff after a return statement");
+
+      if (c.type == 'ReturnStatement')
+          returned = true;
+      body.push(c)
     }
   
     return { inputs, body };
@@ -223,12 +220,12 @@ class R1CS {
   }
   static grab(vars, assignment, variable)
   {
-      if (isString(variable))
-          return assignment[vars.indexOf(variable)];
-      else if (!isNaN(variable))
-          return variable;
-      else
-          throw new Error("What kind of expression is this?" , variable)
+    if (isString(variable))
+      return assignment[vars.indexOf(variable)];
+    else if (!isNaN(variable))
+      return variable;
+    else
+      throw new Error("What kind of expression is this?" , variable)
   }
  
   static evaluateCode(inputs, inputVars, flatCode)

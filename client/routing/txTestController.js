@@ -12,45 +12,45 @@ import contractHandler from 'root-chain/contracts/plasma';
 const BN = ethUtil.BN;
 
 let accounts = [
-    '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70'.toLowerCase(),
-    '0x11A618DE3ADe9B85Cd811BF45af03bAd481842Ed'.toLowerCase(),
-    '0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe'.toLowerCase(),
-    '0x9345a4d4a43815c613cf9e9db1920b9c9eeb8dc7'.toLowerCase(),
-    '0x220cD6eBB62F9aD170C9bf7984F22A3afc023E7d'.toLowerCase()
+  '0x2BF64b0ebd7Ba3E20C54Ec9F439c53e87E9d0a70'.toLowerCase(),
+  '0x11A618DE3ADe9B85Cd811BF45af03bAd481842Ed'.toLowerCase(),
+  '0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe'.toLowerCase(),
+  '0x9345a4d4a43815c613cf9e9db1920b9c9eeb8dc7'.toLowerCase(),
+  '0x220cD6eBB62F9aD170C9bf7984F22A3afc023E7d'.toLowerCase()
 ];
 
 async function createDeposits(options = {}) {
 
-    for (let addr of accounts) {
-        await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 90000);
-        console.log('unlockAccount', addr);
-    }
-    let deposits = options.deposits || 5;
-    var nextAddressGen = getNextAddress(accounts);
+  for (let addr of accounts) {
+      await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 90000);
+      console.log('unlockAccount', addr);
+  }
+  let deposits = options.deposits || 5;
+  var nextAddressGen = getNextAddress(accounts);
 
-    let created = 0;
-    for (let i = 0; i < deposits; i++) {
-        try {
-            let address = nextAddressGen.next().value;
-            let amount = new BN('1000000000000000');
-            let add = new BN('10000000000000');
-            add = add.mul(new BN(i + 1));
-            amount = amount.add(add).toString();
+  let created = 0;
+  for (let i = 0; i < deposits; i++) {
+      try {
+          let address = nextAddressGen.next().value;
+          let amount = new BN('1000000000000000');
+          let add = new BN('10000000000000');
+          add = add.mul(new BN(i + 1));
+          amount = amount.add(add).toString();
 
-            contractHandler.contract.methods.deposit().estimateGas({ from: address, value: amount })
-                .then(gas => {
-                    console.log('done deposit to contract!');
-                    return contractHandler.contract.methods.deposit().send({ from: address, gas, value: amount });
-                }).catch(error => {
-                    console.log('error', error.toString())
-                })
-            created++;
-        }
-        catch (error) {
-            console.log('Create deposit error', error);
-        }
-    }
-    return created;
+          contractHandler.contract.methods.deposit().estimateGas({ from: address, value: amount })
+              .then(gas => {
+                  console.log('done deposit to contract!');
+                  return contractHandler.contract.methods.deposit().send({ from: address, gas, value: amount });
+              }).catch(error => {
+                  console.log('error', error.toString())
+              })
+          created++;
+      }
+      catch (error) {
+          console.log('Create deposit error', error);
+      }
+  }
+  return created;
 }
 
 
@@ -62,63 +62,63 @@ prkeys[accounts[3]] = Buffer.from('723851e910975a4ff44b2ec28b719c42ae3c9ea33c187
 prkeys[accounts[4]] = Buffer.from('25d9bb435e7d96e692054668add7f8b857567b2075b9e2f6b0659c4b6c7ed31c', 'hex');
 
 class TestTransactionsCreator {
-    constructor() {
-        this.ready = false;
-        this.utxos = [];
-        this.alltransactions = [];
+  constructor() {
+      this.ready = false;
+      this.utxos = [];
+      this.alltransactions = [];
 
-        this.nextAddressGen = getNextAddress(accounts);
-        this.nextAddressGen.next();
-        this.blockCreatePromise = Promise.resolve(true);
-    }
+      this.nextAddressGen = getNextAddress(accounts);
+      this.nextAddressGen.next();
+      this.blockCreatePromise = Promise.resolve(true);
+  }
 
-    async createTransactionsFromUTXO() {
-        this.utxos = await getAllUtxosWithKeys();
-        this.alltransactions = [];
+  async createTransactionsFromUTXO() {
+      this.utxos = await getAllUtxosWithKeys();
+      this.alltransactions = [];
 
-        for (let i in this.utxos) {
-            let utxo = this.utxos[i];
-            let blockNumber = parseInt(i.split('_')[1]);
+      for (let i in this.utxos) {
+          let utxo = this.utxos[i];
+          let blockNumber = parseInt(i.split('_')[1]);
 
-            try {
-                let txData = {
-                    prev_hash: utxo.getHash().toString('hex'),
-                    prev_block: blockNumber,
-                    token_id: utxo.token_id.toString(),
-                    new_owner: this.nextAddressGen.next(utxo.new_owner).value
-                };
-                let txDataForRlp = [ethUtil.addHexPrefix(txData.prev_hash), txData.prev_block, ethUtil.toBuffer(txData.token_id), txData.new_owner];
-                let txRlpEncoded = ethUtil.hashPersonalMessage(ethUtil.sha3(RLP.encode(txDataForRlp)));
+          try {
+              let txData = {
+                  prev_hash: utxo.getHash().toString('hex'),
+                  prev_block: blockNumber,
+                  token_id: utxo.token_id.toString(),
+                  new_owner: this.nextAddressGen.next(utxo.new_owner).value
+              };
+              let txDataForRlp = [ethUtil.addHexPrefix(txData.prev_hash), txData.prev_block, ethUtil.toBuffer(txData.token_id), txData.new_owner];
+              let txRlpEncoded = ethUtil.hashPersonalMessage(ethUtil.sha3(RLP.encode(txDataForRlp)));
 
-                if (utxo.new_owner instanceof Buffer)
-                    utxo.new_owner = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
+              if (utxo.new_owner instanceof Buffer)
+                  utxo.new_owner = ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase();
 
-                let signature = ethUtil.ecsign(txRlpEncoded, prkeys[utxo.new_owner]);
+              let signature = ethUtil.ecsign(txRlpEncoded, prkeys[utxo.new_owner]);
 
-                txData.signature = ethUtil.toRpcSig(signature.v, signature.r, signature.s).toString("hex");
-                let createdTx = createSignedTransaction(txData);
-                this.alltransactions.push(createdTx);
-            } catch (e) {
-                console.log(e);
-            }
-        }
+              txData.signature = ethUtil.toRpcSig(signature.v, signature.r, signature.s).toString("hex");
+              let createdTx = createSignedTransaction(txData);
+              this.alltransactions.push(createdTx);
+          } catch (e) {
+              console.log(e);
+          }
+      }
 
-        console.log('TXcount - ', this.alltransactions.length);
+      console.log('TXcount - ', this.alltransactions.length);
     }
 
     async init() {
-        try {
-            for (let address of accounts) {
-                await web3.eth.personal.unlockAccount(address, config.plasmaOperatorPassword, 0);
-                console.log('Unlock account: ', address);
-            }
-            await this.createTransactionsFromUTXO();
-            setInterval(() => this.createTransactionsFromUTXO(), 60000);
-        }
-        catch (err) {
-            console.log('error', err);
-            this.ready = false;
-        }
+      try {
+          for (let address of accounts) {
+              await web3.eth.personal.unlockAccount(address, config.plasmaOperatorPassword, 0);
+              console.log('Unlock account: ', address);
+          }
+          await this.createTransactionsFromUTXO();
+          setInterval(() => this.createTransactionsFromUTXO(), 60000);
+      }
+      catch (err) {
+          console.log('error', err);
+          this.ready = false;
+      }
     }
 }
 function* getNextAddress(addresses) {

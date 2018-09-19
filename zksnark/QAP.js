@@ -24,9 +24,7 @@ class QAP {
 
     let Ap = []; let Bp = []; let Cp = []; let Z = [];
     for (let a of Aold) {
-      //console.log(`lagrange a ${xarr} ${a}`, xarr[0].bn.p == bn.n);
       Ap.push( Polynomial.interpolationOverField(xarr, a) );
-      //console.log(`Ap ${Ap}`);
     }
     for (let b of Bold) {
       Bp.push( Polynomial.interpolationOverField(xarr, b) );
@@ -40,7 +38,6 @@ class QAP {
     for (let i = 1; i<= Aold[0].length; i++) {
       let val =  new Field2(bn2, bn2.p.subtract(i)   );
       
-      //console.log('Zi', i, val.toString())
       Z = Polynomial.mul(Z, [val, new Field2(bn2, bn2._1)]);
     }
   

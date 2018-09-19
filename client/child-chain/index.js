@@ -70,7 +70,7 @@ async function getLastBlockNumberFromDb() {
       lastBlock = 0;
   } else 
     lastBlock = parseInt(lastBlock);
-  
+
   return lastBlock;
 }
 
@@ -105,7 +105,6 @@ function checkTransaction(tx) {
 }
 
 async function getUTXO(blockNumber, token_id) {
-
   let q = 'utxo_'+ blockNumber.toString(16) +'_'+ token_id.toString();
   let data = await redis.getAsync(Buffer.from(q));
   if (data) 
@@ -203,5 +202,6 @@ export { getBlock, createNewBlock, getLastBlockNumberFromDb, createDepositTransa
   getAllUtxos,
   getAllUtxosWithKeys,
   checkTransaction,
-  checkInputs };
+  checkInputs 
+};
 

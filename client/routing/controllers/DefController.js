@@ -6,7 +6,6 @@ import redis from 'lib/storage/redis';
 import { parseM } from 'lib/utils';
 
 class DefController {
-
   static async deposits(req, res) {
     await parseM(req);
     try {
