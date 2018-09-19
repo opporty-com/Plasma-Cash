@@ -1,8 +1,6 @@
 const { deserialize, serialize } = require("surrial");
 const { MessageChannel, Worker, } = require("worker_threads");
 
-
-
 let ThreadWorker = {
 
   code: `

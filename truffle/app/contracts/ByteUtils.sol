@@ -7,9 +7,9 @@ pragma solidity 0.4.21;
 
 library ByteUtils {
   function slice(bytes _bytes, uint _start, uint _length)
-      internal
-      pure
-      returns (bytes)
+    internal
+    pure
+    returns (bytes)
   {
     require(_bytes.length >= (_start + _length));
 

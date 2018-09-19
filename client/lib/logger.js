@@ -6,7 +6,6 @@ import config from 'config';
 
 const moment = require('moment-timezone').tz.setDefault(process.env.TIME_ZONE || 'America/New_York');
 winston.transports.DailyRotateFile = require('winston-daily-rotate-file');
-
 const tsFormat = () => (moment().format('DD:MM:YYYY HH:mm:ss.SSS'));
 
 const mkdirSyncRecursive = (directory) => {
