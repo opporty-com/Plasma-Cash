@@ -3,7 +3,7 @@ import util from 'util'
 
 let client = redis.createClient({
   detect_buffers: true,
-  host: process.env.REDIS_HOST || '192.168.254.58'
+  host: process.env.REDIS_HOST
 })
 
 client.on('connect', () => {
