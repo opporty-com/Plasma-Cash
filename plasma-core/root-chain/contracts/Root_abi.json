@@ -226,7 +226,7 @@
       },
       {
         "indexed": false,
-        "name": "token_id",
+        "name": "tokenId",
         "type": "uint256"
       },
       {
