@@ -1,14 +1,14 @@
 version: '3.3'
 services:
   backend:
-    build: ./client
+    build: ./plasma-core
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - "./client:/usr/src/app"
+      - "./plasma-core:/usr/src/app"
       - "./data/leveldb:/var/lib/leveldb/data"
-      - "./data/logs/client:/usr/src/app/app/logs"
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
       - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
     environment:
       NODE_ENV: development
