@@ -21,7 +21,7 @@ class Block {
         let leaves = [];
         for (let i = 0, l = this.transactions.length; i < l; i++) {
           let tx = this.transactions[i];
-          leaves.push({ key: tx.token_id, hash: tx.getHash() });
+          leaves.push({ key: tx.tokenId, hash: tx.getHash() });
         }
 
         this.txCount = leaves.length;
@@ -54,16 +54,16 @@ class Block {
     return ethUtil.baToJSON(data);
   }
   
-  getProof(token_id, returnhex) {  
+  getProof(tokenId, returnhex) {  
     if (!this.merkle) {
       this.buildTree();
     }
 
-    if (!(token_id instanceof Buffer)) {
-      token_id = ethUtil.toBuffer(ethUtil.stripHexPrefix(token_id));
+    if (!(tokenId instanceof Buffer)) {
+      tokenId = ethUtil.toBuffer(ethUtil.stripHexPrefix(tokenId));
     }
     
-    return this.merkle.getProof(token_id, returnhex);
+    return this.merkle.getProof(tokenId, returnhex);
   }
     
   checkProof(proof, hash) {  
@@ -79,7 +79,7 @@ class Block {
       this.transactions = this.transactions.map(tx => new PlasmaTransaction(tx));
     }
     let leaves = this.transactions.map(tx => {
-      return { key: tx.token_id, hash: tx.getHash() };
+      return { key: tx.tokenId, hash: tx.getHash() };
     });
 
     this.merkle = new PatriciaMerkle(leaves);
@@ -106,14 +106,14 @@ class Block {
     return data;
   }
   
-  getTxByTokenId(token_id) {
+  getTxByTokenId(tokenId) {
     let transaction;
-    if (!(token_id instanceof Buffer)) {
-      token_id = ethUtil.toBuffer(ethUtil.stripHexPrefix(token_id));
+    if (!(tokenId instanceof Buffer)) {
+      tokenId = ethUtil.toBuffer(ethUtil.stripHexPrefix(tokenId));
     }
     let txsAreRlp = this.transactions[0] && !(this.transactions[0] instanceof PlasmaTransaction);
-    let txsTokenIdKey = txsAreRlp ? 2 : 'token_id';
-    transaction = this.transactions.find(tx => tx && token_id.equals(tx[txsTokenIdKey]));
+    let txsTokenIdKey = txsAreRlp ? 2 : 'tokenId';
+    transaction = this.transactions.find(tx => tx && tokenId.equals(tx[txsTokenIdKey]));
 
     if (transaction && !(transaction instanceof PlasmaTransaction)) {
       transaction = new PlasmaTransaction(transaction);

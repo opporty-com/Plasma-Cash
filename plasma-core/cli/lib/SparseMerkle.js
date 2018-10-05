@@ -56,13 +56,13 @@ class Merkle {
     }
   }
 
-  getProof(token_id, returnBinary) {
+  getProof(tokenId, returnBinary) {
     if (!this.levels || this.levels.length < 256) {
       this.buildTree();
     }
 
     let proof = [];
-    let leafKey = this.toBinaryString(token_id);
+    let leafKey = this.toBinaryString(tokenId);
 
     for (let level = this.depth; level >= 1; level--) {
       let currentKey = leafKey.slice(0, level);

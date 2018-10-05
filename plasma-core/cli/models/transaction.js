@@ -4,10 +4,10 @@ import RLP from 'rlp';
 import ethUtil from 'ethereumjs-util';
 
 const transactionFields = [
-  { name: 'prev_hash' },
-  { name: 'prev_block', int: true, default: 0 },
-  { name: 'token_id', isDecimal: true},
-  { name: 'new_owner' },
+  { name: 'prevHash' },
+  { name: 'prevBlock', int: true, default: 0 },
+  { name: 'tokenId', isDecimal: true},
+  { name: 'newOwner' },
   { name: 'signature' }
 ];
 
@@ -61,10 +61,10 @@ class PlasmaTransaction {
       return this[fieldName];
     }
     let dataToEncode = [
-      this.prev_hash instanceof Buffer ? this.prev_hash : ethUtil.addHexPrefix(this.prev_hash),
-      this.prev_block,
-      ethUtil.toBuffer(this.token_id),
-      this.new_owner
+      this.prevHash instanceof Buffer ? this.prevHash : ethUtil.addHexPrefix(this.prevHash),
+      this.prevBlock,
+      ethUtil.toBuffer(this.tokenId),
+      this.newOwner
     ];
     if (!(excludeSignature)) {
       dataToEncode.push(this.signature);
@@ -109,10 +109,10 @@ class PlasmaTransaction {
   
   getJson() {
     let data = {};
-    data.prev_hash = ethUtil.addHexPrefix(this.prev_hash.toString('hex'));
-    data.prev_block = ethUtil.bufferToInt(this.prev_block);
-    data.token_id = this.token_id.toString();
-    data.new_owner = ethUtil.addHexPrefix(this.new_owner.toString('hex'));
+    data.prevHash = ethUtil.addHexPrefix(this.prevHash.toString('hex'));
+    data.prevBlock = ethUtil.bufferToInt(this.prevBlock);
+    data.tokenId = this.tokenId.toString();
+    data.newOwner = ethUtil.addHexPrefix(this.newOwner.toString('hex'));
     data.signature = ethUtil.addHexPrefix(this.signature.toString('hex'));
 
     return data;

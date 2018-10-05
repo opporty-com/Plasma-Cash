@@ -6,8 +6,8 @@ const createDeposit = async (address, amount) => {
   return (await axios.post('http://localhost:443/Tx/deposit', JSON.stringify({ address, amount }))).data
 }
 
-const createTransaction = async (addressTo, addressFrom, token_id) => {
-  return (await axios.post('http://localhost:443/Tx/createTransaction', { addressTo, addressFrom, token_id })).data
+const createTransaction = async (addressTo, addressFrom, tokenId) => {
+  return (await axios.post('http://localhost:443/Tx/createTransaction', { addressTo, addressFrom, tokenId })).data
 }
 
 
@@ -24,8 +24,8 @@ const submitBlock = async (address, block, rejectTransactions) => {
   return (await axios.post('http://localhost:443/Block/submitBlock', { address, block, rejectTransactions })).data
 }
 
-const signBlock = async (address, block_hash) => {
-  return (await axios.post('http://localhost:443/Block/sign', { address, block_hash })).data
+const signBlock = async (address, blockHash) => {
+  return (await axios.post('http://localhost:443/Block/sign', { address, blockHash })).data
 }
 
 const signTxVerify = async (data, signature) => {

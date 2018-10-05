@@ -90,24 +90,24 @@ class TestTransactionsCreator {
 
         try {
           let txData = {
-            prev_hash: utxo.getHash().toString('hex'),
-            prev_block: blockNumber,
-            token_id: utxo.token_id.toString(),
-            new_owner: this.nextAddressGen.next(utxo.new_owner).value,
+            prevHash: utxo.getHash().toString('hex'),
+            prevBlock: blockNumber,
+            tokenId: utxo.tokenId.toString(),
+            newOwner: this.nextAddressGen.next(utxo.newOwner).value,
           }
           let txDataForRlp =
-            [ethUtil.addHexPrefix(txData.prev_hash),
-              txData.prev_block,
-              ethUtil.toBuffer(txData.token_id),
-              txData.new_owner]
+            [ethUtil.addHexPrefix(txData.prevHash),
+              txData.prevBlock,
+              ethUtil.toBuffer(txData.tokenId),
+              txData.newOwner]
           let txRlpEncoded =
             ethUtil.hashPersonalMessage(ethUtil.sha3(RLP.encode(txDataForRlp)))
 
-          if (utxo.new_owner instanceof Buffer) {
-            utxo.new_owner =
-              ethUtil.addHexPrefix(utxo.new_owner.toString('hex')).toLowerCase()
+          if (utxo.newOwner instanceof Buffer) {
+            utxo.newOwner =
+              ethUtil.addHexPrefix(utxo.newOwner.toString('hex')).toLowerCase()
           }
-          let signature = ethUtil.ecsign(txRlpEncoded, prkeys[utxo.new_owner])
+          let signature = ethUtil.ecsign(txRlpEncoded, prkeys[utxo.newOwner])
 
           txData.signature = ethUtil.toRpcSig(signature.v,
             signature.r,

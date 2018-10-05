@@ -82,6 +82,10 @@ async function createNewBlock() {
 
     let { successfullTransactions } = await validateTx()
 
+    // if(!successfullTransactions){
+    //   return false
+    // }
+
     const block = new Block({
       blockNumber: newBlockNumber,
       transactions: successfullTransactions
@@ -103,12 +107,12 @@ async function createNewBlock() {
     for (let utxo of block.transactions) {
       try {
         let newHistory = {
-          prev_hash: utxo.getHash(),
-          prev_block: newBlockNumber
+          prevHash: utxo.getHash(),
+          prevBlock: newBlockNumber
         }
 
-        await redis.hdelAsync('history', utxo.token_id)
-        await redis.hsetAsync('history', utxo.token_id, JSON.stringify(newHistory))
+        await redis.hdelAsync('history', utxo.tokenId)
+        await redis.hsetAsync('history', utxo.tokenId, JSON.stringify(newHistory))
 
       } catch (error) {
         return error.toString()
@@ -144,10 +148,10 @@ async function getLastBlockNumberFromDb() {
 
 function createDepositTransaction(addressTo, amountBN, tokenId) {
   let txData = {
-    prev_hash: '',
-    prev_block: 0,
+    prevHash: '',
+    prevBlock: 0,
     tokenId,
-    new_owner: ethUtil.addHexPrefix(addressTo),
+    newOwner: ethUtil.addHexPrefix(addressTo),
   }
 
   return new PlasmaTransaction(txData)
@@ -157,8 +161,8 @@ async function createTransaction(tokenId, addressFrom, addressTo) {
   let tokenHistory
   let utxo
   // fields for first transaction with new token
-  let prev_hash = '0x123'
-  let prev_block = '-1'
+  let prevHash = '0x123'
+  let prevBlock = '-1'
 
   utxo = await redis.hgetAsync(`utxo_${addressFrom}`, tokenId)
 
@@ -173,15 +177,15 @@ async function createTransaction(tokenId, addressFrom, addressTo) {
   }
 
   if (tokenHistory) {
-    prev_hash = tokenHistory.prev_hash
-    prev_block = tokenHistory.prev_block
+    prevHash = tokenHistory.prevHash
+    prevBlock = tokenHistory.prevBlock
   }
 
   let txData = {
-    prev_hash,
-    prev_block,
+    prevHash,
+    prevBlock,
     tokenId,
-    new_owner: addressTo,
+    newOwner: addressTo,
   }
 
   let tx = new PlasmaTransaction(txData)
@@ -201,10 +205,10 @@ async function createTransaction(tokenId, addressFrom, addressTo) {
 
 function createSignedTransaction(data) {
   let txData = {
-    prev_hash: ethUtil.toBuffer(ethUtil.addHexPrefix(data.prev_hash)),
-    prev_block: data.prev_block,
-    token_id: data.token_id,
-    new_owner: data.new_owner,
+    prevHash: ethUtil.toBuffer(ethUtil.addHexPrefix(data.prevHash)),
+    prevBlock: data.prevBlock,
+    tokenId: data.tokenId,
+    newOwner: data.newOwner,
     signature: data.signature,
   }
 
@@ -212,7 +216,8 @@ function createSignedTransaction(data) {
 }
 
 function checkTransaction(tx) {
-  if (!tx.new_owner || !tx.signature || !tx.tokenId) {
+
+  if (!tx.newOwner || !tx.signature || !tx.tokenId) {
     return false
   }
   return true
@@ -242,9 +247,9 @@ async function getAllUtxos(addresses) {
 
           let utxo = {
             owner: ethUtil.addHexPrefix(utxoFromRLP[0]),
-            token_id: utxoFromRLP[1],
+            tokenId: utxoFromRLP[1],
             amount: utxoFromRLP[2],
-            block_number: utxoFromRLP[3],
+            blockNumber: utxoFromRLP[3],
           }
           utxoFromAddress.push(utxo)
         }
@@ -294,7 +299,7 @@ async function getAllUtxosWithKeys(options = {}) {
 
 async function checkInputs(transaction) {
   try {
-    if (transaction.prev_block == 0) {
+    if (transaction.prevBlock == 0) {
       let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase())
       let valid = address == config.plasmaOperatorAddress.toLowerCase()
 
@@ -302,13 +307,13 @@ async function checkInputs(transaction) {
         return false
       }
     } else {
-      let utxo = await getUTXO(transaction.prev_block, transaction.token_id)
+      let utxo = await getUTXO(transaction.prevBlock, transaction.tokenId)
       if (!utxo) {
         return false
       }
-      transaction.prev_hash = utxo.getHash()
+      transaction.prevHash = utxo.getHash()
       let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase())
-      let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.new_owner.toString('hex').toLowerCase())
+      let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.newOwner.toString('hex').toLowerCase())
 
       if (utxoOwnerAddress != address) {
         return false

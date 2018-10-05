@@ -6,10 +6,10 @@ class RightsHandler {
 
   static async setValidatorsCandidate(address) {
     return new Promise(async (resolve, reject) => {
-      let validator_key = strRandom()
+      let validatorKey = strRandom()
       try {
-        await redis.hsetAsync('validators', validator_key, address)
-        const validator = await validatorsQueue.addValidator({ validator_key: validator_key, address: address })
+        await redis.hsetAsync('validators', validatorKey, address)
+        const validator = await validatorsQueue.addValidator({ validatorKey: validatorKey, address: address })
         resolve(validator)
       } catch (error) {
         reject(error.toString)

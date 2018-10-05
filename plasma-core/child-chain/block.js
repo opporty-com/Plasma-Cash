@@ -20,7 +20,7 @@ class Block {
       let leaves = []
       for (let i = 0, l = this.transactions.length; i < l; i++) {
         let tx = this.transactions[i]
-        leaves.push({key: tx.token_id, hash: tx.getHash()})
+        leaves.push({key: tx.tokenId, hash: tx.getHash()})
       }
 
       this.txCount = leaves.length
@@ -81,7 +81,7 @@ class Block {
         (tx) => new PlasmaTransaction(tx))
     }
     let leaves = this.transactions.map((tx) => {
-      return {key: tx.token_id, hash: tx.getHash()}
+      return {key: tx.tokenId, hash: tx.getHash()}
     })
 
     this.merkle = new PatriciaMerkle(leaves)

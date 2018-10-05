@@ -29,23 +29,23 @@ const validateBlock = async (address) => {
 
     let flagOfAccept = false
 
-    if (!transactions[i].prev_hash ||
-      !(transactions[i].prev_block > -2) ||
-      !transactions[i].token_id ||
-      !transactions[i].new_owner ||
+    if (!transactions[i].prevHash ||
+      !(transactions[i].prevBlock > -2) ||
+      !transactions[i].tokenId ||
+      !transactions[i].newOwner ||
       !transactions[i].signature) {
       rejectTransactions.push({ transaction: transactions[i].getHash(), cause: rejectCauses.txFieldsIsInvalid })
       continue
     }
 
-    let old_owner = await signTxVerify(transactions[i].getHash(true).toString('hex'), ethUtil.addHexPrefix(transactions[i].signature.toString('hex')))
+    let oldOwner = await signTxVerify(transactions[i].getHash(true).toString('hex'), ethUtil.addHexPrefix(transactions[i].signature.toString('hex')))
 
-    if (!old_owner) {
+    if (!oldOwner) {
       rejectTransactions.push({ transaction: transactions[i].getHash(), cause: rejectCauses.invalidSignature })
       continue
     }
 
-    let utxo = await getUtxoForAddresses([old_owner])
+    let utxo = await getUtxoForAddresses([oldOwner])
 
     if (utxo.length === 0) {
       rejectTransactions.push({ transaction: transactions[i].getHash(), cause: rejectCauses.undefinedUtxo })
@@ -55,14 +55,14 @@ const validateBlock = async (address) => {
     for (let i = 0; i < utxo.length; i++) {
 
       if (!utxo[i].owner ||
-        !utxo[i].token_id ||
+        !utxo[i].tokenId ||
         !utxo[i].amount ||
-        !(utxo[i].block_number > -1)) {
+        !(utxo[i].blockNumber > -1)) {
         rejectTransactions.push({ transaction: transactions[i].getHash(), cause: rejectCauses.utxoFieldsIsInvalid })
         continue
       }
 
-      if ((utxo[i].token_id === transactions[i].token_id.toString()) && (utxo[i].owner === old_owner)) {
+      if ((utxo[i].tokenId === transactions[i].tokenId.toString()) && (utxo[i].owner === oldOwner)) {
         flagOfAccept = true
         successfullTransactions.push(transactions[i])
       }
@@ -83,12 +83,12 @@ const validateBlock = async (address) => {
 
   block.buildTree()
 
-  let block_hash = ethUtil.bufferToHex(block.getRlp()).substr(2)
+  let blockHash = ethUtil.bufferToHex(block.getRlp()).substr(2)
 
-  let { signature } = await signBlock(address, block_hash)
+  let { signature } = await signBlock(address, blockHash)
 
   let blockData = {
-    signature, block_hash
+    signature, blockHash
   }
 
   let answer = await submitBlock(address, blockData, rejectTransactions)

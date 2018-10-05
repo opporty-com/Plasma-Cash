@@ -19,23 +19,23 @@ const validateTx = async () => {
 
     let flagOfAccept = false
 
-    if (!transactions[i].prev_hash ||
-      !(transactions[i].prev_block > -2) ||
-      !transactions[i].token_id ||
-      !transactions[i].new_owner ||
+    if (!transactions[i].prevHash ||
+      !(transactions[i].prevBlock > -2) ||
+      !transactions[i].tokenId ||
+      !transactions[i].newOwner ||
       !transactions[i].signature) {
       rejectTransactions.push({ transaction: transactions[i].getHash(), cause: rejectCauses.txFieldsIsInvalid })
       continue
     }
 
-    let old_owner = await web3.eth.personal.ecRecover(transactions[i].getHash(true).toString('hex'), ethUtil.addHexPrefix(transactions[i].signature.toString('hex')))
+    let oldOwner = await web3.eth.personal.ecRecover(transactions[i].getHash(true).toString('hex'), ethUtil.addHexPrefix(transactions[i].signature.toString('hex')))
 
-    if (!old_owner) {
+    if (!oldOwner) {
       rejectTransactions.push({ transaction: transactions[i].getHash(), cause: rejectCauses.invalidSignature })
       continue
     }
 
-    let utxo = await getAllUtxos([old_owner])
+    let utxo = await getAllUtxos([oldOwner])
 
     if (utxo.length === 0) {
       rejectTransactions.push({ transaction: transactions[i].getHash(), cause: rejectCauses.undefinedUtxo })
@@ -45,14 +45,14 @@ const validateTx = async () => {
     for (let i = 0; i < utxo.length; i++) {
 
       if (!utxo[i].owner ||
-        !utxo[i].token_id ||
+        !utxo[i].tokenId ||
         !utxo[i].amount ||
-        !(utxo[i].block_number > -1)) {
+        !(utxo[i].blockNumber > -1)) {
         rejectTransactions.push({ transaction: transactions[i].getHash(), cause: rejectCauses.utxoFieldsIsInvalid })
         continue
       }
 
-      if ((utxo[i].token_id === transactions[i].token_id.toString()) && (utxo[i].owner === old_owner)) {
+      if ((utxo[i].tokenId === transactions[i].tokenId.toString()) && (utxo[i].owner === oldOwner)) {
         flagOfAccept = true
         successfullTransactions.push(transactions[i])
       }

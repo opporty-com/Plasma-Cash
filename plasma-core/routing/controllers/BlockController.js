@@ -55,14 +55,14 @@ class BlockController {
       return res.end(JSON.stringify({message: 'wait for the validator queue'}))
     }
     let verifySignature =
-      await verify(block.signature, address, block.block_hash)
+      await verify(block.signature, address, block.blockHash)
 
     if (!verifySignature) {
       res.statusCode = 403
       return res.end(JSON.stringify({message: 'signature is not valid'}))
     }
 
-    submitBlock(address, block.block_hash)
+    submitBlock(address, block.blockHash)
 
     await validatorsQueue.setNextValidator()
 

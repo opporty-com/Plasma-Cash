@@ -33,7 +33,7 @@ class ValidatorsQueue {
     else {
       this.validators = []
       for (let key in validators) {
-        this.validators.push({ validator_key: `${key}`, address: validators[key] })
+        this.validators.push({ validatorKey: `${key}`, address: validators[key] })
       }
       await this.prepareValidators()
       return this.currentValidator
@@ -50,17 +50,17 @@ class ValidatorsQueue {
     if (typeof validator === 'string') {
       for (let i = 0; i < this.validators.length; i++) {
         if (this.validators[i].address === validator) {
-          let validator_key = this.validators[i].validator_key
+          let validatorKey = this.validators[i].validatorKey
 
           try {
-            await redis.hdel('validators', validator_key)
+            await redis.hdel('validators', validatorKey)
           }
           catch (error) {
             return error.toString()
           }
 
           for (let i = 0; i < this.validators.length; i++) {
-            if (this.validators[i].validator_key === validator_key) {
+            if (this.validators[i].validatorKey === validatorKey) {
               this.validators.splice(i, 1)
             }
           }
@@ -70,12 +70,12 @@ class ValidatorsQueue {
     } else {
 
       try {
-        await redis.hdel('validators', validator.validator_key)
+        await redis.hdel('validators', validator.validatorKey)
       }
       catch (error) { return error.toString() }
 
       for (let i = 0; i < this.validators.length; i++) {
-        if (this.validators[i].validator_key === validator.validator_key) {
+        if (this.validators[i].validatorKey === validator.validatorKey) {
           this.validators.splice(i, 1)
         }
       }

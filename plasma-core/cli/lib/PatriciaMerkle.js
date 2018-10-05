@@ -67,9 +67,9 @@ class Merkle {
     this.rootNode = this.buildNode(this.leaves);
   }
 
-  getProof(token_id, returnBinary) {
+  getProof(tokenId, returnBinary) {
     let proof = [];
-    let key = this.toBinaryString(token_id);
+    let key = this.toBinaryString(tokenId);
     let node = this.rootNode;
     
     while (key.length) {

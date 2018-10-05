@@ -29,7 +29,7 @@ import {
     }
 
     case 'create transaction': {
-      let response = await createTransaction(argv.to, argv.address, argv.token_id)
+      let response = await createTransaction(argv.to, argv.address, argv.tokenId)
       console.log('Response: ', response)
       break;
     }

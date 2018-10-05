@@ -56,6 +56,8 @@ class TxController {
     } catch (error) {
       console.error(error)
       res.statusCode = 500
+      console.log('ERROR IN createTransaction', error);
+      
       return res.end(JSON.stringify(error.toString()))
     }
   }
