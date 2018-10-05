@@ -7,10 +7,10 @@ import Block from 'child-chain/block'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 import config from 'config'
 import RLP from 'rlp'
-import ethUtil from 'ethereumjs-util';
-import PlasmaTransaction from 'child-chain/transaction';
-import { validateTx } from 'child-chain/validator/validateTx'
-import { validatorsQueue, RightsHandler } from 'consensus'
+import ethUtil from 'ethereumjs-util'
+import PlasmaTransaction from 'child-chain/transaction'
+import {validateTx} from 'child-chain/validator/validateTx'
+import {validatorsQueue, RightsHandler} from 'consensus'
 
 async function getBlock(blockNumber) {
   try {
@@ -124,7 +124,7 @@ async function createNewBlock() {
 
     validatorsQueue.setNextValidator()
 
-    return block;
+    return block
   } catch (err) {
     logger.error('createNewBlock error ', err)
   }
