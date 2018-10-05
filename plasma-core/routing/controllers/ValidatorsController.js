@@ -97,19 +97,6 @@ class ValidatorsController {
       res.end(error.toString())
     }
   }
-
-  // only voters be able to want to compute candidates
-  static async wantToComputeCandidates(req, res) {
-    await parseM(req)
-    try {
-      let {voter} = req.body
-      let answer = await stateValidators.reVote(voter)
-      res.end(JSON.stringify({answer}))
-    } catch (error) {
-      res.statusCode = 400
-      res.end(error.toString())
-    }
-  }
 }
 
 export default ValidatorsController
