@@ -23,7 +23,6 @@ class BlockCreator {
   }
 
   async initBlockPeriodicalCreation() {
-
     let poollen = await txMemPool.size()
     logger.info('Creating New Block - len ', poollen, 'tx, ', this.options.minTransactionsInBlock)
     if (this.options.minTransactionsInBlock && poollen >= this.options.minTransactionsInBlock) {
@@ -37,7 +36,7 @@ class BlockCreator {
   async startBlockSubmittingToParent() {
     try {
       let lastBlockInDatabase = await redis.getAsync('lastBlockNumber')
-      lastBlockInDatabase = lastBlockInDatabase ? 
+      lastBlockInDatabase = lastBlockInDatabase ?
         parseInt(lastBlockInDatabase) : 0
       let lastSubmittedBlock = await redis.getAsync('lastBlockSubmitted')
       lastSubmittedBlock = lastSubmittedBlock ? parseInt(lastSubmittedBlock) : 0

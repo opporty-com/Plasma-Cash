@@ -1,5 +1,11 @@
 version: '3.3'
 services:
+  redis:
+    image: redis
+    container_name: redisserver
+    expose:
+     - "6379"
+
   backend:
     build: ./plasma-core
     ports:
@@ -10,7 +16,10 @@ services:
       - "./data/leveldb:/var/lib/leveldb/data"
       - "./data/logs/plasma-core:/usr/src/app/app/logs"
       - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links: 
+      - redis
     environment:
+      REDIS_HOST: redisserver
       NODE_ENV: development
       LOG_LEVEL: "debug"
       PRODUCTION_MODE: "OFF"
