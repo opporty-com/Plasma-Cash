@@ -1,31 +1,28 @@
 'use strict'
 
 import {parseM} from 'lib/utils'
-import {stateValidators} from 'consensus'
+import {stateValidators, validatorsQueue} from 'consensus'
 
 /** Class representing a validation controller. */
 class ValidatorsController {
-  static async get(req, res) {
-    try {
-      let params = req.url.split('/')
-      const blockNumber = parseInt(params[3])
-      if (!blockNumber) {
-        res.statusCode = 400
-        return res.end('Invalid block number')
-      }
-      let block = await getBlock(blockNumber)
-      return res.end(JSON.stringify(block.getJson()))
-    } catch (error) {
-      res.statusCode = 400
-      res.end(error.toString())
-    }
-  }
 
   // get the list of candidates with their stakes
   static async getCandidates(req, res) {
     try {
-      let answer = await stateValidators.getCandidates()
+      let answer = await stateValidators.getAllCandidates()
       return res.end(JSON.stringify({answer}))
+    } catch (error) {
+      res.statusCode = 500
+      return res.end(error.toString())
+    }
+  }
+
+  static async getCurrentValidator(req, res) {
+    try {
+      let answer = await validatorsQueue.getCurrentValidator()
+
+      return res.end(JSON.stringify({answer}))
+    
     } catch (error) {
       res.statusCode = 500
       return res.end(error.toString())
@@ -49,13 +46,11 @@ class ValidatorsController {
   static async removeCandidate(req, res) {
     await parseM(req)
     try {
-      console.log('[0]')
 
       let {address} = req.body
-      console.log('[1]')
       let answer = await stateValidators.removeCandidate(address)
-      console.log('[2]')
       res.end(JSON.stringify({answer}))
+
     } catch (error) {
       console.log(error)
 

@@ -54,8 +54,8 @@ class StateValidators {
       return 0;
     })
 
-    let thirtyPercent = Math.floor(candidates.length / 100 * 30)
-    let validators = candidates.splice(0, thirtyPercent)
+    let ValidatorsCount = 3
+    let validators = candidates.splice(0, ValidatorsCount)
 
     for (let i = 0; i < validators.length; i++) {
       let address = validators[i].getAddress()
@@ -94,13 +94,14 @@ class StateValidators {
     }
   }
 
-  removeCandidate(address) {
+  async removeCandidate(address) {
     for (let i = 0; i < this.candidates.length; i++) {
       if (this.candidates[i].getAddress() === address) {
         if (RightsHandler.validateAddressForValidating(address)) {
           validatorsQueue.delValidator(address)
         }
         this.candidates.splice(i, 1)
+        await this.voteCandidates()
         return 'ok'
       }
     }
@@ -109,7 +110,7 @@ class StateValidators {
 
   // Lower or delete stake. Checks if stake is available, if there is, then it checks whether there is such a candidate,
   // if there is, the stake is lowered or deleted if it is equal to or greater than the number of existing
-  toLowerStake(stake) {
+  async toLowerStake(stake) {
     let candidateExists = false
 
     for (let i = 0; i < this.stakes.length; i++) {
@@ -123,8 +124,12 @@ class StateValidators {
         if (candidateExists) {
           if (this.stakes[i].value <= stake.value) {
             this.stakes.splice(i, 1)
+            await this.voteCandidates()
+            return 'ok'
           } else {
             this.stakes[i].value -= stake.value
+            await this.voteCandidates()
+            return 'ok'
           }
         } else {
           throw new Error('Denieded stake on a non-existent candidate')
@@ -152,6 +157,7 @@ class StateValidators {
         }
         if (candidateExists) {
           this.stakes[i].value += stake.value
+          await this.voteCandidates()
           return this.stakes[i]
         } else {
           throw new Error('Denieded stake on a non-existent candidate')
@@ -168,6 +174,7 @@ class StateValidators {
       }
       if (candidateExists) {
         this.stakes.push(stake)
+        await this.voteCandidates()
         return stake
       }
       else {
