@@ -8,6 +8,7 @@ import ethUtil from 'ethereumjs-util'
 import {getBlock} from 'child-chain/block'
 import {parseM} from 'lib/utils'
 import web3 from 'lib/web3'
+import {validatorsQueue} from 'consensus'
 
 /** Class representing a transaction controller. */
 class TxController {
@@ -147,9 +148,7 @@ class TxController {
     await parseM(req)
 
     let {address, data} = req.body
-
     web3.eth.sign(data, address).then((result) => {
-      return res.end(JSON.stringify(result))
     })
   }
 

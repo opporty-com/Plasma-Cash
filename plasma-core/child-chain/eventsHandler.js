@@ -1,10 +1,7 @@
 'use strict'
-
-import Web3 from 'web3'
+import RLP from 'rlp'
 
 import config from 'config'
-import ethUtil from 'ethereumjs-util'
-import web3 from 'lib/web3'
 import redis from 'lib/storage/redis'
 import {createDepositTransaction} from 'child-chain'
 import {logger} from 'lib/logger'
@@ -12,26 +9,27 @@ import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 
 let x = 0
 async function depositEventHandler(event) {
-  const {depositor, amount, depositBlock} = event.returnValues
-  const depositBlockIndexKey = 'tokenId' + depositBlock
-  const existingdepositBlockIndex = await redis.getAsync(depositBlockIndexKey)
+  
+  const {depositor, amount, blockNumber, tokenId} = event.returnValues
 
-  if (!existingdepositBlockIndex) {
-    await redis.setAsync(depositBlockIndexKey, 1)
-  }
+  let owner = config.plasmaOperatorAddress.substr(2)
 
-  const tx = await createDepositTransaction(depositor,
-    new Web3.utils.BN(amount),
-    depositBlock)
+  let deposit = RLP.encode([owner, tokenId, amount, blockNumber])
 
-  let txRlpEncoded = tx.getHash(true).toString('hex')
-  const signature = await web3.eth.sign(ethUtil.addHexPrefix(txRlpEncoded),
-    config.plasmaOperatorAddress)
+  await redis.hsetAsync(`utxo_${config.plasmaOperatorAddress}`, tokenId, deposit)
 
-  tx.signature = signature
+  // const depositBlockIndexKey = 'tokenId' + blockNumber
+
+  // const existingdepositBlockIndex = await redis.getAsync(depositBlockIndexKey)
+
+  // if (!existingdepositBlockIndex) {
+  //   await redis.setAsync(depositBlockIndexKey, 1)
+  // }
+
+  const tx = await createDepositTransaction(depositor, tokenId)
 
   await TxMemPool.acceptToMemoryPool(txMemPool, tx)
-  logger.info(' DEPOSIT#', x++, ' ', depositBlock)
+  logger.info(' DEPOSIT#', x++, ' ', blockNumber)
 }
 
 export {depositEventHandler}

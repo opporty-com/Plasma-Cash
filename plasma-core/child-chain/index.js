@@ -1,16 +1,16 @@
 'use strict'
 import web3 from 'lib/web3'
 import contractHandler from 'root-chain/contracts/plasma'
-import {logger} from 'lib/logger'
+import { logger } from 'lib/logger'
 import redis from 'lib/storage/redis'
 import Block from 'child-chain/block'
-import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
+import { txMemPool, TxMemPool } from 'child-chain/TxMemPool'
 import config from 'config'
 import RLP from 'rlp'
 import ethUtil from 'ethereumjs-util'
 import PlasmaTransaction from 'child-chain/transaction'
-import {validateTx} from 'child-chain/validator/validateTx'
-import {validatorsQueue, RightsHandler} from 'consensus'
+import { validateTx } from 'child-chain/validator/validateTx'
+import { validatorsQueue, RightsHandler } from 'consensus'
 
 async function getBlock(blockNumber) {
   try {
@@ -31,8 +31,8 @@ async function submitBlock(address, blockHash) {
   let blockNumber = currentBlockNumber + 1
 
   try {
-    let gas = await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).estimateGas({from: config.plasmaOperatorAddress})
-    await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).send({from: config.plasmaOperatorAddress, gas: gas + 15000})
+    let gas = await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).estimateGas({ from: config.plasmaOperatorAddress })
+    await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).send({ from: config.plasmaOperatorAddress, gas: gas + 15000 })
     await redis.setAsync('lastBlockSubmitted', blockNumber)
   } catch (error) {
     return error.toString()
@@ -41,23 +41,7 @@ async function submitBlock(address, blockHash) {
   return 'ok'
 }
 
-async function createDeposit({address, password, amount}) {
-
-  return new Promise(async (resolve, reject) => {
-    contractHandler.contract.events.DepositAdded(async (error, result) => {
-      if (error) {
-        reject(error.toString())
-      }
-
-      console.log('[1]');
-      let {tokenId, blockNumber} = result.returnValues
-
-      let addressToEncode = address.substr(2)
-      let deposit = RLP.encode([addressToEncode, tokenId, amount, blockNumber])
-
-      await redis.hsetAsync(`utxo_${address}`, tokenId, deposit)
-      resolve(tokenId)
-    })
+async function createDeposit({ address, password, amount }) {
 
     try {
       if (web3.utils.isAddress(ethUtil.keccak256(address))) {
@@ -65,14 +49,13 @@ async function createDeposit({address, password, amount}) {
       }
 
       await web3.eth.personal.unlockAccount(address, password, 60)
-      let gas = await contractHandler.contract.methods.deposit().estimateGas({from: address})
-      console.log('[0]');
-      
-      await contractHandler.contract.methods.deposit().send({from: address, value: amount, gas: gas + 15000})
+      let gas = await contractHandler.contract.methods.deposit().estimateGas({ from: address })
+
+      await contractHandler.contract.methods.deposit().send({ from: address, value: amount, gas: gas + 15000 })
     } catch (error) {
-      reject(error.toString())
+      return error.toString()
     }
-  })
+    return 'ok'
 }
 
 async function createNewBlock() {
@@ -148,27 +131,37 @@ async function getLastBlockNumberFromDb() {
   return lastBlock
 }
 
-function createDepositTransaction(addressTo, amountBN, tokenId) {
+async function createDepositTransaction(addressTo, tokenId) {
   let txData = {
-    prevHash: '',
-    prevBlock: 0,
+    prevHash: '0x123',
+    prevBlock: -1,
     tokenId,
     newOwner: ethUtil.addHexPrefix(addressTo),
   }
 
-  return new PlasmaTransaction(txData)
+  let txWithoutSignature = new PlasmaTransaction(txData)
+
+  let txHash = (txWithoutSignature.getHash(true)).toString('hex')
+
+  try {
+    
+    txData.signature = await web3.eth.sign(txHash, config.plasmaOperatorAddress)
+  
+  } catch (error) {
+    return error.toString()
+  }
+  
+  let transaction = createSignedTransaction(txData)
+  
+  return transaction
 }
 
 async function createTransaction(tokenId, addressFrom, addressTo) {
-  let tokenHistory
-  let utxo
-  // fields for first transaction with new token
-  let prevHash = '0x123'
-  let prevBlock = '-1'
 
-  utxo = await redis.hgetAsync(`utxo_${addressFrom}`, tokenId)
+  let tokenHistory, utxo
 
   try {
+    utxo = await redis.hgetAsync(`utxo_${addressFrom}`, tokenId)
     tokenHistory = await redis.hgetAsync('history', tokenId)
   } catch (error) {
     return error.toString()
@@ -178,23 +171,23 @@ async function createTransaction(tokenId, addressFrom, addressTo) {
     return 'undefined token id'
   }
 
-  if (tokenHistory) {
-    prevHash = tokenHistory.prevHash
-    prevBlock = tokenHistory.prevBlock
+  if (!tokenHistory.prevHash && !tokenHistory.prevBlock) {
+    return 'undefined token history'
   }
 
   let txData = {
-    prevHash,
-    prevBlock,
+    prevHash: tokenHistory.prevHash,
+    prevBlock: tokenHistory.prevBlock,
     tokenId,
-    newOwner: addressTo,
+    newOwner: addressTo
   }
 
-  let tx = new PlasmaTransaction(txData)
+  let txWithoutSignature = new PlasmaTransaction(txData)
 
-  let txHash = (tx.getHash(true)).toString('hex')
+  let txHash = (txWithoutSignature.getHash(true)).toString('hex')
 
   try {
+
     txData.signature = await web3.eth.sign(txHash, addressFrom)
 
     let transaction = createSignedTransaction(txData)
@@ -273,13 +266,13 @@ async function getAllUtxos(addresses) {
 
 async function getAllUtxosWithKeys(options = {}) {
   return await new Promise((resolve, reject) => {
-    redis.keys('utxo*', function(err, res) {
-      let res3 = res.map(function(el) {
+    redis.keys('utxo*', function (err, res) {
+      let res3 = res.map(function (el) {
         return Buffer.from(el)
       })
       if (res3.length) {
-        redis.mget(res3, function(err2, res2) {
-          let utxos = res2.map(function(el) {
+        redis.mget(res3, function (err2, res2) {
+          let utxos = res2.map(function (el) {
             let t = new PlasmaTransaction(el)
             if (options.json) {
               t = t.getJson()

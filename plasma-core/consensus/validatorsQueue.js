@@ -119,9 +119,11 @@ class ValidatorsQueue {
   }
 
   async getCurrentValidator() {
+    await this.prepareValidators()
 
     let dateStamp = Date.now()
     let index = Math.floor((dateStamp / config.blockTime) % (this.validators.length))
+    // console.log(this.validators[index]);
     return this.validators[index]
   }
 

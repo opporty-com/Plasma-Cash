@@ -1,4 +1,3 @@
-
 'use strict'
 
 import {getAllUtxos} from 'child-chain'
