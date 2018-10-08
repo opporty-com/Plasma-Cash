@@ -62,7 +62,7 @@ class DefController {
   static async getRawMempool(req, res) {
     try {
       let all = await txMemPool.txs(true)
-
+      
       res.statusCode = 200
       res.end(JSON.stringify(all))
     } catch (error) {

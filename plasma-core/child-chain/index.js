@@ -42,12 +42,14 @@ async function submitBlock(address, blockHash) {
 }
 
 async function createDeposit({address, password, amount}) {
+
   return new Promise(async (resolve, reject) => {
     contractHandler.contract.events.DepositAdded(async (error, result) => {
       if (error) {
         reject(error.toString())
       }
 
+      console.log('[1]');
       let {tokenId, blockNumber} = result.returnValues
 
       let addressToEncode = address.substr(2)
@@ -64,6 +66,8 @@ async function createDeposit({address, password, amount}) {
 
       await web3.eth.personal.unlockAccount(address, password, 60)
       let gas = await contractHandler.contract.methods.deposit().estimateGas({from: address})
+      console.log('[0]');
+      
       await contractHandler.contract.methods.deposit().send({from: address, value: amount, gas: gas + 15000})
     } catch (error) {
       reject(error.toString())
@@ -125,8 +129,6 @@ async function createNewBlock() {
     await redis.setAsync('block' + block.blockNumber.toString(10), block.getRlp())
 
     logger.info('New block created - transactions: ', block.transactions.length)
-
-    validatorsQueue.setNextValidator()
 
     return block
   } catch (err) {

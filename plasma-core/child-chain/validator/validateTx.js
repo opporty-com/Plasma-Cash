@@ -42,17 +42,18 @@ const validateTx = async () => {
       continue
     }
 
-    for (let i = 0; i < utxo.length; i++) {
+    for (let x = 0; x < utxo.length; x++) {
 
-      if (!utxo[i].owner ||
-        !utxo[i].tokenId ||
-        !utxo[i].amount ||
-        !(utxo[i].blockNumber > -1)) {
-        rejectTransactions.push({ transaction: transactions[i].getHash(), cause: rejectCauses.utxoFieldsIsInvalid })
+      if (!utxo[x].owner ||
+        !utxo[x].tokenId ||
+        !utxo[x].amount ||
+        !(utxo[x].blockNumber > -1)) {
+        rejectTransactions.push({ transaction: transactions[x].getHash(), cause: rejectCauses.utxoFieldsIsInvalid })
         continue
       }
 
-      if ((utxo[i].tokenId === transactions[i].tokenId.toString()) && (utxo[i].owner === oldOwner)) {
+
+      if ((utxo[x].tokenId === transactions[i].tokenId.toString()) && (utxo[x].owner === oldOwner)) {
         flagOfAccept = true
         successfullTransactions.push(transactions[i])
       }
