@@ -19,6 +19,7 @@ class ValidatorsController {
 
   static async getCurrentValidator(req, res) {
     try {
+      await validatorsQueue.prepareValidators()
       let answer = await validatorsQueue.getCurrentValidator()
 
       return res.end(JSON.stringify({answer}))
