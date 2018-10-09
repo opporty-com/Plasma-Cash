@@ -40,12 +40,6 @@ import {
       break;
     }
 
-    case 'want to compute candidates': {
-      let response = await wantToComputeCandidates(argv.address)
-      console.log('Response: ', response)
-      break;
-    }
-
     case 'lower stake': {
       let response = await toLowerStake(argv.address, argv.candidate, argv.value)
       console.log('Response: ', response)

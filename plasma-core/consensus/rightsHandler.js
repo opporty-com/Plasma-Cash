@@ -1,31 +1,26 @@
 import redis from 'lib/storage/redis'
-import { strRandom } from 'lib/utils'
-import { validatorsQueue } from 'consensus'
+import {validatorsQueue} from 'consensus'
 
+
+/** Class representing a Rights handler. */
 class RightsHandler {
-
   static async setValidatorsCandidate(address) {
-    return new Promise(async (resolve, reject) => {
-      let validatorKey = strRandom()
-      try {
-        await redis.hsetAsync('validators', validatorKey, address)
-        const validator = await validatorsQueue.addValidator({ validatorKey: validatorKey, address: address })
-        resolve(validator)
-      } catch (error) {
-        reject(error.toString)
-      }
-    })
+    try {
+      await redis.saddAsync('validators', address)
+      const validator = await validatorsQueue.addValidator(address)
+      return validator
+    } catch (error) {
+      return error.toString()
+    }
   }
 
   static async validateAddressForValidating(address) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let result = await redis.hvalsAsync('validators')
-        resolve(result.includes(address))
-      } catch (error) {
-        reject(error.toString())
-      }
-    })
+    try {
+      let result = await redis.smembersAsync('validators')
+      return result.includes(address)
+    } catch (error) {
+      return error.toString()
+    }
   }
 }
-export { RightsHandler }
+export {RightsHandler}

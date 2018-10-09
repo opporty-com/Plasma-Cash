@@ -15,7 +15,7 @@
     "test-merkle": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle.js",
     "test-merkle-patricia": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_merkle_patricia.js",
     "test-txpool": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_txpool.js",
-    "test-miners-queue": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_miners_queue.js"
+    "test-miners-queue": "mocha --require babel-register --require babel-polyfill --timeout 160000 --reporter spec ./test/test_validators_queue.js"
   },
   "dependencies": {
     "ajv": "^5.2.3",

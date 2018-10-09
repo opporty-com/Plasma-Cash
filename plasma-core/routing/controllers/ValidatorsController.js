@@ -19,6 +19,7 @@ class ValidatorsController {
 
   static async getCurrentValidator(req, res) {
     try {
+      await validatorsQueue.prepareValidators()
       let answer = await validatorsQueue.getCurrentValidator()
 
       return res.end(JSON.stringify({answer}))
@@ -61,15 +62,12 @@ class ValidatorsController {
 
   // only voters be able to add stake
   static async addStake(req, res) {
-    console.log('request to addstake')
 
     await parseM(req)
     try {
-      console.log('stake 1')
 
       let {voter, candidate, value} = req.body
       let stake = {voter, candidate, value}
-      console.log('stake', stake)
 
       let answer = await stateValidators.addStake(stake)
       res.end(JSON.stringify({answer}))
