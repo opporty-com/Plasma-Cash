@@ -106,7 +106,7 @@ class ValidatorsQueue {
     let seedSource = String(Math.floor(height / config.maxDelegates) + (height % config.maxDelegates > 0 ? 1 : 0));
 
     var currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest();
-    for (var i = 0, delCount = this.validators.length; i < delCount; i++) {
+    for (var i = 0, delCount = 2; i < delCount; i++) {
       for (var x = 0; x < 4 && i < delCount; i++ , x++) {
         var newIndex = currentSeed[x] % delCount;
         var b = this.validators[newIndex];
