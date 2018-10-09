@@ -38,10 +38,6 @@ const getCandidates = async () => {
   return (await axios.get('http://localhost:443/Validators/getCandidates')).data
 }
 
-const wantToComputeCandidates = async (voter) => {
-  return (await axios.post('http://localhost:443/Validators/wantToComputeCandidates', { voter })).data
-}
-
 const toLowerStake = async (stake) => {
   return (await axios.post('http://localhost:443/Validators/toLowerStake', { stake })).data
 }
@@ -69,7 +65,6 @@ export {
   proposeCandidate,
   createTransaction,
   getCandidates,
-  wantToComputeCandidates,
   toLowerStake,
   addStake,
   removeCandidate

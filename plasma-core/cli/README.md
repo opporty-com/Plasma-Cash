@@ -82,20 +82,10 @@ response:
 ok
 ```
 
-## Want to compute candidates
-This action allows voters make vote to recompute candidates
-```
-babel-node index.js --action='want to compute candidates' --address='0xcDd97e8350e93eeD3224A217A42d28cF0276b67b'
-```
-response:
-```
-Thank you! Need 1 more vote to recompute candidates
-```
-
 ## Add stake 
 Allows voters to add stake for particular candidates
 ```
-babel-node index.js --action='lower stake' --address='0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70' --candidate='0x80ab44ca9381f931B687DB7f9B0C60F1169D6fb8' --value=5
+babel-node index.js --action='add stake' --address='0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70' --candidate='0x80ab44ca9381f931B687DB7f9B0C60F1169D6fb8' --value=5
 ```
 
 ## To lower or remove stake
