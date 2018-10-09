@@ -69,9 +69,10 @@ class StateValidators {
       let address = candidates[i].getAddress()
       let isValidator = await RightsHandler.validateAddressForValidating(address)
       if (isValidator) {
-        validatorsQueue.delValidator(address)
+        await validatorsQueue.delValidator(address)
       }
     }
+
     return validators
   }
 
@@ -111,10 +112,12 @@ class StateValidators {
   // Lower or delete stake. Checks if stake is available, if there is, then it checks whether there is such a candidate,
   // if there is, the stake is lowered or deleted if it is equal to or greater than the number of existing
   async toLowerStake(stake) {
-    let candidateExists = false
+    let candidateExists = false,
+      stakeExists = false
 
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === stake.voter && this.stakes[i].candidate === stake.candidate) {
+        stakeExists = true
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
             this.candidates[i].toLowerStake({ voter: stake.voter, value: stake.value })
@@ -134,6 +137,11 @@ class StateValidators {
         } else {
           throw new Error('Denieded stake on a non-existent candidate')
         }
+
+
+      }
+      if (!stakeExists) {
+        return 'stake can`t be lowered because it is not exists'
       }
     }
   }

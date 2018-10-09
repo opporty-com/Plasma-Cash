@@ -123,7 +123,7 @@ class ValidatorsQueue {
 
     let dateStamp = Date.now()
     let index = Math.floor((dateStamp / config.blockTime) % (this.validators.length))
-    // console.log(this.validators[index]);
+    
     return this.validators[index]
   }
 

@@ -32,11 +32,11 @@ const alice_address = '0xcDd97e8350e93eeD3224A217A42d28cF0276b67b',
   stateValidators.setCandidate(eve_address)
   stateValidators.setCandidate(dan_address)
 
-  alice_voter.addStake(2, rosetta_address);
-  peter_voter.addStake(3, bob_address);
-  peter_voter.addStake(5, plasma_address);
+  await alice_voter.addStake(2, rosetta_address);
+  await peter_voter.addStake(3, bob_address);
+  await peter_voter.addStake(5, plasma_address);
 
-  stateValidators.voteCandidates()
+  await stateValidators.voteCandidates()
 
   // console.log('vote candidates',await stateValidators.voteCandidates())
   
@@ -57,9 +57,10 @@ const alice_address = '0xcDd97e8350e93eeD3224A217A42d28cF0276b67b',
 
 
 // setTimeout(()=>{
-
+//   console.log('del all validators');
+  
 //   validatorsQueue.delAllValidators()
 
-// }, 1000)
+// }, 5000)
 
 export { initConsensus }
