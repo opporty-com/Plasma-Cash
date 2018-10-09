@@ -1,5 +1,6 @@
 import { Candidate, RightsHandler, validatorsQueue } from 'consensus'
 
+/** asa */
 class StateValidators {
 
   constructor() {
@@ -42,9 +43,8 @@ class StateValidators {
   }
 
   async voteCandidates() {
-
+    
     let candidates = this.candidates.slice(0)
-
     candidates.sort((a, b) => {
       let aWeight = a.getWeight(), bWeight = b.getWeight()
       if (aWeight < bWeight)
@@ -72,7 +72,6 @@ class StateValidators {
         await validatorsQueue.delValidator(address)
       }
     }
-
     return validators
   }
 

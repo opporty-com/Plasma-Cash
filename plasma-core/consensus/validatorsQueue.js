@@ -20,7 +20,9 @@ class ValidatorsQueue {
 
     let validators
     try {
-      validators = await redis.hgetallAsync('validators')
+
+      validators = await redis.smembersAsync('validators')
+      
     } catch (error) {
       return error.toString()
     }
@@ -29,16 +31,15 @@ class ValidatorsQueue {
       logger.error('Validators queue initialized with empty queue')
       return false
     }
-
     else {
       this.validators = []
       for (let key in validators) {
-        this.validators.push({ validatorKey: `${key}`, address: validators[key] })
+        this.validators.push(validators[key])
       }
       await this.prepareValidators()
       return this.currentValidator
     }
-  };
+  }
 
   async addValidator(validator) {
     this.validators.push(validator)
@@ -47,40 +48,9 @@ class ValidatorsQueue {
 
   async delValidator(validator) {
 
-    if (typeof validator === 'string') {
-      for (let i = 0; i < this.validators.length; i++) {
-        if (this.validators[i].address === validator) {
-          let validatorKey = this.validators[i].validatorKey
-
-          try {
-            await redis.hdel('validators', validatorKey)
-          }
-          catch (error) {
-            return error.toString()
-          }
-
-          for (let i = 0; i < this.validators.length; i++) {
-            if (this.validators[i].validatorKey === validatorKey) {
-              this.validators.splice(i, 1)
-            }
-          }
-          return validator
-        }
-      }
-    } else {
-
-      try {
-        await redis.hdel('validators', validator.validatorKey)
-      }
-      catch (error) { return error.toString() }
-
-      for (let i = 0; i < this.validators.length; i++) {
-        if (this.validators[i].validatorKey === validator.validatorKey) {
-          this.validators.splice(i, 1)
-        }
-      }
-      return validator
-    }
+    redis.sremAsync('validators', validator)
+    this.validators.splice(this.validators.indexOf(validator), 1)
+    return 'ok'
   }
 
   async delAllValidators() {
@@ -88,10 +58,10 @@ class ValidatorsQueue {
     let answer
 
     try {
-      answer = await redis.del('validators')
+      answer = await redis.delAsync('validators')
     }
-    catch (error) { return error.toString() }
 
+    catch (error) {return error.toString()}
     return answer
   }
 
@@ -105,26 +75,25 @@ class ValidatorsQueue {
 
     let seedSource = String(Math.floor(height / config.maxDelegates) + (height % config.maxDelegates > 0 ? 1 : 0));
 
-    var currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest();
-    for (var i = 0, delCount = 2; i < delCount; i++) {
+    this.hungValidators = Object.assign([], this.validators)
+
+    let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest();
+    for (var i = 0, delCount = this.hungValidators.length; i < delCount; i++) {
       for (var x = 0; x < 4 && i < delCount; i++ , x++) {
         var newIndex = currentSeed[x] % delCount;
-        var b = this.validators[newIndex];
-        this.validators[newIndex] = this.validators[i];
-        this.validators[i] = b;
+        var b = this.hungValidators[newIndex];
+        this.hungValidators[newIndex] = this.hungValidators[i];
+        this.hungValidators[i] = b;
       }
     }
-
     return 'ok';
   }
 
   async getCurrentValidator() {
     await this.prepareValidators()
-
     let dateStamp = Date.now()
-    let index = Math.floor((dateStamp / config.blockTime) % (this.validators.length))
-    
-    return this.validators[index]
+    let index = Math.floor((dateStamp / config.blockTime) % (this.hungValidators.length))
+    return this.hungValidators[index]
   }
 
   async getAllValidators() {

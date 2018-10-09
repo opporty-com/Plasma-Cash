@@ -21,6 +21,7 @@ const alice_address = '0xcDd97e8350e93eeD3224A217A42d28cF0276b67b',
 // console.log('ALL CANDIDATES IN STATE', stateValidators.getCandidates());
 
  const initConsensus = async () => {
+ 
   let alice_voter = new Voter(alice_address)
   let peter_voter = new Voter(peter_address)
   
