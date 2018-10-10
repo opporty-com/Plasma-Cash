@@ -95,6 +95,7 @@ class StateValidators {
   }
 
   async removeCandidate(address) {
+
     for (let i = 0; i < this.candidates.length; i++) {
       if (this.candidates[i].getAddress() === address) {
         if (RightsHandler.validateAddressForValidating(address)) {
