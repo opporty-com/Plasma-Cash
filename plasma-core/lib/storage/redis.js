@@ -3,7 +3,7 @@ import util from 'util'
 
 let client = redis.createClient({
   detect_buffers: true,
-  host: process.env.REDIS_HOST || '192.168.254.58'
+  host: process.env.REDIS_HOST 
 })
 
 client.on('connect', () => {
@@ -30,6 +30,10 @@ const hgetallAsync = util.promisify(client.hgetall).bind(client)
 const hdelAsync = util.promisify(client.hdel).bind(client)
 const hlenAsync = util.promisify(client.hlen).bind(client)
 const hvalsAsync = util.promisify(client.hvals).bind(client)
+const smembersAsync = util.promisify(client.smembers).bind(client)
+const srandmemberAsync = util.promisify(client.srandmember).bind(client)
+const sremAsync = util.promisify(client.srem).bind(client)
+const saddAsync = util.promisify(client.sadd).bind(client)
 
 client.getAsync = getAsync
 client.setAsync = setAsync
@@ -47,5 +51,9 @@ client.hgetAsync = hgetAsync
 client.hgetallAsync = hgetallAsync
 client.hlenAsync = hlenAsync
 client.hvalsAsync = hvalsAsync
+client.sremAsync = sremAsync
+client.saddAsync = saddAsync
+client.srandmemberAsync = srandmemberAsync
+client.smembersAsync = smembersAsync
 
 export default client
