@@ -4,6 +4,7 @@ import {getAllUtxos} from 'child-chain'
 import redis from 'lib/storage/redis'
 import {parseM} from 'lib/utils'
 import {txMemPool} from 'child-chain/TxMemPool'
+import web3 from 'lib/web3'
 
 /** Class representing a default controller. */
 class DefController {
@@ -11,7 +12,6 @@ class DefController {
     await parseM(req)
     try {
       let deposits = []
-
       redis.keys('tokenId*', function(err, result) {
         if (err) {
           res.statusCode = 400
@@ -37,6 +37,12 @@ class DefController {
         res.statusCode = 400
         return res.end('need addresses in request body')
       }
+      for (let address of addresses) {
+        if (!web3.utils.isAddress(address)) {
+          res.statusCode = 400
+          res.end(JSON.stringify('Incorrect address'))
+        }
+      }
       let utxos = await getAllUtxos(addresses)
       res.statusCode = 200
       res.end(JSON.stringify(utxos))
@@ -61,7 +67,6 @@ class DefController {
   static async getRawMempool(req, res) {
     try {
       let all = await txMemPool.txs(true)
-      
       res.statusCode = 200
       res.end(JSON.stringify(all))
     } catch (error) {

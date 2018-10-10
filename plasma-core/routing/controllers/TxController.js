@@ -1,14 +1,16 @@
 'use strict'
 
 import {logger} from 'lib/logger'
-import {createSignedTransaction,
-  checkTransaction, createDeposit, createTransaction} from 'child-chain'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 import ethUtil from 'ethereumjs-util'
 import {getBlock} from 'child-chain/block'
 import {parseM} from 'lib/utils'
 import web3 from 'lib/web3'
-import {validatorsQueue} from 'consensus'
+import {
+  createSignedTransaction,
+  checkTransaction,
+  createDeposit,
+  createTransaction} from 'child-chain'
 
 /** Class representing a transaction controller. */
 class TxController {
@@ -16,22 +18,21 @@ class TxController {
     await parseM(req)
     try {
       let {block: blockNumber, tokenId, getHash} = req.body
-
+      if (!blockNumber || !tokenId) {
+        res.statusCode = 400
+        res.end(JSON.stringify('Wrong request body'))
+      }
       let block = await getBlock(blockNumber)
       if (!block) {
         res.statusCode = 404
         return res.end('Block not found')
       }
-
       let tx = block.getTxByTokenId(tokenId)
-
       if (!tx) {
         res.statusCode = 404
         return res.end('Tx not Found')
       }
-
       tx = getHash ? tx.getHash().toString('hex') : tx.getJson()
-
       return res.end(JSON.stringify(tx))
     } catch (error) {
       res.statusCode = 404
@@ -41,24 +42,21 @@ class TxController {
 
   static async createTransaction(req, res) {
     await parseM(req)
-
     try {
       let {tokenId, addressFrom, addressTo} = req.body
-
       if (!tokenId || !addressFrom || !addressTo) {
         res.statusCode = 400
         return res.end('wrong request body')
       }
-
+      if (!web3.utils.isAddress(addressFrom) || !web3.utils.isAddress(addressTo)) {
+        res.statusCode = 400
+        res.end(JSON.stringify('Incorrect addressFrom or addressTo'))
+      }
       let successfullTransaction =
         await createTransaction(tokenId, addressFrom, addressTo)
-
       return res.end(JSON.stringify(successfullTransaction))
     } catch (error) {
-      console.error(error)
       res.statusCode = 500
-      console.log('ERROR IN createTransaction', error);
-      
       return res.end(JSON.stringify(error.toString()))
     }
   }
@@ -82,6 +80,10 @@ class TxController {
     await parseM(req)
     try {
       let data = req.body
+      if (!data) {
+        res.statusCode = 400
+        return res.end('wrong request body')
+      }
       let count = data.count || null
       return createDeposits({deposits: count})
         .then((ctreated) => res.end(ctreated.toString()))
@@ -94,7 +96,7 @@ class TxController {
   static async deposit(req, res) {
     await parseM(req)
     let {address, password, amount} = req.body || null
-    if (!address || !amount) {
+    if (!address || !amount || !password) {
       res.statusCode = 400
       res.end(JSON.stringify({message: 'request body is wrong'}))
     }
@@ -114,7 +116,6 @@ class TxController {
       let tx = await createSignedTransaction(data)
       let hashForSign = tx &&
       ethUtil.addHexPrefix(tx.getHash(true).toString('hex'))
-
       return res.end(hashForSign)
     } catch (error) {
       res.end(error.toString())
@@ -123,16 +124,13 @@ class TxController {
 
   static async signed(req, res) {
     await parseM(req)
-
     try {
       let data = req.body
       let tx = await createSignedTransaction(data)
-
       if (!tx || !checkTransaction(tx)) {
         res.statusCode = 400
         return res.end('invalid transaction')
       }
-
       let savedTx = await TXMemPool.acceptToMemoryPool(txMemPool, tx)
       if (!savedTx) {
         res.statusCode = 400
@@ -146,17 +144,26 @@ class TxController {
 
   static async sign(req, res) {
     await parseM(req)
-
     let {address, data} = req.body
+    if (!address || !data) {
+      res.statusCode = 400
+      return res.end('wrong request body')
+    }
+    if (!web3.utils.isAddress(address)) {
+      res.statusCode = 400
+      res.end(JSON.stringify('Incorrect address'))
+    }
     web3.eth.sign(data, address).then((result) => {
     })
   }
 
   static async signVerify(req, res) {
     await parseM(req)
-
     let {signature, data} = req.body
-
+    if (!signature || !data) {
+      res.statusCode = 400
+      return res.end('wrong request body')
+    }
     web3.eth.personal.ecRecover(data, signature).then((result) => {
       return res.end(JSON.stringify(result))
     })

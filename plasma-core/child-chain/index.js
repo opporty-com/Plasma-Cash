@@ -65,8 +65,6 @@ async function createNewBlock() {
     let lastBlock = await getLastBlockNumberFromDb()
     let newBlockNumber = lastBlock + config.contractblockStep
 
-    let transactions = await txMemPool.txs()
-
     let { successfullTransactions } = await validateTx()
 
     // if(!successfullTransactions){
