@@ -60,7 +60,7 @@ describe('ChildChain', function () {
   
   before(async function() {
     for (let addr of accounts) {
-      await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 0)
+      await web3.eth.personal.unlockAccount(addr, config.plasmaNodePassword, 0)
       console.log('unlock account: ', addr )
     }
     

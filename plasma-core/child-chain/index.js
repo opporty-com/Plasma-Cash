@@ -31,8 +31,8 @@ async function submitBlock(address, blockHash) {
   let blockNumber = currentBlockNumber + 1
 
   try {
-    let gas = await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).estimateGas({ from: config.plasmaOperatorAddress })
-    await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).send({ from: config.plasmaOperatorAddress, gas: gas + 15000 })
+    let gas = await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).estimateGas({ from: config.plasmaNodeAddress })
+    await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).send({ from: config.plasmaNodeAddress, gas: gas + 15000 })
     await redis.setAsync('lastBlockSubmitted', blockNumber)
   } catch (error) {
     return error.toString()
@@ -64,25 +64,17 @@ async function createNewBlock() {
   try {
     let lastBlock = await getLastBlockNumberFromDb()
     let newBlockNumber = lastBlock + config.contractblockStep
-
-    let { successfullTransactions } = await validateTx()
-
-    // if(!successfullTransactions){
-    //   return false
-    // }
-
+    let {successfullTransactions, rejectTransactions} = await validateTx()
     const block = new Block({
       blockNumber: newBlockNumber,
-      transactions: successfullTransactions
-    });
-
-    if (!(await RightsHandler.validateAddressForValidating(config.plasmaOperatorAddress))) {
+      transactions: successfullTransactions,
+    })
+    if (!(await RightsHandler.validateAddressForValidating(config.plasmaNodeAddress))) {
       logger.error('You address is not included in the validators queue')
       return false
     }
-    let currentValidator = (await validatorsQueue.getCurrentValidator()).address
-
-    if (!(currentValidator === config.plasmaOperatorAddress)) {
+    let currentValidator = (await validatorsQueue.getCurrentValidator())
+    if (!(currentValidator === config.plasmaNodeAddress)) {
       logger.info('You address is in the validator queue. Please wait your turn to submit')
       return false
     } else {
@@ -93,24 +85,25 @@ async function createNewBlock() {
       try {
         let newHistory = {
           prevHash: utxo.getHash(),
-          prevBlock: newBlockNumber
+          prevBlock: newBlockNumber,
         }
-
+        
         await redis.hdelAsync('history', utxo.tokenId)
         await redis.hsetAsync('history', utxo.tokenId, JSON.stringify(newHistory))
-
+        
       } catch (error) {
         return error.toString()
       }
       //del from pool
-      await redis.hdel('txpool', utxo.getHash());
+      await redis.hdel('txpool', utxo.getHash())
     }
-
-    await redis.setAsync('lastBlockNumber', block.blockNumber)
-    await redis.setAsync('block' + block.blockNumber.toString(10), block.getRlp())
-
+    if (rejectTransactions.length > 0) {
+      await redis.setAsync('lastBlockNumber', block.blockNumber)
+    }
+    await redis.hsetAsync('rejectTx', newBlockNumber, rejectTransactions)
+    await redis.setAsync('block' + block.blockNumber.toString(10),
+      block.getRlp())
     logger.info('New block created - transactions: ', block.transactions.length)
-
     return block
   } catch (err) {
     logger.error('createNewBlock error ', err)
@@ -143,7 +136,7 @@ async function createDepositTransaction(addressTo, tokenId) {
 
   try {
     
-    txData.signature = await web3.eth.sign(txHash, config.plasmaOperatorAddress)
+    txData.signature = await web3.eth.sign(txHash, config.plasmaNodeAddress)
   
   } catch (error) {
     return error.toString()
@@ -294,7 +287,7 @@ async function checkInputs(transaction) {
   try {
     if (transaction.prevBlock == 0) {
       let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase())
-      let valid = address == config.plasmaOperatorAddress.toLowerCase()
+      let valid = address == config.plasmaNodeAddress.toLowerCase()
 
       if (!valid) {
         return false

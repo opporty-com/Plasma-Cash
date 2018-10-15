@@ -22,7 +22,7 @@ let accounts = [
 async function createDeposits(options = {}) {
   for (let addr of accounts) {
     await web3.eth.personal.unlockAccount(addr,
-      config.plasmaOperatorPassword, 90000)
+      config.plasmaNodePassword, 90000)
     console.log('unlockAccount', addr)
   }
   let deposits = options.deposits || 5
@@ -127,7 +127,7 @@ class TestTransactionsCreator {
     try {
       for (let address of accounts) {
         await web3.eth.personal.unlockAccount(address,
-          config.plasmaOperatorPassword, 0)
+          config.plasmaNodePassword, 0)
         console.log('Unlock account: ', address)
       }
       await this.createTransactionsFromUTXO()

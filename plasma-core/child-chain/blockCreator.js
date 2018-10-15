@@ -97,11 +97,11 @@ class BlockCreator {
     let block = new Block(await redis.getAsync(Buffer.from(blockKey)))
     let blockMerkleRootHash = ethUtil.addHexPrefix(block.merkleRootHash.toString('hex'))
 
-    await web3.eth.personal.unlockAccount(config.plasmaOperatorAddress, config.plasmaOperatorPassword, 60)
+    await web3.eth.personal.unlockAccount(config.plasmaNodeAddress, config.plasmaNodePassword, 60)
 
     logger.info('Block submit #', blockNumber, blockMerkleRootHash)
-    let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({ from: config.plasmaOperatorAddress })
-    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({ from: config.plasmaOperatorAddress, gas })
+    let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({ from: config.plasmaNodeAddress })
+    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({ from: config.plasmaNodeAddress, gas })
     logger.info('Submitted block #', blockNumber)
 
     redis.setAsync('lastBlockSubmitted', blockNumber)

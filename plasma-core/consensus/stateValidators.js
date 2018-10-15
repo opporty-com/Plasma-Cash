@@ -1,8 +1,8 @@
-import { Candidate, RightsHandler, validatorsQueue } from 'consensus'
+import {Candidate, RightsHandler, validatorsQueue} from 'consensus'
+import config from 'config'
 
 /** asa */
 class StateValidators {
-
   constructor() {
     this.init()
   }
@@ -23,6 +23,7 @@ class StateValidators {
     }
     if (!isCandidate) {
       this.candidates.push(new Candidate(address))
+      this.voteCandidates()
       return 'ok'
     } else {
       return 'already exist'
@@ -43,31 +44,36 @@ class StateValidators {
   }
 
   async voteCandidates() {
-    
     let candidates = this.candidates.slice(0)
     candidates.sort((a, b) => {
-      let aWeight = a.getWeight(), bWeight = b.getWeight()
-      if (aWeight < bWeight)
+      let aWeight = a.getWeight()
+      let bWeight = b.getWeight()
+      if (aWeight < bWeight) {
         return 1
-      if (aWeight > bWeight)
-        return -1;
-      return 0;
+      }
+      if (aWeight > bWeight) {
+        return -1
+      }
+      return 0
     })
-
-    let ValidatorsCount = 3
-    let validators = candidates.splice(0, ValidatorsCount)
-
+    if (config.maxDelegates > candidates.length) {
+      config.variableDelegatesLength = candidates.length
+    } else {
+      config.variableDelegatesLength = config.maxDelegates
+    }
+    let validators = candidates.splice(0, config.variableDelegatesLength)
     for (let i = 0; i < validators.length; i++) {
       let address = validators[i].getAddress()
-      let isValidator = await RightsHandler.validateAddressForValidating(address)
+      let isValidator =
+      await RightsHandler.validateAddressForValidating(address)
       if (!isValidator) {
         await RightsHandler.setValidatorsCandidate(validators[i].getAddress())
       }
     }
-
     for (let i = 0; i < candidates.length; i++) {
       let address = candidates[i].getAddress()
-      let isValidator = await RightsHandler.validateAddressForValidating(address)
+      let isValidator =
+      await RightsHandler.validateAddressForValidating(address)
       if (isValidator) {
         await validatorsQueue.delValidator(address)
       }
@@ -95,7 +101,9 @@ class StateValidators {
   }
 
   async removeCandidate(address) {
-
+    if (config.plasmaNodeAddress != address) {
+      return 'you have ability to remove only yourself from validators'
+    }
     for (let i = 0; i < this.candidates.length; i++) {
       if (this.candidates[i].getAddress() === address) {
         if (RightsHandler.validateAddressForValidating(address)) {
@@ -109,18 +117,23 @@ class StateValidators {
     return 'this candidate is not include to list of candidates'
   }
 
-  // Lower or delete stake. Checks if stake is available, if there is, then it checks whether there is such a candidate,
-  // if there is, the stake is lowered or deleted if it is equal to or greater than the number of existing
+  // Lower or delete stake. Checks if stake is available, if there is,
+  // then it checks whether there is such a candidate,
+  // if there is, the stake is lowered or deleted if it is equal to or
+  // greater than the number of existing
   async toLowerStake(stake) {
-    let candidateExists = false,
-      stakeExists = false
-
+    let candidateExists = false
+    let stakeExists = false
     for (let i = 0; i < this.stakes.length; i++) {
-      if (this.stakes[i].voter === stake.voter && this.stakes[i].candidate === stake.candidate) {
+      if (this.stakes[i].voter === stake.voter &&
+        this.stakes[i].candidate === stake.candidate) {
         stakeExists = true
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
-            this.candidates[i].toLowerStake({ voter: stake.voter, value: stake.value })
+            const {voter, value} = stake
+            this.candidates[i].toLowerStake({
+              voter, value,
+            })
             candidateExists = true
           }
         }
@@ -137,8 +150,6 @@ class StateValidators {
         } else {
           throw new Error('Denieded stake on a non-existent candidate')
         }
-
-
       }
       if (!stakeExists) {
         return 'stake can`t be lowered because it is not exists'
@@ -147,19 +158,21 @@ class StateValidators {
   }
 
   // first checks if there is a stake with such a voter and a candidate,
-  // if there is, then it is checked whether there is such a candidate and the stake increases
+  // if there is, then it is checked whether there is such a
+  // candidate and the stake increases
   // if there is no such a stake, then it is created
   async addStake(stake) {
-
-    let candidateExists = false,
-      stakeExists = false
-
+    let candidateExists = false
+    let stakeExists = false
     for (let i = 0; i < this.stakes.length; i++) {
-      if (this.stakes[i].voter === stake.voter && this.stakes[i].candidate === stake.candidate) {
+      if (this.stakes[i].voter === stake.voter &&
+        this.stakes[i].candidate === stake.candidate) {
         stakeExists = true
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
-            this.candidates[i].addStake({ voter: stake.voter, value: stake.value })
+            this.candidates[i].addStake({
+              voter: stake.voter, value: stake.value,
+            })
             candidateExists = true
           }
         }
@@ -168,7 +181,7 @@ class StateValidators {
           await this.voteCandidates()
           return this.stakes[i]
         } else {
-          throw new Error('Denieded stake on a non-existent candidate')
+          return 'Denieded stake on a non-existent candidate'
         }
       }
     }
@@ -176,7 +189,9 @@ class StateValidators {
     if (!stakeExists) {
       for (let i = 0; i < this.candidates.length; i++) {
         if (this.candidates[i].getAddress() === stake.candidate) {
-          this.candidates[i].addStake({ voter: stake.voter, value: stake.value })
+          this.candidates[i].addStake({
+            voter: stake.voter, value: stake.value,
+          })
           candidateExists = true
         }
       }
@@ -184,9 +199,8 @@ class StateValidators {
         this.stakes.push(stake)
         await this.voteCandidates()
         return stake
-      }
-      else {
-        throw new Error('Denieded stake on a non-existent candidate')
+      } else {
+        return 'Denieded stake on a non-existent candidate'
       }
     }
   }
@@ -196,4 +210,4 @@ const stateValidators = new StateValidators()
 
 stateValidators.init()
 
-export { stateValidators }
+export {stateValidators}

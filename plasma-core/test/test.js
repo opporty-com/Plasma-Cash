@@ -15,7 +15,7 @@ let accounts = [
 async function createDeposits(options = {}) {
 
   for (let addr of accounts) {
-    await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 90000);
+    await web3.eth.personal.unlockAccount(addr, config.plasmaNodePassword, 90000);
     console.log('unlockAccount', addr);
   }
   let deposits = options.deposits || 5;

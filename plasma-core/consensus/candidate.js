@@ -1,5 +1,6 @@
-class Candidate {
 
+/** Candidate */
+class Candidate {
   constructor(address) {
     this.address = address
     this.stakes = []
@@ -7,8 +8,7 @@ class Candidate {
     this.isValidator = false
   }
 
-  addStake({ voter, value }) {
-
+  addStake({voter, value}) {
     let stakeExists = false
 
     for (let i = 0; i < this.stakes.length; i++) {
@@ -18,15 +18,13 @@ class Candidate {
         this.weight += value
       }
     }
-
     if (!stakeExists) {
-      this.stakes.push({ voter, value })
+      this.stakes.push({voter, value})
       this.weight += value
     }
   }
 
-  toLowerStake({ voter, value }) {
-
+  toLowerStake({voter, value}) {
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === voter) {
         if (this.stakes[i].value <= value) {
@@ -48,9 +46,9 @@ class Candidate {
     return this.weight
   }
 
-  isValidator(){
+  isValidator() {
     return this.isValidator
   }
 }
 
-export { Candidate }
+export {Candidate}
