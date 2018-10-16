@@ -117,7 +117,6 @@ class TestTransactionsCreator {
         } catch (e) {
           console.log(e)
         }
-
         console.log('TXcount - ', this.alltransactions.length)
       }
     }

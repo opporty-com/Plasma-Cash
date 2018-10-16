@@ -35,6 +35,7 @@ contract Root {
      */
     event BlockSubmitted(address operator, bytes32 merkleRoot, uint blockNumber);
     event DepositAdded(address depositor, uint amount, uint tokenId, uint blockNumber);
+    event StakeAdded(address voter, address candidate, uint value);
     event ExitAdded(address exitor, uint priority, uint exitId);
     event ExitChallengedEvent(uint exitId);
     event ChallengedInvalidHistory(uint exitId, uint tokenId);
@@ -91,6 +92,18 @@ contract Root {
         address new_owner;
     }
 
+    struct Stake{
+        address voter;
+        address candidate;
+        uint value;
+    }
+
+    // struct Weight {
+    //     Stake[] stakes;
+    // }
+
+    Stake[] stakes;
+
     /*
      * Exit record
      */
@@ -110,6 +123,7 @@ contract Root {
      */
     mapping(uint => Block) public childChain;
     mapping(uint => uint) public tokens;
+    // mapping(address => Weight) candidatesWithStakes;
 
     /*
      * Heap for exits
@@ -195,6 +209,55 @@ contract Root {
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
     }
+
+    struct Uintss {
+        address olol;
+        
+    }
+
+    mapping(address => Uintss) uints;
+    function addStake(address candidate) public payable {
+        uint[] storage strs;
+
+        // uints[candidate] = Uintss(msg.sender);
+
+        // string str = "helloo";
+
+        strs.push(5);
+        
+        pushstr(candidate);
+
+        emit StakeAdded(msg.sender, candidate, msg.value);
+    }
+   
+    function pushstr(address candidate) public {
+
+        uints[candidate] = Uintss(msg.sender);
+        // emit StakeAdded(msg.sender, candidate, msg.value);
+    }
+
+    // function getStakesForCandidate(address candidate) public returns (uint[], address[]) {
+    //     // bytes32 candidate = stringToBytes32(candidateAddress);
+    //     Stakes storage stakeArray = candidatesWithStakes[candidate]; 
+    //     uint[] values;
+    //     address[] voters;
+    //     for (uint i=0; i<stakeArray.length; i++) {
+    //         values.push(stakeArray[i].value);
+    //         voters.push(stakeArray[i].voter);
+    //     }
+    //     return (values, voters);
+    // }
+
+    // function stringToBytes32(string memory source) public returns (bytes32 result) {
+    //     bytes memory tempEmptyStringTest = bytes(source);
+    //     if (tempEmptyStringTest.length == 0) {
+    //         return 0x0;
+    //     }
+
+    //     assembly {
+    //         result := mload(add(source, 32))
+    //     }
+    // }
 
     /*
      * Check if current message sender is transaction signer

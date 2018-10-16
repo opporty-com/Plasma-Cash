@@ -5,7 +5,7 @@ import {logger} from 'lib/logger'
 import {txMemPool} from 'child-chain/TxMemPool'
 import redis from 'lib/storage/redis'
 import contractHandler from 'root-chain/contracts/plasma'
-import {depositEventHandler} from 'child-chain/eventsHandler'
+import {depositEventHandler, stakeEventHandler} from 'child-chain/eventsHandler'
 import web3 from 'lib/web3'
 import Block from 'child-chain/block'
 import {createNewBlock} from 'child-chain'
@@ -73,14 +73,22 @@ class BlockCreator {
 
         logger.info('Process Block for Deposit Events - ', lastBlock)
 
-        const depositEventsInBlock = await contractHandler.contract.getPastEvents("DepositAdded", {
+        const depositEventsInBlock = await contractHandler.contract.getPastEvents('DepositAdded', {
           fromBlock: lastCheckedBlock,
           toBlock: lastBlock,
-        });
-
+        })
+        const stakeEventsInBlock = await contractHandler.contract.getPastEvents('StakeAdded', {
+          fromBlock: lastCheckedBlock,
+          toBlock: lastBlock,
+        })
         if (depositEventsInBlock.length > 0) {
           for (let i = 0, length = depositEventsInBlock.length; i < length; ++i) {
             depositEventHandler(depositEventsInBlock[i])
+          }
+        }
+        if (stakeEventsInBlock.length > 0) {
+          for (let i = 0, length = stakeEventsInBlock.length; i < length; ++i) {
+            stakeEventHandler(stakeEventsInBlock[i])
           }
         }
         redis.setAsync('lastEventProcessed', lastBlock)
@@ -96,14 +104,11 @@ class BlockCreator {
     let blockKey = 'block' + blockNumber.toString(10)
     let block = new Block(await redis.getAsync(Buffer.from(blockKey)))
     let blockMerkleRootHash = ethUtil.addHexPrefix(block.merkleRootHash.toString('hex'))
-
     await web3.eth.personal.unlockAccount(config.plasmaNodeAddress, config.plasmaNodePassword, 60)
-
     logger.info('Block submit #', blockNumber, blockMerkleRootHash)
     let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({ from: config.plasmaNodeAddress })
     await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({ from: config.plasmaNodeAddress, gas })
     logger.info('Submitted block #', blockNumber)
-
     redis.setAsync('lastBlockSubmitted', blockNumber)
   }
 }
