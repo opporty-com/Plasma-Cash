@@ -102,9 +102,9 @@ class StateValidators {
   }
 
   async removeCandidate(address) {
-    // if (config.plasmaNodeAddress != address) {
-    //   return 'you have ability to remove only yourself from validators'
-    // }
+    if (config.plasmaNodeAddress != address) {
+      return 'you have ability to remove only yourself from validators'
+    }
     for (let i = 0; i < this.candidates.length; i++) {
       if (this.candidates[i].getAddress() === address) {
         if (RightsHandler.validateAddressForValidating(address)) {
