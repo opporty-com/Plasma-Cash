@@ -11,12 +11,12 @@ class ValidatorsQueue {
     this.currentValidator = {}
     this.currentMaxDelegates = config.maxDelegates
     this.fixedHeight = 0
-    this.fixedRounds = 0
     this.rounds = 0
   }
 
-  init() {
+  async init() {
     this.resetValidatorsQueue()
+    this.fixedRounds = await redis.getAsync('fuxedRound') || 0
   }
 
   async resetValidatorsQueue() {
@@ -69,18 +69,18 @@ class ValidatorsQueue {
     if (this.currentMaxDelegates != config.maxDelegates) {
       this.currentMaxDelegates = config.maxDelegates
       this.fixedHeight = height
-      this.fixedRounds = this.rounds
+      // this.fixedRounds = this.rounds
     }
     height -= this.fixedHeight
     let rounds = this.rounds
     this.rounds = Math.floor(height / config.variableDelegatesLength)
     + (height % config.variableDelegatesLength > 0 ? 1 : 0)
+
     if (this.rounds - rounds === 1) {
       this.fixedRounds++
+      await redis.setAsync('fixedRound', this.fixedRounds)
     }
-    if (this.fixedRounds < this.rounds) {
-      this.fixedRounds += this.rounds
-    }
+
     this.hungValidators = Object.assign([], this.validators)
     let currentSeed = crypto.createHash('sha256')
       .update(String(this.fixedRounds), 'utf8').digest()

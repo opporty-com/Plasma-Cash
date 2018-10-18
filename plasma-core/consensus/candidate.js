@@ -10,7 +10,6 @@ class Candidate {
 
   addStake({voter, value}) {
     let stakeExists = false
-
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === voter) {
         stakeExists = true

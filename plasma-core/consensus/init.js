@@ -20,8 +20,8 @@ const rosettaAddress = '0x2AdC318Ac93A7289f83Aa7F26513bC0d15f0Ab3e'
 // console.log('ALL CANDIDATES IN STATE', stateValidators.getCandidates());
 
 const initConsensus = async () => {
-  let aliceVoter = new Voter(aliceAddress)
-  let peterVoter = new Voter(peterAddress)
+  // let aliceVoter = new Voter(aliceAddress)
+  // let peterVoter = new Voter(peterAddress)
   // stateValidators.setCandidate(bobAddress)
   stateValidators.setCandidate(plasmaAddress)
   // stateValidators.setCandidate(sofiyaAddress)
@@ -30,9 +30,9 @@ const initConsensus = async () => {
   // stateValidators.setCandidate(eveAddress)
   // stateValidators.setCandidate(danAddress)
 
-  await peterVoter.addStake(5, plasmaAddress)
-  await aliceVoter.addStake(2, rosettaAddress)
-  await peterVoter.addStake(3, bobAddress)
+  // await peterVoter.addStake(5, plasmaAddress)
+  // await aliceVoter.addStake(2, rosettaAddress)
+  // await peterVoter.addStake(3, bobAddress)
 
   await stateValidators.voteCandidates()
 

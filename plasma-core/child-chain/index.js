@@ -2,15 +2,16 @@
 import web3 from 'lib/web3'
 import contractHandler from 'root-chain/contracts/plasma'
 import ethUtil from 'ethereumjs-util'
-import { logger } from 'lib/logger'
+import {logger} from 'lib/logger'
 import redis from 'lib/storage/redis'
 import Block from 'child-chain/block'
-import { txMemPool, TxMemPool } from 'child-chain/TxMemPool'
+import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
+import {depositEventHandler} from 'child-chain/eventsHandler'
 import config from 'config'
 import RLP from 'rlp'
 import PlasmaTransaction from 'child-chain/transaction'
-import { validateTx } from 'child-chain/validator/validateTx'
-import { validatorsQueue, RightsHandler } from 'consensus'
+import {validateTx} from 'child-chain/validator/validateTx'
+import {validatorsQueue, RightsHandler} from 'consensus'
 
 async function getBlock(blockNumber) {
   try {
@@ -31,8 +32,11 @@ async function submitBlock(address, blockHash) {
   let blockNumber = currentBlockNumber + 1
 
   try {
-    let gas = await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).estimateGas({ from: config.plasmaNodeAddress })
-    await contractHandler.contract.methods.submitBlock(blockHash, blockNumber).send({ from: config.plasmaNodeAddress, gas: gas + 15000 })
+    let gas = await contractHandler.contract.methods
+      .submitBlock(blockHash, blockNumber)
+      .estimateGas({from: config.plasmaNodeAddress})
+    await contractHandler.contract.methods.submitBlock(blockHash, blockNumber)
+      .send({from: config.plasmaNodeAddress, gas: gas + 15000})
     await redis.setAsync('lastBlockSubmitted', blockNumber)
   } catch (error) {
     return error.toString()
@@ -41,21 +45,40 @@ async function submitBlock(address, blockHash) {
   return 'ok'
 }
 
-async function createDeposit({ address, password, amount }) {
-
-    try {
-      if (web3.utils.isAddress(ethUtil.keccak256(address))) {
-        throw new Error('address is not defined')
-      }
-
-      await web3.eth.personal.unlockAccount(address, password, 60)
-      let gas = await contractHandler.contract.methods.deposit().estimateGas({ from: address })
-
-      await contractHandler.contract.methods.deposit().send({ from: address, value: amount, gas: gas + 15000 })
-    } catch (error) {
-      return error.toString()
+async function makeStakeEvent({voter, candidate, value, password}) {
+  try {
+    await web3.eth.personal.unlockAccount(voter, password, 60)
+    let gas = await contractHandler.contract.methods.addStake(candidate)
+      .estimateGas({from: voter})
+    let answer = await contractHandler.contract.methods.addStake(candidate)
+      .send({from: voter, value: value, gas: gas + 15000})
+    let returnValues = answer.events.StakeAdded.returnValues
+    let stake = {
+      voter: returnValues.voter,
+      candidate: returnValues.candidate,
+      value: +returnValues.value,
     }
-    return 'ok'
+    return stake
+  } catch (error) {
+    return error
+  }
+}
+
+async function createDeposit({address, password, amount}) {
+  try {
+    if (web3.utils.isAddress(ethUtil.keccak256(address))) {
+      throw new Error('address is not defined')
+    }
+    await web3.eth.personal.unlockAccount(address, password, 60)
+    let gas = await contractHandler.contract.methods.deposit()
+      .estimateGas({from: address})
+    let answer = await contractHandler.contract.methods.deposit()
+      .send({from: address, value: amount, gas: gas + 15000})
+    depositEventHandler(answer.events.DepositAdded)
+  } catch (error) {
+    return error.toString()
+  }
+  return 'ok'
 }
 
 async function createNewBlock() {
@@ -69,13 +92,14 @@ async function createNewBlock() {
       blockNumber: newBlockNumber,
       transactions: successfullTransactions,
     })
-    if (!(await RightsHandler.validateAddressForValidating(config.plasmaNodeAddress))) {
+    if (!(await RightsHandler
+      .validateAddressForValidating(config.plasmaNodeAddress))) {
       logger.error('You address is not included in the validators queue')
       return false
     }
     let currentValidator = (await validatorsQueue.getCurrentValidator())
     if (!(currentValidator === config.plasmaNodeAddress)) {
-      logger.info('You address is in the validator queue. Please wait your turn to submit')
+      logger.info('Please wait your turn to submit')
       return false
     } else {
       logger.info('You address is current validator. Starting submit block...')
@@ -87,20 +111,18 @@ async function createNewBlock() {
           prevHash: utxo.getHash(),
           prevBlock: newBlockNumber,
         }
-        
         await redis.hdelAsync('history', utxo.tokenId)
-        await redis.hsetAsync('history', utxo.tokenId, JSON.stringify(newHistory))
-        
+        await redis.hsetAsync('history', utxo.tokenId,
+          JSON.stringify(newHistory))
       } catch (error) {
         return error.toString()
       }
-      //del from pool
       await redis.hdel('txpool', utxo.getHash())
     }
     if (rejectTransactions.length > 0) {
       await redis.setAsync('lastBlockNumber', block.blockNumber)
     }
-    await redis.hsetAsync('rejectTx', newBlockNumber, rejectTransactions)
+    await redis.hsetAsync('rejectTx', newBlockNumber, JSON.stringify(rejectTransactions))    
     await redis.setAsync('block' + block.blockNumber.toString(10),
       block.getRlp())
     logger.info('New block created - transactions: ', block.transactions.length)
@@ -129,60 +151,43 @@ async function createDepositTransaction(addressTo, tokenId) {
     tokenId,
     newOwner: ethUtil.addHexPrefix(addressTo),
   }
-
   let txWithoutSignature = new PlasmaTransaction(txData)
-
   let txHash = (txWithoutSignature.getHash(true)).toString('hex')
-
   try {
-    
     txData.signature = await web3.eth.sign(txHash, config.plasmaNodeAddress)
-  
   } catch (error) {
     return error.toString()
   }
-  
   let transaction = createSignedTransaction(txData)
-  
   return transaction
 }
 
 async function createTransaction(tokenId, addressFrom, addressTo) {
-
-  let tokenHistory, utxo
-
+  let tokenHistory
+  let utxo
   try {
     utxo = await redis.hgetAsync(`utxo_${addressFrom}`, tokenId)
     tokenHistory = await redis.hgetAsync('history', tokenId)
   } catch (error) {
     return error.toString()
   }
-
   if (!utxo) {
     return 'undefined token id'
   }
-
   if (!tokenHistory.prevHash && !tokenHistory.prevBlock) {
     return 'undefined token history'
   }
-
   let txData = {
     prevHash: tokenHistory.prevHash,
     prevBlock: tokenHistory.prevBlock,
     tokenId,
-    newOwner: addressTo
+    newOwner: addressTo,
   }
-
   let txWithoutSignature = new PlasmaTransaction(txData)
-
   let txHash = (txWithoutSignature.getHash(true)).toString('hex')
-
   try {
-
     txData.signature = await web3.eth.sign(txHash, addressFrom)
-
     let transaction = createSignedTransaction(txData)
-
     return await TxMemPool.acceptToMemoryPool(txMemPool, transaction)
   } catch (error) {
     return error.toString()
@@ -197,12 +202,10 @@ function createSignedTransaction(data) {
     newOwner: data.newOwner,
     signature: data.signature,
   }
-
   return new PlasmaTransaction(txData)
 }
 
 function checkTransaction(tx) {
-
   if (!tx.newOwner || !tx.signature || !tx.tokenId) {
     return false
   }
@@ -217,7 +220,6 @@ async function getUTXO(blockNumber, tokenId) {
   }
   return null
 }
-
 async function getAllUtxos(addresses) {
   return await new Promise(async (resolve, reject) => {
     try {
@@ -249,7 +251,6 @@ async function getAllUtxos(addresses) {
         resolve([])
       }
     } catch (error) {
-      console.error(error)
       reject(error)
     }
   })
@@ -257,13 +258,13 @@ async function getAllUtxos(addresses) {
 
 async function getAllUtxosWithKeys(options = {}) {
   return await new Promise((resolve, reject) => {
-    redis.keys('utxo*', function (err, res) {
-      let res3 = res.map(function (el) {
+    redis.keys('utxo*', (err, res) => {
+      let res3 = res.map((el) => {
         return Buffer.from(el)
       })
       if (res3.length) {
-        redis.mget(res3, function (err2, res2) {
-          let utxos = res2.map(function (el) {
+        redis.mget(res3, (err2, res2) => {
+          let utxos = res2.map((el) => {
             let t = new PlasmaTransaction(el)
             if (options.json) {
               t = t.getJson()
@@ -286,7 +287,8 @@ async function getAllUtxosWithKeys(options = {}) {
 async function checkInputs(transaction) {
   try {
     if (transaction.prevBlock == 0) {
-      let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase())
+      let address = ethUtil
+        .addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase())
       let valid = address == config.plasmaNodeAddress.toLowerCase()
 
       if (!valid) {
@@ -298,9 +300,10 @@ async function checkInputs(transaction) {
         return false
       }
       transaction.prevHash = utxo.getHash()
-      let address = ethUtil.addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase())
-      let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.newOwner.toString('hex').toLowerCase())
-
+      let address = ethUtil
+        .addHexPrefix(transaction.getAddressFromSignature('hex').toLowerCase())
+      let utxoOwnerAddress = ethUtil.addHexPrefix(utxo.newOwner.toString('hex')
+        .toLowerCase())
       if (utxoOwnerAddress != address) {
         return false
       }
@@ -325,4 +328,5 @@ export {
   checkTransaction,
   checkInputs,
   createTransaction,
+  makeStakeEvent,
 }

@@ -1,4 +1,5 @@
 import {Candidate, RightsHandler, validatorsQueue} from 'consensus'
+import {makeStakeEvent} from 'child-chain'
 import config from 'config'
 
 /** asa */
@@ -101,9 +102,9 @@ class StateValidators {
   }
 
   async removeCandidate(address) {
-    if (config.plasmaNodeAddress != address) {
-      return 'you have ability to remove only yourself from validators'
-    }
+    // if (config.plasmaNodeAddress != address) {
+    //   return 'you have ability to remove only yourself from validators'
+    // }
     for (let i = 0; i < this.candidates.length; i++) {
       if (this.candidates[i].getAddress() === address) {
         if (RightsHandler.validateAddressForValidating(address)) {
@@ -164,20 +165,26 @@ class StateValidators {
   async addStake(stake) {
     let candidateExists = false
     let stakeExists = false
+    let stakeEvent
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === stake.voter &&
         this.stakes[i].candidate === stake.candidate) {
         stakeExists = true
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
+            try {
+              stakeEvent = await makeStakeEvent(stake)
+            } catch (error) {
+              return error.toString()
+            }
             this.candidates[i].addStake({
-              voter: stake.voter, value: stake.value,
+              voter: stakeEvent.voter, stake: stakeEvent.value,
             })
             candidateExists = true
           }
         }
         if (candidateExists) {
-          this.stakes[i].value += stake.value
+          this.stakes[i].value += stakeEvent.value
           await this.voteCandidates()
           return this.stakes[i]
         } else {
@@ -189,16 +196,21 @@ class StateValidators {
     if (!stakeExists) {
       for (let i = 0; i < this.candidates.length; i++) {
         if (this.candidates[i].getAddress() === stake.candidate) {
+          try {
+            stakeEvent = await makeStakeEvent(stake)
+          } catch (error) {
+            return error.toString()
+          }
           this.candidates[i].addStake({
-            voter: stake.voter, value: stake.value,
+            voter: stakeEvent.voter, value: stakeEvent.value,
           })
           candidateExists = true
         }
       }
       if (candidateExists) {
-        this.stakes.push(stake)
+        this.stakes.push(stakeEvent)
         await this.voteCandidates()
-        return stake
+        return stakeEvent
       } else {
         return 'Denieded stake on a non-existent candidate'
       }

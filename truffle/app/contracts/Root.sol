@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "./RLP.sol";
 import "./HeapLib.sol";
@@ -61,6 +61,14 @@ contract Root {
     // array of challenged exits for invalid history challenge */
     mapping (uint => uint) public challenged;
 
+
+    struct Stake {
+        address voter;
+        uint value;
+    }
+
+    mapping(address => Stake[]) stakes;
+
     /*
      *  Modifiers
      *  check if sender address is creator of the contract
@@ -91,18 +99,6 @@ contract Root {
         uint token_id;
         address new_owner;
     }
-
-    struct Stake{
-        address voter;
-        address candidate;
-        uint value;
-    }
-
-    // struct Weight {
-    //     Stake[] stakes;
-    // }
-
-    Stake[] stakes;
 
     /*
      * Exit record
@@ -210,54 +206,10 @@ contract Root {
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
     }
 
-    struct Uintss {
-        address olol;
-        
-    }
-
-    mapping(address => Uintss) uints;
     function addStake(address candidate) public payable {
-        uint[] storage strs;
-
-        // uints[candidate] = Uintss(msg.sender);
-
-        // string str = "helloo";
-
-        strs.push(5);
-        
-        pushstr(candidate);
-
+        stakes[candidate].push(Stake(msg.sender, msg.value));
         emit StakeAdded(msg.sender, candidate, msg.value);
     }
-   
-    function pushstr(address candidate) public {
-
-        uints[candidate] = Uintss(msg.sender);
-        // emit StakeAdded(msg.sender, candidate, msg.value);
-    }
-
-    // function getStakesForCandidate(address candidate) public returns (uint[], address[]) {
-    //     // bytes32 candidate = stringToBytes32(candidateAddress);
-    //     Stakes storage stakeArray = candidatesWithStakes[candidate]; 
-    //     uint[] values;
-    //     address[] voters;
-    //     for (uint i=0; i<stakeArray.length; i++) {
-    //         values.push(stakeArray[i].value);
-    //         voters.push(stakeArray[i].voter);
-    //     }
-    //     return (values, voters);
-    // }
-
-    // function stringToBytes32(string memory source) public returns (bytes32 result) {
-    //     bytes memory tempEmptyStringTest = bytes(source);
-    //     if (tempEmptyStringTest.length == 0) {
-    //         return 0x0;
-    //     }
-
-    //     assembly {
-    //         result := mload(add(source, 32))
-    //     }
-    // }
 
     /*
      * Check if current message sender is transaction signer
@@ -351,10 +303,10 @@ contract Root {
         emit ExitChallengedEvent(exit_id);
     }
 
-    /*
-     * Challenge exit by providing
-     * a transaction C* in the coin’s history before P(C)
-     */
+    // /*
+    //  * Challenge exit by providing
+    //  * a transaction C* in the coin’s history before P(C)
+    //  */
     function challengeInvalidHistory(uint exit_id, uint blk_num, bytes tx0, bytes proof) public { 
         // check if proof is valid
         require(checkPatriciaProof(keccak256(tx0), childChain[blk_num].merkle_root, proof));
