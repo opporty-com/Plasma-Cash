@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "./RLP.sol";
 import "./HeapLib.sol";
@@ -35,6 +35,7 @@ contract Root {
      */
     event BlockSubmitted(address operator, bytes32 merkleRoot, uint blockNumber);
     event DepositAdded(address depositor, uint amount, uint tokenId, uint blockNumber);
+    event StakeAdded(address voter, address candidate, uint value);
     event ExitAdded(address exitor, uint priority, uint exitId);
     event ExitChallengedEvent(uint exitId);
     event ChallengedInvalidHistory(uint exitId, uint tokenId);
@@ -59,6 +60,14 @@ contract Root {
 
     // array of challenged exits for invalid history challenge */
     mapping (uint => uint) public challenged;
+
+
+    struct Stake {
+        address voter;
+        uint value;
+    }
+
+    mapping(address => Stake[]) stakes;
 
     /*
      *  Modifiers
@@ -110,6 +119,7 @@ contract Root {
      */
     mapping(uint => Block) public childChain;
     mapping(uint => uint) public tokens;
+    // mapping(address => Weight) candidatesWithStakes;
 
     /*
      * Heap for exits
@@ -194,6 +204,11 @@ contract Root {
 
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
+    }
+
+    function addStake(address candidate) public payable {
+        stakes[candidate].push(Stake(msg.sender, msg.value));
+        emit StakeAdded(msg.sender, candidate, msg.value);
     }
 
     /*
@@ -288,10 +303,10 @@ contract Root {
         emit ExitChallengedEvent(exit_id);
     }
 
-    /*
-     * Challenge exit by providing
-     * a transaction C* in the coin’s history before P(C)
-     */
+    // /*
+    //  * Challenge exit by providing
+    //  * a transaction C* in the coin’s history before P(C)
+    //  */
     function challengeInvalidHistory(uint exit_id, uint blk_num, bytes tx0, bytes proof) public { 
         // check if proof is valid
         require(checkPatriciaProof(keccak256(tx0), childChain[blk_num].merkle_root, proof));

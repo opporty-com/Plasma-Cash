@@ -25,7 +25,7 @@ describe('Test API', function() {
     expect(accounts).to.have.lengthOf.above(1)
 
     for (let addr of accounts) {
-      await web3.eth.personal.unlockAccount(addr, config.plasmaOperatorPassword, 0)
+      await web3.eth.personal.unlockAccount(addr, config.plasmaNodePassword, 0)
       console.log('Unlock account: ', addr )
     }
     nextAddressGen = getNextAddress(accounts)

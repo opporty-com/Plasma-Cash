@@ -2,10 +2,10 @@
 
 import {parseM} from 'lib/utils'
 import {stateValidators, validatorsQueue} from 'consensus'
+import web3 from 'lib/web3'
 
 /** Class representing a validation controller. */
 class ValidatorsController {
-
   // get the list of candidates with their stakes
   static async getCandidates(req, res) {
     try {
@@ -21,9 +21,7 @@ class ValidatorsController {
     try {
       await validatorsQueue.prepareValidators()
       let answer = await validatorsQueue.getCurrentValidator()
-
       return res.end(JSON.stringify({answer}))
-    
     } catch (error) {
       res.statusCode = 500
       return res.end(error.toString())
@@ -35,6 +33,10 @@ class ValidatorsController {
     await parseM(req)
     try {
       let {address} = req.body
+      if (!web3.utils.isAddress(address)) {
+        res.statusCode = 400
+        res.end(JSON.stringify('Incorrect address'))
+      }
       let answer = await stateValidators.setCandidate(address)
       res.end(JSON.stringify({answer}))
     } catch (error) {
@@ -47,14 +49,14 @@ class ValidatorsController {
   static async removeCandidate(req, res) {
     await parseM(req)
     try {
-
       let {address} = req.body
+      if (!web3.utils.isAddress(address)) {
+        res.statusCode = 400
+        res.end(JSON.stringify('Incorrect address'))
+      }
       let answer = await stateValidators.removeCandidate(address)
       res.end(JSON.stringify({answer}))
-
     } catch (error) {
-      console.log(error)
-
       res.statusCode = 400
       res.end(error.toString())
     }
@@ -62,13 +64,19 @@ class ValidatorsController {
 
   // only voters be able to add stake
   static async addStake(req, res) {
-
     await parseM(req)
+
     try {
-
-      let {voter, candidate, value} = req.body
-      let stake = {voter, candidate, value}
-
+      let {voter, candidate, value, password} = req.body
+      if (!web3.utils.isAddress(voter) || !web3.utils.isAddress(candidate)) {
+        res.statusCode = 400
+        res.end(JSON.stringify('Incorrect voter or candidate address'))
+      }
+      if (!(typeof value === 'number')) {
+        res.statusCode = 400
+        res.end(JSON.stringify('Incorrect type of value'))
+      }
+      let stake = {voter, candidate, value, password}
       let answer = await stateValidators.addStake(stake)
       res.end(JSON.stringify({answer}))
     } catch (error) {
@@ -82,6 +90,14 @@ class ValidatorsController {
     await parseM(req)
     try {
       let {voter, candidate, value} = req.body
+      if (!web3.utils.isAddress(voter) || !web3.utils.isAddress(candidate)) {
+        res.statusCode = 400
+        res.end(JSON.stringify('Incorrect voter or candidate address'))
+      }
+      if (!(typeof value === 'number')) {
+        res.statusCode = 400
+        res.end(JSON.stringify('Incorrect type of value'))
+      }
       let stake = {voter, candidate, value}
       let answer = await stateValidators.toLowerStake(stake)
       res.end(JSON.stringify({answer}))

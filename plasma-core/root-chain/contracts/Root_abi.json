@@ -243,6 +243,28 @@
     "inputs": [
       {
         "indexed": false,
+        "name": "voter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "candidate",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "StakeAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "name": "exitor",
         "type": "address"
       },
@@ -476,6 +498,20 @@
     "constant": false,
     "inputs": [],
     "name": "deposit",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "candidate",
+        "type": "address"
+      }
+    ],
+    "name": "addStake",
     "outputs": [],
     "payable": true,
     "stateMutability": "payable",

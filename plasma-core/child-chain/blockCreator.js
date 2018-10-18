@@ -34,21 +34,23 @@ class BlockCreator {
   }
 
   async startBlockSubmittingToParent() {
+    
     try {
       let lastBlockInDatabase = await redis.getAsync('lastBlockNumber')
       lastBlockInDatabase = lastBlockInDatabase ?
-        parseInt(lastBlockInDatabase) : 0
+      parseInt(lastBlockInDatabase) : 0
       let lastSubmittedBlock = await redis.getAsync('lastBlockSubmitted')
       lastSubmittedBlock = lastSubmittedBlock ? parseInt(lastSubmittedBlock) : 0
-
+      
       logger.info('LastBlockInDb, LastSubmitted', lastBlockInDatabase, lastSubmittedBlock)
-
-      if (lastBlockInDatabase > lastSubmittedBlock) {
+            if (lastBlockInDatabase >= lastSubmittedBlock) {
         let currentBlockInParent = await contractHandler.contract.methods.current_blk().call()
         if (currentBlockInParent != lastSubmittedBlock) {
           if (currentBlockInParent > lastSubmittedBlock) {
             await redis.setAsync('lastBlockSubmitted', currentBlockInParent)
           }
+          lastSubmittedBlock += config.contractblockStep
+          this.startBlockSubmit(lastSubmittedBlock)
         } else {
           lastSubmittedBlock += config.contractblockStep
           this.startBlockSubmit(lastSubmittedBlock)
@@ -57,7 +59,6 @@ class BlockCreator {
     } catch (error) {
       logger.error('Submiting block error ', error)
     }
-    // setTimeout(this.startBlockSubmittingToParent.bind(this), 30000);
   }
 
   async blockEventsCheck(lastCheckedBlock) {
@@ -73,11 +74,10 @@ class BlockCreator {
 
         logger.info('Process Block for Deposit Events - ', lastBlock)
 
-        const depositEventsInBlock = await contractHandler.contract.getPastEvents("DepositAdded", {
+        const depositEventsInBlock = await contractHandler.contract.getPastEvents('DepositAdded', {
           fromBlock: lastCheckedBlock,
           toBlock: lastBlock,
-        });
-
+        })
         if (depositEventsInBlock.length > 0) {
           for (let i = 0, length = depositEventsInBlock.length; i < length; ++i) {
             depositEventHandler(depositEventsInBlock[i])
@@ -96,20 +96,17 @@ class BlockCreator {
     let blockKey = 'block' + blockNumber.toString(10)
     let block = new Block(await redis.getAsync(Buffer.from(blockKey)))
     let blockMerkleRootHash = ethUtil.addHexPrefix(block.merkleRootHash.toString('hex'))
-
-    await web3.eth.personal.unlockAccount(config.plasmaOperatorAddress, config.plasmaOperatorPassword, 60)
-
+    await web3.eth.personal.unlockAccount(config.plasmaNodeAddress, config.plasmaNodePassword, 60)
     logger.info('Block submit #', blockNumber, blockMerkleRootHash)
-    let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({ from: config.plasmaOperatorAddress })
-    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({ from: config.plasmaOperatorAddress, gas })
+    let gas = await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).estimateGas({ from: config.plasmaNodeAddress })
+    await contractHandler.contract.methods.submitBlock(blockMerkleRootHash, blockNumber).send({ from: config.plasmaNodeAddress, gas})
     logger.info('Submitted block #', blockNumber)
-
     redis.setAsync('lastBlockSubmitted', blockNumber)
   }
 }
 
 const blockCreator = new BlockCreator({
-  minTransactionsInBlock: 1
+  minTransactionsInBlock: 1,
 })
 
 export default blockCreator

@@ -1,7 +1,6 @@
 import redis from 'lib/storage/redis'
 import {validatorsQueue} from 'consensus'
 
-
 /** Class representing a Rights handler. */
 class RightsHandler {
   static async setValidatorsCandidate(address) {
