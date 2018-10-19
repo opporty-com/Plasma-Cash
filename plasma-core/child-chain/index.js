@@ -12,6 +12,7 @@ import RLP from 'rlp'
 import PlasmaTransaction from 'child-chain/transaction'
 import {validateTx} from 'child-chain/validator/validateTx'
 import {validatorsQueue, RightsHandler} from 'consensus'
+import {sign} from 'lib/bls'
 
 async function getBlock(blockNumber) {
   try {
@@ -45,9 +46,9 @@ async function submitBlock(address, blockHash) {
   return 'ok'
 }
 
-async function makeStakeEvent({voter, candidate, value, password}) {
+async function makeStakeEvent({voter, candidate, value}) {
   try {
-    await web3.eth.personal.unlockAccount(voter, password, 60)
+    await web3.eth.personal.unlockAccount(voter, config.plasmaNodePassword, 60)
     let gas = await contractHandler.contract.methods.addStake(candidate)
       .estimateGas({from: voter})
     let answer = await contractHandler.contract.methods.addStake(candidate)
@@ -92,6 +93,8 @@ async function createNewBlock() {
       blockNumber: newBlockNumber,
       transactions: successfullTransactions,
     })
+    let blockDataToSig = ethUtil.bufferToHex(block.getRlp()).substr(2)
+    let signature = await sign(config.plasmaNodeAddress, blockDataToSig)
     if (!(await RightsHandler
       .validateAddressForValidating(config.plasmaNodeAddress))) {
       logger.error('You address is not included in the validators queue')
@@ -104,7 +107,6 @@ async function createNewBlock() {
     } else {
       logger.info('You address is current validator. Starting submit block...')
     }
-
     for (let utxo of block.transactions) {
       try {
         let newHistory = {
@@ -122,11 +124,12 @@ async function createNewBlock() {
     if (rejectTransactions.length > 0) {
       await redis.setAsync('lastBlockNumber', block.blockNumber)
     }
-    await redis.hsetAsync('rejectTx', newBlockNumber, JSON.stringify(rejectTransactions))    
+    await redis.hsetAsync('rejectTx', newBlockNumber,
+      JSON.stringify(rejectTransactions))
     await redis.setAsync('block' + block.blockNumber.toString(10),
       block.getRlp())
     logger.info('New block created - transactions: ', block.transactions.length)
-    return block
+    return signature
   } catch (err) {
     logger.error('createNewBlock error ', err)
   }

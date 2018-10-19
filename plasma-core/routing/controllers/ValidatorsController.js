@@ -3,6 +3,7 @@
 import {parseM} from 'lib/utils'
 import {stateValidators, validatorsQueue} from 'consensus'
 import web3 from 'lib/web3'
+import config from 'config'
 
 /** Class representing a validation controller. */
 class ValidatorsController {
@@ -67,16 +68,20 @@ class ValidatorsController {
     await parseM(req)
 
     try {
-      let {voter, candidate, value, password} = req.body
+      let {voter, candidate, value} = req.body
       if (!web3.utils.isAddress(voter) || !web3.utils.isAddress(candidate)) {
         res.statusCode = 400
         res.end(JSON.stringify('Incorrect voter or candidate address'))
+      }
+      if (voter != config.plasmaNodeAddress) {
+        res.statusCode = 403
+        res.end(JSON.stringify('Voter address must be the own address of node'))
       }
       if (!(typeof value === 'number')) {
         res.statusCode = 400
         res.end(JSON.stringify('Incorrect type of value'))
       }
-      let stake = {voter, candidate, value, password}
+      let stake = {voter, candidate, value}
       let answer = await stateValidators.addStake(stake)
       res.end(JSON.stringify({answer}))
     } catch (error) {
