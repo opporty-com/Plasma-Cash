@@ -24,8 +24,8 @@ class BlockCreator {
 
   async initBlockPeriodicalCreation() {
     let poollen = await txMemPool.size()
-    logger.info('Check the txPool: length ', poollen,
-      'txs', this.options.minTransactionsInBlock)
+    // logger.info('Check the txPool: length ', poollen,
+    //   'txs', this.options.minTransactionsInBlock)
     if (this.options.minTransactionsInBlock && poollen >=
         this.options.minTransactionsInBlock) {
       let sig = await createNewBlock()
@@ -51,7 +51,7 @@ class BlockCreator {
         if (currentBlockInParent != lastSubmittedBlock) {
           if (currentBlockInParent > lastSubmittedBlock) {
             await redis.setAsync('lastBlockSubmitted', currentBlockInParent)
-          }
+          }          
           lastSubmittedBlock += config.contractblockStep
           this.startBlockSubmit(lastSubmittedBlock, sig)
         } else {
@@ -97,12 +97,12 @@ class BlockCreator {
     await web3.eth.personal
       .unlockAccount(config.plasmaNodeAddress, config.plasmaNodePassword, 60)
     logger.info('Block submit #', blockNumber, blockMerkleRootHash)
-    // let gas = await contractHandler.contract.methods
-    //   .submitBlock(blockMerkleRootHash, blockNumber)
-    //   .estimateGas({from: config.plasmaNodeAddress})
+    let gas = await contractHandler.contract.methods
+      .submitBlock(blockMerkleRootHash, blockNumber)
+      .estimateGas({from: config.plasmaNodeAddress})
     await contractHandler.contract.methods
       .submitBlock(blockMerkleRootHash, blockNumber)
-      .send({from: config.plasmaNodeAddress, gas: 500000})
+      .send({from: config.plasmaNodeAddress, gas})
     logger.info('Submitted block #', blockNumber)
     redis.setAsync('lastBlockSubmitted', blockNumber)
   }

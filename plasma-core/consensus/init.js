@@ -23,7 +23,7 @@ const initConsensus = async () => {
   // let aliceVoter = new Voter(aliceAddress)
   // let peterVoter = new Voter(peterAddress)
   // stateValidators.setCandidate(bobAddress)
-  stateValidators.setCandidate(plasmaAddress)
+  await stateValidators.setCandidate(plasmaAddress)
   // stateValidators.setCandidate(sofiyaAddress)
   // stateValidators.setCandidate(rosettaAddress)
   // stateValidators.setCandidate(carolAddress)

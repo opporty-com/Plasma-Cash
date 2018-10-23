@@ -3,7 +3,7 @@
 import {logger} from 'lib/logger'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 import ethUtil from 'ethereumjs-util'
-import {getBlock} from 'child-chain/block'
+import {getBlock} from 'child-chain'
 import {parseM} from 'lib/utils'
 import web3 from 'lib/web3'
 import {

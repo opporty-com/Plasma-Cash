@@ -1,11 +1,11 @@
 'use strict'
 
-import {getBlock} from 'child-chain/block'
+import {getBlock} from 'child-chain'
 import {submitBlock} from 'child-chain'
 import {parseM} from 'lib/utils'
 import {sign, verify} from 'lib/bls'
 import web3 from 'lib/web3'
-import {RightsHandler, stateValidators, validatorsQueue,
+import {RightsHandler, validatorsQueue,
   initConsensus} from 'consensus'
 
 initConsensus()
