@@ -122,10 +122,10 @@ async function createNewBlock() {
       await redis.hdel('txpool', utxo.getHash())
     }
     if (rejectTransactions.length > 0) {
-      await redis.setAsync('lastBlockNumber', block.blockNumber)
+      await redis.hsetAsync('rejectTx', newBlockNumber,
+        JSON.stringify(rejectTransactions))
     }
-    await redis.hsetAsync('rejectTx', newBlockNumber,
-      JSON.stringify(rejectTransactions))
+    await redis.setAsync('lastBlockNumber', block.blockNumber)
     await redis.setAsync('block' + block.blockNumber.toString(10),
       block.getRlp())
     logger.info('New block created - transactions: ', block.transactions.length)
