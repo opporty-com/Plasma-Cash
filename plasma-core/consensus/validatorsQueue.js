@@ -7,16 +7,11 @@ import crypto from 'crypto'
 class ValidatorsQueue {
   constructor() {
     this.validators = []
-    this.queue = []
-    this.currentValidator = {}
-    this.currentMaxDelegates = config.maxDelegates
-    this.fixedHeight = 0
-    this.rounds = 0
+    this.hungValidators = []
   }
 
   async init() {
     this.resetValidatorsQueue()
-    this.fixedRounds = await redis.getAsync('fixedRounds') || 0
   }
 
   async resetValidatorsQueue() {
@@ -34,12 +29,11 @@ class ValidatorsQueue {
       for (let key in validators) {
         this.validators.push(validators[key])
       }
-      await this.prepareValidators()
-      return this.currentValidator
+      return await this.getCurrentValidator()
     }
   }
 
-  async addValidator(validator) {    
+  async addValidator(validator) {
     this.validators.push(validator)
     return validator
   }
@@ -50,40 +44,14 @@ class ValidatorsQueue {
     return 'ok'
   }
 
-  async delAllValidators() {
-    let answer
-    try {      
-      answer = await redis.delAsync('validators')
-      this.validators = []
-    } catch (error) {
-      return error.toString()
-    }
-    return answer
-  }
-
   async prepareValidators() {
-    let height = await redis.getAsync('lastBlockNumber')
-    if (!height) {
-      height = 0
-    }
-    if (this.currentMaxDelegates != config.maxDelegates) {
-      this.currentMaxDelegates = config.maxDelegates
-      this.fixedHeight = height
-    }
-    height -= this.fixedHeight
-    let rounds = this.rounds
-    this.rounds = Math.floor(height / config.variableDelegatesLength)
-    + (height % config.variableDelegatesLength > 0 ? 1 : 0)
-    if (this.rounds - rounds === 1) {
-      this.fixedRounds++
-      await redis.setAsync('fixedRounds', this.fixedRounds)
-    }
+    let seedData = Math.floor(Date.now()/config.roundInterval)
     this.hungValidators = Object.assign([], this.validators)
-    let currentSeed = crypto.createHash('sha256')
-      .update(String(this.fixedRounds), 'utf8').digest()
+    let seedSource = crypto.createHash('sha256')
+      .update(String(seedData), 'utf8').digest()
     for (let i = 0, delCount = this.hungValidators.length; i < delCount; i++) {
       for (let x = 0; x < 4 && i < delCount; i++, x++) {
-        let newIndex = currentSeed[x] % delCount
+        let newIndex = seedSource[x] % delCount
         let b = this.hungValidators[newIndex]
         this.hungValidators[newIndex] = this.hungValidators[i]
         this.hungValidators[i] = b

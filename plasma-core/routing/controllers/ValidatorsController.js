@@ -36,13 +36,13 @@ class ValidatorsController {
       let {address} = req.body
       if (!web3.utils.isAddress(address)) {
         res.statusCode = 400
-        res.end(JSON.stringify('Incorrect address'))
+        return res.end(JSON.stringify('Incorrect address'))
       }
       let answer = await stateValidators.setCandidate(address)
-      res.end(JSON.stringify({answer}))
+      return res.end(JSON.stringify({answer}))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -53,13 +53,13 @@ class ValidatorsController {
       let {address} = req.body
       if (!web3.utils.isAddress(address)) {
         res.statusCode = 400
-        res.end(JSON.stringify('Incorrect address'))
+        return res.end(JSON.stringify('Incorrect address'))
       }
       let answer = await stateValidators.removeCandidate(address)
-      res.end(JSON.stringify({answer}))
+      return res.end(JSON.stringify({answer}))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -71,22 +71,22 @@ class ValidatorsController {
       let {voter, candidate, value} = req.body
       if (!web3.utils.isAddress(voter) || !web3.utils.isAddress(candidate)) {
         res.statusCode = 400
-        res.end(JSON.stringify('Incorrect voter or candidate address'))
+        return res.end(JSON.stringify('Incorrect voter or candidate address'))
       }
       if (voter != config.plasmaNodeAddress) {
         res.statusCode = 403
-        res.end(JSON.stringify('Voter address must be the own address of node'))
+        return res.end(JSON.stringify('Voter address must be the own address of node'))
       }
       if (!(typeof value === 'number')) {
         res.statusCode = 400
-        res.end(JSON.stringify('Incorrect type of value'))
+        return res.end(JSON.stringify('Incorrect type of value'))
       }
       let stake = {voter, candidate, value}
       let answer = await stateValidators.addStake(stake)
-      res.end(JSON.stringify({answer}))
+      return res.end(JSON.stringify({answer}))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -97,18 +97,18 @@ class ValidatorsController {
       let {voter, candidate, value} = req.body
       if (!web3.utils.isAddress(voter) || !web3.utils.isAddress(candidate)) {
         res.statusCode = 400
-        res.end(JSON.stringify('Incorrect voter or candidate address'))
+        return res.end(JSON.stringify('Incorrect voter or candidate address'))
       }
       if (!(typeof value === 'number')) {
         res.statusCode = 400
-        res.end(JSON.stringify('Incorrect type of value'))
+        return res.end(JSON.stringify('Incorrect type of value'))
       }
       let stake = {voter, candidate, value}
       let answer = await stateValidators.toLowerStake(stake)
-      res.end(JSON.stringify({answer}))
+      return res.end(JSON.stringify({answer}))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 }

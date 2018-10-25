@@ -25,7 +25,7 @@ class DefController {
       })
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -45,10 +45,10 @@ class DefController {
       }
       let utxos = await getAllUtxos(addresses)
       res.statusCode = 200
-      res.end(JSON.stringify(utxos))
+      return res.end(JSON.stringify(utxos))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -56,11 +56,11 @@ class DefController {
     try {
       redis.keys('utxo*', function(err, result) {
         res.statusCode = 200
-        res.end(result.length.toString())
+        return res.end(result.length.toString())
       })
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -68,10 +68,10 @@ class DefController {
     try {
       let all = await txMemPool.txs(true)
       res.statusCode = 200
-      res.end(JSON.stringify(all))
+      return res.end(JSON.stringify(all))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 }

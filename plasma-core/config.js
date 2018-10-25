@@ -15,11 +15,11 @@ export default {
     process.env.PLASMA_NODE_PRIVATE :
     '',
   maxDelegates: 30,
-  variableDelegatesLength: 30,
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
   web3HttpProvider: 'http://127.0.0.1:8545',
   blockPeriod: 5000,
   blockTime: 10000,
+  roundInterval: 300000,
   startBlockNumber: 1, // first nlock number in Root contract
   contractblockStep: 1,
   isDevelopment: process.env.NODE_ENV == 'development',

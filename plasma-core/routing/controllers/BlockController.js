@@ -23,7 +23,7 @@ class BlockController {
       return res.end(JSON.stringify(block.getJson()))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -32,11 +32,11 @@ class BlockController {
     let {address, block} = req.body
     if (!web3.utils.isAddress(address)) {
       res.statusCode = 400
-      res.end(JSON.stringify('Incorrect address'))
+      return res.end(JSON.stringify('Incorrect address'))
     }
     if (!block) {
       res.statusCode = 400
-      res.end(JSON.stringify('Incorrect block data'))
+      return res.end(JSON.stringify('Incorrect block data'))
     }
     if (!(await RightsHandler.validateAddressForValidating(address))) {
       res.statusCode = 403
@@ -64,17 +64,17 @@ class BlockController {
       let {address, blockHash} = req.body
       if (!web3.utils.isAddress(address)) {
         res.statusCode = 400
-        res.end(JSON.stringify('Incorrect address'))
+        return res.end(JSON.stringify('Incorrect address'))
       }
       if (!blockHash) {
         res.statusCode = 400
-        res.end(JSON.stringify('Incorrect block data'))
+        return res.end(JSON.stringify('Incorrect block data'))
       }
       let signature = await sign(address, blockHash)
       return res.end(JSON.stringify({signature}))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -84,14 +84,14 @@ class BlockController {
       let {block: blockNumber, tokenId} = req.body
       if (!blockNumber || !tokenId) {
         res.statusCode = 400
-        res.end(JSON.stringify('Wrong request body'))
+        return res.end(JSON.stringify('Wrong request body'))
       }
       let block = await getBlock(blockNumber)
       let proof = block.getProof(tokenId, true)
       return res.end(JSON.stringify({proof}))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -101,13 +101,13 @@ class BlockController {
       let {block: blockNumber, hash, proof} = req.body
       if (!blockNumber || !hash || !proof) {
         res.statusCode = 400
-        res.end(JSON.stringify('Wrong request body'))
+        return res.end(JSON.stringify('Wrong request body'))
       }
       let block = await getBlock(blockNumber)
       return res.end(JSON.stringify(block.checkProof(proof, hash)))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 }
