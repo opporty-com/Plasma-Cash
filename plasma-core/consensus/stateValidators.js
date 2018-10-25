@@ -44,7 +44,7 @@ class StateValidators {
     return false
   }
 
-  async voteCandidates() {    
+  async voteCandidates() {
     let candidates = this.candidates.slice(0)
     candidates.sort((a, b) => {
       let aWeight = a.getWeight()
@@ -57,12 +57,8 @@ class StateValidators {
       }
       return 0
     })
-    if (config.maxDelegates > candidates.length) {
-      config.variableDelegatesLength = candidates.length
-    } else {
-      config.variableDelegatesLength = config.maxDelegates
-    }
-    let validators = candidates.splice(0, config.variableDelegatesLength)
+
+    let validators = candidates.splice(0, config.maxDelegates)
     for (let i = 0; i < validators.length; i++) {
       let address = validators[i].getAddress()
       let isValidator =

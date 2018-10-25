@@ -20,7 +20,7 @@ class TxController {
       let {block: blockNumber, tokenId, getHash} = req.body
       if (!blockNumber || !tokenId) {
         res.statusCode = 400
-        res.end(JSON.stringify('Wrong request body'))
+        return res.end(JSON.stringify('Wrong request body'))
       }
       let block = await getBlock(blockNumber)
       if (!block) {
@@ -50,7 +50,7 @@ class TxController {
       }
       if (!web3.utils.isAddress(addressFrom) || !web3.utils.isAddress(addressTo)) {
         res.statusCode = 400
-        res.end(JSON.stringify('Incorrect addressFrom or addressTo'))
+        return res.end(JSON.stringify('Incorrect addressFrom or addressTo'))
       }
       let successfullTransaction =
         await createTransaction(tokenId, addressFrom, addressTo)
@@ -89,7 +89,7 @@ class TxController {
         .then((ctreated) => res.end(ctreated.toString()))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -98,14 +98,14 @@ class TxController {
     let {address, password, amount} = req.body || null
     if (!address || !amount || !password) {
       res.statusCode = 400
-      res.end(JSON.stringify({message: 'request body is wrong'}))
+      return res.end(JSON.stringify({message: 'request body is wrong'}))
     }
     try {
       let answer = await createDeposit({address, password, amount})
-      res.end(JSON.stringify(answer))
+      return res.end(JSON.stringify(answer))
     } catch (error) {
       res.statusCode = 400
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -118,7 +118,7 @@ class TxController {
       ethUtil.addHexPrefix(tx.getHash(true).toString('hex'))
       return res.end(hashForSign)
     } catch (error) {
-      res.end(error.toString())
+      return res.end(error.toString())
     }
   }
 
@@ -151,7 +151,7 @@ class TxController {
     }
     if (!web3.utils.isAddress(address)) {
       res.statusCode = 400
-      res.end(JSON.stringify('Incorrect address'))
+      return res.end(JSON.stringify('Incorrect address'))
     }
     web3.eth.sign(data, address).then((result) => {
     })

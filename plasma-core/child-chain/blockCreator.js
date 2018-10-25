@@ -5,6 +5,7 @@ import {logger} from 'lib/logger'
 import {txMemPool} from 'child-chain/TxMemPool'
 import redis from 'lib/storage/redis'
 import contractHandler from 'root-chain/contracts/plasma'
+import {submitBlockEventHandler} from 'child-chain/eventsHandler'
 import web3 from 'lib/web3'
 import Block from 'child-chain/block'
 import {createNewBlock} from 'child-chain'
@@ -51,7 +52,7 @@ class BlockCreator {
         if (currentBlockInParent != lastSubmittedBlock) {
           if (currentBlockInParent > lastSubmittedBlock) {
             await redis.setAsync('lastBlockSubmitted', currentBlockInParent)
-          }          
+          }
           lastSubmittedBlock += config.contractblockStep
           this.startBlockSubmit(lastSubmittedBlock, sig)
         } else {
