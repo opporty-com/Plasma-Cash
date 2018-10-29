@@ -1,7 +1,7 @@
 'use strict'
 
 import config from 'config'
-import {logger} from 'lib/logger'
+import logger from 'lib/logger'
 import {txMemPool} from 'child-chain/TxMemPool'
 import redis from 'lib/storage/redis'
 import contractHandler from 'root-chain/contracts/plasma'

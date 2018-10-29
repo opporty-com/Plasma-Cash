@@ -2,7 +2,7 @@
 import web3 from 'lib/web3'
 import contractHandler from 'root-chain/contracts/plasma'
 import ethUtil from 'ethereumjs-util'
-import {logger} from 'lib/logger'
+import logger from 'lib/logger'
 import redis from 'lib/storage/redis'
 import Block from 'child-chain/block'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'

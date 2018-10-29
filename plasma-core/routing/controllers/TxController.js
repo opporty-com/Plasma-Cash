@@ -1,6 +1,6 @@
 'use strict'
 
-import {logger} from 'lib/logger'
+import logger from 'lib/logger'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 import ethUtil from 'ethereumjs-util'
 import {getBlock} from 'child-chain'

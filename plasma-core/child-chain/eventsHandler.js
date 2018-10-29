@@ -4,7 +4,7 @@ import RLP from 'rlp'
 import config from 'config'
 import redis from 'lib/storage/redis'
 import {createDepositTransaction} from 'child-chain'
-import {logger} from 'lib/logger'
+import logger from 'lib/logger'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 
 let x = 0

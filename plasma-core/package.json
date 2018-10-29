@@ -26,6 +26,7 @@
     "es6-promisify": "^6.0.0",
     "ethereum-input-data-decoder": "0.0.3",
     "ethereumjs-abi": "^0.6.5",
+    "ethereumjs-devp2p": "^2.5.0",
     "ethereumjs-util": "^5.1.2",
     "ethereumjs-wallet": "^0.6.0",
     "express": "^4.16.1",

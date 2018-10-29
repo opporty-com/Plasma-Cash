@@ -1,5 +1,5 @@
 import redis from 'lib/storage/redis'
-import {logger} from 'lib/logger'
+import logger from 'lib/logger'
 import config from 'config'
 import crypto from 'crypto'
 
