@@ -2,19 +2,12 @@
 
 import logger from 'lib/logger'
 
-var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
-var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 const net = require('net')
 const os = require('os')
 const secp256k1 = require('secp256k1')
 
 const {EventEmitter} = require('events')
 
-
-const ms = require('ms')
 const Buffer = require('safe-buffer').Buffer
 
 const LRUCache = require('lru-cache')
@@ -33,7 +26,7 @@ class RLPx extends EventEmitter {
     this._id = pk2id(secp256k1.publicKeyCreate(this._privateKey, false))
 
     // options
-    this._timeout = options.timeout || ms('10s')
+    this._timeout = options.timeout || 10000
     this._maxPeers = options.maxPeers || 10
     this._clientId = Buffer.from(options.clientId || `ethereumjs-devp2p/v${pVersion}/${os.platform()}-${os.arch()}/nodejs`)
     this._remoteClientIdFilter = options.remoteClientIdFilter
@@ -63,94 +56,65 @@ class RLPx extends EventEmitter {
     this._server.on('error', (err) => this.emit('error', err))
     this._server.on('connection', (socket) => this._onConnect(socket, null))
 
-    this._peers = new Map();
-    this._peersQueue = [];
-    this._peersLRU = new LRUCache({ max: 25000 });
-    this._refillIntervalId = setInterval(() => this._refillConnections(), ms('10s'));
+    this._peers = new Map()
+    this._peersQueue = []
+    this._peersLRU = new LRUCache({max: 25000})
+    this._refillIntervalId = setInterval(() => this._refillConnections(), 10000)
   }
 
   listen(...args) {
-    this._isAliveCheck();
-    logger.info('call .listen');
+    this._isAliveCheck()
+    logger.info('call .listen')
 
-    this._server.listen(...args);
+    this._server.listen(...args)
   }
 
   destroy(...args) {
-    this._isAliveCheck();
-    logger.info('call .destroy');
+    this._isAliveCheck()
+    logger.info('call .destroy')
 
-    clearInterval(this._refillIntervalId);
+    clearInterval(this._refillIntervalId)
 
-    this._server.close(...args);
-    this._server = null;
+    this._server.close(...args)
+    this._server = null
 
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = this._peers.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        let peerKey = _step.value;
-        this.disconnect(Buffer.from(peerKey, 'hex'));
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
+    for (let peerKey of this._peers.keys()) this.disconnect(Buffer.from(peerKey, 'hex'))
   }
 
-  connect(peer) {
-    let _this = this
+  async connect(peer) {
+    this._isAliveCheck()
 
-    return (0, _asyncToGenerator3.default)(function* () {
-      _this._isAliveCheck();
+    if (!Buffer.isBuffer(peer.id)) throw new TypeError('Expected peer.id as Buffer')
+    const peerKey = peer.id.toString('hex')
 
-      if (!Buffer.isBuffer(peer.id)) throw new TypeError('Expected peer.id as Buffer')
-      const peerKey = peer.id.toString('hex')
+    if (this._peers.has(peerKey)) throw new Error('Already connected')
+    if (this._getOpenSlots() === 0) throw new Error('Too much peers already connected')
 
-      if (_this._peers.has(peerKey)) throw new Error('Already connected')
-      if (_this._getOpenSlots() === 0) throw new Error('Too much peers already connected')
+    logger.info(`connect to ${peer.address}:${peer.port} (id: ${peerKey})`)
+    const deferred = createDeferred()
 
-      logger.info(`connect to ${peer.address}:${peer.port} (id: ${peerKey})`)
-      const deferred = createDeferred()
+    const socket = new net.Socket()
+    this._peers.set(peerKey, socket)
+    socket.once('close', () => {
+      this._peers.delete(peerKey)
+      this._refillConnections()
+    })
 
-      const socket = new net.Socket()
-      _this._peers.set(peerKey, socket)
-      socket.once('close', function() {
-        _this._peers.delete(peerKey)
-        _this._refillConnections()
-      })
+    socket.once('error', deferred.reject)
+    socket.setTimeout(this._timeout, () => deferred.reject(new Error('Connection timeout')))
+    socket.connect(peer.port, peer.address, deferred.resolve)
 
-      socket.once('error', deferred.reject)
-      socket.setTimeout(_this._timeout, function() {
-        return deferred.reject(new Error('Connection timeout'))
-      })
-
-      socket.connect(peer.port, peer.address, deferred.resolve)
-
-      yield deferred.promise
-      _this._onConnect(socket, peer.id)
-    })()
+    await deferred.promise
+    this._onConnect(socket, peer.id)
   }
 
   getPeers() {
-    return Array.from(this._peers.values()).filter(item => item instanceof Peer);
+    return Array.from(this._peers.values()).filter((item) => item instanceof Peer)
   }
 
   disconnect(id) {
-    const peer = this._peers.get(id.toString('hex'));
-    if (peer instanceof Peer) peer.disconnect(Peer.DISCONNECT_REASONS.CLIENT_QUITTING);
+    const peer = this._peers.get(id.toString('hex'))
+    if (peer instanceof Peer) peer.disconnect(Peer.DISCONNECT_REASONS.CLIENT_QUITTING)
   }
 
   _isAlive() {
@@ -158,19 +122,19 @@ class RLPx extends EventEmitter {
   }
 
   _isAliveCheck() {
-    if (!this._isAlive()) throw new Error('Server already destroyed');
+    if (!this._isAlive()) throw new Error('Server already destroyed')
   }
 
   _getOpenSlots() {
-    return Math.max(this._maxPeers - this._peers.size, 0);
+    return Math.max(this._maxPeers - this._peers.size, 0)
   }
 
   _connectToPeer(peer) {
-    const opts = { id: peer.id, address: peer.address, port: peer.tcpPort };
+    const opts = {id: peer.id, address: peer.address, port: peer.tcpPort}
     this.connect(opts).catch((err) => {
       if (this._dpt === null) return
       if (err.code === 'ECONNRESET' || err.toString().includes('Connection timeout')) {
-        this._dpt.banPeer(opts, ms('5m'))
+        this._dpt.banPeer(opts, 5*60000)
       }
     });
   }
@@ -196,7 +160,7 @@ class RLPx extends EventEmitter {
     if (peerId === null && this._getOpenSlots() === 0) {
       peer.once('connect', () => peer.disconnect(Peer.DISCONNECT_REASONS.TOO_MANY_PEERS))
       socket.once('error', () => {})
-      return;
+      return
     }
 
     peer.once('connect', () => {
@@ -207,26 +171,26 @@ class RLPx extends EventEmitter {
       if (peer._eciesSession._gotEIP8Ack === true) {
         msg += ' (peer eip8 ack)'
       }
-      console.log(msg);
+      logger.info(msg)
       if (peer.getId().equals(this._id)) {
-        return peer.disconnect(Peer.DISCONNECT_REASONS.SAME_IDENTITY);
+        return peer.disconnect(Peer.DISCONNECT_REASONS.SAME_IDENTITY)
       }
 
-      const peerKey = peer.getId().toString('hex');
-      const item = this._peers.get(peerKey);
+      const peerKey = peer.getId().toString('hex')
+      const item = this._peers.get(peerKey)
       if (item && item instanceof Peer) {
-        return peer.disconnect(Peer.DISCONNECT_REASONS.ALREADY_CONNECTED);
+        return peer.disconnect(Peer.DISCONNECT_REASONS.ALREADY_CONNECTED)
       }
 
-      this._peers.set(peerKey, peer);
-      this.emit('peer:added', peer);
+      this._peers.set(peerKey, peer)
+      this.emit('peer:added', peer)
     })
 
     peer.once('close', (reason, disconnectWe) => {
       if (disconnectWe) {
-        console.log(`disconnect from ${socket.remoteAddress}:${socket.remotePort}, reason: ${String(reason)}`)
+        logger.info(`disconnect from ${socket.remoteAddress}:${socket.remotePort}, reason: ${String(reason)}`)
       } else {
-        console.log(`${socket.remoteAddress}:${socket.remotePort} disconnect, reason: ${String(reason)}`)
+        logger.info(`${socket.remoteAddress}:${socket.remotePort} disconnect, reason: ${String(reason)}`)
       }
 
       if (!disconnectWe && reason === Peer.DISCONNECT_REASONS.TOO_MANY_PEERS) {
@@ -237,13 +201,13 @@ class RLPx extends EventEmitter {
             address: peer._socket.remoteAddress,
             tcpPort: peer._socket.remotePort,
           },
-          ts: Date.now() + ms('5m')
+          ts: Date.now() + 300000,
         })
       }
       let peerKey = peer.getId().toString('hex')
       this._peers.delete(peerKey)
       this.emit('peer:removed', peer, reason, disconnectWe)
-    });
+    })
   }
 
   _refillConnections() {

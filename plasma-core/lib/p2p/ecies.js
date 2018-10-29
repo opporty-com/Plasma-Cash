@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
-const crypto = require('crypto');
-const secp256k1 = require('secp256k1');
-const Buffer = require('safe-buffer').Buffer;
-const rlp = require('rlp-encoding');
-const util = require('./util');
-const MAC = require('./mac');
+const crypto = require('crypto')
+const secp256k1 = require('secp256k1')
+const Buffer = require('safe-buffer').Buffer
+const rlp = require('rlp-encoding')
+const util = require('./util')
+const MAC = require('./mac')
 
 function ecdhX(publicKey, privateKey) {
   // return (publicKey * privateKey).x
@@ -130,21 +130,6 @@ class ECIES {
     this._egressMac.update(Buffer.concat([util.xor(macSecret, this._remoteNonce), this._initMsg]));
   }
 
-  createAuthEIP8() {
-    const x = ecdhX(this._remotePublicKey, this._privateKey);
-    const sig = secp256k1.sign(util.xor(x, this._nonce), this._ephemeralPrivateKey);
-    const data = [Buffer.concat([sig.signature, Buffer.from([sig.recovery])]),
-    // util.keccak256(util.pk2id(this._ephemeralPublicKey)),
-    util.pk2id(this._publicKey), this._nonce, Buffer.from([0x04])];
-
-    const dataRLP = rlp.encode(data);
-    const pad = crypto.randomBytes(100 + Math.floor(Math.random() * 151)); // Random padding between 100, 250
-    const authMsg = Buffer.concat([dataRLP, pad]);
-    const overheadLength = 113;
-    const sharedMacData = util.int2buffer(authMsg.length + overheadLength);
-    this._initMsg = Buffer.concat([sharedMacData, this._encryptMessage(authMsg, sharedMacData)]);
-    return this._initMsg;
-  }
 
   createAuthNonEIP8() {
     const x = ecdhX(this._remotePublicKey, this._privateKey);
@@ -156,15 +141,15 @@ class ECIES {
   }
 
   parseAuthPlain(data, sharedMacData = null) {
-    const prefix = sharedMacData !== null ? sharedMacData : Buffer.from([]);
-    this._remoteInitMsg = Buffer.concat([prefix, data]);
-    const decrypted = this._decryptMessage(data, sharedMacData);
+    const prefix = sharedMacData !== null ? sharedMacData : Buffer.from([])
+    this._remoteInitMsg = Buffer.concat([prefix, data])
+    const decrypted = this._decryptMessage(data, sharedMacData)
 
-    var signature = null;
-    var recoveryId = null;
-    var heid = null;
-    var remotePublicKey = null;
-    var nonce = null;
+    let signature = null
+    let recoveryId = null
+    let heid = null
+    let remotePublicKey = null
+    let nonce = null
 
     if (!this._gotEIP8Auth) {
       util.assertEq(decrypted.length, 194, 'invalid packet length');
@@ -196,25 +181,6 @@ class ECIES {
       var _heid = util.keccak256(util.pk2id(this._remoteEphemeralPublicKey));
       util.assertEq(_heid, heid, 'the hash of the ephemeral key should match');
     }
-  }
-
-  parseAuthEIP8(data) {
-    const size = util.buffer2int(data.slice(0, 2)) + 2;
-    util.assertEq(data.length, size, 'message length different from specified size (EIP8)');
-    this.parseAuthPlain(data.slice(2), data.slice(0, 2));
-  }
-
-  createAckEIP8() {
-    const data = [util.pk2id(this._ephemeralPublicKey), this._nonce, Buffer.from([0x04])];
-
-    const dataRLP = rlp.encode(data);
-    const pad = crypto.randomBytes(100 + Math.floor(Math.random() * 151)); // Random padding between 100, 250
-    const ackMsg = Buffer.concat([dataRLP, pad]);
-    const overheadLength = 113;
-    const sharedMacData = util.int2buffer(ackMsg.length + overheadLength);
-    this._initMsg = Buffer.concat([sharedMacData, this._encryptMessage(ackMsg, sharedMacData)]);
-    this._setupFrame(this._remoteInitMsg, true);
-    return this._initMsg;
   }
 
   createAckOld() {
@@ -254,14 +220,7 @@ class ECIES {
     }
     this._setupFrame(Buffer.concat([sharedMacData, data]), false);
   }
-
-  parseAckEIP8(data) {
-    // eslint-disable-line
-    const size = util.buffer2int(data.slice(0, 2)) + 2;
-    util.assertEq(data.length, size, 'message length different from specified size (EIP8)');
-    this.parseAckPlain(data.slice(2), data.slice(0, 2));
-  }
-
+  
   createHeader(size) {
     size = util.zfill(util.int2buffer(size), 3);
     let header = Buffer.concat([size, rlp.encode([0, 0])]); // TODO: the rlp will contain something else someday
@@ -299,16 +258,16 @@ class ECIES {
   parseBody(data) {
     if (this._bodySize === null) throw new Error('need to parse header first');
 
-    const body = data.slice(0, -16);
-    const mac = data.slice(-16);
-    this._ingressMac.updateBody(body);
-    const _mac = this._ingressMac.digest();
-    util.assertEq(_mac, mac, 'Invalid MAC');
+    const body = data.slice(0, -16)
+    const mac = data.slice(-16)
+    this._ingressMac.updateBody(body)
+    const _mac = this._ingressMac.digest()
+    util.assertEq(_mac, mac, 'Invalid MAC')
 
-    const size = this._bodySize;
-    this._bodySize = null;
-    return this._ingressAes.update(body).slice(0, size);
+    const size = this._bodySize
+    this._bodySize = null
+    return this._ingressAes.update(body).slice(0, size)
   }
 }
 
-module.exports = ECIES;
+module.exports = ECIES

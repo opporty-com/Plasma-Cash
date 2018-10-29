@@ -34,6 +34,7 @@ rlpx.on('peer:added', (peer) => {
     bestHash: Buffer.from('d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3', 'hex'),
     genesisHash: Buffer.from('d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3', 'hex'),
   })
+
 })
 
 rlpx.on('peer:removed', (peer, reasonCode, disconnectWe) => {
