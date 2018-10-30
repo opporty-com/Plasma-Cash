@@ -57,9 +57,6 @@ const validateTx = async () => {
         cause: rejectCauses.noUtxo})
     }
   }
-  if (successfullTransactions.length === 0) {
-    return 'list of successfull transaction is empty'
-  }
   console.time('validateTime')
   return {successfullTransactions, rejectTransactions}
 }

@@ -1,5 +1,5 @@
 import {Candidate, RightsHandler, validatorsQueue} from 'consensus'
-import {makeStakeEvent} from 'child-chain'
+import {makeAddStakeEvent, makeLowerStakeEvent} from 'child-chain/eventsHandler'
 import config from 'config'
 
 /** asa */
@@ -57,7 +57,6 @@ class StateValidators {
       }
       return 0
     })
-
     let validators = candidates.splice(0, config.maxDelegates)
     for (let i = 0; i < validators.length; i++) {
       let address = validators[i].getAddress()
@@ -120,14 +119,14 @@ class StateValidators {
   // greater than the number of existing
   async toLowerStake(stake) {
     let candidateExists = false
-    let stakeExists = false
+    let stakeEvent = {}
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === stake.voter &&
         this.stakes[i].candidate === stake.candidate) {
-        stakeExists = true
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
-            const {voter, value} = stake
+            stakeEvent = await makeLowerStakeEvent(stake)
+            const {voter, value} = stakeEvent
             this.candidates[i].toLowerStake({
               voter, value,
             })
@@ -135,12 +134,12 @@ class StateValidators {
           }
         }
         if (candidateExists) {
-          if (this.stakes[i].value <= stake.value) {
+          if (this.stakes[i].value <= stakeEvent.value) {
             this.stakes.splice(i, 1)
             await this.voteCandidates()
             return 'ok'
           } else {
-            this.stakes[i].value -= stake.value
+            this.stakes[i].value -= stakeEvent.value
             await this.voteCandidates()
             return 'ok'
           }
@@ -148,10 +147,8 @@ class StateValidators {
           throw new Error('Denieded stake on a non-existent candidate')
         }
       }
-      if (!stakeExists) {
-        return 'stake can`t be lowered because it is not exists'
-      }
     }
+    return 'stake can`t be lowered because it is not exists'
   }
 
   // first checks if there is a stake with such a voter and a candidate,
@@ -169,7 +166,7 @@ class StateValidators {
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
             try {
-              stakeEvent = await makeStakeEvent(stake)
+              stakeEvent = await makeAddStakeEvent(stake)
             } catch (error) {
               return error.toString()
             }
@@ -188,12 +185,11 @@ class StateValidators {
         }
       }
     }
-
     if (!stakeExists) {
       for (let i = 0; i < this.candidates.length; i++) {
         if (this.candidates[i].getAddress() === stake.candidate) {
           try {
-            stakeEvent = await makeStakeEvent(stake)
+            stakeEvent = await makeAddStakeEvent(stake)
           } catch (error) {
             return error.toString()
           }

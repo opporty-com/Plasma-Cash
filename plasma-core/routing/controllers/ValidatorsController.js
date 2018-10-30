@@ -97,9 +97,9 @@ class ValidatorsController {
         res.statusCode = 400
         return res.end(JSON.stringify('Incorrect voter or candidate address'))
       }
-      if (!(typeof value === 'number')) {
+      if (!tokenId) {
         res.statusCode = 400
-        return res.end(JSON.stringify('Incorrect type of value'))
+        return res.end(JSON.stringify('You should give a tokenId'))
       }
       let stake = {voter, candidate, tokenId}
       let answer = await stateValidators.toLowerStake(stake)

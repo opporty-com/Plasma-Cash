@@ -36,8 +36,8 @@ contract Root {
 
     event BlockSubmitted(address operator, bytes32 merkleRoot, uint blockNumber);
     event DepositAdded(address depositor, uint amount, uint tokenId, uint blockNumber);
-    event StakeAdded(address voter, address candidate, uint value);
-    event StakeRemoved(address voter, address candidate, uint value);
+    event StakeAdded(address voter, address candidate, uint value, uint tokenId);
+    event StakeLowered(address voter, address candidate, uint value, uint tokenId);
     event ExitAdded(address exitor, uint priority, uint exitId);
     event ExitChallengedEvent(uint exitId);
     event ChallengedInvalidHistory(uint exitId, uint tokenId);
@@ -205,18 +205,16 @@ contract Root {
     }
 
     function addStake(address candidate, uint tokenId) public {
-        require(tokens[tokenId] > 0, "this utxo is not existent");
         stakes[candidate][tokenId] = msg.sender;
         frozenTokens[tokenId] = tokens[tokenId];
-        emit StakeAdded(msg.sender, candidate, tokens[tokenId]);
+        emit StakeAdded(msg.sender, candidate, tokens[tokenId], tokenId);
     }
 
-    function removeStake(address candidate, uint tokenId) public {
-        require(tokens[tokenId] > 0, "this utxo is not existent");
+    function lowerStake(address candidate, uint tokenId) public {
         require(stakes[candidate][tokenId] == msg.sender, "You are not the owner of this token");
         delete stakes[candidate][tokenId];
         delete frozenTokens[tokenId];
-        emit StakeRemoved(msg.sender, candidate, tokens[tokenId]);
+        emit StakeLowered(msg.sender, candidate, tokens[tokenId], tokenId);
     }
 
     /*
