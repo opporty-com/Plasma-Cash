@@ -1,7 +1,6 @@
 import {EventEmitter} from 'events'
 import rlp from 'rlp-encoding'
-import {int2buffer, buffer2int, assertEq} from './util'
-import Peer from './peer'
+import {_util} from 'ethereumjs-devp2p'
 import logger from 'lib/logger'
 
 const MESSAGE_CODES = {
@@ -26,7 +25,7 @@ class PlasmaProtocol extends EventEmitter {
     this._status = null
     this._peerStatus = null
     this._statusTimeoutId = setTimeout(() => {
-      this._peer.disconnect(Peer.DISCONNECT_REASONS.TIMEOUT)
+      this._peer.disconnect(11) //TIMEOUT HARDCODE
     }, 5000)
   }
 
@@ -41,7 +40,7 @@ class PlasmaProtocol extends EventEmitter {
     }
     switch (code) {
       case MESSAGE_CODES.STATUS:
-        assertEq(this._peerStatus, null, 'Uncontrolled status message')
+        _util.assertEq(this._peerStatus, null, 'Uncontrolled status message')
         this._peerStatus = payload
         logger.info(`Received ${this.getMsgPrefix(code)} message from ${this._peer._socket.remoteAddress}:${this._peer._socket.remotePort}: : ${this._getStatusString(this._peerStatus)}`)
         this._handleStatus()
@@ -68,9 +67,9 @@ class PlasmaProtocol extends EventEmitter {
     if (this._status === null || this._peerStatus === null) return
     clearTimeout(this._statusTimeoutId)
 
-    assertEq(this._status[0], this._peerStatus[0], 'Protocol version mismatch')
-    assertEq(this._status[1], this._peerStatus[1], 'NetworkId mismatch')
-    assertEq(this._status[4], this._peerStatus[4], 'Genesis block mismatch')
+    _util.assertEq(this._status[0], this._peerStatus[0], 'Protocol version mismatch')
+    _util.assertEq(this._status[1], this._peerStatus[1], 'NetworkId mismatch')
+    _util.assertEq(this._status[4], this._peerStatus[4], 'Genesis block mismatch')
 
     this.emit('status', {
       networkId: this._peerStatus[1],
@@ -85,7 +84,7 @@ class PlasmaProtocol extends EventEmitter {
   }
 
   _getStatusString(status) {
-    var sStr = `[V:${buffer2int(status[0])}, NID:${buffer2int(status[1])}, TD:${buffer2int(status[2])}`
+    var sStr = `[V:${_util.buffer2int(status[0])}, NID:${_util.buffer2int(status[1])}, TD:${_util.buffer2int(status[2])}`
     sStr += `, BestH:${status[3].toString('hex')}, GenH:${status[4].toString('hex')}]`
     return sStr
   }
@@ -93,8 +92,8 @@ class PlasmaProtocol extends EventEmitter {
   sendStatus(status) {
     if (this._status !== null) return
     this._status = [
-      int2buffer(this._version),
-      int2buffer(status.networkId),
+      _util.int2buffer(this._version),
+      _util.int2buffer(status.networkId),
       status.td,
       status.bestHash,
       status.genesisHash
