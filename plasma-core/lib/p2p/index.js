@@ -1,10 +1,13 @@
-import {DPT, ETH} from 'ethereumjs-devp2p'
+import {DPT} from 'ethereumjs-devp2p'
+import PlasmaProtocol from './plasma-protocol'
 import config from 'config'
 import logger from 'lib/logger'
 import RLPx from './rlpx'
-const {int2buffer} = require('./util')
-const assert = require('assert')
-const getPeerAddr = (peer) => `${peer._socket.remoteAddress}:${peer._socket.remotePort}`
+import {int2buffer} from './util'
+import assert from 'assert'
+
+const getPeerAddr = (peer) =>
+  `${peer._socket.remoteAddress}:${peer._socket.remotePort}`
 
 const dpt = new DPT(config.dptKey, config.dptEndpoint)
 
@@ -12,7 +15,7 @@ const rlpx = new RLPx(config.dptKey, {
   dpt: dpt,
   maxPeers: 25,
   capabilities: [
-    ETH.eth62,
+    PlasmaProtocol.cash1,
   ],
   listenPort: config.dptPort,
 })
@@ -24,7 +27,6 @@ rlpx.on('peer:added', (peer) => {
   logger.info(`${addr}`)
 
   const eth = peer.getProtocols()[0]
-
   const clientId = peer.getHelloMessage().clientId
   logger.info(`Add peer: ${addr} ${clientId} (eth${eth.getVersion()}) (total: ${rlpx.getPeers().length})`)
 
@@ -33,6 +35,16 @@ rlpx.on('peer:added', (peer) => {
     td: int2buffer(17179869184), // total difficulty in genesis block
     bestHash: Buffer.from('d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3', 'hex'),
     genesisHash: Buffer.from('d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3', 'hex'),
+  })
+
+  eth.sendMessage(PlasmaProtocol.MESSAGE_CODES.TX, ['tx', 'text'])
+
+  eth.on('message', async (code, payload) => {
+    switch (code) {
+    case PlasmaProtocol.MESSAGE_CODES.TX:
+      logger.info('GET TX MESSSAGE', payload)
+      break
+    }
   })
 
 })
@@ -48,7 +60,7 @@ rlpx.on('peer:error', (peer, err) => {
 
   if (err instanceof assert.AssertionError) {
     const peerId = peer.getId()
-    if (peerId !== null) dpt.banPeer(peerId, ms('5m'))
+    if (peerId !== null) dpt.banPeer(peerId, 5*60000)
 
     logger.error(`Peer error (${getPeerAddr(peer)}): ${err.message}`)
     return

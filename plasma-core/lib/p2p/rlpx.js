@@ -1,21 +1,14 @@
 'use strict'
 
 import logger from 'lib/logger'
-
-const net = require('net')
-const os = require('os')
-const secp256k1 = require('secp256k1')
-
-const {EventEmitter} = require('events')
-
-const Buffer = require('safe-buffer').Buffer
-
-const LRUCache = require('lru-cache')
+import net from 'net'
+import os from 'os'
+import secp256k1 from 'secp256k1'
+import {EventEmitter} from 'events'
+import LRUCache from 'lru-cache'
 const pVersion = require('../../package.json').version
-
-const {pk2id, createDeferred} = require('./util')
-
-const Peer = require('./peer')
+import {pk2id, createDeferred} from './util'
+import Peer from './peer'
 
 /** Rlp transport protocol */
 class RLPx extends EventEmitter {

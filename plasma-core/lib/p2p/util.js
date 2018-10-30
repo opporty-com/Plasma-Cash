@@ -1,9 +1,8 @@
-const {randomBytes} = require('crypto')
-const secp256k1 = require('secp256k1')
-const Buffer = require('safe-buffer').Buffer
+import {randomBytes} from 'crypto'
+import secp256k1 from 'secp256k1'
 
-const createKeccakHash = require('keccak')
-const assert = require('assert')
+import createKeccakHash from 'keccak'
+import assert from'assert'
 import logger from 'lib/logger'
 
 function keccak256(...buffers) {

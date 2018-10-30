@@ -1,20 +1,14 @@
-'use strict';
+'use strict'
 
-const {EventEmitter} = require('events')
-
+import {EventEmitter} from 'events'
 import logger from 'lib/logger'
-const rlp = require('rlp-encoding')
-
-const BufferList = require('bl')
-const Buffer = require('safe-buffer').Buffer
-
-const {int2buffer, buffer2int} = require('./util')
-
-const ECIES = require('./ecies')
+import rlp from 'rlp-encoding'
+import BufferList from 'bl'
+import {int2buffer, buffer2int} from './util'
+import ECIES from './ecies'
 
 const BASE_PROTOCOL_VERSION = 4
 const BASE_PROTOCOL_LENGTH = 16
-
 const PING_INTERVAL = 15000
 
 const PREFIXES = {
@@ -120,22 +114,22 @@ class Peer extends EventEmitter {
     break;
 
     case 'Body':
-      const body = this._eciesSession.parseBody(data);
-      logger.info(`Received body ${this._socket.remoteAddress}:${this._socket.remotePort} ${body.toString('hex')}`);
+      const body = this._eciesSession.parseBody(data)
+      logger.info(`Received body ${this._socket.remoteAddress}:${this._socket.remotePort} ${body.toString('hex')}`)
 
-      this._state = 'Header';
-      this._nextPacketSize = 32;
+      this._state = 'Header'
+      this._nextPacketSize = 32
 
       // RLP hack
-      let code = body[0];
-      if (code === 0x80) code = 0;
+      let code = body[0]
+      if (code === 0x80) code = 0
 
       if (code !== PREFIXES.HELLO && code !== PREFIXES.DISCONNECT && this._hello === null) {
-        return this.disconnect(Peer.DISCONNECT_REASONS.PROTOCOL_ERROR);
+        return this.disconnect(Peer.DISCONNECT_REASONS.PROTOCOL_ERROR)
       }
 
       const obj = this._getProtocol(code);
-      if (obj === undefined) return this.disconnect(Peer.DISCONNECT_REASONS.PROTOCOL_ERROR);
+      if (obj === undefined) return this.disconnect(Peer.DISCONNECT_REASONS.PROTOCOL_ERROR)
 
       const msgCode = code - obj.offset
       const prefix = this.getMsgPrefix(msgCode)
@@ -196,26 +190,26 @@ class Peer extends EventEmitter {
         }
       }
 
-      let offset = BASE_PROTOCOL_LENGTH;
+      let offset = BASE_PROTOCOL_LENGTH
       this._protocols = Object.keys(shared).map((key) => shared[key]).sort((obj1, obj2) => obj1.name < obj2.name ? -1 : 1).map((obj) => {
         const _offset = offset
         offset += obj.length
 
         const SubProtocol = obj.constructor
         const protocol = new SubProtocol(obj.version, this, (code, data) => {
-          if (code > obj.length) throw new Error('Code out of range');
-          this._sendMessage(_offset + code, data);
+          if (code > obj.length) throw new Error('Code out of range')
+          this._sendMessage(_offset + code, data)
         })
 
         return {protocol, offset: _offset, length: obj.length}
       })
 
       if (this._protocols.length === 0) {
-        return this.disconnect(Peer.DISCONNECT_REASONS.USELESS_PEER);
+        return this.disconnect(Peer.DISCONNECT_REASONS.USELESS_PEER)
       }
 
       this._connected = true
-      this._pingIntervalId = setInterval(() => this._sendPing(), PING_INTERVAL);
+      this._pingIntervalId = setInterval(() => this._sendPing(), PING_INTERVAL)
       if (this._weHello) {
         this.emit('connect')
       }
@@ -264,7 +258,7 @@ class Peer extends EventEmitter {
     const msg = Buffer.concat([rlp.encode(code), data]);
     this._socket.write(this._eciesSession.createHeader(msg.length));
     this._socket.write(this._eciesSession.createBody(msg));
-    return true;
+    return true
   }
 
   _sendHello() {
@@ -320,19 +314,19 @@ class Peer extends EventEmitter {
   }
 
   getProtocols() {
-    return this._protocols.map(obj => obj.protocol)
+    return this._protocols.map((obj) => obj.protocol)
   }
 
   getMsgPrefix(code) {
-    return Object.keys(PREFIXES).find(key => PREFIXES[key] === code)
+    return Object.keys(PREFIXES).find((key) => PREFIXES[key] === code)
   }
 
   getDisconnectPrefix(code) {
-    return Object.keys(Peer.DISCONNECT_REASONS).find(key => Peer.DISCONNECT_REASONS[key] === code)
+    return Object.keys(Peer.DISCONNECT_REASONS).find((key) => Peer.DISCONNECT_REASONS[key] === code)
   }
 
   disconnect(reason = Peer.DISCONNECT_REASONS.DISCONNECT_REQUESTED) {
-    this._sendDisconnect(reason);
+    this._sendDisconnect(reason)
   }
 }
 
@@ -349,6 +343,6 @@ Peer.DISCONNECT_REASONS = {
   UNEXPECTED_IDENTITY: 0x09,
   SAME_IDENTITY: 0x0a,
   TIMEOUT: 0x0b,
-  SUBPROTOCOL_ERROR: 0x10
-};
-module.exports = Peer;
+  SUBPROTOCOL_ERROR: 0x10,
+}
+module.exports = Peer
