@@ -46,13 +46,15 @@ async function submitBlock(address, blockHash) {
   return 'ok'
 }
 
-async function makeStakeEvent({voter, candidate, value}) {
+async function makeStakeEvent({voter, candidate, tokenId}) {
   try {
     await web3.eth.personal.unlockAccount(voter, config.plasmaNodePassword, 60)
-    let gas = await contractHandler.contract.methods.addStake(candidate)
+    let gas = await contractHandler.contract.methods
+      .addStake(candidate, tokenId)
       .estimateGas({from: voter})
-    let answer = await contractHandler.contract.methods.addStake(candidate)
-      .send({from: voter, value: value, gas: gas + 15000})
+    let answer = await contractHandler.contract.methods
+      .addStake(candidate, tokenId)
+      .send({from: voter, gas: gas + 15000})
     let returnValues = answer.events.StakeAdded.returnValues
     let stake = {
       voter: returnValues.voter,

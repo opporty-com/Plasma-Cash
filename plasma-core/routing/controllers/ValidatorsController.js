@@ -68,20 +68,18 @@ class ValidatorsController {
     await parseM(req)
 
     try {
-      let {voter, candidate, value} = req.body
+      let {voter, candidate, tokenId} = req.body
       if (!web3.utils.isAddress(voter) || !web3.utils.isAddress(candidate)) {
         res.statusCode = 400
         return res.end(JSON.stringify('Incorrect voter or candidate address'))
       }
+
       if (voter != config.plasmaNodeAddress) {
         res.statusCode = 403
         return res.end(JSON.stringify('Voter address must be the own address of node'))
       }
-      if (!(typeof value === 'number')) {
-        res.statusCode = 400
-        return res.end(JSON.stringify('Incorrect type of value'))
-      }
-      let stake = {voter, candidate, value}
+
+      let stake = {voter, candidate, tokenId}
       let answer = await stateValidators.addStake(stake)
       return res.end(JSON.stringify({answer}))
     } catch (error) {
@@ -94,7 +92,7 @@ class ValidatorsController {
   static async toLowerStake(req, res) {
     await parseM(req)
     try {
-      let {voter, candidate, value} = req.body
+      let {voter, candidate, tokenId} = req.body
       if (!web3.utils.isAddress(voter) || !web3.utils.isAddress(candidate)) {
         res.statusCode = 400
         return res.end(JSON.stringify('Incorrect voter or candidate address'))
@@ -103,7 +101,7 @@ class ValidatorsController {
         res.statusCode = 400
         return res.end(JSON.stringify('Incorrect type of value'))
       }
-      let stake = {voter, candidate, value}
+      let stake = {voter, candidate, tokenId}
       let answer = await stateValidators.toLowerStake(stake)
       return res.end(JSON.stringify({answer}))
     } catch (error) {

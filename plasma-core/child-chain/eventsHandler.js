@@ -8,7 +8,7 @@ import {logger} from 'lib/logger'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 
 let x = 0
-async function depositEventHandler(event) {
+const depositEventHandler = async (event) => {
   const {depositor, amount, blockNumber, tokenId} = event.returnValues
   let owner = config.plasmaNodeAddress.substr(2)
   let deposit = RLP.encode([owner, tokenId, amount, blockNumber])
@@ -16,6 +16,20 @@ async function depositEventHandler(event) {
   const tx = await createDepositTransaction(depositor, tokenId)
   await TxMemPool.acceptToMemoryPool(txMemPool, tx)
   logger.info(' DEPOSIT#', x++, ' ', blockNumber)
+  console.log(tokenId);
+  
 }
 
-export {depositEventHandler}
+const frozeEvent = async (event) => {
+  const {tokenId, address} = event.returnValues
+  await redis.hsetAsync('frozen', tokenId, address)
+  return 'ok'
+}
+
+const unfrozeEvent = async (event) => {
+  const {tokenId, address} = event.returnValues
+  await redis.hdelAsync('frozen', tokenId, address)
+  return 'ok'
+}
+
+export {depositEventHandler, frozeEvent, unfrozeEvent}
