@@ -1,17 +1,19 @@
 import redis from 'redis'
 import util from 'util'
+import logger from 'lib/logger'
 
 let client = redis.createClient({
   detect_buffers: true,
-  host: process.env.REDIS_HOST 
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
 })
 
 client.on('connect', () => {
-  console.log('Redis storage has opened redis://' + process.env.REDIS_HOST )
+  logger.info('Redis storage has opened redis://' + process.env.REDIS_HOST )
 })
 
 client.on('close', () => {
-  console.log('Redis storage has closed')
+  logger.info('Redis storage has closed')
 })
 
 const getAsync = util.promisify(client.get).bind(client)

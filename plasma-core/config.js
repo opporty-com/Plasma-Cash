@@ -1,4 +1,5 @@
 const homedir = require('os').homedir()
+const {randomBytes} = require('crypto')
 
 export default {
   plasmaContractAddress:
@@ -14,7 +15,20 @@ export default {
   plasmaNodeKey: process.env.PLASMA_NODE_PRIVATE ?
     process.env.PLASMA_NODE_PRIVATE :
     '',
-  maxDelegates: 30,
+  bootNode: process.env.BOOTNODE || false,
+  dptKey: process.env.DPT_KEY ? Buffer.from(process.env.DPT_KEY, 'hex') : randomBytes(32),
+  dptPort: process.env.DPT_PORT || 30301,
+  bootNodes: process.env.BOOT_NODES || [
+    {address: '192.168.1.4',
+      udpPort: 30301,
+      tcpPort: 30301,
+    }],
+  dptEndpoint: process.env.DPT_ENDPOINT || {
+    address: '0.0.0.0',
+    udpPort: null,
+    tcpPort: null,
+  },
+  maxDelegates: 5,
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
   web3HttpProvider: 'http://127.0.0.1:8545',
   blockPeriod: 5000,

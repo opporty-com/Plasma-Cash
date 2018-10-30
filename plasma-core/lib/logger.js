@@ -86,4 +86,4 @@ const loggerInstance = (name = null, logDir = config.logDir) => {
 
 const logger = loggerInstance()
 
-export {logger}
+export default logger

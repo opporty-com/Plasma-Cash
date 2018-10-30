@@ -5,12 +5,52 @@ services:
     container_name: redisserver
     expose:
      - "6379"
-
-  backend:
+    logging:
+      driver: "none"
+  bootredis:
+    image: redis
+    container_name: bootrediserver
+    expose:
+     - "6379"
+    logging:
+      driver: "none"
+  bootnode:
+    build: ./plasma-core
+    container_name: bootnode
+    ports:
+      - "30314:30314"
+      - "30301:30301"
+      - "30301:30301/udp"
+    volumes:
+      - "./plasma-core:/usr/src/app"
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - bootredis
+    environment:
+      REDIS_HOST: bootrediserver
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      BOOTNODE: 1
+      DPT_KEY: 'd772e3d6a001a38064dd23964dd2836239fa0e6cec8b28972a87460a17210fe9'
+      LOG_LEVEL: "debug"
+      PRODUCTION_MODE: "OFF"
+      PLASMA_CONTRACT_ADDRESS: '0x751586e389d0cdaacd81af6bff07ddfdad5c816d'
+      PLASMA_NODE_ADDRESS: '0xcDd97e8350e93eeD3224A217A42d28cF0276b67b'
+      PLASMA_NODE_PRIVATE: ''
+      PLASMA_NODE_PASSWORD: ''
+      WEB3_HTTP_PROVIDER: ''
+    command: 'npm run development'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+  mainnode:
     build: ./plasma-core
     ports:
-      - "80:80"
-      - "443:443"
+      - "30313:30313"
+      - "30302:30302"
+      - "30302:30302/udp"
     volumes:
       - "./plasma-core:/usr/src/app"
       - "./data/leveldb:/var/lib/leveldb/data"
@@ -18,15 +58,18 @@ services:
       - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
     links: 
       - redis
+      - bootnode
     environment:
       REDIS_HOST: redisserver
+      REDIS_PORT: 6379
       NODE_ENV: development
+      DPT_PORT: 30302
       LOG_LEVEL: "debug"
       PRODUCTION_MODE: "OFF"
       PLASMA_CONTRACT_ADDRESS: '0x751586e389d0cdaacd81af6bff07ddfdad5c816d'
       PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
       PLASMA_NODE_PRIVATE: ''
-      PLASMA_NODE_PASSWORD: '123123123'
+      PLASMA_NODE_PASSWORD: ''
       WEB3_HTTP_PROVIDER: ''
     command: 'npm run development'
     logging:
