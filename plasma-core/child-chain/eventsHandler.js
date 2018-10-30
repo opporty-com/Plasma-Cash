@@ -17,7 +17,7 @@ const depositEventHandler = async (event) => {
   const tx = await createDepositTransaction(depositor, tokenId)
   await TxMemPool.acceptToMemoryPool(txMemPool, tx)
   logger.info(' DEPOSIT#', x++, ' ', blockNumber)
-  console.log(tokenId);
+  logger.info('For temporarily, token id: ', tokenId)
 }
 
 async function makeAddStakeEvent({voter, candidate, tokenId}) {
@@ -35,7 +35,6 @@ async function makeAddStakeEvent({voter, candidate, tokenId}) {
       .addStake(candidate, tokenId)
       .send({from: voter, gas: gas + 15000})
     let returnValues = answer.events.StakeAdded.returnValues
-    console.log('returnvalues', returnValues);
     await redis.hsetAsync('frozen', tokenId, voter)
     let stake = {
       voter: returnValues.voter,
@@ -60,7 +59,6 @@ async function makeLowerStakeEvent({voter, candidate, tokenId}) {
       .lowerStake(candidate, tokenId)
       .send({from: voter, gas: gas + 15000})
     let returnValues = answer.events.StakeLowered.returnValues
-    console.log('returnvalues', returnValues);
     await redis.hdelAsync('frozen', returnValues.tokenId)
     let stake = {
       voter: returnValues.voter,
