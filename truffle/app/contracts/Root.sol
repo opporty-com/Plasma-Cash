@@ -33,9 +33,11 @@ contract Root {
     /*
      * Events section
      */
+
     event BlockSubmitted(address operator, bytes32 merkleRoot, uint blockNumber);
     event DepositAdded(address depositor, uint amount, uint tokenId, uint blockNumber);
-    event StakeAdded(address voter, address candidate, uint value);
+    event StakeAdded(address voter, address candidate, uint value, uint tokenId);
+    event StakeLowered(address voter, address candidate, uint value, uint tokenId);
     event ExitAdded(address exitor, uint priority, uint exitId);
     event ExitChallengedEvent(uint exitId);
     event ChallengedInvalidHistory(uint exitId, uint tokenId);
@@ -61,13 +63,7 @@ contract Root {
     // array of challenged exits for invalid history challenge */
     mapping (uint => uint) public challenged;
 
-
-    struct Stake {
-        address voter;
-        uint value;
-    }
-
-    mapping(address => Stake[]) stakes;
+    mapping(address => mapping(uint => address)) stakes;
 
     /*
      *  Modifiers
@@ -119,6 +115,7 @@ contract Root {
      */
     mapping(uint => Block) public childChain;
     mapping(uint => uint) public tokens;
+    mapping(uint => uint) public frozenTokens;
     // mapping(address => Weight) candidatesWithStakes;
 
     /*
@@ -200,15 +197,24 @@ contract Root {
         
         uint token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
         // token.index = deposit_blk;
+        
         tokens[token_id] = msg.value;
-
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
+    
     }
 
-    function addStake(address candidate) public payable {
-        stakes[candidate].push(Stake(msg.sender, msg.value));
-        emit StakeAdded(msg.sender, candidate, msg.value);
+    function addStake(address candidate, uint tokenId) public {
+        stakes[candidate][tokenId] = msg.sender;
+        frozenTokens[tokenId] = tokens[tokenId];
+        emit StakeAdded(msg.sender, candidate, tokens[tokenId], tokenId);
+    }
+
+    function lowerStake(address candidate, uint tokenId) public {
+        require(stakes[candidate][tokenId] == msg.sender, "You are not the owner of this token");
+        delete stakes[candidate][tokenId];
+        delete frozenTokens[tokenId];
+        emit StakeLowered(msg.sender, candidate, tokens[tokenId], tokenId);
     }
 
     /*

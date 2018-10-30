@@ -164,6 +164,25 @@
         "type": "uint256"
       }
     ],
+    "name": "frozenTokens",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "childChain",
     "outputs": [
       {
@@ -255,9 +274,41 @@
         "indexed": false,
         "name": "value",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "tokenId",
+        "type": "uint256"
       }
     ],
     "name": "StakeAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "voter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "candidate",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "StakeLowered",
     "type": "event"
   },
   {
@@ -509,12 +560,34 @@
       {
         "name": "candidate",
         "type": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256"
       }
     ],
     "name": "addStake",
     "outputs": [],
-    "payable": true,
-    "stateMutability": "payable",
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "candidate",
+        "type": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "lowerStake",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

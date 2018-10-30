@@ -46,25 +46,6 @@ async function submitBlock(address, blockHash) {
   return 'ok'
 }
 
-async function makeStakeEvent({voter, candidate, value}) {
-  try {
-    await web3.eth.personal.unlockAccount(voter, config.plasmaNodePassword, 60)
-    let gas = await contractHandler.contract.methods.addStake(candidate)
-      .estimateGas({from: voter})
-    let answer = await contractHandler.contract.methods.addStake(candidate)
-      .send({from: voter, value: value, gas: gas + 15000})
-    let returnValues = answer.events.StakeAdded.returnValues
-    let stake = {
-      voter: returnValues.voter,
-      candidate: returnValues.candidate,
-      value: +returnValues.value,
-    }
-    return stake
-  } catch (error) {
-    return error
-  }
-}
-
 async function createDeposit({address, password, amount}) {
   try {
     if (web3.utils.isAddress(ethUtil.keccak256(address))) {
@@ -89,6 +70,17 @@ async function createNewBlock() {
     let lastBlock = await getLastBlockNumberFromDb()
     let newBlockNumber = lastBlock + config.contractblockStep
     let {successfullTransactions, rejectTransactions} = await validateTx()
+    if (rejectTransactions.length > 0) {
+      await redis.hsetAsync('rejectTx', newBlockNumber,
+        JSON.stringify(rejectTransactions))
+      for (let element of rejectTransactions) {
+        await redis.hdel('txpool', element.transaction)
+      }
+    }
+    if (successfullTransactions.length === 0) {
+      logger.info('Successfull transactions is not defined for this block')
+      return false
+    }
     const block = new Block({
       blockNumber: newBlockNumber,
       transactions: successfullTransactions,
@@ -120,10 +112,6 @@ async function createNewBlock() {
         return error.toString()
       }
       await redis.hdel('txpool', utxo.getHash())
-    }
-    if (rejectTransactions.length > 0) {
-      await redis.hsetAsync('rejectTx', newBlockNumber,
-        JSON.stringify(rejectTransactions))
     }
     await redis.setAsync('lastBlockNumber', block.blockNumber)
     await redis.setAsync('block' + block.blockNumber.toString(10),
@@ -331,5 +319,4 @@ export {
   checkTransaction,
   checkInputs,
   createTransaction,
-  makeStakeEvent,
 }
