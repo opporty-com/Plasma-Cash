@@ -121,7 +121,7 @@
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "payable": false,
@@ -168,7 +168,7 @@
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "payable": false,
@@ -245,8 +245,8 @@
       },
       {
         "indexed": false,
-        "name": "tokenId",
-        "type": "uint256"
+        "name": "tokens",
+        "type": "uint256[]"
       },
       {
         "indexed": false,
@@ -274,11 +274,6 @@
         "indexed": false,
         "name": "value",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "tokenId",
-        "type": "uint256"
       }
     ],
     "name": "StakeAdded",
@@ -300,11 +295,6 @@
       {
         "indexed": false,
         "name": "value",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "tokenId",
         "type": "uint256"
       }
     ],
@@ -556,14 +546,32 @@
   },
   {
     "constant": false,
+    "inputs": [],
+    "name": "addCandidate",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "removeCandidate",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
     "inputs": [
       {
         "name": "candidate",
         "type": "address"
       },
       {
-        "name": "tokenId",
-        "type": "uint256"
+        "name": "tokenIds",
+        "type": "uint256[]"
       }
     ],
     "name": "addStake",
@@ -580,8 +588,8 @@
         "type": "address"
       },
       {
-        "name": "tokenId",
-        "type": "uint256"
+        "name": "tokenIds",
+        "type": "uint256[]"
       }
     ],
     "name": "lowerStake",
@@ -591,207 +599,13 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "block_num",
-        "type": "uint256"
-      },
-      {
-        "name": "tx1",
-        "type": "bytes"
-      },
-      {
-        "name": "tx0",
-        "type": "bytes"
-      },
-      {
-        "name": "proof1",
-        "type": "bytes"
-      },
-      {
-        "name": "proof0",
-        "type": "bytes"
-      }
-    ],
-    "name": "startExit",
-    "outputs": [
-      {
-        "name": "exit_id",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "exit_id",
-        "type": "uint256"
-      },
-      {
-        "name": "blk_num",
-        "type": "uint256"
-      },
-      {
-        "name": "tx1",
-        "type": "bytes"
-      },
-      {
-        "name": "proof",
-        "type": "bytes"
-      }
-    ],
-    "name": "challengeSpent",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "exit_id",
-        "type": "uint256"
-      },
-      {
-        "name": "blk_num",
-        "type": "uint256"
-      },
-      {
-        "name": "tx1",
-        "type": "bytes"
-      },
-      {
-        "name": "proof",
-        "type": "bytes"
-      }
-    ],
-    "name": "challengeDoubleSpend",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "exit_id",
-        "type": "uint256"
-      },
-      {
-        "name": "blk_num",
-        "type": "uint256"
-      },
-      {
-        "name": "tx0",
-        "type": "bytes"
-      },
-      {
-        "name": "proof",
-        "type": "bytes"
-      }
-    ],
-    "name": "challengeInvalidHistory",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "exit_id",
-        "type": "uint256"
-      },
-      {
-        "name": "blk_num",
-        "type": "uint256"
-      },
-      {
-        "name": "childtx",
-        "type": "bytes"
-      },
-      {
-        "name": "proof",
-        "type": "bytes"
-      }
-    ],
-    "name": "respondChallenge",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [],
-    "name": "finalizeExits",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "merkle",
-        "type": "bytes32"
-      },
-      {
-        "name": "root",
-        "type": "bytes32"
-      },
-      {
-        "name": "proof",
-        "type": "bytes"
-      }
-    ],
-    "name": "checkPatriciaProof",
-    "outputs": [
-      {
-        "name": "valid",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [],
-    "name": "getCurrentBlock",
+    "name": "getCandidaties",
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getDepositBlock",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
+        "type": "address[]"
       }
     ],
     "payable": false,
@@ -802,88 +616,15 @@
     "constant": true,
     "inputs": [
       {
-        "name": "token_id",
-        "type": "uint256"
-      }
-    ],
-    "name": "getExit",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "blknum",
-        "type": "uint256"
-      }
-    ],
-    "name": "getChain",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "token_id",
-        "type": "uint256"
-      }
-    ],
-    "name": "getToken",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "addr",
+        "name": "candidate",
         "type": "address"
       }
     ],
-    "name": "getBalance",
+    "name": "getStakes",
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "uint256[]"
       }
     ],
     "payable": false,

@@ -8,7 +8,7 @@ import web3 from 'lib/web3'
 import {RightsHandler, validatorsQueue,
   initConsensus} from 'consensus'
 
-initConsensus()
+// initConsensus()
 /** Class representing a Block controller. */
 class BlockController {
   static async get(req, res) {

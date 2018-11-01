@@ -1,5 +1,6 @@
 import {Candidate, RightsHandler, validatorsQueue} from 'consensus'
 import {makeAddStakeEvent, makeLowerStakeEvent} from 'child-chain/eventsHandler'
+import contractHandler from 'root-chain/contracts/plasma'
 import config from 'config'
 
 /** asa */
@@ -8,31 +9,31 @@ class StateValidators {
     this.init()
   }
 
-  init() {
+  async init() {
     this.candidates = []
     this.stakes = []
-    this.votes = 0
-  }
-
-  async setCandidate(address) {
-    let isCandidate = false
-
-    for (let i = 0; i < this.candidates.length; i++) {
-      if (this.candidates[i].getAddress() === address) {
-        isCandidate = true
-      }
-    }
-    if (!isCandidate) {
-      this.candidates.push(new Candidate(address))
-      this.voteCandidates()
-      return 'ok'
-    } else {
-      return 'already exist'
-    }
+    this.mainStakes = []
+    await this.voteCandidates()
   }
 
   getAllCandidates() {
-    return this.candidates
+    return this.mainStakes
+  }
+
+  async setCandidate() {
+    let gas = await contractHandler.contract.methods.addCandidate()
+      .estimateGas({from: config.plasmaNodeAddress})
+    await contractHandler.contract.methods.addCandidate()
+      .send({from: config.plasmaNodeAddress, gas: gas + 15000})
+    return 'ok'
+  }
+
+  async removeCandidate() {
+    let gas = await contractHandler.contract.methods.removeCandidate()
+      .estimateGas({from: config.plasmaNodeAddress})
+    await contractHandler.contract.methods.removeCandidate()
+      .send({from: config.plasmaNodeAddress, gas: gas + 15000})
+    return 'ok'
   }
 
   getCandidate(address) {
@@ -45,10 +46,21 @@ class StateValidators {
   }
 
   async voteCandidates() {
-    let candidates = this.candidates.slice(0)
+    let candidatiesAddresses = await contractHandler.contract.methods
+      .getCandidaties().call({from: config.plasmaNodeAddress})
+    this.mainStakes = []
+    for (let i = 0; i<candidatiesAddresses.length; i++) {
+      this.mainStakes.push({
+        address: `${candidatiesAddresses[i]}`,
+        weight: (await contractHandler.contract.methods
+          .getStakes(candidatiesAddresses[i])
+          .call({from: config.plasmaNodeAddress})).length})
+    }
+
+    let candidates = Object.assign([], this.mainStakes)
     candidates.sort((a, b) => {
-      let aWeight = a.getWeight()
-      let bWeight = b.getWeight()
+      let aWeight = a.weight
+      let bWeight = b.weight
       if (aWeight < bWeight) {
         return 1
       }
@@ -59,153 +71,73 @@ class StateValidators {
     })
     let validators = candidates.splice(0, config.maxDelegates)
     for (let i = 0; i < validators.length; i++) {
-      let address = validators[i].getAddress()
+      // let address = validators[i].getAddress()
       let isValidator =
-      await RightsHandler.validateAddressForValidating(address)
+      await RightsHandler.validateAddressForValidating(validators[i].address)
       if (!isValidator) {
-        await RightsHandler.setValidatorsCandidate(validators[i].getAddress())
+        await RightsHandler.setValidatorsCandidate(validators[i].address)
       }
     }
     for (let i = 0; i < candidates.length; i++) {
-      let address = candidates[i].getAddress()
       let isValidator =
-      await RightsHandler.validateAddressForValidating(address)
+      await RightsHandler.validateAddressForValidating(candidates[i].address)
       if (isValidator) {
-        await validatorsQueue.delValidator(address)
+        await validatorsQueue.delValidator(candidates[i].address)
       }
     }
     return validators
   }
 
-  clearCandidates() {
-    this.candidates = []
-    return 'ok'
-  }
-
-  async reVote(voter) {
-    for (let i = 0; i < this.stakes.length; i++) {
-      if (this.stakes[i].voter === voter) {
-        this.votes += 1
-        if (this.votes >= 2) {
-          await this.voteCandidates()
-          this.votes = 0
-          return 'Thank you! Recompute candidates is executed'
-        }
-        return 'Thank you! Need 1 more vote to recompute candidates'
+  async addStake({voter, candidate, tokenIds}) {
+    try {
+      // if (!(await redis.hgetAsync(`utxo_${voter}`, tokenId))) {
+      //   throw new Error('Forbidden token')
+      // }
+      // if (await redis.hgetAsync('frozen', tokenId)) {
+      //   throw new Error('This token is already frozen')
+      // }
+      let gas = await contractHandler.contract.methods
+        .addStake(candidate, tokenIds)
+        .estimateGas({from: voter})
+      let answer = await contractHandler.contract.methods
+        .addStake(candidate, tokenIds)
+        .send({from: voter, gas: gas + 15000})
+      let returnValues = answer.events.StakeAdded.returnValues
+      // await redis.hsetAsync('frozen', tokenId, voter)
+      let stake = {
+        voter: returnValues.voter,
+        candidate: returnValues.candidate,
+        value: +returnValues.value,
       }
+      this.voteCandidates()
+      return stake
+    } catch (error) {
+      return error.toString()
     }
   }
 
-  async removeCandidate(address) {
-    if (config.plasmaNodeAddress != address) {
-      return 'you have ability to remove only yourself from validators'
-    }
-    for (let i = 0; i < this.candidates.length; i++) {
-      if (this.candidates[i].getAddress() === address) {
-        if (RightsHandler.validateAddressForValidating(address)) {
-          validatorsQueue.delValidator(address)
-        }
-        this.candidates.splice(i, 1)
-        await this.voteCandidates()
-        return 'ok'
+  async toLowerStake({voter, candidate, tokenIds}) {
+    try {
+      // if (!(await redis.hgetAsync(`utxo_${voter}`, tokenId))) {
+      //   throw new Error('Forbidden token')
+      // }
+      let gas = await contractHandler.contract.methods
+        .lowerStake(candidate, tokenIds)
+        .estimateGas({from: voter})
+      let answer = await contractHandler.contract.methods
+        .lowerStake(candidate, tokenIds)
+        .send({from: voter, gas: gas + 15000})
+      let returnValues = answer.events.StakeLowered.returnValues
+      // await redis.hdelAsync('frozen', returnValues.tokenId)
+      let stake = {
+        voter: returnValues.voter,
+        candidate: returnValues.candidate,
+        value: +returnValues.value,
       }
-    }
-    return 'this candidate is not include to list of candidates'
-  }
-
-  // Lower or delete stake. Checks if stake is available, if there is,
-  // then it checks whether there is such a candidate,
-  // if there is, the stake is lowered or deleted if it is equal to or
-  // greater than the number of existing
-  async toLowerStake(stake) {
-    let candidateExists = false
-    let stakeEvent = {}
-    for (let i = 0; i < this.stakes.length; i++) {
-      if (this.stakes[i].voter === stake.voter &&
-        this.stakes[i].candidate === stake.candidate) {
-        for (let i = 0; i < this.candidates.length; i++) {
-          if (this.candidates[i].getAddress() === stake.candidate) {
-            stakeEvent = await makeLowerStakeEvent(stake)
-            const {voter, value} = stakeEvent
-            this.candidates[i].toLowerStake({
-              voter, value,
-            })
-            candidateExists = true
-          }
-        }
-        if (candidateExists) {
-          if (this.stakes[i].value <= stakeEvent.value) {
-            this.stakes.splice(i, 1)
-            await this.voteCandidates()
-            return 'ok'
-          } else {
-            this.stakes[i].value -= stakeEvent.value
-            await this.voteCandidates()
-            return 'ok'
-          }
-        } else {
-          throw new Error('Denieded stake on a non-existent candidate')
-        }
-      }
-    }
-    return 'stake can`t be lowered because it is not exists'
-  }
-
-  // first checks if there is a stake with such a voter and a candidate,
-  // if there is, then it is checked whether there is such a
-  // candidate and the stake increases
-  // if there is no such a stake, then it is created
-  async addStake(stake) {
-    let candidateExists = false
-    let stakeExists = false
-    let stakeEvent
-    for (let i = 0; i < this.stakes.length; i++) {
-      if (this.stakes[i].voter === stake.voter &&
-        this.stakes[i].candidate === stake.candidate) {
-        stakeExists = true
-        for (let i = 0; i < this.candidates.length; i++) {
-          if (this.candidates[i].getAddress() === stake.candidate) {
-            try {
-              stakeEvent = await makeAddStakeEvent(stake)
-            } catch (error) {
-              return error.toString()
-            }
-            this.candidates[i].addStake({
-              voter: stakeEvent.voter, stake: stakeEvent.value,
-            })
-            candidateExists = true
-          }
-        }
-        if (candidateExists) {
-          this.stakes[i].value += stakeEvent.value
-          await this.voteCandidates()
-          return this.stakes[i]
-        } else {
-          return 'Denieded stake on a non-existent candidate'
-        }
-      }
-    }
-    if (!stakeExists) {
-      for (let i = 0; i < this.candidates.length; i++) {
-        if (this.candidates[i].getAddress() === stake.candidate) {
-          try {
-            stakeEvent = await makeAddStakeEvent(stake)
-          } catch (error) {
-            return error.toString()
-          }
-          this.candidates[i].addStake({
-            voter: stakeEvent.voter, value: stakeEvent.value,
-          })
-          candidateExists = true
-        }
-      }
-      if (candidateExists) {
-        this.stakes.push(stakeEvent)
-        await this.voteCandidates()
-        return stakeEvent
-      } else {
-        return 'Denieded stake on a non-existent candidate'
-      }
+      this.voteCandidates()
+      return stake
+    } catch (error) {
+      return error.toString()
     }
   }
 }
