@@ -252,150 +252,150 @@ contract Root {
 
 
 
-    // /*
-    //  * Check if current message sender is transaction signer
-    //  */
-    // function checkSig(bytes32 tx_hash, bytes sig) internal view returns (bool) {
-    //     return msg.sender == ECRecovery.recover(tx_hash, sig);
-    // }
+    /*
+     * Check if current message sender is transaction signer
+     */
+    function checkSig(bytes32 tx_hash, bytes sig) internal view returns (bool) {
+        return msg.sender == ECRecovery.recover(tx_hash, sig);
+    }
 
-    // /*
-    //  * Start coin exit by providing the last two transactions in the coin’s ownership history 
-    //  * (ie. the coin they are exiting C and its parent P(C)).
-    //  */
-    // function startExit(uint block_num, bytes tx1, bytes tx0, bytes proof1, bytes proof0) public returns (uint exit_id) {
-    //     require(checkPatriciaProof(keccak256(tx1), childChain[block_num].merkle_root, proof1));
+    /*
+     * Start coin exit by providing the last two transactions in the coin’s ownership history 
+     * (ie. the coin they are exiting C and its parent P(C)).
+     */
+    function startExit(uint block_num, bytes tx1, bytes tx0, bytes proof1, bytes proof0) public returns (uint exit_id) {
+        require(checkPatriciaProof(keccak256(tx1), childChain[block_num].merkle_root, proof1));
 
-    //     bytes32 prev_hash;
-    //     uint prev_blk;
-    //     uint token_id;
-    //     address new_owner;
-    //     (prev_hash, prev_blk, token_id, new_owner,) = getTransactionFromRLP(tx1);
+        bytes32 prev_hash;
+        uint prev_blk;
+        uint token_id;
+        address new_owner;
+        (prev_hash, prev_blk, token_id, new_owner,) = getTransactionFromRLP(tx1);
     
-    //     require(msg.sender == new_owner);
+        require(msg.sender == new_owner);
         
-    //     require(tokens[token_id] > 0);
-    //     bytes32 hashPrevTx = keccak256(tx0);
-    //     require(checkPatriciaProof(hashPrevTx, childChain[prev_blk].merkle_root, proof0));
-    //     require(prev_hash == hashPrevTx);
+        require(tokens[token_id] > 0);
+        bytes32 hashPrevTx = keccak256(tx0);
+        require(checkPatriciaProof(hashPrevTx, childChain[prev_blk].merkle_root, proof0));
+        require(prev_hash == hashPrevTx);
 
-    //     Exit storage record = exitRecords[token_id];
-    //     require(record.block_num == 0);
+        Exit storage record = exitRecords[token_id];
+        require(record.block_num == 0);
 
-    //     record.block_num = block_num;
-    //     record.new_owner = msg.sender;
-    //     record.prev_block = prev_blk;
+        record.block_num = block_num;
+        record.new_owner = msg.sender;
+        record.prev_block = prev_blk;
 
-    //     if (childChain[block_num].time > block.timestamp - week)
-    //         record.priority = childChain[block_num].time;
-    //     else
-    //         record.priority = block.timestamp - week;
+        if (childChain[block_num].time > block.timestamp - week)
+            record.priority = childChain[block_num].time;
+        else
+            record.priority = block.timestamp - week;
 
-    //     exits.add(record.priority);
-    //     exit_ids[record.priority].push(token_id);
+        exits.add(record.priority);
+        exit_ids[record.priority].push(token_id);
 
-    //     emit ExitAdded(msg.sender, record.priority, token_id);
-    //     return token_id;
-    // }
+        emit ExitAdded(msg.sender, record.priority, token_id);
+        return token_id;
+    }
+    /*
+     * Challenge exit by providing
+     * a proof of a transaction spending C
+     */
+    function challengeSpent(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
+        require(checkPatriciaProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
+
+        Exit memory record = exitRecords[exit_id];
+        require(record.block_num > 0);
+
+        uint prev_block;
+        uint token_id;
+        (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
+
+        require(tokens[token_id] > 0);
+        require(prev_block == record.block_num && record.block_num < blk_num);
+        require(token_id == exit_id);
+
+        exit_ids[record.priority].remove(exit_id);
+        delete exitRecords[exit_id];
+        emit ExitChallengedEvent(exit_id);
+    }
+
+    /*
+     * Challenge exit by providing
+     * a proof of a transaction spending P(C) that appears before C
+     */
+    function challengeDoubleSpend(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
+        require(checkPatriciaProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
+
+        Exit memory record = exitRecords[exit_id];
+        require(record.block_num > 0);
+
+       // bytes32 prev_hash; 
+        uint prev_block;
+        uint token_id; 
+        (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
+        require(tokens[token_id] > 0);
+
+        // check if token double spent
+        require(prev_block == record.prev_block && blk_num < record.block_num);
+       // require(token_id == exit_id);
+        exit_ids[record.priority].remove(exit_id);
+        delete exitRecords[exit_id];
+        emit ExitChallengedEvent(exit_id);
+    }
+
     // /*
     //  * Challenge exit by providing
-    //  * a proof of a transaction spending C
+    //  * a transaction C* in the coin’s history before P(C)
     //  */
-    // function challengeSpent(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
-    //     require(checkPatriciaProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
-
-    //     Exit memory record = exitRecords[exit_id];
-    //     require(record.block_num > 0);
-
-    //     uint prev_block;
-    //     uint token_id;
-    //     (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
-
-    //     require(tokens[token_id] > 0);
-    //     require(prev_block == record.block_num && record.block_num < blk_num);
-    //     require(token_id == exit_id);
-
-    //     exit_ids[record.priority].remove(exit_id);
-    //     delete exitRecords[exit_id];
-    //     emit ExitChallengedEvent(exit_id);
-    // }
-
-    // /*
-    //  * Challenge exit by providing
-    //  * a proof of a transaction spending P(C) that appears before C
-    //  */
-    // function challengeDoubleSpend(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
-    //     require(checkPatriciaProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
-
-    //     Exit memory record = exitRecords[exit_id];
-    //     require(record.block_num > 0);
-
-    //    // bytes32 prev_hash; 
-    //     uint prev_block;
-    //     uint token_id; 
-    //     (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
-    //     require(tokens[token_id] > 0);
-
-    //     // check if token double spent
-    //     require(prev_block == record.prev_block && blk_num < record.block_num);
-    //    // require(token_id == exit_id);
-    //     exit_ids[record.priority].remove(exit_id);
-    //     delete exitRecords[exit_id];
-    //     emit ExitChallengedEvent(exit_id);
-    // }
-
-    // // /*
-    // //  * Challenge exit by providing
-    // //  * a transaction C* in the coin’s history before P(C)
-    // //  */
-    // function challengeInvalidHistory(uint exit_id, uint blk_num, bytes tx0, bytes proof) public { 
-    //     // check if proof is valid
-    //     require(checkPatriciaProof(keccak256(tx0), childChain[blk_num].merkle_root, proof));
+    function challengeInvalidHistory(uint exit_id, uint blk_num, bytes tx0, bytes proof) public { 
+        // check if proof is valid
+        require(checkPatriciaProof(keccak256(tx0), childChain[blk_num].merkle_root, proof));
         
-    //     Exit memory record = exitRecords[exit_id];
-    //     require(record.block_num > 0);
+        Exit memory record = exitRecords[exit_id];
+        require(record.block_num > 0);
 
-    //     bytes32 prev_hash; 
-    //     uint token_id; 
-    //     (prev_hash, , token_id, ) = getTransactionFromRLP(tx0);
+        bytes32 prev_hash; 
+        uint token_id; 
+        (prev_hash, , token_id, ) = getTransactionFromRLP(tx0);
 
-    //     //require(exit_id == token_id);
-    //     require(tokens[token_id] > 0);
+        //require(exit_id == token_id);
+        require(tokens[token_id] > 0);
 
-    //     // transaction should be before exit tx in history
-    //     require(blk_num < record.block_num - 1);
+        // transaction should be before exit tx in history
+        require(blk_num < record.block_num - 1);
 
-    //     challenged[exit_id] = blk_num;
-    //     emit ChallengedInvalidHistory(exit_id, token_id);
-    // }
+        challenged[exit_id] = blk_num;
+        emit ChallengedInvalidHistory(exit_id, token_id);
+    }
 
-    // /*
-    //  * Respond to invalid history challenge by providing
-    //  * the direct child of C*, which must be either equal to or before P( C )
-    //  */
-    // function respondChallenge(uint exit_id, uint blk_num, bytes childtx, bytes proof) public {
-    //     require(challenged[exit_id] > 0);
-    //     Exit memory record = exitRecords[exit_id];
-    //     require(record.block_num > 0);
+    /*
+     * Respond to invalid history challenge by providing
+     * the direct child of C*, which must be either equal to or before P( C )
+     */
+    function respondChallenge(uint exit_id, uint blk_num, bytes childtx, bytes proof) public {
+        require(challenged[exit_id] > 0);
+        Exit memory record = exitRecords[exit_id];
+        require(record.block_num > 0);
 
-    //     require(checkPatriciaProof(keccak256(childtx), childChain[blk_num].merkle_root, proof));
-    //     // get transaction from rlpencoded form
-    //     bytes32 prev_hash; 
-    //     uint prev_block;
-    //     uint token_id; 
-    //     (prev_hash, prev_block, token_id, ) = getTransactionFromRLP(childtx);
-    //     // if direct child
-    //     if (prev_block == challenged[exit_id] ) {
-    //         if (blk_num <= record.prev_block && token_id == exit_id ) {
-    //             delete challenged[exit_id];
-    //             emit ExitRespondedEvent(exit_id);
-    //         } else {
-    //             exit_ids[record.priority].remove(exit_id);
-    //             delete exitRecords[exit_id];
-    //             emit ExitChallengedEvent(exit_id);
-    //         }
-    //     }
-    // }
+        require(checkPatriciaProof(keccak256(childtx), childChain[blk_num].merkle_root, proof));
+        // get transaction from rlpencoded form
+        bytes32 prev_hash; 
+        uint prev_block;
+        uint token_id; 
+        (prev_hash, prev_block, token_id, ) = getTransactionFromRLP(childtx);
+        // if direct child
+        if (prev_block == challenged[exit_id] ) {
+            if (blk_num <= record.prev_block && token_id == exit_id ) {
+                delete challenged[exit_id];
+                emit ExitRespondedEvent(exit_id);
+            } else {
+                exit_ids[record.priority].remove(exit_id);
+                delete exitRecords[exit_id];
+                emit ExitChallengedEvent(exit_id);
+            }
+        }
+    }
 
     // function finalizeExits() public returns (bool success) {
     //     // get all exits by priority
@@ -416,65 +416,65 @@ contract Root {
     //     }
     //     return true;
     // }
-    // // check if merkle proof is valid
-    // function checkProof(bytes32 merkle, bytes32 root, bytes proof) pure internal returns (bool valid)
-    // {
-    //     bytes32 hash = merkle;
-    //     for (uint i = 32; i < proof.length; i += 33) {
-    //         bytes1 flag;
-    //         bytes32 sibling;
-    //         assembly {
-    //             flag := mload(add(proof, i))
-    //             sibling := mload(add(add(proof, i), 1))
-    //         }
-    //         if (flag == 0) {
-    //             hash = keccak256(sibling, hash);
-    //         } else if (flag == 1) {
-    //             hash = keccak256(hash, sibling);
-    //         }
-    //     }
-    //     return hash == root;
-    // }
+    // check if merkle proof is valid
+    function checkProof(bytes32 merkle, bytes32 root, bytes proof) pure internal returns (bool valid)
+    {
+        bytes32 hash = merkle;
+        for (uint i = 32; i < proof.length; i += 33) {
+            bytes1 flag;
+            bytes32 sibling;
+            assembly {
+                flag := mload(add(proof, i))
+                sibling := mload(add(add(proof, i), 1))
+            }
+            if (flag == 0) {
+                hash = keccak256(sibling, hash);
+            } else if (flag == 1) {
+                hash = keccak256(hash, sibling);
+            }
+        }
+        return hash == root;
+    }
     
-    // // check if merkle proof is valid
-    // function checkPatriciaProof(bytes32 merkle, bytes32 root, bytes proof) pure public returns (bool valid)
-    // {
-    //     bytes32 hash = merkle;
-    //     bytes1 flag;
-    //     bytes32 nodeKey;
-    //     bytes32 sibling;
+    // check if merkle proof is valid
+    function checkPatriciaProof(bytes32 merkle, bytes32 root, bytes proof) pure public returns (bool valid)
+    {
+        bytes32 hash = merkle;
+        bytes1 flag;
+        bytes32 nodeKey;
+        bytes32 sibling;
 
-    //     assembly {
-    //         nodeKey := mload(add(proof, 32))
-    //     }
-    //     hash = keccak256(nodeKey, hash);
+        assembly {
+            nodeKey := mload(add(proof, 32))
+        }
+        hash = keccak256(nodeKey, hash);
 
-    //     for (uint i = 64; i < proof.length; i += 65) {
-    //         assembly {
-    //             flag := mload(add(proof, i))
-    //             nodeKey := mload(add(add(proof, i), 1))
-    //             sibling := mload(add(add(proof, i), 33))
-    //         }
-    //         if (flag == 0) {
-    //             hash = keccak256(nodeKey, sibling, hash);
-    //         } else if (flag == 1) {
-    //             hash = keccak256(nodeKey, hash, sibling);
-    //         }
-    //     }
-    //     return hash == root;
-    // }
+        for (uint i = 64; i < proof.length; i += 65) {
+            assembly {
+                flag := mload(add(proof, i))
+                nodeKey := mload(add(add(proof, i), 1))
+                sibling := mload(add(add(proof, i), 33))
+            }
+            if (flag == 0) {
+                hash = keccak256(nodeKey, sibling, hash);
+            } else if (flag == 1) {
+                hash = keccak256(nodeKey, hash, sibling);
+            }
+        }
+        return hash == root;
+    }
     
-    // // get current block number
-    // function getCurrentBlock() public view returns(uint) {
-    //     return current_blk;
-    // }
+    // get current block number
+    function getCurrentBlock() public view returns(uint) {
+        return current_blk;
+    }
 
-    // // get deposit number
-    // function getDepositBlock() public view returns(uint) {
-    //     return deposit_blk;
-    // }
+    // get deposit number
+    function getDepositBlock() public view returns(uint) {
+        return deposit_blk;
+    }
 
-    // // get exit by identifier
+    // get exit by identifier
     // function getExit(uint token_id) public view returns (address, uint, uint, uint)
     // {
     //     Exit memory er = exitRecords[token_id];
@@ -482,19 +482,19 @@ contract Root {
     //         return ( er.new_owner, token_id, tokens[token_id], er.priority );
     // }
 
-    // // get blockchain entry
-    // function getChain(uint blknum) public view returns (bytes32, uint)
-    // {
-    //     return (childChain[blknum].merkle_root, childChain[blknum].time);
-    // }
+    // get blockchain entry
+    function getChain(uint blknum) public view returns (bytes32, uint)
+    {
+        return (childChain[blknum].merkle_root, childChain[blknum].time);
+    }
 
-    // // get token by identifier
-    // function getToken(uint token_id) public view returns (uint) {
-    //     return tokens[token_id];
-    // }
+    // get token by identifier
+    function getToken(uint token_id) public view returns (address) {
+        return tokens[token_id];
+    }
 
-    // // get balance of specific address
-    // function getBalance(address addr) public view returns(uint) {
-    //     return addr.balance;
-    // } 
+    // get balance of specific address
+    function getBalance(address addr) public view returns(uint) {
+        return addr.balance;
+    } 
 }

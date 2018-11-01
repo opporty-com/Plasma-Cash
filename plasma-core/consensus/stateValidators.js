@@ -25,6 +25,7 @@ class StateValidators {
       .estimateGas({from: config.plasmaNodeAddress})
     await contractHandler.contract.methods.addCandidate()
       .send({from: config.plasmaNodeAddress, gas: gas + 15000})
+    this.voteCandidates()
     return 'ok'
   }
 
@@ -33,6 +34,7 @@ class StateValidators {
       .estimateGas({from: config.plasmaNodeAddress})
     await contractHandler.contract.methods.removeCandidate()
       .send({from: config.plasmaNodeAddress, gas: gas + 15000})
+    this.voteCandidates()
     return 'ok'
   }
 
