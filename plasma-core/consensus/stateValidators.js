@@ -119,14 +119,12 @@ class StateValidators {
   // greater than the number of existing
   async toLowerStake(stake) {
     let candidateExists = false
-    let stakeEvent = {}
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === stake.voter &&
         this.stakes[i].candidate === stake.candidate) {
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
-            stakeEvent = await makeLowerStakeEvent(stake)
-            const {voter, value} = stakeEvent
+            const {voter, value} = stake
             this.candidates[i].toLowerStake({
               voter, value,
             })
@@ -134,12 +132,12 @@ class StateValidators {
           }
         }
         if (candidateExists) {
-          if (this.stakes[i].value <= stakeEvent.value) {
+          if (this.stakes[i].value <= stake.value) {
             this.stakes.splice(i, 1)
             await this.voteCandidates()
             return 'ok'
           } else {
-            this.stakes[i].value -= stakeEvent.value
+            this.stakes[i].value -= stake.value
             await this.voteCandidates()
             return 'ok'
           }
@@ -158,26 +156,20 @@ class StateValidators {
   async addStake(stake) {
     let candidateExists = false
     let stakeExists = false
-    let stakeEvent
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === stake.voter &&
         this.stakes[i].candidate === stake.candidate) {
         stakeExists = true
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
-            try {
-              stakeEvent = await makeAddStakeEvent(stake)
-            } catch (error) {
-              return error.toString()
-            }
             this.candidates[i].addStake({
-              voter: stakeEvent.voter, stake: stakeEvent.value,
+              voter: stake.voter, stake: stake.value,
             })
             candidateExists = true
           }
         }
         if (candidateExists) {
-          this.stakes[i].value += stakeEvent.value
+          this.stakes[i].value += stake.value
           await this.voteCandidates()
           return this.stakes[i]
         } else {
@@ -188,13 +180,8 @@ class StateValidators {
     if (!stakeExists) {
       for (let i = 0; i < this.candidates.length; i++) {
         if (this.candidates[i].getAddress() === stake.candidate) {
-          try {
-            stakeEvent = await makeAddStakeEvent(stake)
-          } catch (error) {
-            return error.toString()
-          }
           this.candidates[i].addStake({
-            voter: stakeEvent.voter, value: stakeEvent.value,
+            voter: stake.voter, value: stake.value,
           })
           candidateExists = true
         }

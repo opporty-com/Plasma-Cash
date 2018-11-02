@@ -135,25 +135,37 @@ async function getLastBlockNumberFromDb() {
   return lastBlock
 }
 
-async function createDepositTransaction(addressTo, tokenId) {
+async function createDepositTransaction(addressTo, tokenId, blockNumber) {
+  let newOwner = ethUtil.addHexPrefix(addressTo)
   let txData = {
     prevHash: '0x123',
     prevBlock: -1,
     tokenId,
-    newOwner: ethUtil.addHexPrefix(addressTo),
+    type: 'pay',
+    data: JSON.stringify({}),
+    newOwner,
   }
   let txWithoutSignature = new PlasmaTransaction(txData)
   let txHash = (txWithoutSignature.getHash(true)).toString('hex')
+  let utxo = {
+    owner: newOwner,
+    tokenId,
+    amount: 1,
+    blockNumber: '0',
+  }
   try {
     txData.signature = await web3.eth.sign(txHash, config.plasmaNodeAddress)
+    await redis.hsetAsync(`utxo_${newOwner}`, tokenId, utxo)
   } catch (error) {
     return error.toString()
   }
   let transaction = createSignedTransaction(txData)
+  console.log('transaction', transaction);
+  
   return transaction
 }
 
-async function createTransaction(tokenId, addressFrom, addressTo) {
+async function createTransaction(tokenId, addressFrom, addressTo, type, data) {
   let tokenHistory
   let utxo
   try {
@@ -168,10 +180,13 @@ async function createTransaction(tokenId, addressFrom, addressTo) {
   if (!tokenHistory.prevHash && !tokenHistory.prevBlock) {
     return 'undefined token history'
   }
+  
   let txData = {
-    prevHash: tokenHistory.prevHash,
-    prevBlock: tokenHistory.prevBlock,
+    prevHash: tokenHistory.prevHash ? tokenHistory.prevHash : '0x123',
+    prevBlock: tokenHistory.prevBlock ? tokenHistory.prevBlock : 0,
     tokenId,
+    type,
+    data,
     newOwner: addressTo,
   }
   let txWithoutSignature = new PlasmaTransaction(txData)
@@ -190,6 +205,8 @@ function createSignedTransaction(data) {
     prevHash: ethUtil.toBuffer(ethUtil.addHexPrefix(data.prevHash)),
     prevBlock: data.prevBlock,
     tokenId: data.tokenId,
+    type: data.type,
+    data: data.data,
     newOwner: data.newOwner,
     signature: data.signature,
   }

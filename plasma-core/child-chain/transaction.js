@@ -8,6 +8,8 @@ const transactionFields = [
   {name: 'prevBlock', int: true, default: 0},
   {name: 'tokenId', isDecimal: true},
   {name: 'newOwner'},
+  {name: 'type'},
+  {name: 'data'},
   {name: 'signature'},
 ]
 
@@ -81,6 +83,10 @@ class PlasmaTransaction {
     data.prevHash = ethUtil.addHexPrefix(this.prevHash.toString('hex'))
     data.prevBlock = ethUtil.bufferToInt(this.prevBlock)
     data.tokenId = this.tokenId.toString()
+    data.type = ethUtil.baToJSON(this.type)
+    if(this.data){
+      data.data = ethUtil.baToJSON(this.data)
+    }
     data.newOwner = ethUtil.addHexPrefix(this.newOwner.toString('hex'))
     data.signature = ethUtil.addHexPrefix(this.signature.toString('hex'))
 
@@ -118,6 +124,8 @@ function initFields(self, fields, data) {
           }
         } else if (!(value instanceof Buffer) &&
         typeof field.int === 'undefined' ) {
+          console.log('value', value);
+          
           value = ethUtil.toBuffer(field.isDecimal ?
             ethUtil.stripHexPrefix(value) :
             value)

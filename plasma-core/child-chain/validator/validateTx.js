@@ -3,6 +3,7 @@ import web3 from 'lib/web3'
 import {getAllUtxos} from 'child-chain'
 import ethUtil from 'ethereumjs-util'
 import rejectCauses from './rejectCauses'
+import {stakeTxHandle} from 'consensus'
 
 
 const validateTx = async () => {
@@ -15,6 +16,7 @@ const validateTx = async () => {
     if (!transactions[i].prevHash ||
       !(transactions[i].prevBlock > -2) ||
       !transactions[i].tokenId ||
+      !transactions[i].type || 
       !transactions[i].newOwner ||
       !transactions[i].signature) {
       rejectTransactions.push({transaction: transactions[i].getHash(),
@@ -48,8 +50,16 @@ const validateTx = async () => {
       }
       if ((utxo[x].tokenId === transactions[i].tokenId.toString()) &&
         (utxo[x].owner === oldOwner)) {
-        flagOfAccept = true
-        successfullTransactions.push(transactions[i])
+        if (transactions[i].type === 'vote' && transactions[i].type === 'unvote') {
+          let desition = await stakeTxHandle(transactions, oldOwner)
+          if(desition.answer){
+            flagOfAccept = true
+            successfullTransactions.push(transactions[i])
+          } else {
+            rejectTransactions.push({transaction: transactions[i].getHash(),
+              cause: desition.cause})
+          }
+        }
       }
     }
     if (!flagOfAccept) {
