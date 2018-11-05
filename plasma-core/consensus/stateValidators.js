@@ -1,6 +1,6 @@
 import {Candidate, RightsHandler, validatorsQueue} from 'consensus'
-import {makeAddStakeEvent, makeLowerStakeEvent} from 'child-chain/eventsHandler'
 import config from 'config'
+import logger from 'lib/logger'
 
 /** asa */
 class StateValidators {
@@ -159,25 +159,7 @@ class StateValidators {
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === stake.voter &&
         this.stakes[i].candidate === stake.candidate) {
-          stakeExists = true
-          for (let i = 0; i < this.candidates.length; i++) {
-            if (this.candidates[i].getAddress() === stake.candidate) {
-              this.candidates[i].addStake({
-                voter: stake.voter, value: stake.value,
-              })
-              candidateExists = true
-            }
-          }
-          if (candidateExists) {
-            this.stakes[i].value += stake.value
-            await this.voteCandidates()
-            return this.stakes[i]
-          } else {
-            return 'Denieded stake on a non-existent candidate'
-          }
-        }
-      }
-      if (!stakeExists) {
+        stakeExists = true
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
             this.candidates[i].addStake({
@@ -187,11 +169,29 @@ class StateValidators {
           }
         }
         if (candidateExists) {
+          this.stakes[i].value += stake.value
+          await this.voteCandidates()
+          return this.stakes[i]
+        } else {
+          return 'Denieded stake on a non-existent candidate'
+        }
+      }
+    }
+    if (!stakeExists) {
+      for (let i = 0; i < this.candidates.length; i++) {
+        if (this.candidates[i].getAddress() === stake.candidate) {
+          this.candidates[i].addStake({
+            voter: stake.voter, value: stake.value,
+          })
+          candidateExists = true
+        }
+      }
+      if (candidateExists) {
         this.stakes.push(stake)
         await this.voteCandidates()
         return stake
       } else {
-        console.log('Denieded stake on a non-existent candidate');
+        logger.error('Denieded stake on a non-existent candidate')
         return 'Denieded stake on a non-existent candidate'
       }
     }

@@ -71,16 +71,14 @@ async function createDeposit({address, password, amount}) {
 async function createNewBlock() {
   // Collect memory pool transactions into the block
   // should be prioritized
-  
   let lastBlock = await getLastBlockNumberFromDb()
   let newBlockNumber = lastBlock + config.contractblockStep
   block.blockNumber = newBlockNumber
-
   try {
     let {successfullTransactions, rejectTransactions} = await validateTx()
     if (rejectTransactions.length > 0) {
       await redis.hsetAsync('rejectTx', newBlockNumber,
-      JSON.stringify(rejectTransactions))
+        JSON.stringify(rejectTransactions))
       for (let element of rejectTransactions) {
         await redis.hdel('txpool', element.transaction)
       }
@@ -125,8 +123,8 @@ async function createNewBlock() {
     await redis.setAsync('block' + block.blockNumber.toString(10),
       block.getRlp())
     block = new Block({
-        blockNumber: newBlockNumber,
-        transactions: [],
+      blockNumber: newBlockNumber,
+      transactions: [],
     })
     logger.info('New block created - transactions: ', block.transactions.length)
     return signature
@@ -194,9 +192,9 @@ async function createTransaction(tokenId, addressFrom, addressTo, type, data) {
   }
   if (!tokenHistory.prevHash || tokenHistory.prevBlock<-2) {
     return 'undefined token history'
-  }  
+  }
   let txData = {
-    prevHash: tokenHistory.prevHash,
+    prevHash: Buffer.from(tokenHistory.prevHash),
     prevBlock: tokenHistory.prevBlock,
     tokenId,
     type,
@@ -204,11 +202,10 @@ async function createTransaction(tokenId, addressFrom, addressTo, type, data) {
     newOwner: addressTo,
   }
   let txWithoutSignature = {}
-  try{
-
+  try {
     txWithoutSignature = new PlasmaTransaction(txData)
   } catch (error) {
-    console.log(error);
+    logger.error(error)
   }
   let txHash = (txWithoutSignature.getHash(true)).toString('hex')
   try {

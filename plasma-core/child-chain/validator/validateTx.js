@@ -5,18 +5,16 @@ import ethUtil from 'ethereumjs-util'
 import rejectCauses from './rejectCauses'
 import {stakeTxHandle} from 'consensus'
 
-
 const validateTx = async () => {
   console.time('validateTime')
   let transactions = await txMemPool.txs()
   let successfullTransactions = []
   let rejectTransactions = []
   for (let i = 0; i < transactions.length; i++) {
-    let flagOfAccept = false    
     if (!transactions[i].prevHash ||
       !(transactions[i].prevBlock > -2) ||
       !transactions[i].tokenId ||
-      !transactions[i].type || 
+      !transactions[i].type ||
       !transactions[i].newOwner ||
       !transactions[i].signature) {
       rejectTransactions.push({transaction: transactions[i].getHash(),
@@ -27,21 +25,19 @@ const validateTx = async () => {
     let oldOwner = await web3.eth.personal.ecRecover(transactions[i]
       .getHash(true).toString('hex'),
     ethUtil.addHexPrefix(transactions[i].signature.toString('hex')))
-
     if (!oldOwner) {
       rejectTransactions.push({transaction: transactions[i].getHash(),
         cause: rejectCauses.invalidSignature})
       continue
     }
-    
     let utxo = await getAllUtxos([oldOwner])
-
     if (utxo.length === 0) {
       rejectTransactions.push({transaction: transactions[i].getHash(),
         cause: rejectCauses.undefinedUtxo})
       continue
     }
     for (let x = 0; x < utxo.length; x++) {
+      let flagOfAccept = false
       if (!utxo[x].owner ||
         !utxo[x].tokenId ||
         !utxo[x].amount ||
@@ -52,26 +48,25 @@ const validateTx = async () => {
       }
       if ((utxo[x].tokenId === transactions[i].tokenId.toString()) &&
         (utxo[x].owner === oldOwner)) {
-          if (transactions[i].type.toString('utf8') === 'vote' || transactions[i].type.toString('utf8') === 'unvote') {          
-          let desition = await stakeTxHandle(transactions[i], oldOwner)          
-          if(desition.answer){
-            flagOfAccept = true
-            successfullTransactions.push(transactions[i])
-          } else {
-            rejectTransactions.push({transaction: transactions[i].getHash(),
-              cause: desition.cause})
-            }
-          }
         flagOfAccept = true
+        if (transactions[i].type.toString() === 'vote' ||
+          transactions[i].type.toString() === 'unvote') {
+          let decision = await stakeTxHandle(transactions[i], oldOwner)
+          if (decision.answer === false) {
+            flagOfAccept = false
+            rejectTransactions.push({transaction: transactions[i].getHash(),
+              cause: decision.cause})
+          }
+        }
+      } else {
+        rejectTransactions.push({transaction: transactions[i].getHash(),
+          cause: rejectCauses.noUtxo})
+      }
+      if (flagOfAccept) {
+        successfullTransactions.push(transactions[i])
       }
     }
-    if (!flagOfAccept) {
-      rejectTransactions.push({transaction: transactions[i].getHash(),
-        cause: rejectCauses.noUtxo})
-    } else {
-      successfullTransactions.push(transactions[i])
-    }
-  }  
+  }
   console.time('validateTime')
   return {successfullTransactions, rejectTransactions}
 }
