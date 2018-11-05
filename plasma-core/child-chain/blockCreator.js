@@ -90,7 +90,7 @@ class BlockCreator {
     let blockDataToSig = ethUtil.bufferToHex(block.getRlp()).substr(2)
     let blockMerkleRootHash = ethUtil
       .addHexPrefix(block.merkleRootHash.toString('hex'))
-    if (!(await verify(sig, config.plasmaNodeAddress, blockDataToSig))) {
+    if (!verify(sig, config.plasmaNodeAddress, blockDataToSig)) {
       logger.error('Signature of block is incorrect')
       return false
     }

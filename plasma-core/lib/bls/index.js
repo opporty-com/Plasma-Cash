@@ -204,14 +204,14 @@ const strToSig = (sigStr) => {
   return signature
 }
 
-const sign = async (address, message) => {
+const sign = (address, message) => {
   let secretKey = new SecretKey(address.substr(2))
   let H = Et.Gt.multiply(message)
   let signature = secretKey.sign(H)
   return sigToString(signature)
 }
 
-const verify = async (signature, address, message) => {
+const verify = (signature, address, message) => {
   let secretKey = new SecretKey(address.substr(2))
   let publicKey = secretKey.getPublicKey()
   let H = Et.Gt.multiply(message)

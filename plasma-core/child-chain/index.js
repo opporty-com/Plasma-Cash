@@ -91,7 +91,7 @@ async function createNewBlock() {
     for(let tx of successfullTransactions){
       await redis.hdel('txpool', tx.getHash())
     }
-    logger.info('Holded block has ',block.transactions.length, ' transactions')
+    logger.info('Holded block has ', block.transactions.length, ' transactions')
     if (!(await RightsHandler
       .validateAddressForValidating(config.plasmaNodeAddress))) {
       logger.error('You address is not included in the validators queue')
@@ -105,7 +105,7 @@ async function createNewBlock() {
       logger.info('You address is current validator. Starting submit block...')
     }
     let blockDataToSig = ethUtil.bufferToHex(block.getRlp()).substr(2)
-    let signature = await sign(config.plasmaNodeAddress, blockDataToSig)
+    let signature = sign(config.plasmaNodeAddress, blockDataToSig)
     for (let utxo of block.transactions) {
       try {
         let newHistory = {

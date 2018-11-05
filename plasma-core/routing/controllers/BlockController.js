@@ -70,7 +70,7 @@ class BlockController {
         res.statusCode = 400
         return res.end(JSON.stringify('Incorrect block data'))
       }
-      let signature = await sign(address, blockHash)
+      let signature = sign(address, blockHash)
       return res.end(JSON.stringify({signature}))
     } catch (error) {
       res.statusCode = 400
