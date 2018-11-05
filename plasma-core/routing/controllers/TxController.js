@@ -43,8 +43,8 @@ class TxController {
   static async createTransaction(req, res) {
     await parseM(req)
     try {
-      let {tokenId, addressFrom, addressTo} = req.body
-      if (!tokenId || !addressFrom || !addressTo) {
+      let {tokenId, addressFrom, addressTo, type, data} = req.body
+      if (!tokenId || !addressFrom || !addressTo || !type) {
         res.statusCode = 400
         return res.end('wrong request body')
       }
@@ -53,7 +53,7 @@ class TxController {
         return res.end(JSON.stringify('Incorrect addressFrom or addressTo'))
       }
       let successfullTransaction =
-        await createTransaction(tokenId, addressFrom, addressTo)
+        await createTransaction(tokenId, addressFrom, addressTo, type, JSON.stringify(data))
       return res.end(JSON.stringify(successfullTransaction))
     } catch (error) {
       res.statusCode = 500

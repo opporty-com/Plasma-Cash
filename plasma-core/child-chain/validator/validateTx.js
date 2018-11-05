@@ -12,7 +12,7 @@ const validateTx = async () => {
   let successfullTransactions = []
   let rejectTransactions = []
   for (let i = 0; i < transactions.length; i++) {
-    let flagOfAccept = false
+    let flagOfAccept = false    
     if (!transactions[i].prevHash ||
       !(transactions[i].prevBlock > -2) ||
       !transactions[i].tokenId ||
@@ -33,7 +33,9 @@ const validateTx = async () => {
         cause: rejectCauses.invalidSignature})
       continue
     }
+    
     let utxo = await getAllUtxos([oldOwner])
+
     if (utxo.length === 0) {
       rejectTransactions.push({transaction: transactions[i].getHash(),
         cause: rejectCauses.undefinedUtxo})
@@ -50,23 +52,26 @@ const validateTx = async () => {
       }
       if ((utxo[x].tokenId === transactions[i].tokenId.toString()) &&
         (utxo[x].owner === oldOwner)) {
-        if (transactions[i].type === 'vote' && transactions[i].type === 'unvote') {
-          let desition = await stakeTxHandle(transactions, oldOwner)
+          if (transactions[i].type.toString('utf8') === 'vote' || transactions[i].type.toString('utf8') === 'unvote') {          
+          let desition = await stakeTxHandle(transactions[i], oldOwner)          
           if(desition.answer){
             flagOfAccept = true
             successfullTransactions.push(transactions[i])
           } else {
             rejectTransactions.push({transaction: transactions[i].getHash(),
               cause: desition.cause})
+            }
           }
-        }
+        flagOfAccept = true
       }
     }
     if (!flagOfAccept) {
       rejectTransactions.push({transaction: transactions[i].getHash(),
         cause: rejectCauses.noUtxo})
+    } else {
+      successfullTransactions.push(transactions[i])
     }
-  }
+  }  
   console.time('validateTime')
   return {successfullTransactions, rejectTransactions}
 }

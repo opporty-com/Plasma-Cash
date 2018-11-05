@@ -33,6 +33,8 @@ class PlasmaTransaction {
       this.prevBlock,
       ethUtil.toBuffer(this.tokenId),
       this.newOwner,
+      this.type,
+      this.data,
     ]
     if (!(excludeSignature)) {
       dataToEncode.push(this.signature)
@@ -83,9 +85,9 @@ class PlasmaTransaction {
     data.prevHash = ethUtil.addHexPrefix(this.prevHash.toString('hex'))
     data.prevBlock = ethUtil.bufferToInt(this.prevBlock)
     data.tokenId = this.tokenId.toString()
-    data.type = ethUtil.baToJSON(this.type)
+    data.type = this.type.toString('utf8')
     if(this.data){
-      data.data = ethUtil.baToJSON(this.data)
+      data.data = JSON.parse(this.data.toString('utf8'))
     }
     data.newOwner = ethUtil.addHexPrefix(this.newOwner.toString('hex'))
     data.signature = ethUtil.addHexPrefix(this.signature.toString('hex'))
@@ -96,7 +98,7 @@ class PlasmaTransaction {
 
 function initFields(self, fields, data) {
   if (data instanceof Buffer) {
-    let decodedData = RLP.decode(data)
+    let decodedData = RLP.decode(data)    
     fields.forEach((field, i) => {
       if (field.int) {
         if (decodedData[i].length) {
@@ -123,9 +125,7 @@ function initFields(self, fields, data) {
             value = parseInt(value)
           }
         } else if (!(value instanceof Buffer) &&
-        typeof field.int === 'undefined' ) {
-          console.log('value', value);
-          
+        typeof field.int === 'undefined' ) {          
           value = ethUtil.toBuffer(field.isDecimal ?
             ethUtil.stripHexPrefix(value) :
             value)

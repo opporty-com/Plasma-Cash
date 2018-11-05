@@ -159,38 +159,39 @@ class StateValidators {
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === stake.voter &&
         this.stakes[i].candidate === stake.candidate) {
-        stakeExists = true
+          stakeExists = true
+          for (let i = 0; i < this.candidates.length; i++) {
+            if (this.candidates[i].getAddress() === stake.candidate) {
+              this.candidates[i].addStake({
+                voter: stake.voter, value: stake.value,
+              })
+              candidateExists = true
+            }
+          }
+          if (candidateExists) {
+            this.stakes[i].value += stake.value
+            await this.voteCandidates()
+            return this.stakes[i]
+          } else {
+            return 'Denieded stake on a non-existent candidate'
+          }
+        }
+      }
+      if (!stakeExists) {
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
             this.candidates[i].addStake({
-              voter: stake.voter, stake: stake.value,
+              voter: stake.voter, value: stake.value,
             })
             candidateExists = true
           }
         }
         if (candidateExists) {
-          this.stakes[i].value += stake.value
-          await this.voteCandidates()
-          return this.stakes[i]
-        } else {
-          return 'Denieded stake on a non-existent candidate'
-        }
-      }
-    }
-    if (!stakeExists) {
-      for (let i = 0; i < this.candidates.length; i++) {
-        if (this.candidates[i].getAddress() === stake.candidate) {
-          this.candidates[i].addStake({
-            voter: stake.voter, value: stake.value,
-          })
-          candidateExists = true
-        }
-      }
-      if (candidateExists) {
-        this.stakes.push(stakeEvent)
+        this.stakes.push(stake)
         await this.voteCandidates()
-        return stakeEvent
+        return stake
       } else {
+        console.log('Denieded stake on a non-existent candidate');
         return 'Denieded stake on a non-existent candidate'
       }
     }

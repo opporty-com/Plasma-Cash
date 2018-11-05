@@ -16,7 +16,6 @@ const depositEventHandler = async (event) => {
   let deposit = RLP.encode([owner, tokenId, amount, blockNumber])
   await redis.hsetAsync(`utxo_${config.plasmaNodeAddress}`, tokenId, deposit)
   const tx = await createDepositTransaction(depositor, tokenId)
-  console.log('tx in event', tx);
   await TxMemPool.acceptToMemoryPool(txMemPool, tx)
   logger.info(' DEPOSIT#', x++, ' ', blockNumber)
   logger.info('For temporarily, token id: ', tokenId)
