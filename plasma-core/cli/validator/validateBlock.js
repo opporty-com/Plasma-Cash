@@ -1,5 +1,5 @@
 
-import {Block} from 'models/block'
+import Block from 'models/block'
 import PlasmaTransaction from 'models/transaction'
 
 import ethUtil from 'ethereumjs-util';

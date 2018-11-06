@@ -53,12 +53,8 @@ const utxoTransition = async (dataForTransition) => {
     1,
     blockNumber,
   ]
-  try {
-    await redis.hsetAsync(`utxo_${newOwner}`, tokenId, RLP.encode(utxo))
-    await redis.hsetAsync('history', tokenId, JSON.stringify(newTokenHistory))
-  } catch (error) {
-    throw new Error(rejectCauses.databaseError)
-  }
+  await redis.hsetAsync(`utxo_${newOwner}`, tokenId, RLP.encode(utxo))
+  await redis.hsetAsync('history', tokenId, JSON.stringify(newTokenHistory))
   return {success: true}
 }
 

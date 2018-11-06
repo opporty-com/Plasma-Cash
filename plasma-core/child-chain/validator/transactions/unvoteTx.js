@@ -1,5 +1,5 @@
 import ethUtil from 'ethereumjs-util'
-import {Block} from 'child-chain/block'
+import Block from 'child-chain/block'
 import web3 from 'lib/web3'
 import redis from 'lib/storage/redis'
 
@@ -23,13 +23,8 @@ const validateUnvoteTx = async (transaction) => {
   const utxos = await getUtxosForAddress(tokenOwner)
   let tokenId = transaction.tokenId.toString()
   checkUtxoFieldsAndFindToken(utxos, tokenId, tokenOwner)
-  let block = {}
   let blockKey = 'block' + blockNumber.toString(10)
-  try {
-    block = (new Block(await redis.getAsync(Buffer.from(blockKey))))
-  } catch (error) {
-    throw new Error(rejectCauses.databaseError)
-  }
+  let block = (new Block(await redis.getAsync(Buffer.from(blockKey))))
   if (!block) {
     throw new Error(rejectCauses.failData)
   }

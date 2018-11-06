@@ -4,7 +4,7 @@ import contractHandler from 'root-chain/contracts/plasma'
 import ethUtil from 'ethereumjs-util'
 import logger from 'lib/logger'
 import redis from 'lib/storage/redis'
-import {Block, holdBlock, resetHoldBlock} from 'child-chain/block'
+import Block from 'child-chain/block'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 import {checkTransactionFields} from 'child-chain/validator/transactions'
 import {depositEventHandler} from 'child-chain/eventsHandler'
@@ -13,11 +13,6 @@ import PlasmaTransaction from 'child-chain/transaction'
 import {validateTxsFromPool} from 'child-chain/validator/validateTxsFromPool'
 import {validatorsQueue} from 'consensus'
 import {sign} from 'lib/bls'
-
-let block = new Block({
-  blockNumber: 0,
-  transactions: [],
-})
 
 async function getBlock(blockNumber) {
   try {
@@ -68,6 +63,10 @@ async function createDeposit({address, password, amount}) {
 async function createNewBlock() {
   // Collect memory pool transactions into the block
   // should be prioritized
+  let block = new Block({
+    blockNumber: 0,
+    transactions: [],
+  })
   let lastBlock = await getLastBlockNumberFromDb()
   let newBlockNumber = lastBlock + config.contractblockStep
   block.blockNumber = newBlockNumber
@@ -82,11 +81,11 @@ async function createNewBlock() {
       logger.info('Successfull transactions is not defined for this block')
       return false
     }
-    holdBlock.transactions = holdBlock.transactions.concat(successfullTransactions)
+    block.transactions = successfullTransactions
     for (let tx of successfullTransactions) {
       await redis.hdel('txpool', tx.getHash())
     }
-    logger.info('Holded block has ', holdBlock.transactions.length, ' transactions')
+    logger.info('Holded block has ', block.transactions.length, ' transactions')
     let currentValidator = (await validatorsQueue.getCurrentValidator())
     if (!(currentValidator === config.plasmaNodeAddress)) {
       logger.info('Please wait your turn to submit')
@@ -94,12 +93,11 @@ async function createNewBlock() {
     } else {
       logger.info('You address is current validator. Starting submit block...')
     }
-    let blockDataToSig = ethUtil.bufferToHex(holdBlock.getRlp()).substr(2)
+    let blockDataToSig = ethUtil.bufferToHex(block.getRlp()).substr(2)
     let signature = sign(config.plasmaNodeAddress, blockDataToSig)
-    await redis.setAsync('lastBlockNumber', holdBlock.blockNumber)
-    await redis.setAsync('block' + holdBlock.blockNumber.toString(10),
-      holdBlock.getRlp())
-    resetHoldBlock()
+    await redis.setAsync('lastBlockNumber', block.blockNumber)
+    await redis.setAsync('block' + block.blockNumber.toString(10),
+      block.getRlp())
     logger.info('New block created - transactions: ', block.transactions.length)
     return signature
   } catch (err) {

@@ -45,12 +45,7 @@ const getSignatureOwner = async (transaction) => {
 
 const getUtxoForAddress = async (address) => {
   let utxos = []
-  let data = {}
-  try {
-    data = await redis.hvalsAsync(Buffer.from(`utxo_${address}`))
-  } catch (error) {
-    throw new Error(rejectCauses.databaseError)
-  }
+  let data = await redis.hvalsAsync(Buffer.from(`utxo_${address}`))
   for (let utxoRlp of data) {
     let utxoFromRLP = (RLP.decode(utxoRlp).toString()).split(',')
     let utxo = {
