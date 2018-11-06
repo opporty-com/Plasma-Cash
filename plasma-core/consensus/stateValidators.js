@@ -1,6 +1,7 @@
 import {Candidate, RightsHandler, validatorsQueue} from 'consensus'
 import config from 'config'
 import logger from 'lib/logger'
+import rejectCauses from 'child-chain/validator/rejectCauses'
 
 /** asa */
 class StateValidators {
@@ -135,18 +136,18 @@ class StateValidators {
           if (this.stakes[i].value <= stake.value) {
             this.stakes.splice(i, 1)
             await this.voteCandidates()
-            return 'ok'
+            return {success: true}
           } else {
             this.stakes[i].value -= stake.value
             await this.voteCandidates()
-            return 'ok'
+            return {success: true}
           }
         } else {
-          throw new Error('Denieded stake on a non-existent candidate')
+          return {success: false, cause: rejectCauses.nonExistentCandidate}
         }
       }
     }
-    return 'stake can`t be lowered because it is not exists'
+    return {success: false, cause: rejectCauses.nonExistentStake}
   }
 
   // first checks if there is a stake with such a voter and a candidate,
@@ -171,9 +172,9 @@ class StateValidators {
         if (candidateExists) {
           this.stakes[i].value += stake.value
           await this.voteCandidates()
-          return this.stakes[i]
+          return {success: true}
         } else {
-          return 'Denieded stake on a non-existent candidate'
+          return {success: false, cause: rejectCauses.nonExistentCandidate}
         }
       }
     }
@@ -189,10 +190,10 @@ class StateValidators {
       if (candidateExists) {
         this.stakes.push(stake)
         await this.voteCandidates()
-        return stake
+        return {success: true}
       } else {
         logger.error('Denieded stake on a non-existent candidate')
-        return 'Denieded stake on a non-existent candidate'
+        return {success: false, cause: rejectCauses.nonExistentCandidate}
       }
     }
   }

@@ -1,22 +1,20 @@
-const
 
-  txFieldsIsInvalid = 'transaction fields is invalid',
-
-  invalidSignature = 'invalid signature',
-
-  undefinedUtxo = 'utxo is undefined',
-
-  utxoFieldsIsInvalid = 'utxo fields is invalid',
-
-  noUtxo = 'no utxo on this token',
-
-  failData = 'Fail of data field for transaction'
+const txFieldsIsInvalid = 'Transaction fields is invalid'
+const invalidSignature = 'Invalid signature'
+const undefinedUtxo = 'Utxo is undefined'
+const utxoFieldsIsInvalid = 'Utxo fields is invalid'
+const noUtxo = 'No utxo on this token'
+const nonExistentCandidate = 'Denieded stake on a non-existent candidate'
+const nonExistentStake = 'Stake can`t be lowered because it is not exists'
+const databaseError = 'Got a database error while executing transaction'
 
 export default {
-  txFieldsIsInvalid, 
-  invalidSignature, 
-  undefinedUtxo, 
-  utxoFieldsIsInvalid, 
+  txFieldsIsInvalid,
+  invalidSignature,
+  undefinedUtxo,
+  utxoFieldsIsInvalid,
   noUtxo,
-  failData
+  nonExistentCandidate,
+  nonExistentStake,
+  databaseError,
 }

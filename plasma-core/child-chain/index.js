@@ -10,7 +10,7 @@ import {depositEventHandler} from 'child-chain/eventsHandler'
 import config from 'config'
 import RLP from 'rlp'
 import PlasmaTransaction from 'child-chain/transaction'
-import {validateTx} from 'child-chain/validator/validateTx'
+import {validateTxsFromPool} from 'child-chain/validator/validateTxsFromPool'
 import {validatorsQueue, RightsHandler} from 'consensus'
 import {sign} from 'lib/bls'
 
@@ -75,7 +75,7 @@ async function createNewBlock() {
   let newBlockNumber = lastBlock + config.contractblockStep
   block.blockNumber = newBlockNumber
   try {
-    let {successfullTransactions, rejectTransactions} = await validateTx()
+    let {successfullTransactions, rejectTransactions} = await validateTxsFromPool()
     if (rejectTransactions.length > 0) {
       await redis.hsetAsync('rejectTx', newBlockNumber,
         JSON.stringify(rejectTransactions))
