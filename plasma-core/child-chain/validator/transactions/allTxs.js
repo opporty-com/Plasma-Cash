@@ -1,52 +1,34 @@
-import {validateDefaultTx,
+import {validatePayTx,
   validateVoteTx,
   validateUnvoteTx,
-  validateAndExecuteDefaultTx,
+  validateAndExecutePayTx,
   validateAndExecuteVoteTx,
   validateAndExecuteUnvoteTx,
 } from 'child-chain/validator'
 
+const validate = {
+  validatePayTx,
+  validateVoteTx,
+  validateUnvoteTx,
+  validateAndExecutePayTx,
+  validateAndExecuteVoteTx,
+  validateAndExecuteUnvoteTx,
+}
+
 const validateAllTxs = (transactions) => {
   let successfullTransactions = []
   let rejectTransactions = []
-  for (let len = 0; len<transactions.length; len++) {
-    switch (transactions[len].type.toString()) {
-    case 'pay': {
-      let validResponse = validateDefaultTx(transactions[len])
-      if (!validResponse.success) {
-        rejectTransactions.push({
-          transaction: transactions[len],
-          cause: validResponse.cause,
-        })
-      } else {
-        successfullTransactions.push(transactions[len])
-      }
-      break
-    }
-    case 'vote': {
-      let validResponse = validateVoteTx(transactions[len])
-      if (!validResponse.success) {
-        rejectTransactions.push({
-          transaction: transactions[len],
-          cause: validResponse.cause,
-        })
-      } else {
-        successfullTransactions.push(transactions[len])
-      }
-      break
-    }
-    case 'unvote': {
-      let validResponse = validateUnvoteTx(transactions[len])
-      if (!validResponse.success) {
-        rejectTransactions.push({
-          transaction: transactions[len],
-          cause: validResponse.cause,
-        })
-      } else {
-        successfullTransactions.push(transactions[len])
-      }
-      break
-    }
+  for (let transaction of transactions) {
+    let typeStr = transaction.type.toString()
+    let funcType = typeStr[0].toUpperCase() + typeStr.slice(1)
+    let validResponse = validate[`validate${funcType}Tx`](transaction)
+    if (!validResponse.success) {
+      rejectTransactions.push({
+        transaction: transaction.getHash,
+        cause: validResponse.cause,
+      })
+    } else {
+      successfullTransactions.push(transaction)
     }
   }
   return {successfullTransactions, rejectTransactions}
@@ -55,44 +37,17 @@ const validateAllTxs = (transactions) => {
 const validateAndExecuteAllTxs = (transactions, blockNumber) => {
   let successfullTransactions = []
   let rejectTransactions = []
-  for (let len = 0; len<transactions.length; len++) {
-    switch (transactions[len].type.toString()) {
-    case 'pay': {
-      let validResponse = validateAndExecuteDefaultTx(transactions[len], blockNumber)
-      if (!validResponse.success) {
-        rejectTransactions.push({
-          transaction: transactions[len],
-          cause: validResponse.cause,
-        })
-      } else {
-        successfullTransactions.push(transactions[len])
-      }
-      break
-    }
-    case 'vote': {
-      let validResponse = validateAndExecuteVoteTx(transactions[len], blockNumber)
-      if (!validResponse.success) {
-        rejectTransactions.push({
-          transaction: transactions[len],
-          cause: validResponse.cause,
-        })
-      } else {
-        successfullTransactions.push(transactions[len])
-      }
-      break
-    }
-    case 'unvote': {
-      let validResponse = validateAndExecuteUnvoteTx(transactions[len], blockNumber)
-      if (!validResponse.success) {
-        rejectTransactions.push({
-          transaction: transactions[len],
-          cause: validResponse.cause,
-        })
-      } else {
-        successfullTransactions.push(transactions[len])
-      }
-      break
-    }
+  for (let transaction of transactions) {
+    let typeStr = transaction.type.toString()
+    let funcType = typeStr[0].toUpperCase() + typeStr.slice(1)
+    let validResponse = validate[`validateAndExecute${funcType}Tx`](transaction, blockNumber)
+    if (!validResponse.success) {
+      rejectTransactions.push({
+        transaction: transaction.getHash,
+        cause: validResponse.cause,
+      })
+    } else {
+      successfullTransactions.push(transaction)
     }
   }
   return {successfullTransactions, rejectTransactions}

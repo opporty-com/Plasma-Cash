@@ -8,7 +8,7 @@ import {
   checkUtxoFieldsAndFindToken,
 } from 'child-chain/validator/transactions'
 
-const validateDefaultTx = async (transaction) => {
+const validatePayTx = async (transaction) => {
   if (!checkTransactionFields(transaction)) {
     return {success: false, cause: rejectCauses.txFieldsIsInvalid}
   }
@@ -27,8 +27,8 @@ const validateDefaultTx = async (transaction) => {
   return {success: true}
 }
 
-const validateAndExecuteDefaultTx = async (transaction, blockNumber) => {
-  let validateResponse = await validateDefaultTx(transaction)
+const validateAndExecutePayTx = async (transaction, blockNumber) => {
+  let validateResponse = await validatePayTx(transaction)
   if (!validateResponse.success) {
     return {success: false, cause: validateResponse.cause}
   }
@@ -45,4 +45,4 @@ const validateAndExecuteDefaultTx = async (transaction, blockNumber) => {
   return {success: true}
 }
 
-export {validateAndExecuteDefaultTx, validateDefaultTx}
+export {validateAndExecutePayTx, validatePayTx}
