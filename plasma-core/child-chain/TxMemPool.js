@@ -17,15 +17,9 @@ class TxMemPool {
       throw new Error('acceptToMemoryPool: CheckTransaction failed')
     }
     let hash = tx.getHash()
-
     if (await pool.exists(hash)) {
       return 'this transaction is already exists'
     }
-
-    // TEMPORARY
-    // if (!(await checkInputs(tx)))
-    //   return false;
-
     return pool.addTransaction(tx)
   }
 
@@ -50,6 +44,12 @@ class TxMemPool {
     let hash = tx.getHash()
     redis.hset('txpool', hash, tx.getRlp(false))
     return tx.getJson()
+  }
+
+  static async removeRejectTransactions(transactions) {
+    for (let transaction of transactions) {
+      await redis.hdel('txpool', transaction.hash)
+    }
   }
 
   async txs(json) {

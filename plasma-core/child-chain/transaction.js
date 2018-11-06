@@ -49,7 +49,6 @@ class PlasmaTransaction {
     if (this[fieldName]) {
       return this[fieldName]
     }
-
     this[fieldName] = ethUtil.sha3(this.getRlp(excludeSignature))
     return this[fieldName]
   }
@@ -65,7 +64,6 @@ class PlasmaTransaction {
         ethUtil.bufferToHex(this._address) :
         this._address
     }
-
     let txRlpHashed = ethUtil.hashPersonalMessage(this.getHash(true))
     if (this.signature) {
       let {v, r, s} = ethUtil.fromRpcSig(ethUtil.addHexPrefix(this.signature))
@@ -85,9 +83,9 @@ class PlasmaTransaction {
     data.prevHash = ethUtil.addHexPrefix(this.prevHash.toString('hex'))
     data.prevBlock = ethUtil.bufferToInt(this.prevBlock)
     data.tokenId = this.tokenId.toString()
-    data.type = this.type.toString('utf8')
+    data.type = this.type.toString()
     if (this.data) {
-      data.data = JSON.parse(this.data.toString('utf8'))
+      data.data = JSON.parse(this.data.toString())
     }
     data.newOwner = ethUtil.addHexPrefix(this.newOwner.toString('hex'))
     data.signature = ethUtil.addHexPrefix(this.signature.toString('hex'))

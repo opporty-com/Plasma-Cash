@@ -1,5 +1,7 @@
-import web3 from 'lib/web3'
+import redis from 'lib/storage/redis'
+import RLP from 'rlp'
 import ethUtil from 'ethereumjs-util'
+import rejectCauses from 'child-chain/validator/rejectCauses'
 
 const checkTransactionFields = (transaction) => {
   if (!transaction.prevHash ||
@@ -7,9 +9,9 @@ const checkTransactionFields = (transaction) => {
     !transaction.tokenId ||
     !transaction.newOwner ||
     !transaction.signature) {
-    return true
+    throw new Error(rejectCauses.txFieldsIsInvalid)
   }
-  return false
+  return {success: true}
 }
 
 const checkUtxoFieldsAndFindToken = (utxos, tokenId, tokenOwner) => {
@@ -22,17 +24,52 @@ const checkUtxoFieldsAndFindToken = (utxos, tokenId, tokenOwner) => {
     }
     if ((utxos[i].tokenId === tokenId) &&
       (utxos[i].owner === tokenOwner)) {
-      return true
+      return {success: true}
     }
   }
-  return false
+  throw new Error(rejectCauses.noUtxo)
 }
 
 const getSignatureOwner = async (transaction) => {
-  let tokenOwner = await web3.eth.personal.ecRecover(transaction
-    .getHash(true).toString('hex'),
-  ethUtil.addHexPrefix(transaction.signature.toString('hex')))
+  let tokenOwner = ''
+  try {
+    let sig = ethUtil.fromRpcSig(transaction.signature.toString())
+    let msgHash = ethUtil.hashPersonalMessage(transaction.getHash(true))
+    let pubKey = ethUtil.ecrecover(msgHash, sig.v, sig.r, sig.s)
+    tokenOwner = ethUtil.bufferToHex(ethUtil.pubToAddress(pubKey))
+  } catch (error) {
+    throw new Error(rejectCauses.invalidSignature)
+  }
   return tokenOwner
 }
 
-export {getSignatureOwner, checkUtxoFieldsAndFindToken, checkTransactionFields}
+const getUtxoForAddress = async (address) => {
+  let utxos = []
+  let data = {}
+  try {
+    data = await redis.hvalsAsync(Buffer.from(`utxo_${address}`))
+  } catch (error) {
+    throw new Error(rejectCauses.databaseError)
+  }
+  for (let utxoRlp of data) {
+    let utxoFromRLP = (RLP.decode(utxoRlp).toString()).split(',')
+    let utxo = {
+      owner: ethUtil.addHexPrefix(utxoFromRLP[0]),
+      tokenId: utxoFromRLP[1],
+      amount: utxoFromRLP[2],
+      blockNumber: utxoFromRLP[3],
+    }
+    utxos.push(utxo)
+  }
+  if (utxos.length === 0) {
+    throw new Error(rejectCauses.undefinedUtxo)
+  }
+  return utxos
+}
+
+export {
+  getSignatureOwner,
+  checkUtxoFieldsAndFindToken,
+  checkTransactionFields,
+  getUtxoForAddress,
+}

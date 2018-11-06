@@ -15,42 +15,24 @@ const validate = {
   validateAndExecuteUnvoteTx,
 }
 
-const validateAllTxs = (transactions) => {
+const validateAllTxs = (transactions, toExecute) => {
   let successfullTransactions = []
   let rejectTransactions = []
+  let action = toExecute ? 'validateAndExecute' : 'validate'
   for (let transaction of transactions) {
     let typeStr = transaction.type.toString()
-    let funcType = typeStr[0].toUpperCase() + typeStr.slice(1)
-    let validResponse = validate[`validate${funcType}Tx`](transaction)
-    if (!validResponse.success) {
-      rejectTransactions.push({
-        transaction: transaction.getHash,
-        cause: validResponse.cause,
-      })
-    } else {
+    let desiredFunction = action + typeStr[0].toUpperCase() + typeStr.slice(1) + 'Tx'
+    try {
+      validate[`${desiredFunction}`](transaction)
       successfullTransactions.push(transaction)
+    } catch (cause) {
+      rejectTransactions.push({
+        hash: transaction.getHash,
+        cause: cause.toString(),
+      })
     }
   }
   return {successfullTransactions, rejectTransactions}
 }
 
-const validateAndExecuteAllTxs = (transactions, blockNumber) => {
-  let successfullTransactions = []
-  let rejectTransactions = []
-  for (let transaction of transactions) {
-    let typeStr = transaction.type.toString()
-    let funcType = typeStr[0].toUpperCase() + typeStr.slice(1)
-    let validResponse = validate[`validateAndExecute${funcType}Tx`](transaction, blockNumber)
-    if (!validResponse.success) {
-      rejectTransactions.push({
-        transaction: transaction.getHash,
-        cause: validResponse.cause,
-      })
-    } else {
-      successfullTransactions.push(transaction)
-    }
-  }
-  return {successfullTransactions, rejectTransactions}
-}
-
-export {validateAllTxs, validateAndExecuteAllTxs}
+export {validateAllTxs}

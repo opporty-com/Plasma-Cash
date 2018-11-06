@@ -1,6 +1,5 @@
 export * from './candidate'
 export * from './init'
 export * from './rightsHandler'
-export * from './stakeTxHandle'
 export * from './stateValidators'
 export * from './validatorsQueue'

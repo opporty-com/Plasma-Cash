@@ -1,6 +1,5 @@
 import {Candidate, RightsHandler, validatorsQueue} from 'consensus'
 import config from 'config'
-import logger from 'lib/logger'
 import rejectCauses from 'child-chain/validator/rejectCauses'
 
 /** asa */
@@ -46,7 +45,7 @@ class StateValidators {
   }
 
   async voteCandidates() {
-    let candidates = this.candidates.slice(0)
+    let candidates = [...this.candidates]
     candidates.sort((a, b) => {
       let aWeight = a.getWeight()
       let bWeight = b.getWeight()
@@ -119,7 +118,6 @@ class StateValidators {
   // if there is, the stake is lowered or deleted if it is equal to or
   // greater than the number of existing
   async toLowerStake(stake) {
-    let candidateExists = false
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === stake.voter &&
         this.stakes[i].candidate === stake.candidate) {
@@ -129,25 +127,22 @@ class StateValidators {
             this.candidates[i].toLowerStake({
               voter, value,
             })
-            candidateExists = true
+            if (this.stakes[i].value <= stake.value) {
+              this.stakes.splice(i, 1)
+              await this.voteCandidates()
+              return {success: true}
+            } else {
+              this.stakes[i].value -= stake.value
+              await this.voteCandidates()
+              return {success: true}
+            }
           }
         }
-        if (candidateExists) {
-          if (this.stakes[i].value <= stake.value) {
-            this.stakes.splice(i, 1)
-            await this.voteCandidates()
-            return {success: true}
-          } else {
-            this.stakes[i].value -= stake.value
-            await this.voteCandidates()
-            return {success: true}
-          }
-        } else {
-          return {success: false, cause: rejectCauses.nonExistentCandidate}
-        }
+      } else {
+        throw new Error(rejectCauses.nonExistentCandidate)
       }
     }
-    return {success: false, cause: rejectCauses.nonExistentStake}
+    throw new Error(rejectCauses.nonExistentStake)
   }
 
   // first checks if there is a stake with such a voter and a candidate,
@@ -155,47 +150,34 @@ class StateValidators {
   // candidate and the stake increases
   // if there is no such a stake, then it is created
   async addStake(stake) {
-    let candidateExists = false
-    let stakeExists = false
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === stake.voter &&
         this.stakes[i].candidate === stake.candidate) {
-        stakeExists = true
         for (let i = 0; i < this.candidates.length; i++) {
           if (this.candidates[i].getAddress() === stake.candidate) {
             this.candidates[i].addStake({
               voter: stake.voter, value: stake.value,
             })
-            candidateExists = true
+            this.stakes[i].value += stake.value
+            await this.voteCandidates()
+            return {success: true}
+          } else {
+            throw new Error(rejectCauses.nonExistentCandidate)
           }
-        }
-        if (candidateExists) {
-          this.stakes[i].value += stake.value
-          await this.voteCandidates()
-          return {success: true}
-        } else {
-          return {success: false, cause: rejectCauses.nonExistentCandidate}
         }
       }
     }
-    if (!stakeExists) {
-      for (let i = 0; i < this.candidates.length; i++) {
-        if (this.candidates[i].getAddress() === stake.candidate) {
-          this.candidates[i].addStake({
-            voter: stake.voter, value: stake.value,
-          })
-          candidateExists = true
-        }
-      }
-      if (candidateExists) {
+    for (let i = 0; i < this.candidates.length; i++) {
+      if (this.candidates[i].getAddress() === stake.candidate) {
+        this.candidates[i].addStake({
+          voter: stake.voter, value: stake.value,
+        })
         this.stakes.push(stake)
         await this.voteCandidates()
         return {success: true}
-      } else {
-        logger.error('Denieded stake on a non-existent candidate')
-        return {success: false, cause: rejectCauses.nonExistentCandidate}
       }
     }
+    throw new Error(rejectCauses.nonExistentCandidate)
   }
 }
 

@@ -190,7 +190,7 @@ const sigToString = (sigObject) => {
 }
 
 const strToSig = (sigStr) => {
-  let array = (RLP.decode(ethUtil.toBuffer(sigStr))).toString('utf8').split(',')
+  let array = (RLP.decode(ethUtil.toBuffer(sigStr))).toString().split(',')
 
   let x = new Field2(bn, bigInt(array[0]), bigInt(array[1]), null)
   let y = new Field2(bn, bigInt(array[2]), bigInt(array[3]), null)

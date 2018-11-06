@@ -128,4 +128,16 @@ class Block {
   }
 }
 
-export default Block
+let holdBlock = new Block({
+  blockNumber: 0,
+  transactions: [],
+})
+
+const resetHoldBlock = () => {
+  holdBlock = new Block({
+    blockNumber: 0,
+    transactions: [],
+  })
+}
+
+export default {Block, holdBlock, resetHoldBlock}
