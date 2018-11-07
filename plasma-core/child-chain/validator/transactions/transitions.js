@@ -1,6 +1,5 @@
 import redis from 'lib/storage/redis'
 import RLP from 'rlp'
-import rejectCauses from 'child-chain/validator/rejectCauses'
 import {stateValidators} from 'consensus'
 import ethUtil from 'ethereumjs-util'
 import {getSignatureOwner} from 'child-chain/validator/transactions'
@@ -41,6 +40,32 @@ const unvoteTxExecute = async (transaction, blockNumber) => {
   return {success: true}
 }
 
+const candidateTxExecute = async (transaction, blockNumber) => {
+  const candidate = await getSignatureOwner(transaction)
+  await stateValidators.addCandidate(candidate)
+  let dataForTransition = {
+    txHash: ethUtil.addHexPrefix(transaction.getHash().toString('hex')),
+    blockNumber,
+    tokenId: transaction.tokenId.toString(),
+    newOwner: ethUtil.bufferToHex(transaction.newOwner),
+  }
+  await utxoTransition(dataForTransition)
+  return {success: true}
+}
+
+const resignationTxExecute = async (transaction, blockNumber) => {
+  const resignationCandidate = await getSignatureOwner(transaction)
+  await stateValidators.removeCandidate(resignationCandidate)
+  let dataForTransition = {
+    txHash: ethUtil.addHexPrefix(transaction.getHash().toString('hex')),
+    blockNumber,
+    tokenId: transaction.tokenId.toString(),
+    newOwner: resignationCandidate,
+  }
+  await utxoTransition(dataForTransition)
+  return {success: true}
+}
+
 const utxoTransition = async (dataForTransition) => {
   const {txHash, blockNumber, tokenId, newOwner} = dataForTransition
   let newTokenHistory = {
@@ -62,4 +87,6 @@ export {
   utxoTransition,
   voteTxExecute,
   unvoteTxExecute,
+  candidateTxExecute,
+  resignationTxExecute,
 }

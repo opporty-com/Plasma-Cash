@@ -8,18 +8,18 @@ import {
   checkTransactionFields,
   getSignatureOwner,
   getUtxosForAddress,
-  unvoteTxExecute,
+  resignationTxExecute,
   checkUtxoFieldsAndFindToken,
 } from 'child-chain/validator/transactions'
 
-const validateUnvoteTx = async (transaction) => {
-  const {candidate, blockNumber} = transaction.data
-  if (!candidate || !blockNumber) {
+const validateResignationTx = async (transaction) => {
+  const {blockNumber} = transaction.data
+  if (!blockNumber) {
     throw new Error(rejectCauses.failData)
   }
   checkTransactionFields(transaction)
   const tokenOwner = transaction.newOwner
-  const voter = await getSignatureOwner(transaction)
+  const resignationCandidate = await getSignatureOwner(transaction)
   const utxos = await getUtxosForAddress(tokenOwner)
   let tokenId = transaction.tokenId.toString()
   checkUtxoFieldsAndFindToken(utxos, tokenId, tokenOwner)
@@ -28,21 +28,21 @@ const validateUnvoteTx = async (transaction) => {
   if (!block) {
     throw new Error(rejectCauses.failData)
   }
-  let stakeTransaction = block.getTxByTokenId(transaction.tokenId)
-  if (!stakeTransaction) {
+  let candidateTransaction = block.getTxByTokenId(transaction.tokenId)
+  if (!candidateTransaction) {
     throw new Error(rejectCauses.failData)
   }
-  let stakeOwner = await getSignatureOwner(stakeTransaction)
-  if (stakeOwner != voter) {
+  let candidate = await getSignatureOwner(candidateTransaction)
+  if (candidate != resignationCandidate) {
     throw new Error(rejectCauses.failData)
   }
   return {success: true}
 }
 
-const validateAndExecuteUnvoteTx = async (transaction, blockNumber) => {
-  await validateUnvoteTx(transaction)
-  await unvoteTxExecute(transaction, blockNumber)
+const validateAndExecuteResignationTx = async (transaction, blockNumber) => {
+  await validateResignationTx(transaction)
+  await resignationTxExecute(transaction, blockNumber)
   return {success: true}
 }
 
-export {validateAndExecuteUnvoteTx, validateUnvoteTx}
+export {validateAndExecuteResignationTx, validateResignationTx}

@@ -7,6 +7,8 @@ const noUtxo = 'No utxo on this token'
 const nonExistentCandidate = 'Denieded stake on a non-existent candidate'
 const nonExistentStake = 'Stake can`t be lowered because it is not exists'
 const databaseError = 'Got a database error while executing transaction'
+const candidateAlreadyExists = 'This address already included on list of candidates'
+const candidateNotExists = 'This candidate is non-existent'
 
 export default {
   txFieldsIsInvalid,
@@ -17,4 +19,6 @@ export default {
   nonExistentCandidate,
   nonExistentStake,
   databaseError,
+  candidateAlreadyExists,
+  candidateNotExists,
 }

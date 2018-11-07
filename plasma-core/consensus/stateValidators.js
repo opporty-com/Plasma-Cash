@@ -14,21 +14,15 @@ class StateValidators {
     this.votes = 0
   }
 
-  async setCandidate(address) {
-    let isCandidate = false
-
-    for (let i = 0; i < this.candidates.length; i++) {
-      if (this.candidates[i].getAddress() === address) {
-        isCandidate = true
+  async addCandidate(address) {
+    for (let candidate of this.candidates) {
+      if (candidate.getAddress() === address) {
+        throw new Error(rejectCauses.candidateAlreadyExists)
       }
     }
-    if (!isCandidate) {
-      this.candidates.push(new Candidate(address))
-      this.voteCandidates()
-      return 'ok'
-    } else {
-      return 'already exist'
-    }
+    this.candidates.push(new Candidate(address))
+    this.voteCandidates()
+    return {success: true}
   }
 
   getAllCandidates() {
@@ -97,9 +91,6 @@ class StateValidators {
   }
 
   async removeCandidate(address) {
-    if (config.plasmaNodeAddress != address) {
-      return 'you have ability to remove only yourself from validators'
-    }
     for (let i = 0; i < this.candidates.length; i++) {
       if (this.candidates[i].getAddress() === address) {
         if (RightsHandler.validateAddressForValidating(address)) {
@@ -107,10 +98,10 @@ class StateValidators {
         }
         this.candidates.splice(i, 1)
         await this.voteCandidates()
-        return 'ok'
+        return {success: true}
       }
     }
-    return 'this candidate is not include to list of candidates'
+    throw new Error(rejectCauses.candidateNotExists)
   }
 
   // Lower or delete stake. Checks if stake is available, if there is,
