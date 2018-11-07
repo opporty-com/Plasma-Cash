@@ -43,53 +43,17 @@ class TxController {
   static async createTransaction(req, res) {
     await parseM(req)
     try {
-      let {tokenId, addressFrom, addressTo} = req.body
-      if (!tokenId || !addressFrom || !addressTo) {
+      let {transaction} = req.body
+      if (transaction) {
         res.statusCode = 400
         return res.end('wrong request body')
       }
-      if (!web3.utils.isAddress(addressFrom) || !web3.utils.isAddress(addressTo)) {
-        res.statusCode = 400
-        return res.end(JSON.stringify('Incorrect addressFrom or addressTo'))
-      }
       let successfullTransaction =
-        await createTransaction(tokenId, addressFrom, addressTo)
+        await createTransaction(transaction)
       return res.end(JSON.stringify(successfullTransaction))
     } catch (error) {
       res.statusCode = 500
       return res.end(JSON.stringify(error.toString()))
-    }
-  }
-
-  static createTestTransaction(req, res) {
-    let tx =
-      testTransactionsCreator.alltransactions[parseInt(req.headers['test'])]
-    return TxMemPool.acceptToMemoryPool(txMemPool, tx)
-      .then((ctreated) => {
-        if (!ctreated) {
-          res.statusCode = 400
-          return res.end()
-        }
-        return res.end(JSON.stringify(ctreated.getJson()))
-      }).catch(function(e) {
-        return res.end(e.toString())
-      })
-  }
-
-  static async createTestDeposits(req, res) {
-    await parseM(req)
-    try {
-      let data = req.body
-      if (!data) {
-        res.statusCode = 400
-        return res.end('wrong request body')
-      }
-      let count = data.count || null
-      return createDeposits({deposits: count})
-        .then((ctreated) => res.end(ctreated.toString()))
-    } catch (error) {
-      res.statusCode = 400
-      return res.end(error.toString())
     }
   }
 

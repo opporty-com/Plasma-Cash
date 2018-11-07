@@ -1,8 +1,9 @@
 'use strict'
 
-import { checkTransaction } from 'child-chain'
+import {checkTransaction} from 'child-chain'
 import redis from 'lib/storage/redis'
 import PlasmaTransaction from 'child-chain/transaction'
+import logger from 'lib/logger'
 
 /** TxMemPool - stores valid transactions that may
  * be included in the next block */
@@ -16,15 +17,9 @@ class TxMemPool {
       throw new Error('acceptToMemoryPool: CheckTransaction failed')
     }
     let hash = tx.getHash()
-
     if (await pool.exists(hash)) {
       return 'this transaction is already exists'
     }
-
-    // TEMPORARY
-    // if (!(await checkInputs(tx)))
-    //   return false;
-
     return pool.addTransaction(tx)
   }
 
@@ -51,30 +46,36 @@ class TxMemPool {
     return tx.getJson()
   }
 
+  static async removeRejectTransactions(transactions) {
+    for (let transaction of transactions) {
+      await redis.hdel('txpool', transaction.hash)
+    }
+  }
+
   async txs(json) {
     let transactions = []
 
     try {
       transactions = await redis.hvalsAsync(Buffer.from('txpool'))
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
 
     if (transactions.length == 0) {
       return []
     }
     if (json) {
-      return transactions.map(function (el) {
+      return transactions.map((el) => {
         return new PlasmaTransaction(el).getJson()
       })
     } else {
-      return transactions.map(function (el) {
+      return transactions.map((el) => {
         return new PlasmaTransaction(el)
       })
     }
   }
 }
 
-const txMemPool = new TxMemPool();
+const txMemPool = new TxMemPool()
 
-export { TxMemPool, txMemPool }
+export {TxMemPool, txMemPool}

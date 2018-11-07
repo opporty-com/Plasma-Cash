@@ -11,6 +11,7 @@ import contractHandler from 'root-chain/contracts/plasma'
 let x = 0
 const depositEventHandler = async (event) => {
   const {depositor, amount, blockNumber, tokenId} = event.returnValues
+  console.log('tokenId', tokenId);
   let owner = config.plasmaNodeAddress.substr(2)
   let deposit = RLP.encode([owner, tokenId, amount, blockNumber])
   await redis.hsetAsync(`utxo_${config.plasmaNodeAddress}`, tokenId, deposit)

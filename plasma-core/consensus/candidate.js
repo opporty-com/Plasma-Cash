@@ -12,7 +12,7 @@ class Candidate {
     let stakeExists = false
     for (let i = 0; i < this.stakes.length; i++) {
       if (this.stakes[i].voter === voter) {
-        stakeExists = true
+        stakeExists = true      
         this.stakes[i].value += value
         this.weight += value
       }

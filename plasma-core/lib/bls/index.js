@@ -190,7 +190,7 @@ const sigToString = (sigObject) => {
 }
 
 const strToSig = (sigStr) => {
-  let array = (RLP.decode(ethUtil.toBuffer(sigStr))).toString('utf8').split(',')
+  let array = (RLP.decode(ethUtil.toBuffer(sigStr))).toString().split(',')
 
   let x = new Field2(bn, bigInt(array[0]), bigInt(array[1]), null)
   let y = new Field2(bn, bigInt(array[2]), bigInt(array[3]), null)
@@ -204,14 +204,14 @@ const strToSig = (sigStr) => {
   return signature
 }
 
-const sign = async (address, message) => {
+const sign = (address, message) => {
   let secretKey = new SecretKey(address.substr(2))
   let H = Et.Gt.multiply(message)
   let signature = secretKey.sign(H)
   return sigToString(signature)
 }
 
-const verify = async (signature, address, message) => {
+const verify = (signature, address, message) => {
   let secretKey = new SecretKey(address.substr(2))
   let publicKey = secretKey.getPublicKey()
   let H = Et.Gt.multiply(message)
