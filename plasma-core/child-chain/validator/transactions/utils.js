@@ -4,7 +4,6 @@ import ethUtil from 'ethereumjs-util'
 import rejectCauses from 'child-chain/validator/rejectCauses'
 import Block from 'child-chain/block'
 
-
 const getSignatureOwner = async (transaction) => {
   let tokenOwner = ''
   try {

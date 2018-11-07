@@ -4,7 +4,7 @@ import {validatePayTx,
   validateAndExecutePayTx,
   validateAndExecuteVoteTx,
   validateAndExecuteUnvoteTx,
-} from 'child-chain/validator'
+} from 'child-chain/validator/transactions'
 
 const validate = {
   validatePayTx,

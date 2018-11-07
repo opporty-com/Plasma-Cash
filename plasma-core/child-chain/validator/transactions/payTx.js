@@ -1,10 +1,10 @@
 import ethUtil from 'ethereumjs-util'
-import {getUtxosForAddress} from 'child-chain'
-import {utxoTransition} from 'child-chain/validator'
 import {
   checkTransactionFields,
   getSignatureOwner,
   checkUtxoFieldsAndFindToken,
+  utxoTransition,
+  getUtxosForAddress,
 } from 'child-chain/validator/transactions'
 
 const validatePayTx = async (transaction) => {
