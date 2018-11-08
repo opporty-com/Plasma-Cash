@@ -73,8 +73,6 @@ async function createNewBlock() {
   try {
     let {successfullTransactions, rejectTransactions} = await validateTxsFromPool()
     if (rejectTransactions.length > 0) {
-      await redis.hsetAsync('rejectTx', newBlockNumber,
-        JSON.stringify(rejectTransactions))
       TxMemPool.removeRejectTransactions(rejectTransactions)
     }
     if (successfullTransactions.length === 0) {
@@ -93,9 +91,6 @@ async function createNewBlock() {
     for (let tx of successfullTransactions) {
       await redis.hdel('txpool', tx.getHash())
     }
-    executeAllTxs(block.transactions.map((el) => {
-      return new PlasmaTransaction(el)
-    }))
     await redis.setAsync('lastBlockNumber', block.blockNumber)
     await redis.setAsync('block' + block.blockNumber.toString(10),
       block.getRlp())
@@ -104,7 +99,7 @@ async function createNewBlock() {
     let blockHash = ethUtil.hashPersonalMessage(blockDataToSig)
     let key = Buffer.from(config.plasmaNodeKey, 'hex')
     let sig = ethUtil.ecsign(blockHash, key)
-    logger.info('New block created - transactions: ', block.transactions.length)
+      logger.info('New block created - transactions: ', block.transactions.length)
     return sig
   } catch (err) {
     logger.error('createNewBlock error ', err)
