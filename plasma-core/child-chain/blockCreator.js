@@ -108,7 +108,6 @@ class BlockCreator {
     await contractHandler.contract.methods
       .submitBlock(blockMerkleRootHash, blockNumber)
       .send({from: config.plasmaNodeAddress, gas})
-    executeAllTxs(block.transactions)
   }
 }
 

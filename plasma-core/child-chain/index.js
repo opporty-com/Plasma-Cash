@@ -73,8 +73,6 @@ async function createNewBlock() {
   try {
     let {successfullTransactions, rejectTransactions} = await validateTxsFromPool()
     if (rejectTransactions.length > 0) {
-      await redis.hsetAsync('rejectTx', newBlockNumber,
-        JSON.stringify(rejectTransactions))
       TxMemPool.removeRejectTransactions(rejectTransactions)
     }
     if (successfullTransactions.length === 0) {
