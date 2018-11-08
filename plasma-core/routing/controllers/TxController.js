@@ -78,13 +78,13 @@ class TxController {
 
   static async deposit(req, res) {
     await parseM(req)
-    let {address, password, amount} = req.body || null
-    if (!address || !amount || !password) {
+    let {address, amount} = req.body || null
+    if (!address || !amount ) {
       res.statusCode = 400
       return res.end(JSON.stringify({message: 'request body is wrong'}))
     }
     try {
-      let answer = await createDeposit({address, password, amount})
+      let answer = await createDeposit({address, amount})
       return res.end(JSON.stringify(answer))
     } catch (error) {
       res.statusCode = 400
