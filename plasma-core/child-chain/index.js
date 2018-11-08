@@ -44,12 +44,11 @@ async function submitBlock(address, blockHash) {
   return 'ok'
 }
 
-async function createDeposit({address, password, amount}) {
+async function createDeposit({address, amount}) {
   try {
     if (web3.utils.isAddress(ethUtil.keccak256(address))) {
       throw new Error('address is not defined')
     }
-    await web3.eth.personal.unlockAccount(address, password, 60)
     let gas = await contractHandler.contract.methods.deposit()
       .estimateGas({from: address})
     let answer = await contractHandler.contract.methods.deposit()
@@ -138,7 +137,7 @@ async function createDepositTransaction(addressTo, tokenId) {
   let txHash = (txWithoutSignature.getHash(true))
   try {
     let msgHash = ethUtil.hashPersonalMessage(txHash)
-    let key = Buffer.from(config.plasmaNodeKey, 'hex')
+    let key = Buffer.from(config.plasmaNodeKey, 'hex')    
     let sig = ethUtil.ecsign(msgHash, key)
     txData.signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
   } catch (error) {
