@@ -19,7 +19,7 @@ export default {
   dptKey: process.env.DPT_KEY ? Buffer.from(process.env.DPT_KEY, 'hex') : randomBytes(32),
   dptPort: process.env.DPT_PORT || 30301,
   bootNodes: process.env.BOOT_NODES || [
-    {address: '192.168.1.4',
+    {address: '192.168.254.112',
       udpPort: 30301,
       tcpPort: 30301,
     }],

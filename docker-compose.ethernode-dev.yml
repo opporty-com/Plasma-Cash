@@ -1,7 +1,5 @@
 version: '3.3'
 services:
-
-
   ethernode:
     environment:
       LOG_LEVEL: 3
