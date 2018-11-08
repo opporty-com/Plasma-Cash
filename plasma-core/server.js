@@ -33,7 +33,7 @@ const port = process.env.PORT || 30313;
 
 
   } catch (e) {
-    logger.error('Web3 instance is not available')
+    logger.error('Web3 instance is not available'+ e )
     logger.info('BYE')
     process.exit()
   }

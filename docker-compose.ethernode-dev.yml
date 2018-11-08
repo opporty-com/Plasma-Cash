@@ -15,7 +15,7 @@ services:
       - ./ethernode/rinkeby:/root/rinkeby
       - ./data/ethernode/.ethereum:/root/.ethereum
       - ./data/ethernode/.ethash:/root/.ethash
-      - ./data/ethernode/geth_ipc:/root/geth_ip
+      - ./data/ethernode/geth_ipc:/root/geth_ipc
     logging:
       options:
         max-size: 1000m

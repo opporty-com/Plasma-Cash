@@ -30,7 +30,7 @@ export default {
   },
   maxDelegates: 5,
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
-  web3HttpProvider: 'http://127.0.0.1:8545',
+  web3HttpProvider: null,
   blockPeriod: 5000,
   blockTime: 10000,
   roundInterval: 300000,
