@@ -36,6 +36,7 @@ geth \
   --datadir "/root/.ethereum/devnet" \
   --keystore "/root/devnet/keystore" \
   --ipcpath "/root/geth_ipc/geth.ipc" \
+  --unlock "0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70" \
   --maxpeers 0 \
   --rpc --rpcaddr 0.0.0.0 --rpcapi "db,eth,net,web3,personal" --rpccorsdomain "*" \
   --jspath "/root/devnet/" \
