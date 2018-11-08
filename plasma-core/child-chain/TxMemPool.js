@@ -1,6 +1,5 @@
 'use strict'
 
-import {checkTransaction} from 'child-chain'
 import redis from 'lib/storage/redis'
 import PlasmaTransaction from 'child-chain/transaction'
 import logger from 'lib/logger'
@@ -13,9 +12,6 @@ class TxMemPool {
   }
 
   static async acceptToMemoryPool(pool, tx) {
-    if (!checkTransaction(tx)) {
-      throw new Error('acceptToMemoryPool: CheckTransaction failed')
-    }
     let hash = tx.getHash()
     if (await pool.exists(hash)) {
       return 'this transaction is already exists'

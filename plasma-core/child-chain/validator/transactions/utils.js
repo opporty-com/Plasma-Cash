@@ -7,7 +7,8 @@ import Block from 'child-chain/block'
 const getSignatureOwner = async (transaction) => {
   let tokenOwner = ''
   try {
-    let sig = ethUtil.fromRpcSig(transaction.signature.toString())
+    let sig = ethUtil.fromRpcSig(ethUtil.
+      addHexPrefix(transaction.signature.toString('hex')))
     let msgHash = ethUtil.hashPersonalMessage(transaction.getHash(true))
     let pubKey = ethUtil.ecrecover(msgHash, sig.v, sig.r, sig.s)
     tokenOwner = ethUtil.bufferToHex(ethUtil.pubToAddress(pubKey))
@@ -17,7 +18,7 @@ const getSignatureOwner = async (transaction) => {
   return tokenOwner
 }
 
-const getUtxoForAddress = async (address) => {
+const getUtxosForAddress = async (address) => { 
   let utxos = []
   let data = await redis.hvalsAsync(Buffer.from(`utxo_${address}`))
   for (let utxoRlp of data) {
@@ -64,13 +65,13 @@ const checkUtxoFieldsAndFindToken = (utxos, tokenId, tokenOwner) => {
 }
 
 const checkAndGetAddsHistoryTx = async (transaction) => {
-  const {blockNumber} = transaction.data
+  const {blockNumber} = JSON.parse(transaction.data.toString())
   if (!blockNumber) {
     throw new Error(rejectCauses.failData)
   }
-  const tokenOwner = transaction.newOwner
+  const tokenOwner = ethUtil.addHexPrefix(transaction.newOwner.toString('hex'))
   const faceThatRemoves = await getSignatureOwner(transaction)
-  const utxos = await getUtxoForAddress(tokenOwner)
+  const utxos = await getUtxosForAddress(tokenOwner)
   let tokenId = transaction.tokenId.toString()
   checkUtxoFieldsAndFindToken(utxos, tokenId, tokenOwner)
   let blockKey = 'block' + blockNumber.toString(10)
@@ -93,6 +94,6 @@ export {
   getSignatureOwner,
   checkUtxoFieldsAndFindToken,
   checkTransactionFields,
-  getUtxoForAddress,
+  getUtxosForAddress,
   checkAndGetAddsHistoryTx,
 }
