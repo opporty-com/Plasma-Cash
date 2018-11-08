@@ -102,12 +102,20 @@ class BlockCreator {
     let blockMerkleRootHash = ethUtil
       .addHexPrefix(block.merkleRootHash.toString('hex'))
     logger.info('Block submit #', blockNumber, blockMerkleRootHash)
-    let gas = await contractHandler.contract.methods
+    try {
+      let gas = await contractHandler.contract.methods
       .submitBlock(blockMerkleRootHash, blockNumber)
       .estimateGas({from: config.plasmaNodeAddress})
-    await contractHandler.contract.methods
+      await contractHandler.contract.methods
       .submitBlock(blockMerkleRootHash, blockNumber)
       .send({from: config.plasmaNodeAddress, gas})
+    } catch (error) {
+      logger.error('Error submit block in contract', error.toString())
+    }
+    logger.info('Block №' + blockNumber + ' executes...');
+    executeAllTxs(block.transactions.map((el) => {
+      return new PlasmaTransaction(el)
+    }))
   }
 }
 
