@@ -53,23 +53,17 @@ async function createDeposit({address, amount}) {
       .estimateGas({from: address})
     let answer = await contractHandler.contract.methods.deposit()
       .send({from: address, value: amount, gas: gas + 15000})
-    depositEventHandler(answer.events.DepositAdded)
+    return depositEventHandler(answer.events.DepositAdded)
   } catch (error) {
     return error.toString()
   }
-  return 'ok'
 }
 
 async function createNewBlock() {
   // Collect memory pool transactions into the block
   // should be prioritized
-  let block = new Block({
-    blockNumber: 0,
-    transactions: [],
-  })
   let lastBlock = await getLastBlockNumberFromDb()
   let newBlockNumber = lastBlock + config.contractblockStep
-  block.blockNumber = newBlockNumber
   try {
     let {successfullTransactions, rejectTransactions} = await validateTxsFromPool()
     if (rejectTransactions.length > 0) {
@@ -79,7 +73,10 @@ async function createNewBlock() {
       logger.info('Successfull transactions is not defined for this block')
       return false
     }
-    block.transactions = successfullTransactions
+    let block = new Block({
+      blockNumber: newBlockNumber,
+      transactions: successfullTransactions,
+    })
     logger.info('Holded block has ', block.transactions.length, ' transactions')
     let currentValidator = (await validatorsQueue.getCurrentValidator())
     if (!(currentValidator === config.plasmaNodeAddress)) {

@@ -112,7 +112,7 @@ class BlockCreator {
     } catch (error) {
       logger.error('Error submit block in contract', error.toString())
     }
-    logger.info('Block №' + blockNumber + ' executes...');
+    logger.info('Block №' + blockNumber + ' executes...');    
     executeAllTxs(block.transactions.map((el) => {
       return new PlasmaTransaction(el)
     }))

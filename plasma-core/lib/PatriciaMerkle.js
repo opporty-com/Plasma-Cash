@@ -70,9 +70,6 @@ class Merkle {
   }
 
   buildTree() {
-    if(this.leaves.length === 0){
-      return false
-    }
     this.rootNode = this.buildNode(this.leaves)
   }
 
