@@ -1,30 +1,27 @@
-import ethUtil from 'ethereumjs-util'
+import config from 'config'
+
 import {
   checkTransactionFields,
   getSignatureOwner,
   checkUtxoFieldsAndFindToken,
-  utxoTransition,
   getUtxosForAddress,
+  payTxExecute,
 } from 'child-chain/validator/transactions'
 
-const validatePayTx = async (transaction) => {
+async function validatePayTx(transaction) {
   checkTransactionFields(transaction)
   const tokenOwner = await getSignatureOwner(transaction)
-  const utxos = await getUtxosForAddress(tokenOwner)
-  let tokenId = transaction.tokenId.toString()
-  checkUtxoFieldsAndFindToken(utxos, tokenId, tokenOwner)
+  if (tokenOwner != config.plasmaNodeAddress) {
+    const utxos = await getUtxosForAddress(tokenOwner)
+    let tokenId = transaction.tokenId.toString()
+    checkUtxoFieldsAndFindToken(utxos, tokenId, tokenOwner)
+  }
   return {success: true}
 }
 
-const validateAndExecutePayTx = async (transaction, blockNumber) => {
+async function validateAndExecutePayTx(transaction, blockNumber) {
   await validatePayTx(transaction)
-  let dataForTransition = {
-    txHash: ethUtil.addHexPrefix(transaction.getHash().toString('hex')),
-    blockNumber,
-    tokenId: transaction.tokenId.toString(),
-    newOwner: ethUtil.bufferToHex(transaction.newOwner),
-  }
-  await utxoTransition(dataForTransition)
+  await payTxExecute(transaction, blockNumber)
   return {success: true}
 }
 

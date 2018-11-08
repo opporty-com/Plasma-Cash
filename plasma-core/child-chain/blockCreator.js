@@ -10,6 +10,9 @@ import Block from 'child-chain/block'
 import {createNewBlock} from 'child-chain'
 import ethUtil from 'ethereumjs-util'
 import {verify} from 'lib/bls'
+import {executeAllTxs} from 'child-chain/validator/transactions'
+import PlasmaTransaction from 'child-chain/transaction'
+
 
 /** class for Block periodical creating */
 class BlockCreator {
@@ -24,8 +27,8 @@ class BlockCreator {
 
   async initBlockPeriodicalCreation() {
     let poollen = await txMemPool.size()
-    // logger.info('Check the txPool: length ', poollen,
-    //   'txs', this.options.minTransactionsInBlock)
+    logger.info('Check the txPool: length ', poollen,
+      'txs', this.options.minTransactionsInBlock)
     if (this.options.minTransactionsInBlock && poollen >=
         this.options.minTransactionsInBlock) {
       let sig = await createNewBlock()
@@ -87,13 +90,17 @@ class BlockCreator {
   async startBlockSubmit(blockNumber, sig) {
     let blockKey = 'block' + blockNumber.toString(10)
     let block = new Block(await redis.getAsync(Buffer.from(blockKey)))
-    let blockDataToSig = ethUtil.bufferToHex(block.getRlp()).substr(2)
-    let blockMerkleRootHash = ethUtil
-      .addHexPrefix(block.merkleRootHash.toString('hex'))
-    if (!verify(sig, config.plasmaNodeAddress, blockDataToSig)) {
+    logger.info('Submitted block #', blockNumber)
+    redis.setAsync('lastBlockSubmitted', blockNumber)
+    let blockHash = ethUtil.hashPersonalMessage(block.getRlp())
+    let pubKey = ethUtil.ecrecover(blockHash, sig.v, sig.r, sig.s)
+    let sigOwner = ethUtil.bufferToHex(ethUtil.pubToAddress(pubKey))
+    if (sigOwner != config.plasmaNodeAddress) {
       logger.error('Signature of block is incorrect')
       return false
     }
+    let blockMerkleRootHash = ethUtil
+      .addHexPrefix(block.merkleRootHash.toString('hex'))
     logger.info('Block submit #', blockNumber, blockMerkleRootHash)
     let gas = await contractHandler.contract.methods
       .submitBlock(blockMerkleRootHash, blockNumber)
@@ -101,8 +108,7 @@ class BlockCreator {
     await contractHandler.contract.methods
       .submitBlock(blockMerkleRootHash, blockNumber)
       .send({from: config.plasmaNodeAddress, gas})
-    logger.info('Submitted block #', blockNumber)
-    redis.setAsync('lastBlockSubmitted', blockNumber)
+    executeAllTxs(block.transactions)
   }
 }
 

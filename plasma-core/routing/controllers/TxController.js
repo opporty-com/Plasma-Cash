@@ -10,7 +10,9 @@ import {
   createSignedTransaction,
   checkTransaction,
   createDeposit,
-  createTransaction} from 'child-chain'
+  createTransaction,
+  sendTransaction,
+} from 'child-chain'
 
 /** Class representing a transaction controller. */
 class TxController {
@@ -43,13 +45,30 @@ class TxController {
   static async createTransaction(req, res) {
     await parseM(req)
     try {
-      let {transaction} = req.body
-      if (transaction) {
+      let transaction = req.body
+      if (!transaction) {
         res.statusCode = 400
         return res.end('wrong request body')
       }
       let successfullTransaction =
         await createTransaction(transaction)
+      return res.end(JSON.stringify(successfullTransaction))
+    } catch (error) {
+      res.statusCode = 500
+      return res.end(JSON.stringify(error.toString()))
+    }
+  }
+
+  static async sendTransaction(req, res) {
+    await parseM(req)
+    try {
+      let transaction = req.body
+      if (!transaction) {
+        res.statusCode = 400
+        return res.end('wrong request body')
+      }
+      let successfullTransaction =
+        await sendTransaction(transaction)
       return res.end(JSON.stringify(successfullTransaction))
     } catch (error) {
       res.statusCode = 500

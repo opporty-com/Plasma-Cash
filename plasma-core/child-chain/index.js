@@ -6,13 +6,14 @@ import logger from 'lib/logger'
 import redis from 'lib/storage/redis'
 import Block from 'child-chain/block'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
-import {checkTransactionFields} from 'child-chain/validator/transactions'
+import {checkTransactionFields, executeAllTxs} from 'child-chain/validator/transactions'
 import {depositEventHandler} from 'child-chain/eventsHandler'
 import config from 'config'
 import PlasmaTransaction from 'child-chain/transaction'
 import {validateTxsFromPool} from 'child-chain/validator/validateTxsFromPool'
 import {validatorsQueue} from 'consensus'
 import {sign} from 'lib/bls'
+
 
 async function getBlock(blockNumber) {
   try {
@@ -75,16 +76,13 @@ async function createNewBlock() {
     if (rejectTransactions.length > 0) {
       await redis.hsetAsync('rejectTx', newBlockNumber,
         JSON.stringify(rejectTransactions))
-      txMemPool.removeRejectTransactions(rejectTransactions)
+      TxMemPool.removeRejectTransactions(rejectTransactions)
     }
     if (successfullTransactions.length === 0) {
       logger.info('Successfull transactions is not defined for this block')
       return false
     }
     block.transactions = successfullTransactions
-    for (let tx of successfullTransactions) {
-      await redis.hdel('txpool', tx.getHash())
-    }
     logger.info('Holded block has ', block.transactions.length, ' transactions')
     let currentValidator = (await validatorsQueue.getCurrentValidator())
     if (!(currentValidator === config.plasmaNodeAddress)) {
@@ -93,13 +91,22 @@ async function createNewBlock() {
     } else {
       logger.info('You address is current validator. Starting submit block...')
     }
-    let blockDataToSig = ethUtil.bufferToHex(block.getRlp()).substr(2)
-    let signature = sign(config.plasmaNodeAddress, blockDataToSig)
+    for (let tx of successfullTransactions) {
+      await redis.hdel('txpool', tx.getHash())
+    }
+    executeAllTxs(block.transactions.map((el) => {
+      return new PlasmaTransaction(el)
+    }))
     await redis.setAsync('lastBlockNumber', block.blockNumber)
     await redis.setAsync('block' + block.blockNumber.toString(10),
       block.getRlp())
+    console.log('BLOCK SUBMITTED', block.blockNumber.toString(10))
+    let blockDataToSig = block.getRlp()
+    let blockHash = ethUtil.hashPersonalMessage(blockDataToSig)
+    let key = Buffer.from(config.plasmaNodeKey, 'hex')
+    let sig = ethUtil.ecsign(blockHash, key)
     logger.info('New block created - transactions: ', block.transactions.length)
-    return signature
+    return sig
   } catch (err) {
     logger.error('createNewBlock error ', err)
   }
@@ -117,7 +124,7 @@ async function getLastBlockNumberFromDb() {
   return lastBlock
 }
 
-async function createDepositTransaction(addressTo, tokenId, blockNumber) {
+async function createDepositTransaction(addressTo, tokenId) {
   let newOwner = ethUtil.addHexPrefix(addressTo)
   let txData = {
     prevHash: '0x123',
@@ -130,10 +137,12 @@ async function createDepositTransaction(addressTo, tokenId, blockNumber) {
   let txWithoutSignature = new PlasmaTransaction(txData)
   let txHash = (txWithoutSignature.getHash(true))
   try {
-    let signature = ethUtil.essign(ethUtil.hashPersonalMessage(txHash),
-      Buffer.from(config.plasmaNodeKey, 'hex'))
-    txData.signature = ethUtil.toRpcSig(signature)
+    let msgHash = ethUtil.hashPersonalMessage(txHash)
+    let key = Buffer.from(config.plasmaNodeKey, 'hex')
+    let sig = ethUtil.ecsign(msgHash, key)
+    txData.signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
   } catch (error) {
+    console.log('error', error);
     return error.toString()
   }
   let transaction = createSignedTransaction(txData)
@@ -143,14 +152,32 @@ async function createDepositTransaction(addressTo, tokenId, blockNumber) {
 }
 
 async function sendTransaction(transaction) {
-  checkTransactionFields(transaction)
-  await TxMemPool.acceptToMemoryPool(txMemPool, transaction)
+  const {
+    prevBlock,
+    tokenId,
+    type,
+    data,
+    newOwner,
+    signature,
+  } = transaction
+
+  let txData = {
+    prevHash: '0x123',
+    prevBlock,
+    tokenId,
+    type,
+    data: JSON.stringify(data),
+    newOwner,
+    signature,
+  }
+  let tx = new PlasmaTransaction(txData)
+  checkTransactionFields(tx)
+  await TxMemPool.acceptToMemoryPool(txMemPool, tx)
   return {success: true}
 }
 
 async function createTransaction(transaction) {
   const {
-    prevHash,
     prevBlock,
     tokenId,
     type,
@@ -159,21 +186,20 @@ async function createTransaction(transaction) {
   } = transaction
 
   let txData = {
-    prevHash: Buffer.from(prevHash),
+    prevHash: '0x123',
     prevBlock,
     tokenId,
     type,
     data: JSON.stringify(data),
     newOwner,
   }
-
   let txWithoutSignature = {}
   txWithoutSignature = new PlasmaTransaction(txData)
   let txHash = (txWithoutSignature.getHash(true))
   try {
-    let signature = ethUtil.essign(ethUtil.hashPersonalMessage(txHash),
+    let sig = ethUtil.ecsign(ethUtil.hashPersonalMessage(txHash),
       Buffer.from(config.plasmaNodeKey, 'hex'))
-    txData.signature = ethUtil.toRpcSig(signature)
+    txData.signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
     let transaction = createSignedTransaction(txData)
     return await TxMemPool.acceptToMemoryPool(txMemPool, transaction)
   } catch (error) {

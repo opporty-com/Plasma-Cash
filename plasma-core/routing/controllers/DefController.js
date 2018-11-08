@@ -5,6 +5,7 @@ import redis from 'lib/storage/redis'
 import {parseM} from 'lib/utils'
 import {txMemPool} from 'child-chain/TxMemPool'
 import web3 from 'lib/web3'
+import {getUtxosForAddress} from 'child-chain/validator/transactions'
 
 /** Class representing a default controller. */
 class DefController {
@@ -23,6 +24,22 @@ class DefController {
           return res.end(JSON.stringify(deposits))
         })
       })
+    } catch (error) {
+      res.statusCode = 400
+      return res.end(error.toString())
+    }
+  }
+
+  static async getBalance(req, res) {
+    await parseM(req)
+    const {address} = req.body
+    if (!address) {
+      res.statusCode = 400
+      return res.end(JSON.stringify('wrong request parameters'))
+    }
+    try {
+      let utxos = await getUtxosForAddress(address)
+      res.end(JSON.stringify(utxos))
     } catch (error) {
       res.statusCode = 400
       return res.end(error.toString())
