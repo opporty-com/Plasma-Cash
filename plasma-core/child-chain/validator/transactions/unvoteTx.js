@@ -8,8 +8,8 @@ import {
 const validateUnvoteTx = async (transaction) => {
   checkTransactionFields(transaction)
   let addsTransaction = await checkAndGetAddsHistoryTx(transaction)
-  if (JSON.parse(addsTransaction.data.toString()).candidate
-    != JSON.parse(transaction.data.toString()).candidate) {
+  if (JSON.parse(addsTransaction.data.toString()).address
+    != JSON.parse(transaction.data.toString()).address) {
     throw new Error(rejectCauses.failData)
   }
   return {success: true}

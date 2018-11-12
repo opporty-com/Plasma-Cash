@@ -9,7 +9,7 @@ import web3 from 'lib/web3'
 import Block from 'child-chain/block'
 import {createNewBlock} from 'child-chain'
 import ethUtil from 'ethereumjs-util'
-import {verify} from 'lib/bls'
+import {depositEventHandler} from 'child-chain/eventsHandler'
 import {executeAllTxs} from 'child-chain/validator/transactions'
 import PlasmaTransaction from 'child-chain/transaction'
 
@@ -75,6 +75,14 @@ class BlockCreator {
     }
     try {
       lastBlock = await web3.eth.getBlockNumber()
+      const depositEventsInBlock = await contractHandler.contract.getPastEvents("DepositAdded", {
+        fromBlock: lastCheckedBlock,
+        toBlock: lastBlock
+      });
+      if (depositEventsInBlock.length > 0) {
+        for (let i = 0, length = depositEventsInBlock.length; i < length; ++i)
+          depositEventHandler(depositEventsInBlock[i]);
+      }
       if (lastBlock > lastCheckedBlock) {
         lastCheckedBlock++
         logger.info('Process Block for Deposit Events - ', lastBlock)

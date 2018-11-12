@@ -53,7 +53,7 @@ async function createDeposit({address, amount}) {
       .estimateGas({from: address})
     let answer = await contractHandler.contract.methods.deposit()
       .send({from: address, value: amount, gas: gas + 15000})
-    return depositEventHandler(answer.events.DepositAdded)
+    return answer.events.DepositAdded.returnValues.tokenId
   } catch (error) {
     return error.toString()
   }
