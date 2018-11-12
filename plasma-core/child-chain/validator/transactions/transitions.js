@@ -34,7 +34,7 @@ const voteTxExecute = async (transaction, blockNumber) => {
   let newOwner = ethUtil.addHexPrefix(transaction.newOwner.toString('hex'))
   let stake = {
     voter: oldOwner,
-    candidate: JSON.parse(transaction.data.toString()).candidate,
+    candidate: JSON.parse(transaction.data.toString()).address,
     value: 1,
   }
   await stateValidators.addStake(stake)
@@ -47,7 +47,7 @@ const unvoteTxExecute = async (transaction, blockNumber) => {
   let oldOwner = ethUtil.addHexPrefix(transaction.newOwner.toString('hex'))
   let stake = {
     voter: newOwner,
-    candidate: JSON.parse(transaction.data.toString()).candidate,
+    candidate: JSON.parse(transaction.data.toString()).address,
     value: 1,
   }
   await stateValidators.toLowerStake(stake)

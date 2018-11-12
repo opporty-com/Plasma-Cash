@@ -1,71 +1,41 @@
-import axios from 'axios'
+const axios = require('axios')
+const contractHandler = require('./contract/plasma')
+const config = require('./config')
+const web3 = require('./web3')
 
-
-//follow requests for users 
-const createDeposit = async (address, amount) => {
-  return (await axios.post('http://localhost:443/Tx/deposit', JSON.stringify({ address, amount }))).data
+const sendTransaction = async (transaction) => {  
+  return (await axios.post('http://localhost:30313/Tx/sendTransaction', { transaction })).data
 }
 
-const createTransaction = async (addressTo, addressFrom, tokenId) => {
-  return (await axios.post('http://localhost:443/Tx/createTransaction', { addressTo, addressFrom, tokenId })).data
+const balance = async (address) => {
+  return (await axios.post('http://localhost:30313/getBalance', { address })).data
 }
 
-
-//follow requests for validators
-const getAllTxFromPool = async () => {
-  return (await axios.get('http://localhost:443/getRawMempool')).data
+const validator = async () => {
+  return (await axios.get('http://localhost:30313/Validators/getCurrentValidator')).data
 }
 
-const getUtxoForAddresses = async (addresses) => {
-  return (await axios.post('http://localhost:443/utxo', { addresses })).data
+const candidates = async () => {
+  return (await axios.get('http://localhost:30313/Validators/getCandidates')).data
 }
 
-const submitBlock = async (address, block, rejectTransactions) => {
-  return (await axios.post('http://localhost:443/Block/submitBlock', { address, block, rejectTransactions })).data
+const deposit = async () => {
+  try {
+    await web3.eth.personal.unlockAccount(config.address, config.password, 1000);
+    let gas = await contractHandler.contract.methods.deposit()
+    .estimateGas({ from: config.address })
+    let answer = await contractHandler.contract.methods.deposit()
+    .send({ from: config.address, value: 1, gas: gas + 1500000 })
+    return answer.events.DepositAdded.returnValues.tokenId
+  } catch (error) {
+    return error
+  }
 }
 
-const signBlock = async (address, blockHash) => {
-  return (await axios.post('http://localhost:443/Block/sign', { address, blockHash })).data
-}
-
-const signTxVerify = async (data, signature) => {
-  return (await axios.post('http://localhost:443/Tx/signVerify', { data, signature })).data
-}
-
-
-//follow requests for voters and candidates
-const getCandidates = async () => {
-  return (await axios.get('http://localhost:443/Validators/getCandidates')).data
-}
-
-const toLowerStake = async (stake) => {
-  return (await axios.post('http://localhost:443/Validators/toLowerStake', { stake })).data
-}
-
-const addStake = async (voter, candidate, value) => {
-  return (await axios.post('http://localhost:443/Validators/addStake', { voter, candidate, value })).data
-}
-
-const removeCandidate = async (address) => {
-  return (await axios.post('http://localhost:443/Validators/removeCandidate', { address })).data
-}
-
-const proposeCandidate = async (address) => {
-  return (await axios.post('http://localhost:443/Validators/proposeCandidate', { address })).data
-}
-
-
-export {
-  signTxVerify,
-  getAllTxFromPool,
-  getUtxoForAddresses,
-  submitBlock,
-  signBlock,
-  createDeposit,
-  proposeCandidate,
-  createTransaction,
-  getCandidates,
-  toLowerStake,
-  addStake,
-  removeCandidate
+module.exports = {
+  sendTransaction,
+  balance,
+  deposit,
+  candidates,
+  validator
 }

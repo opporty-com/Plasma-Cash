@@ -16,6 +16,7 @@ const depositEventHandler = async (event) => {
   await createDepositTransaction(depositor, tokenId)
   logger.info(' DEPOSIT#', x++, ' ', blockNumber)
   logger.info('For temporarily, token id: ', tokenId)
+  return tokenId
 }
 
 async function makeAddStakeEvent({voter, candidate, tokenId}) {
