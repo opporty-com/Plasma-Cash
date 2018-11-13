@@ -6,14 +6,12 @@ import logger from 'lib/logger'
 import redis from 'lib/storage/redis'
 import Block from 'child-chain/block'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
-import {checkTransactionFields, executeAllTxs} from 'child-chain/validator/transactions'
+import {checkTransactionFields} from 'child-chain/validator/transactions'
 import {depositEventHandler} from 'child-chain/eventsHandler'
 import config from 'config'
 import PlasmaTransaction from 'child-chain/transaction'
 import {validateTxsFromPool} from 'child-chain/validator/validateTxsFromPool'
 import {validatorsQueue} from 'consensus'
-import {sign} from 'lib/bls'
-
 
 async function getBlock(blockNumber) {
   try {
@@ -53,7 +51,7 @@ async function createDeposit({address, amount}) {
       .estimateGas({from: address})
     let answer = await contractHandler.contract.methods.deposit()
       .send({from: address, value: amount, gas: gas + 15000})
-    return answer.events.DepositAdded.returnValues.tokenId
+    return depositEventHandler(answer.events.DepositAdded)
   } catch (error) {
     return error.toString()
   }
@@ -96,7 +94,7 @@ async function createNewBlock() {
     let blockHash = ethUtil.hashPersonalMessage(blockDataToSig)
     let key = Buffer.from(config.plasmaNodeKey, 'hex')
     let sig = ethUtil.ecsign(blockHash, key)
-      logger.info('New block created - transactions: ', block.transactions.length)
+    logger.info('New block created - transactions: ', block.transactions.length)
     return sig
   } catch (err) {
     logger.error('createNewBlock error ', err)

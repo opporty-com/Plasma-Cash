@@ -1,0 +1,893 @@
+[
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "exit_ids",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "operators",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "exitRecords",
+    "outputs": [
+      {
+        "name": "block_num",
+        "type": "uint256"
+      },
+      {
+        "name": "prev_block",
+        "type": "uint256"
+      },
+      {
+        "name": "token_id",
+        "type": "uint256"
+      },
+      {
+        "name": "new_owner",
+        "type": "address"
+      },
+      {
+        "name": "priority",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "current_blk",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "challenged",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokens",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "authority",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "deposit_blk",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "frozenTokens",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "childChain",
+    "outputs": [
+      {
+        "name": "block_num",
+        "type": "uint256"
+      },
+      {
+        "name": "merkle_root",
+        "type": "bytes32"
+      },
+      {
+        "name": "time",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "merkleRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "blockNumber",
+        "type": "uint256"
+      }
+    ],
+    "name": "BlockSubmitted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "depositor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "blockNumber",
+        "type": "uint256"
+      }
+    ],
+    "name": "DepositAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "voter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "candidate",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "StakeAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "voter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "candidate",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "StakeLowered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "exitor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "priority",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "exitId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ExitAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "exitId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ExitChallengedEvent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "exitId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ChallengedInvalidHistory",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "exitId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ExitRespondedEvent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "blockNumber",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "exitBlockNumber",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "exitTokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "exitDenom",
+        "type": "uint256"
+      }
+    ],
+    "name": "ExitCompleteEvent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "log",
+        "type": "string"
+      }
+    ],
+    "name": "Log",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "log",
+        "type": "bytes"
+      }
+    ],
+    "name": "Log",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "log",
+        "type": "bytes32"
+      }
+    ],
+    "name": "Log",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "log",
+        "type": "bool"
+      }
+    ],
+    "name": "Log",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "log",
+        "type": "uint256"
+      }
+    ],
+    "name": "Log",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "log",
+        "type": "address"
+      }
+    ],
+    "name": "Log",
+    "type": "event"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "name": "status",
+        "type": "bool"
+      }
+    ],
+    "name": "setOperator",
+    "outputs": [
+      {
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "rlp",
+        "type": "bytes"
+      }
+    ],
+    "name": "getTransactionFromRLP",
+    "outputs": [
+      {
+        "name": "prevhash",
+        "type": "bytes32"
+      },
+      {
+        "name": "prev_block",
+        "type": "uint256"
+      },
+      {
+        "name": "token_id",
+        "type": "uint256"
+      },
+      {
+        "name": "new_owner",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "merkleRoot",
+        "type": "bytes32"
+      },
+      {
+        "name": "block_num",
+        "type": "uint256"
+      }
+    ],
+    "name": "submitBlock",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "deposit",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "candidate",
+        "type": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "addStake",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "candidate",
+        "type": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "lowerStake",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "block_num",
+        "type": "uint256"
+      },
+      {
+        "name": "tx1",
+        "type": "bytes"
+      },
+      {
+        "name": "tx0",
+        "type": "bytes"
+      },
+      {
+        "name": "proof1",
+        "type": "bytes"
+      },
+      {
+        "name": "proof0",
+        "type": "bytes"
+      }
+    ],
+    "name": "startExit",
+    "outputs": [
+      {
+        "name": "exit_id",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "exit_id",
+        "type": "uint256"
+      },
+      {
+        "name": "blk_num",
+        "type": "uint256"
+      },
+      {
+        "name": "tx1",
+        "type": "bytes"
+      },
+      {
+        "name": "proof",
+        "type": "bytes"
+      }
+    ],
+    "name": "challengeSpent",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "exit_id",
+        "type": "uint256"
+      },
+      {
+        "name": "blk_num",
+        "type": "uint256"
+      },
+      {
+        "name": "tx1",
+        "type": "bytes"
+      },
+      {
+        "name": "proof",
+        "type": "bytes"
+      }
+    ],
+    "name": "challengeDoubleSpend",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "exit_id",
+        "type": "uint256"
+      },
+      {
+        "name": "blk_num",
+        "type": "uint256"
+      },
+      {
+        "name": "tx0",
+        "type": "bytes"
+      },
+      {
+        "name": "proof",
+        "type": "bytes"
+      }
+    ],
+    "name": "challengeInvalidHistory",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "exit_id",
+        "type": "uint256"
+      },
+      {
+        "name": "blk_num",
+        "type": "uint256"
+      },
+      {
+        "name": "childtx",
+        "type": "bytes"
+      },
+      {
+        "name": "proof",
+        "type": "bytes"
+      }
+    ],
+    "name": "respondChallenge",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "finalizeExits",
+    "outputs": [
+      {
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "merkle",
+        "type": "bytes32"
+      },
+      {
+        "name": "root",
+        "type": "bytes32"
+      },
+      {
+        "name": "proof",
+        "type": "bytes"
+      }
+    ],
+    "name": "checkPatriciaProof",
+    "outputs": [
+      {
+        "name": "valid",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getCurrentBlock",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getDepositBlock",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getExit",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "blknum",
+        "type": "uint256"
+      }
+    ],
+    "name": "getChain",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getToken",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "getBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

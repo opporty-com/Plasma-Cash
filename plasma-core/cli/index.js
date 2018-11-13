@@ -1,5 +1,6 @@
 const PlasmaTransaction = require('./transaction')
 const ethUtil = require('ethereumjs-util')
+const fs = require('./lib/fs')
 const {sendTransaction, deposit, balance, validator, candidates} = require('./requests')
 const config = require('./config')
 
@@ -8,27 +9,34 @@ let actions = {
   balance,
   candidates,
   validator,
-},
-  txTypes = [
+  logout,
+}
+let txTypes = [
   'vote',
   'unvote',
   'pay',
   'candidate',
   'resignation',
-],
-  customTypes = [
+]
+let customTypes = [
   'deposit',
   'balance',
   'candidates',
   'validator',
+  'logout',
 ]
 
 async function comandHandler(command) {
-  if(!txTypes.concat(customTypes).includes(command.type)){
+  if (!config.privateKey || !config.privateKey) {
+    throw new Error('Authentication has not been done')
+  }
+  if (!txTypes.concat(customTypes).includes(command.type)) {
     throw new Error('undefined command ' + '"' + command.type + '"')
   }
-  if(customTypes.includes(command.type)){
-    return await actions[command.type]()
+  if (customTypes.includes(command.type)) {
+    return command.type === 'balance' ?
+      await actions['balance'](command.tokenId) :
+      await actions[command.type]()
   }
   return createTransaction(command)
 }
@@ -43,22 +51,22 @@ function createSignTransaction(transaction) {
 }
 
 function createTransaction({type, address, tokenId, blockNumber}) {
-  if(type === 'unvote' || type === 'unvote'){
-    if(!blockNumber) {
+  if (type === 'unvote' || type === 'unvote') {
+    if (!blockNumber) {
       throw new Error('Incorrect previous block number')
     }
   }
-  if(type === 'pay'){
-    if(!address){
+  if (type === 'pay') {
+    if (!address) {
       throw new Error('Incorrect address to')
     }
   }
-  if(!tokenId){
+  if (!tokenId) {
     throw new Error('Incorrect tokenId')
   }
   let data = type === 'vote' || type === 'unvote' ? {address, blockNumber}
     : type === 'resignation' ? {blockNumber}
-    : {}
+      : {}
 
   let txData = {
     prevHash: '0x123',
@@ -73,4 +81,36 @@ function createTransaction({type, address, tokenId, blockNumber}) {
   return sendTransaction(signTransaction.getJson())
 }
 
-module.exports = {comandHandler}
+async function authentication(privateKey, password) {
+  let address = ethUtil
+    .bufferToHex(ethUtil.privateToAddress(Buffer.from(privateKey, 'hex')))
+  try {
+    await logout()
+    let data = await fs.readFileAsync('./config.js', 'utf8')
+    let replace = data
+      .replace("password: ''", `password: '${password}'`)
+      .replace("privateKey: ''", `privateKey: '${privateKey}'`)
+      .replace("address: ''", `address: '${address}'`)
+    await fs.writeFileAsync('./config.js', replace, 'utf8')
+  } catch (error) {
+    return error.toString()
+  }
+  return 'Successful authentication ' + address
+}
+
+async function logout() {
+  try {
+    let data = await fs.readFileAsync('./config.js', 'utf8')
+    let replace = data
+      .replace(`password: '${config.password}'`, "password: ''")
+      .replace(`privateKey: '${config.privateKey}'`, "privateKey: ''")
+      .replace(`address: '${config.address}'`, "address: ''")
+    await fs.writeFileAsync('./config.js', replace, 'utf8')
+  } catch (error) {
+    return error.toString()
+  }
+  return 'Logging out successfully'
+}
+
+
+module.exports = {comandHandler, authentication, logout}
