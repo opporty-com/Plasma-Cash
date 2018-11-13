@@ -1,31 +1,31 @@
 const axios = require('axios')
 const contractHandler = require('./contract/plasma')
 const config = require('./config')
-const web3 = require('./web3')
+const web3 = require('./lib/web3')
 
-const sendTransaction = async (transaction) => {  
-  return (await axios.post('http://localhost:30313/Tx/sendTransaction', { transaction })).data
+async function sendTransaction(transaction) {
+  return (await axios.post('http://localhost:30313/Tx/sendTransaction', {transaction})).data
 }
 
-const balance = async (address) => {
-  return (await axios.post('http://localhost:30313/getBalance', { address })).data
+async function balance(address) {
+  return (await axios.post('http://localhost:30313/getBalance', {address})).data
 }
 
-const validator = async () => {
+async function validator() {
   return (await axios.get('http://localhost:30313/Validators/getCurrentValidator')).data
 }
 
-const candidates = async () => {
+async function candidates() {
   return (await axios.get('http://localhost:30313/Validators/getCandidates')).data
 }
 
-const deposit = async () => {
+async function deposit() {
   try {
-    await web3.eth.personal.unlockAccount(config.address, config.password, 1000);
+    await web3.eth.personal.unlockAccount(config.address, config.password, 1000)
     let gas = await contractHandler.contract.methods.deposit()
-    .estimateGas({ from: config.address })
+      .estimateGas({from: config.address})
     let answer = await contractHandler.contract.methods.deposit()
-    .send({ from: config.address, value: 1, gas: gas + 1500000 })
+      .send({from: config.address, value: 1, gas: gas + 1500000})
     return answer.events.DepositAdded.returnValues.tokenId
   } catch (error) {
     return error
@@ -37,5 +37,5 @@ module.exports = {
   balance,
   deposit,
   candidates,
-  validator
+  validator,
 }
