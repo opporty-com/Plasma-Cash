@@ -114,8 +114,8 @@ contract Root {
      * Blockchain
      */
     mapping(uint => Block) public childChain;
-    mapping(uint => uint) public tokens;
-    mapping(uint => uint) public frozenTokens;
+    mapping(uint => address) public tokens;
+    mapping(uint => address) public frozenTokens;
     // mapping(address => Weight) candidatesWithStakes;
 
     /*
@@ -194,27 +194,27 @@ contract Root {
      * tokens are indivisible and cannot be merged.
      */
     function deposit() public payable {
-        
         uint token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
         // token.index = deposit_blk;
-        
-        tokens[token_id] = msg.value;
+        tokens[token_id] = msg.sender;
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
-    
     }
 
-    function addStake(address candidate, uint tokenId) public {
-        stakes[candidate][tokenId] = msg.sender;
+    function froze(uint tokenId) public {
+        require(tokens[tokenId] == msg.sender, "You are not the owner of this token");
         frozenTokens[tokenId] = tokens[tokenId];
-        emit StakeAdded(msg.sender, candidate, tokens[tokenId], tokenId);
+        delete tokens[tokenId];
     }
 
-    function lowerStake(address candidate, uint tokenId) public {
-        require(stakes[candidate][tokenId] == msg.sender, "You are not the owner of this token");
-        delete stakes[candidate][tokenId];
+    function unfroze(uint tokenId) public {
+        require(frozenTokens[tokenId] == msg.sender, "You are not the owner of this token");
+        tokens[tokenId] = frozenTokens[tokenId];
         delete frozenTokens[tokenId];
-        emit StakeLowered(msg.sender, candidate, tokens[tokenId], tokenId);
+    }
+
+    function checkFrozen(address candidate, uint tokenId) public view returns(address) {
+        return stakes[candidate][tokenId];
     }
 
     /*
