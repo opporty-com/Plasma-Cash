@@ -9,7 +9,6 @@ const transactionFields = [
   {name: 'tokenId', isDecimal: true},
   {name: 'newOwner'},
   {name: 'type'},
-  {name: 'data'},
   {name: 'signature'},
 ]
 
@@ -34,7 +33,6 @@ class PlasmaTransaction {
       ethUtil.toBuffer(this.tokenId),
       this.newOwner,
       this.type,
-      this.data,
     ]
     if (!(excludeSignature)) {
       dataToEncode.push(this.signature)
@@ -84,9 +82,6 @@ class PlasmaTransaction {
     data.prevBlock = ethUtil.bufferToInt(this.prevBlock)
     data.tokenId = this.tokenId.toString()
     data.type = this.type.toString()
-    if (this.data) {
-      data.data = JSON.parse(this.data.toString())
-    }
     data.newOwner = ethUtil.addHexPrefix(this.newOwner.toString('hex'))
     data.signature = ethUtil.addHexPrefix(this.signature.toString('hex'))
 

@@ -4,6 +4,7 @@ import {getAllUtxos} from 'child-chain'
 import redis from 'lib/storage/redis'
 import {parseM} from 'lib/utils'
 import {txMemPool} from 'child-chain/TxMemPool'
+import {stateValidators, validatorsQueue} from 'consensus'
 import web3 from 'lib/web3'
 import {getUtxosForAddress} from 'child-chain/validator/transactions'
 
@@ -38,10 +39,33 @@ class DefController {
       return res.end(JSON.stringify('wrong request parameters'))
     }
     try {
-      let utxos = await getUtxosForAddress(address)
+      let utxos = (await getUtxosForAddress(address)).map((utxo)=>{
+        return utxo.tokenId
+      })
       res.end(JSON.stringify(utxos))
     } catch (error) {
       res.statusCode = 400
+      return res.end(error.toString())
+    }
+  }
+
+  static async getCandidates(req, res) {
+    try {
+      let answer = await stateValidators.getAllCandidates()
+      return res.end(JSON.stringify({answer}))
+    } catch (error) {
+      res.statusCode = 500
+      return res.end(error.toString())
+    }
+  }
+
+  static async getCurrentValidator(req, res) {
+    try {
+      await validatorsQueue.prepareValidators()
+      let answer = await validatorsQueue.getCurrentValidator()
+      return res.end(JSON.stringify({answer}))
+    } catch (error) {
+      res.statusCode = 500
       return res.end(error.toString())
     }
   }

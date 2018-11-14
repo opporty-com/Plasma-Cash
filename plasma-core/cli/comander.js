@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 const comand = require('commander')
-const {comandHandler, authentication, logout} = require('./')
+const {comandHandler, authentication} = require('./')
 
 comand
-  .command('* <type> [tokenId] [blockNubmer] [address]')
-  .action(async (type, tokenId, blockNumber, address)=>{
-    console.log(await comandHandler({type, tokenId, blockNumber, address}))
+  .command('* <type> [tokenId] [prevBlock] [address]')
+  .action(async (type, tokenId, prevBlock, address)=>{
+    console.log(await comandHandler({type, tokenId, prevBlock, address}))
   })
 
 comand

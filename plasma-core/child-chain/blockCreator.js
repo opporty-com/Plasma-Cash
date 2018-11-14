@@ -75,13 +75,14 @@ class BlockCreator {
     }
     try {
       lastBlock = await web3.eth.getBlockNumber()
-      const depositEventsInBlock = await contractHandler.contract.getPastEvents("DepositAdded", {
+      const depositEventsInBlock = await contractHandler.contract.getPastEvents('DepositAdded', {
         fromBlock: lastCheckedBlock,
-        toBlock: lastBlock
-      });
+        toBlock: lastBlock,
+      })
       if (depositEventsInBlock.length > 0) {
-        for (let i = 0, length = depositEventsInBlock.length; i < length; ++i)
-          depositEventHandler(depositEventsInBlock[i]);
+        for (let i = 0, length = depositEventsInBlock.length; i < length; ++i) {
+          depositEventHandler(depositEventsInBlock[i])
+        }
       }
       if (lastBlock > lastCheckedBlock) {
         lastCheckedBlock++
@@ -112,15 +113,15 @@ class BlockCreator {
     logger.info('Block submit #', blockNumber, blockMerkleRootHash)
     try {
       let gas = await contractHandler.contract.methods
-      .submitBlock(blockMerkleRootHash, blockNumber)
-      .estimateGas({from: config.plasmaNodeAddress})
+        .submitBlock(blockMerkleRootHash, blockNumber)
+        .estimateGas({from: config.plasmaNodeAddress})
       await contractHandler.contract.methods
-      .submitBlock(blockMerkleRootHash, blockNumber)
-      .send({from: config.plasmaNodeAddress, gas})
+        .submitBlock(blockMerkleRootHash, blockNumber)
+        .send({from: config.plasmaNodeAddress, gas})
     } catch (error) {
       logger.error('Error submit block in contract', error.toString())
     }
-    logger.info('Block №' + blockNumber + ' executes...');    
+    logger.info('Block №' + blockNumber + ' executes...')
     executeAllTxs(block.transactions.map((el) => {
       return new PlasmaTransaction(el)
     }))

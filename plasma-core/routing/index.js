@@ -3,12 +3,10 @@
 import TxController from 'routing/controllers/TxController'
 import BlockController from 'routing/controllers/BlockController'
 import DefController from 'routing/controllers/DefController'
-import ValidatorsController from 'routing/controllers/ValidatorsController'
 
 const controllers = {
   TxController,
   BlockController,
-  ValidatorsController,
 }
 /** Class representing a routing. */
 class Routing {

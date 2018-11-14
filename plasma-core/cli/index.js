@@ -50,31 +50,26 @@ function createSignTransaction(transaction) {
   return transaction
 }
 
-function createTransaction({type, address, tokenId, blockNumber}) {
-  if (type === 'unvote' || type === 'unvote') {
-    if (!blockNumber) {
-      throw new Error('Incorrect previous block number')
-    }
-  }
-  if (type === 'pay') {
+function createTransaction({type, address, tokenId, prevBlock}) {
+  if (type != 'candidate' && type != 'resignation') {
     if (!address) {
       throw new Error('Incorrect address to')
     }
+  } else {
+    address = '0x'
+  }
+  if (!prevBlock) {
+    throw new Error('Incorrect previous block number')
   }
   if (!tokenId) {
     throw new Error('Incorrect tokenId')
   }
-  let data = type === 'vote' || type === 'unvote' ? {address, blockNumber}
-    : type === 'resignation' ? {blockNumber}
-      : {}
-
   let txData = {
     prevHash: '0x123',
-    prevBlock: 14,
+    prevBlock,
     tokenId,
     type,
-    data: JSON.stringify(data),
-    newOwner: type === 'pay' ? address : config.stakeHolder,
+    newOwner: address,
   }
   let transaction = new PlasmaTransaction(txData)
   let signTransaction = createSignTransaction(transaction)
