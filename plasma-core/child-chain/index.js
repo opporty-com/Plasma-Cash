@@ -49,8 +49,12 @@ async function createDeposit({address, amount}) {
     }
     let gas = await contractHandler.contract.methods.deposit()
       .estimateGas({from: address})
+    let signTx = await web3.eth.accounts.signTransaction({from: address, value: amount, gas: gas + 15000}, config.plasmaNodeKey)
+    console.log(signTx);
+    
     let answer = await contractHandler.contract.methods.deposit()
-      .send({from: address, value: amount, gas: gas + 15000})
+      .send({from: address, value: amount, gas: gas + 15000, signature: signTx.messageHash})
+      // .send({from: address, value: amount, gas: gas + 15000})
     return depositEventHandler(answer.events.DepositAdded)
   } catch (error) {
     return error.toString()
@@ -120,18 +124,17 @@ async function createDepositTransaction(addressTo, tokenId) {
     prevBlock: -1,
     tokenId,
     type: 'pay',
-    data: JSON.stringify({}),
     newOwner,
   }
   let txWithoutSignature = new PlasmaTransaction(txData)
   let txHash = (txWithoutSignature.getHash(true))
   try {
     let msgHash = ethUtil.hashPersonalMessage(txHash)
-    let key = Buffer.from(config.plasmaNodeKey, 'hex')    
+    let key = Buffer.from(config.plasmaNodeKey, 'hex')
     let sig = ethUtil.ecsign(msgHash, key)
     txData.signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
   } catch (error) {
-    console.log('error', error);
+    console.log('error', error)
     return error.toString()
   }
   let transaction = createSignedTransaction(txData)
@@ -145,7 +148,6 @@ async function sendTransaction(transaction) {
     prevBlock,
     tokenId,
     type,
-    data,
     newOwner,
     signature,
   } = transaction
@@ -155,7 +157,6 @@ async function sendTransaction(transaction) {
     prevBlock,
     tokenId,
     type,
-    data: JSON.stringify(data),
     newOwner,
     signature,
   }
@@ -170,7 +171,6 @@ async function createTransaction(transaction) {
     prevBlock,
     tokenId,
     type,
-    data,
     newOwner,
   } = transaction
 
@@ -179,7 +179,6 @@ async function createTransaction(transaction) {
     prevBlock,
     tokenId,
     type,
-    data: JSON.stringify(data),
     newOwner,
   }
   let txWithoutSignature = {}
@@ -202,7 +201,6 @@ function createSignedTransaction(data) {
     prevBlock: data.prevBlock,
     tokenId: data.tokenId,
     type: data.type,
-    data: data.data,
     newOwner: data.newOwner,
     signature: data.signature,
   }

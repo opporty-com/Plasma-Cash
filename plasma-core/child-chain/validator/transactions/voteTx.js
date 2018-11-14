@@ -16,3 +16,4 @@ const validateAndExecuteVoteTx = async (transaction, blockNumber) => {
 }
 
 export {validateAndExecuteVoteTx, validateVoteTx}
+

@@ -9,7 +9,7 @@ const nonExistentStake = 'Stake can`t be lowered because it is not exists'
 const databaseError = 'Got a database error while executing transaction'
 const candidateAlreadyExists = 'This address already included on list of candidates'
 const candidateNotExists = 'This candidate is non-existent'
-const failData = 'Fail data field of transaction'
+const failHistory = 'Fail history of transaction'
 
 export default {
   txFieldsIsInvalid,
@@ -22,5 +22,5 @@ export default {
   databaseError,
   candidateAlreadyExists,
   candidateNotExists,
-  failData,
+  failHistory,
 }

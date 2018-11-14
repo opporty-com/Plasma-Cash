@@ -1,3 +1,4 @@
+import ethUtil from 'ethereumjs-util'
 import rejectCauses from 'child-chain/validator/rejectCauses'
 import {
   checkTransactionFields,
@@ -8,9 +9,9 @@ import {
 const validateUnvoteTx = async (transaction) => {
   checkTransactionFields(transaction)
   let addsTransaction = await checkAndGetAddsHistoryTx(transaction)
-  if (JSON.parse(addsTransaction.data.toString()).address
-    != JSON.parse(transaction.data.toString()).address) {
-    throw new Error(rejectCauses.failData)
+  if (ethUtil.addHexPrefix(addsTransaction.newOwner.toString('hex'))
+    != ethUtil.addHexPrefix(transaction.newOwner.toString('hex'))) {
+    throw new Error(rejectCauses.failHistory)
   }
   return {success: true}
 }

@@ -114,8 +114,7 @@ contract Root {
      * Blockchain
      */
     mapping(uint => Block) public childChain;
-    mapping(uint => address) public tokens;
-    mapping(uint => address) public frozenTokens;
+    mapping(uint => uint) public tokens;
     // mapping(address => Weight) candidatesWithStakes;
 
     /*
@@ -196,25 +195,9 @@ contract Root {
     function deposit() public payable {
         uint token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
         // token.index = deposit_blk;
-        tokens[token_id] = msg.sender;
+        tokens[token_id] = msg.value;
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
-    }
-
-    function froze(uint tokenId) public {
-        require(tokens[tokenId] == msg.sender, "You are not the owner of this token");
-        frozenTokens[tokenId] = tokens[tokenId];
-        delete tokens[tokenId];
-    }
-
-    function unfroze(uint tokenId) public {
-        require(frozenTokens[tokenId] == msg.sender, "You are not the owner of this token");
-        tokens[tokenId] = frozenTokens[tokenId];
-        delete frozenTokens[tokenId];
-    }
-
-    function checkFrozen(address candidate, uint tokenId) public view returns(address) {
-        return stakes[candidate][tokenId];
     }
 
     /*
