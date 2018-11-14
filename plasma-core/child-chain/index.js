@@ -49,12 +49,8 @@ async function createDeposit({address, amount}) {
     }
     let gas = await contractHandler.contract.methods.deposit()
       .estimateGas({from: address})
-    let signTx = await web3.eth.accounts.signTransaction({from: address, value: amount, gas: gas + 15000}, config.plasmaNodeKey)
-    console.log(signTx);
-    
     let answer = await contractHandler.contract.methods.deposit()
-      .send({from: address, value: amount, gas: gas + 15000, signature: signTx.messageHash})
-      // .send({from: address, value: amount, gas: gas + 15000})
+      .send({from: address, value: amount, gas: gas + 15000})
     return depositEventHandler(answer.events.DepositAdded)
   } catch (error) {
     return error.toString()
