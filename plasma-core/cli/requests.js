@@ -3,6 +3,7 @@ const contractHandler = require('./contract/plasma')
 const config = require('./config')
 const web3 = require('./lib/web3')
 
+
 async function sendTransaction(transaction) {
   return (await axios.post('http://localhost:30313/Tx/sendTransaction', {transaction})).data
 }
@@ -21,12 +22,17 @@ async function candidates() {
 
 async function deposit() {
   try {
-    await web3.eth.personal.unlockAccount(config.address, config.password, 1000)
-    let gas = await contractHandler.contract.methods.deposit()
-      .estimateGas({from: config.address})
-    let answer = await contractHandler.contract.methods.deposit()
-      .send({from: config.address, value: 1, gas: gas + 1500000})
-    return answer.events.DepositAdded.returnValues.tokenId
+    let account = await web3.eth.accounts.privateKeyToAccount('0x'+config.privateKey)
+    let data = contractHandler.contract.methods.deposit().encodeABI()
+    let tx = await account.signTransaction({
+      from: config.address,
+      to: config.plasmaContractAddress,
+      value: 1,
+      gas: 2800000,
+      data,
+    })
+    let result = await web3.eth.sendSignedTransaction(tx.rawTransaction)
+    return result.status
   } catch (error) {
     return error
   }

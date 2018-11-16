@@ -7,7 +7,6 @@ import redis from 'lib/storage/redis'
 import Block from 'child-chain/block'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 import {checkTransactionFields} from 'child-chain/validator/transactions'
-import {depositEventHandler} from 'child-chain/eventsHandler'
 import config from 'config'
 import PlasmaTransaction from 'child-chain/transaction'
 import {validateTxsFromPool} from 'child-chain/validator/validateTxsFromPool'
@@ -51,7 +50,7 @@ async function createDeposit({address, amount}) {
       .estimateGas({from: address})
     let answer = await contractHandler.contract.methods.deposit()
       .send({from: address, value: amount, gas: gas + 15000})
-    return depositEventHandler(answer.events.DepositAdded)
+    return answer.events.DepositAdded.returnValues.tokenId
   } catch (error) {
     return error.toString()
   }

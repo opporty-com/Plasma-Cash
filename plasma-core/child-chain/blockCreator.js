@@ -80,8 +80,8 @@ class BlockCreator {
         toBlock: lastBlock,
       })
       if (depositEventsInBlock.length > 0) {
-        for (let i = 0, length = depositEventsInBlock.length; i < length; ++i) {
-          depositEventHandler(depositEventsInBlock[i])
+        for (let event of depositEventsInBlock) {
+          depositEventHandler(event)
         }
       }
       if (lastBlock > lastCheckedBlock) {
