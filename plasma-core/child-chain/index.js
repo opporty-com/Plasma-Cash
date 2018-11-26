@@ -6,14 +6,12 @@ import logger from 'lib/logger'
 import redis from 'lib/storage/redis'
 import Block from 'child-chain/block'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
-import {checkTransactionFields, executeAllTxs} from 'child-chain/validator/transactions'
+import {checkTransactionFields} from 'child-chain/validator/transactions'
 import {depositEventHandler} from 'child-chain/eventsHandler'
 import config from 'config'
 import PlasmaTransaction from 'child-chain/transaction'
 import {validateTxsFromPool} from 'child-chain/validator/validateTxsFromPool'
 import {validatorsQueue} from 'consensus'
-import {sign} from 'lib/bls'
-
 
 async function getBlock(blockNumber) {
   try {
@@ -53,23 +51,17 @@ async function createDeposit({address, amount}) {
       .estimateGas({from: address})
     let answer = await contractHandler.contract.methods.deposit()
       .send({from: address, value: amount, gas: gas + 15000})
-    depositEventHandler(answer.events.DepositAdded)
+    return depositEventHandler(answer.events.DepositAdded)
   } catch (error) {
     return error.toString()
   }
-  return 'ok'
 }
 
 async function createNewBlock() {
   // Collect memory pool transactions into the block
   // should be prioritized
-  let block = new Block({
-    blockNumber: 0,
-    transactions: [],
-  })
   let lastBlock = await getLastBlockNumberFromDb()
   let newBlockNumber = lastBlock + config.contractblockStep
-  block.blockNumber = newBlockNumber
   try {
     let {successfullTransactions, rejectTransactions} = await validateTxsFromPool()
     if (rejectTransactions.length > 0) {
@@ -79,7 +71,10 @@ async function createNewBlock() {
       logger.info('Successfull transactions is not defined for this block')
       return false
     }
-    block.transactions = successfullTransactions
+    let block = new Block({
+      blockNumber: newBlockNumber,
+      transactions: successfullTransactions,
+    })
     logger.info('Holded block has ', block.transactions.length, ' transactions')
     let currentValidator = (await validatorsQueue.getCurrentValidator())
     if (!(currentValidator === config.plasmaNodeAddress)) {
@@ -99,7 +94,7 @@ async function createNewBlock() {
     let blockHash = ethUtil.hashPersonalMessage(blockDataToSig)
     let key = Buffer.from(config.plasmaNodeKey, 'hex')
     let sig = ethUtil.ecsign(blockHash, key)
-      logger.info('New block created - transactions: ', block.transactions.length)
+    logger.info('New block created - transactions: ', block.transactions.length)
     return sig
   } catch (err) {
     logger.error('createNewBlock error ', err)
@@ -125,18 +120,17 @@ async function createDepositTransaction(addressTo, tokenId) {
     prevBlock: -1,
     tokenId,
     type: 'pay',
-    data: JSON.stringify({}),
     newOwner,
   }
   let txWithoutSignature = new PlasmaTransaction(txData)
   let txHash = (txWithoutSignature.getHash(true))
   try {
     let msgHash = ethUtil.hashPersonalMessage(txHash)
-    let key = Buffer.from(config.plasmaNodeKey, 'hex')    
+    let key = Buffer.from(config.plasmaNodeKey, 'hex')
     let sig = ethUtil.ecsign(msgHash, key)
     txData.signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
   } catch (error) {
-    console.log('error', error);
+    console.log('error', error)
     return error.toString()
   }
   let transaction = createSignedTransaction(txData)
@@ -150,7 +144,6 @@ async function sendTransaction(transaction) {
     prevBlock,
     tokenId,
     type,
-    data,
     newOwner,
     signature,
   } = transaction
@@ -160,7 +153,6 @@ async function sendTransaction(transaction) {
     prevBlock,
     tokenId,
     type,
-    data: JSON.stringify(data),
     newOwner,
     signature,
   }
@@ -175,7 +167,6 @@ async function createTransaction(transaction) {
     prevBlock,
     tokenId,
     type,
-    data,
     newOwner,
   } = transaction
 
@@ -184,7 +175,6 @@ async function createTransaction(transaction) {
     prevBlock,
     tokenId,
     type,
-    data: JSON.stringify(data),
     newOwner,
   }
   let txWithoutSignature = {}
@@ -207,7 +197,6 @@ function createSignedTransaction(data) {
     prevBlock: data.prevBlock,
     tokenId: data.tokenId,
     type: data.type,
-    data: data.data,
     newOwner: data.newOwner,
     signature: data.signature,
   }

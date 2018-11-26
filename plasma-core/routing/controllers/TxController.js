@@ -1,7 +1,7 @@
 'use strict'
 
 import logger from 'lib/logger'
-import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
+import {txMemPool, TXMemPool} from 'child-chain/TxMemPool'
 import ethUtil from 'ethereumjs-util'
 import {getBlock} from 'child-chain'
 import {parseM} from 'lib/utils'
@@ -45,7 +45,7 @@ class TxController {
   static async createTransaction(req, res) {
     await parseM(req)
     try {
-      let transaction = req.body
+      let {transaction} = req.body
       if (!transaction) {
         res.statusCode = 400
         return res.end('wrong request body')
@@ -62,7 +62,7 @@ class TxController {
   static async sendTransaction(req, res) {
     await parseM(req)
     try {
-      let transaction = req.body
+      let {transaction} = req.body
       if (!transaction) {
         res.statusCode = 400
         return res.end('wrong request body')
@@ -71,6 +71,7 @@ class TxController {
         await sendTransaction(transaction)
       return res.end(JSON.stringify(successfullTransaction))
     } catch (error) {
+      console.log(error)
       res.statusCode = 500
       return res.end(JSON.stringify(error.toString()))
     }

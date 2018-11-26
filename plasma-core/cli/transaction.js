@@ -1,7 +1,7 @@
 'use strict'
 
-import RLP from 'rlp'
-import ethUtil from 'ethereumjs-util'
+const RLP = require('rlp')
+const ethUtil = require('ethereumjs-util')
 
 const transactionFields = [
   {name: 'prevHash'},
@@ -132,4 +132,4 @@ function initFields(self, fields, data) {
 }
 
 
-export default PlasmaTransaction
+module.exports = PlasmaTransaction

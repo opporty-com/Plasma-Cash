@@ -115,7 +115,6 @@ contract Root {
      */
     mapping(uint => Block) public childChain;
     mapping(uint => uint) public tokens;
-    mapping(uint => uint) public frozenTokens;
     // mapping(address => Weight) candidatesWithStakes;
 
     /*
@@ -194,27 +193,11 @@ contract Root {
      * tokens are indivisible and cannot be merged.
      */
     function deposit() public payable {
-        
         uint token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
         // token.index = deposit_blk;
-        
         tokens[token_id] = msg.value;
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
-    
-    }
-
-    function addStake(address candidate, uint tokenId) public {
-        stakes[candidate][tokenId] = msg.sender;
-        frozenTokens[tokenId] = tokens[tokenId];
-        emit StakeAdded(msg.sender, candidate, tokens[tokenId], tokenId);
-    }
-
-    function lowerStake(address candidate, uint tokenId) public {
-        require(stakes[candidate][tokenId] == msg.sender, "You are not the owner of this token");
-        delete stakes[candidate][tokenId];
-        delete frozenTokens[tokenId];
-        emit StakeLowered(msg.sender, candidate, tokens[tokenId], tokenId);
     }
 
     /*

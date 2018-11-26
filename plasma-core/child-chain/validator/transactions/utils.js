@@ -18,7 +18,7 @@ const getSignatureOwner = async (transaction) => {
   return tokenOwner
 }
 
-const getUtxosForAddress = async (address) => { 
+const getUtxosForAddress = async (address) => {
   let utxos = []
   let data = await redis.hvalsAsync(Buffer.from(`utxo_${address}`))
   for (let utxoRlp of data) {
@@ -65,27 +65,19 @@ const checkUtxoFieldsAndFindToken = (utxos, tokenId, tokenOwner) => {
 }
 
 const checkAndGetAddsHistoryTx = async (transaction) => {
-  const {blockNumber} = JSON.parse(transaction.data.toString())
-  if (!blockNumber) {
-    throw new Error(rejectCauses.failData)
-  }
-  const tokenOwner = ethUtil.addHexPrefix(transaction.newOwner.toString('hex'))
   const faceThatRemoves = await getSignatureOwner(transaction)
-  const utxos = await getUtxosForAddress(tokenOwner)
-  let tokenId = transaction.tokenId.toString()
-  checkUtxoFieldsAndFindToken(utxos, tokenId, tokenOwner)
-  let blockKey = 'block' + blockNumber.toString(10)
+  let blockKey = 'block' + transaction.prevBlock
   let block = (new Block(await redis.getAsync(Buffer.from(blockKey))))
   if (!block) {
-    throw new Error(rejectCauses.failData)
+    throw new Error(rejectCauses.failHistory)
   }
   let addsTransaction = block.getTxByTokenId(transaction.tokenId)
   if (!addsTransaction) {
-    throw new Error(rejectCauses.failData)
+    throw new Error(rejectCauses.failHistory)
   }
   let faceThatAdds = await getSignatureOwner(addsTransaction)
   if (faceThatAdds != faceThatRemoves) {
-    throw new Error(rejectCauses.failData)
+    throw new Error(rejectCauses.failHistory)
   }
   return addsTransaction
 }
