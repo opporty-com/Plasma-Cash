@@ -49,11 +49,24 @@ class DefController {
     }
   }
 
-  static async getCandidates(req, res) {
+  static async getAllCandidates(req, res) {
     try {
       let answer = await stateValidators.getAllCandidates()
-      return res.end(JSON.stringify({answer}))
+      return res.end(JSON.stringify(answer))
     } catch (error) {
+      console.log(error);
+      res.statusCode = 500
+      return res.end(error.toString())
+    }
+  }
+
+  static async getCandidates(req, res) {
+    try {
+      await validatorsQueue.prepareValidators()
+      let answer = await validatorsQueue.getAllValidators()
+      return res.end(JSON.stringify(answer))
+    } catch (error) {
+      console.log(error);
       res.statusCode = 500
       return res.end(error.toString())
     }

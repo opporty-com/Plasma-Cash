@@ -12,15 +12,20 @@ async function balance(address) {
 }
 
 async function validator() {
-  return (await axios.get('http://localhost:30313/Validators/getCurrentValidator')).data
+  return (await axios.get('http://localhost:30313/getCurrentValidator')).data
 }
 
 async function candidates() {
-  return (await axios.get('http://localhost:30313/Validators/getCandidates')).data
+  return (await axios.get('http://localhost:30313/getAllCandidates')).data
+}
+
+async function validators() {
+  return (await axios.get('http://localhost:30313/getCandidates')).data
 }
 
 async function deposit() {
   try {
+    console.log('deposit', config.address, config.password);
     await web3.eth.personal.unlockAccount(config.address, config.password, 1000)
     let gas = await contractHandler.contract.methods.deposit()
       .estimateGas({from: config.address})
@@ -38,4 +43,5 @@ module.exports = {
   deposit,
   candidates,
   validator,
+  validators,
 }

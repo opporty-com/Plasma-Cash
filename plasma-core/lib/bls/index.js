@@ -1,10 +1,8 @@
 
 import CryptoRandom from './pairing/Rnd'
 import {Point2} from './pairing/Points'
-import {Curve, Curve2} from './pairing/Curves'
-import Pairing from './pairing/Pairing'
 import bigInt from 'big-integer'
-import {Field, Fp2, Fp6, Fp12, Parameters} from './pairing/Fields'
+import {Parameters} from './pairing/Fields'
 import {BN128Fp, BN128Fp2} from './pairing/BN128'
 import {PairingCheck} from './pairing/PairingCheck'
 import ExNumber from './pairing/ExNumber'
@@ -169,7 +167,7 @@ class BLSSigner {
 
     this.G = BN128Fp.create( bigInt('1'), bigInt('2') );
 
-    this.G2 = BN128Fp2.create( 
+    this.G2 = BN128Fp2.create(
       bigInt('10857046999023057135944570762232829481370756359578518086990519993285655852781'), 
       bigInt('11559732032986387107991004021392285783925812861821192530917403151452391805634'), 
       bigInt('8495653923123431417604973247489272438418190587263600148770280649306958101930'), 
@@ -178,18 +176,18 @@ class BLSSigner {
   }
 
   getRandomPointOnE() {
-      if (this.rng instanceof CryptoRandom) {
-        return this.getG().multiply(ExNumber.construct(2*Parameters.p.bitLength() ) );
-      } else {
-        throw new Error("Parameter is not a cryptographically strong PRNG");
-      }
+    if (this.rng instanceof CryptoRandom) {
+      return this.getG().multiply(ExNumber.construct(2*Parameters.p.bitLength() ) )
+    } else {
+      throw new Error("Parameter is not a cryptographically strong PRNG")
+    }
   }
 
   getRandomPointOnEt() {
     if (this.rng instanceof CryptoRandom) {
-      return this.getG2().multiply(ExNumber.construct(2*Parameters.p.bitLength() ) );
+      return this.getG2().multiply(ExNumber.construct(2*Parameters.p.bitLength() ) )
     } else {
-      throw new Error("Parameter is not a cryptographically strong PRNG");
+      throw new Error("Parameter is not a cryptographically strong PRNG")
     }
   }
 
@@ -214,17 +212,16 @@ class BLSSigner {
   }
 
   verify(Q, H, sQ, sH) {
+    let pc = PairingCheck.create()
+    pc.addPair(sQ.sQ, H)
+    pc.run()
+    let pair = pc.result()
+    pc = PairingCheck.create()
+    pc.addPair(Q, sH.sH)
+    pc.run()
+    let pair2 = pc.result()
 
-    let pc = PairingCheck.create();
-    pc.addPair(sQ.sQ, H);
-    pc.run();
-    let pair = pc.result();
-    pc = PairingCheck.create();
-    pc.addPair(Q, sH.sH);
-    pc.run();
-    let pair2 = pc.result();
-   
-    return pair.eq(pair2);
+    return pair.eq(pair2)
   }
 }
 

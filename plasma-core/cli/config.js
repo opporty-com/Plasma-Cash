@@ -2,9 +2,9 @@ module.exports = {
   plasmaContractAddress:
     process.env.PLASMA_CONTRACT_ADDRESS ?
       process.env.PLASMA_CONTRACT_ADDRESS :
-      '0xd859dc3f136cb137b6bd36614c597691aa136bfa',
-  address: '0x4c7b140ff9df71316ba91bf0bec55aa6b6e2f431',
-  password: 'denis_address',
+      '0xdb482bb377487c67de33543ce64f308f21c20ade',
+  address: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70',
+  password: '123123123',
   privateKey: '2a878f25bbb926a83d80c23c30b2eafe2038823e615b2e0095c8c4c51fb401c7',
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
   web3HttpProvider: 'http://localhost:8545'

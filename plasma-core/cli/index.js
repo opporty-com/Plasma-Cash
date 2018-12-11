@@ -1,7 +1,7 @@
 const PlasmaTransaction = require('./transaction')
 const ethUtil = require('ethereumjs-util')
 const fs = require('./lib/fs')
-const {sendTransaction, deposit, balance, validator, candidates} = require('./requests')
+const {sendTransaction, deposit, balance, validator, validators, candidates} = require('./requests')
 const config = require('./config')
 
 let actions = {
@@ -9,6 +9,7 @@ let actions = {
   balance,
   candidates,
   validator,
+  validators,
   logout,
 }
 let txTypes = [
@@ -23,6 +24,7 @@ let customTypes = [
   'balance',
   'candidates',
   'validator',
+  'validators',
   'logout',
 ]
 

@@ -3,6 +3,9 @@ import web3 from 'lib/web3'
 import contractHandler from 'root-chain/contracts/plasma'
 import ethUtil from 'ethereumjs-util'
 import logger from 'lib/logger'
+import { rlpx } from 'lib/p2p'
+import pbft from 'child-chain/pbft'
+import PlasmaProtocol  from 'lib/p2p/plasma-protocol'
 import redis from 'lib/storage/redis'
 import Block from 'child-chain/block'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
@@ -60,6 +63,8 @@ async function createDeposit({address, amount}) {
 async function createNewBlock() {
   // Collect memory pool transactions into the block
   // should be prioritized
+  logger.info('Trying to submit block...');
+
   let lastBlock = await getLastBlockNumberFromDb()
   let newBlockNumber = lastBlock + config.contractblockStep
   try {
@@ -76,26 +81,35 @@ async function createNewBlock() {
       transactions: successfullTransactions,
     })
     logger.info('Holded block has ', block.transactions.length, ' transactions')
-    let currentValidator = (await validatorsQueue.getCurrentValidator())
+    let currentValidator = await validatorsQueue.getCurrentValidator()
+    // start submit block to PBFT validators
+    block.signer = config.plasmaNodeAddress
+
     if (!(currentValidator === config.plasmaNodeAddress)) {
       logger.info('Please wait your turn to submit')
       return false
     } else {
       logger.info('You address is current validator. Starting submit block...')
+    
+      pbft.setCallback(async () => {
+        for (let tx of successfullTransactions) {
+          await redis.hdel('txpool', tx.getHash())
+        }
+        await redis.setAsync('lastBlockNumber', block.blockNumber)
+        await redis.setAsync('block' + block.blockNumber.toString(10),
+          block.getRlp());
+    
+        console.log('BLOCK SUBMITTED', block.blockNumber.toString(10))
+        let blockDataToSig = block.getRlp()
+        let blockHash = ethUtil.hashPersonalMessage(blockDataToSig)
+        let key = Buffer.from(config.plasmaNodeKey, 'hex')
+        let sig = ethUtil.ecsign(blockHash, key)
+        logger.info('New block created - transactions: ', block.transactions.length)
+      });
+
+      return pbft.acceptBlock(block)
     }
-    for (let tx of successfullTransactions) {
-      await redis.hdel('txpool', tx.getHash())
-    }
-    await redis.setAsync('lastBlockNumber', block.blockNumber)
-    await redis.setAsync('block' + block.blockNumber.toString(10),
-      block.getRlp())
-    console.log('BLOCK SUBMITTED', block.blockNumber.toString(10))
-    let blockDataToSig = block.getRlp()
-    let blockHash = ethUtil.hashPersonalMessage(blockDataToSig)
-    let key = Buffer.from(config.plasmaNodeKey, 'hex')
-    let sig = ethUtil.ecsign(blockHash, key)
-    logger.info('New block created - transactions: ', block.transactions.length)
-    return sig
+     
   } catch (err) {
     logger.error('createNewBlock error ', err)
   }
