@@ -1,7 +1,7 @@
 const PlasmaTransaction = require('./transaction')
 const ethUtil = require('ethereumjs-util')
 const fs = require('./lib/fs')
-const {sendTransaction, deposit, balance, validator, candidates} = require('./requests')
+const {sendTransaction, deposit, balance, validator, validators, candidates} = require('./requests')
 const config = require('./config')
 
 let actions = {
@@ -9,6 +9,7 @@ let actions = {
   balance,
   candidates,
   validator,
+  validators,
   logout,
 }
 let txTypes = [
@@ -23,6 +24,7 @@ let customTypes = [
   'balance',
   'candidates',
   'validator',
+  'validators',
   'logout',
 ]
 
@@ -76,13 +78,14 @@ function createTransaction({type, address, tokenId, prevBlock}) {
   return sendTransaction(signTransaction.getJson())
 }
 
-async function authentication(privateKey) {
+async function authentication(privateKey, password) {
   let address = ethUtil
     .bufferToHex(ethUtil.privateToAddress(Buffer.from(privateKey, 'hex')))
   try {
     await logout()
     let data = await fs.readFileAsync('./config.js', 'utf8')
     let replace = data
+      .replace("password: ''", `password: '${password}'`)
       .replace("privateKey: ''", `privateKey: '${privateKey}'`)
       .replace("address: ''", `address: '${address}'`)
     await fs.writeFileAsync('./config.js', replace, 'utf8')
@@ -96,6 +99,7 @@ async function logout() {
   try {
     let data = await fs.readFileAsync('./config.js', 'utf8')
     let replace = data
+      .replace(`password: '${config.password}'`, "password: ''")
       .replace(`privateKey: '${config.privateKey}'`, "privateKey: ''")
       .replace(`address: '${config.address}'`, "address: ''")
     await fs.writeFileAsync('./config.js', replace, 'utf8')
@@ -104,6 +108,5 @@ async function logout() {
   }
   return 'Logging out successfully'
 }
-
 
 module.exports = {comandHandler, authentication, logout}

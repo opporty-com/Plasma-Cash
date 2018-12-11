@@ -5,6 +5,7 @@ import logger from 'lib/logger'
 import {RLPx} from 'ethereumjs-devp2p'
 import {_util} from 'ethereumjs-devp2p'
 import assert from 'assert'
+import pbft from 'child-chain/pbft'
 
 const dpt = new DPT(config.dptKey, config.dptEndpoint)
 
@@ -40,7 +41,11 @@ rlpx.on('peer:added', (peer) => {
     switch (code) {
     case PlasmaProtocol.MESSAGE_CODES.TX:
       logger.info('GET TX MESSSAGE', payload)
-      break
+      break;
+    case PlasmaProtocol.MESSAGE_CODES.NEW_BLOCK:
+      logger.info('NEW BLOCK GOT FOR PBFT!', payload)
+      break;
+    
     }
   })
 
@@ -60,13 +65,12 @@ rlpx.on('peer:error', (peer, err) => {
     const peerId = peer.getId()
     if (peerId !== null) dpt.banPeer(peerId, 5*60000)
 
-    logger.error(`Peer error (${getPeerAddr(peer)}): ${err.message}`)
+    logger.error(`Peer error (${peer._socket.remoteAddress}): ${err.message}`)
     return
   }
 
-  logger.error(`Peer error (${getPeerAddr(peer)}): ${err.stack || err}`)
+  logger.error(`Peer error (${peer._socket.remoteAddress}): ${err.stack || err}`)
 })
-
 
 logger.info('Listening p2p on ' + config.dptPort)
 rlpx.listen(config.dptPort, '0.0.0.0')
@@ -80,5 +84,4 @@ if (!config.bootNode) {
   }
 }
 
-
-export {dpt}
+export {dpt, rlpx}

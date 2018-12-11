@@ -1,121 +1,113 @@
 'use strict';
 
-import { Field2, Field4, Field6, Field12 } from './Fields'
+import { Field2, Field12 } from './Fields'
+import { Point12 } from './Points'
 import bigInt from 'big-integer'
 import ExNumber from './ExNumber'
 
 class Pairing {
     constructor (Et) {
-        this.E2 = Et;
-        this.E = Et.E;
-        this.bn = this.E.bn;
-        this.Fp12_0 = this.bn.Fp12_0;
-        this.Fp12_1 = this.bn.Fp12_1;
-    }
-
-    slope(V, P, Q) {
-        let p = this.bn.p;
-        if (V.zero() || P.zero() || Q.zero()) {
-            return this.Fp12_1;
-        }
-        let Vz3 = new ExNumber(V.z.multiply(V.z).multiply(V.z)).mod(p);
-        let n,d;
-        if (V.eq(P)) {
-            n = V.x.multiply(V.x).multiply(bigInt("3"));
-            d = V.y.multiply(V.z).shiftLeft(1);
-        } else {
-            n = P.y.multiply(Vz3).subtract(V.y);
-            d = P.x.multiply(Vz3).subtract(V.x.multiply(V.z));
-        }
-        let w = new Array(6);
-        
-        w[0] = new Field2(this.bn,new ExNumber( d.multiply(V.y).subtract(n.multiply(V.x).multiply(V.z)) ).mod(this.bn.p));
-        w[2] = Q.x.multiply(n.multiply(Vz3));
-        w[3] = Q.y.multiply(p.subtract(d).multiply(Vz3));
-        w[1] = w[4] = w[5] = this.E2.Fp2_0;
-        return new Field12(this.bn, w);
+      this.E2 = Et;
+      this.E = Et.E;
+      this.bn = this.E.bn;
+      this.Fp12_0 = this.bn.Fp12_0;
+      this.Fp12_1 = this.bn.Fp12_1;
     }
 
     tate(P, Q) {
-        let f = this.Fp12_1;
-        P = P.norm();
-        Q = Q.norm();
-        if (!P.zero() && !Q.zero()) {
-            let bn = this.E.bn;
-            let V = P;
-            for (let i = bn.n.bitLength() - 2; i >= 0; i--) {
-                f = f.square().multiply(this.slope(V, V, Q));
-                V = V.twice(1);
-                if (ExNumber.testBit(bn.n, i)) {
-                    f = f.multiply(this.slope(V, P, Q));
-                    V = V.add(P);
-                }
+      let f = this.Fp12_1;
+
+      if (!P.zero() && !Q.zero()) {
+        const bn = this.E.bn;
+        let V = P;
+        for (let i = bn.n.bitLength() - 2; i >= 0; i--) {
+            f = f.square().multiply(this.slope(V, V, Q));
+            V = V.twice(1);
+            if (ExNumber.testBit(bn.n, i)) {
+                f = f.multiply(this.slope(V, P, Q));
+                V = V.add(P);
             }
-            f = f.finExp();
         }
-        return f;
+        f = f.finExp();
+      }
+      return f;
     }
 
-    ate(Q, P) {
-        var f = this.Fp12_1;
-        P = P.norm();
-        Q = Q.norm();
-        if (!P.zero() && !Q.zero()) {
-            var ord = this.bn.t.subtract(this.E.bn._1);
-            var X = Q.x;
-            var Y = Q.y;
-            var Z = Q.z;
-            var w = new Array(6);
-            var start = ord.bitLength() - 2;
-            for (var i = start; i >= 0; i--) {
-                var A = X.square();
-                var B = Y.square();
-                var C = Z.square();
-                if (this.bn.b === 3) {
-                    var D = C.multiply(new Number(3*this.bn.b)).mulV();
-                } else {
-                    var D = C.multiply(new Number(3*this.bn.b)).divV();
-                }
-                var F = Y.add(Z).square().subtract(B).subtract(C);
-                if (i > 0) {
-                    this.E = X.add(Y).square().subtract(A).subtract(B);
-                    var G = D.multiply(new Number(3));
-                    X = this.E.multiply(B.subtract(G));
-                    Y = B.add(G).square().subtract(D.square().twice(2).multiply(new Number(3)));
-                    Z = B.multiply(F).twice(2);
-                }
-
-                w[0] = F.multiply(P.y.negate()); 
-                w[1] = A.multiply(new Number(3)).multiply(P.x); 
-                w[3] = D.subtract(B); // L_{0,0}
-                w[2] = w[4] = w[5] = this.E2.Fp2_0;
-                var line = new Field12(this.bn, w);
-                if (i !== ord.bitLength() - 2) {
-                    f = f.square().multiply(line);
-                } else {
-                    f = new Field12(line);
-                }
-                if (ExNumber.testBit(ord, i)) {
-                    A = X.subtract(Z.multiply(Q.x)); B = Y.subtract(Z.multiply(Q.y));
-                    
-                    w[0] = A.multiply(P.y); 
-                    w[1] = B.multiply(P.x.negate()); 
-                    w[3] = B.multiply(Q.x).subtract(A.multiply(Q.y)); 
-                    w[2] = w[4] = w[5] = this.E2.Fp2_0;
-                    line = new Field12(this.bn, w);
-                    f = f.multiply(line);
-                    C = A.square(); X = X.multiply(C); C = C.multiply(A);
-                    D = B.square().multiply(Z).add(C).subtract(X.twice(1));
-                    Y = B.multiply(X.subtract(D)).subtract(Y.multiply(C));
-                    X = A.multiply(D);
-                    Z = Z.multiply(C);
-                }
-            }
-            f = f.finExp();
+    doubletate(P,Q,P2,Q2) {
+      let f = this.Fp12_1;
+      if (!P.zero() && !Q.zero()) {
+        let bn = this.E.bn;
+        let V = P;
+        let V2 = P2;
+        for (let i = bn.n.bitLength() - 2; i >= 0; i--) {
+          f = f.square().multiply(this.slope(V, V, Q)).multiply(this.slope(V2, V2, Q2));
+          V = V.twice(1);
+          V2 = V2.twice(1);
+          if (ExNumber.testBit(bn.n, i)) {
+            f = f.multiply(this.slope(V, P, Q)).multiply(this.slope(V2, P2, Q2));
+            V = V.add(P);
+            V2 = V2.add(P2);
+          }
         }
-        return f;
+
+      }
+      return f;
     }
 
+    slope(P1, P2, T) {
+      const x1 = P1.x;
+      const y1 = P1.y;
+      const x2 = P2.x;
+      const y2 = P2.y;
+      const xt = T.x;
+      const yt = T.y;
+      let m;
+      const _3 = new Field12(this.E.bn, bigInt(3));
+      const _2 = new Field12(this.E.bn, bigInt(2));
+
+      if (!x1.eq(x2)) {
+        m = y2.subtract(y1).divide(x2.subtract(x1));
+        
+        return m.multiply(xt.subtract(x1)).subtract(yt.subtract(y1));
+      } else if (y1.eq(y2)) {
+        
+        m = _3.multiply(x1.multiply(x1)).divide(_2.multiply(y1));
+       
+        return m.multiply (xt.subtract(x1)).subtract(yt.subtract (y1))
+      } else {
+        
+        return xt.subtract(x1);
+      }
+    }
+
+    ate(P, Q) {
+      const ateCount = bigInt('29793968203157093288')
+      const logAteCount = bigInt('63')
+
+      let R = Q;
+      let f = this.E.bn.Fp12_1;
+
+      if (Q.eq(this.E2.infinity) || P.eq(this.E.infinity)) {
+        return this.E.bn.Fp12_1;
+      }
+      
+      for (let i = logAteCount; i >- 1; i--) {
+        f = f.multiply( f).multiply (this.slope(R, R, P))
+        R = R.double();
+        if (!ateCount.and(bigInt(2).pow(i)).isZero()) {
+          f = f.multiply(this.slope(R, Q, P));
+          R = R.add(Q);
+        }
+      }
+      
+      const Q1 = new Point12(this.E.bn,  Q.x.exp(this.E.bn.p), Q.y.exp( this.E.bn.p) );
+      const nQ2 = new Point12(this.E.bn, Q1.x.exp( this.E.bn.p ), Q1.y.exp( this.E.bn.p ).neg() );
+      
+      f = f.multiply( this.slope(R, Q1, P) )
+      R = R.add(Q1)
+      f = f.multiply( this.slope(R, nQ2, P) );
+      return f.finExp();
+    }
 }
 
 export default Pairing

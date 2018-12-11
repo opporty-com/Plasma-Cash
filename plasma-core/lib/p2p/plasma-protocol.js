@@ -2,6 +2,7 @@ import {EventEmitter} from 'events'
 import rlp from 'rlp-encoding'
 import {_util} from 'ethereumjs-devp2p'
 import logger from 'lib/logger'
+import pbft from 'child-chain/pbft'
 
 const MESSAGE_CODES = {
   STATUS: 0x00,
@@ -12,6 +13,7 @@ const MESSAGE_CODES = {
   GET_BLOCK_BODIES: 0x05,
   BLOCK_BODIES: 0x06,
   NEW_BLOCK: 0x07,
+  COMMIT : 0x08
 }
 
 class PlasmaProtocol extends EventEmitter {
@@ -35,9 +37,9 @@ class PlasmaProtocol extends EventEmitter {
 
   _handleMessage (code, data) {
     const payload = rlp.decode(data)
-    if (code !== MESSAGE_CODES.STATUS) {
-      logger.info(`Received ${this.getMsgPrefix(code)} message from ${this._peer._socket.remoteAddress}:${this._peer._socket.remotePort}: ${data.toString('hex')}`)
-    }
+    //if (code !== MESSAGE_CODES.STATUS) {
+    //  logger.info(`Received ${this.getMsgPrefix(code)} message from ${this._peer._socket.remoteAddress}:${this._peer._socket.remotePort}: ${data.toString('hex')}`)
+    //}
     switch (code) {
       case MESSAGE_CODES.STATUS:
         _util.assertEq(this._peerStatus, null, 'Uncontrolled status message')
@@ -52,9 +54,14 @@ class PlasmaProtocol extends EventEmitter {
       case MESSAGE_CODES.BLOCK_HEADERS:
       case MESSAGE_CODES.GET_BLOCK_BODIES:
       case MESSAGE_CODES.BLOCK_BODIES:
+        pbft.checkMessage(MESSAGE_CODES.BLOCK_BODIES, payload);
+        break;
       case MESSAGE_CODES.NEW_BLOCK:
-        if (this._version >= PlasmaProtocol.cash1.version) break
-        return
+        pbft.checkMessage(MESSAGE_CODES.NEW_BLOCK, payload);
+        break;
+      case MESSAGE_CODES.COMMIT:
+        pbft.checkMessage(MESSAGE_CODES.COMMIT, payload);
+        break;
 
       default:
         return

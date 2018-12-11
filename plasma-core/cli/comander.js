@@ -9,9 +9,9 @@ comand
   })
 
 comand
-  .command('authentication <privateKey>')
-  .action(async (privateKey)=>{
-    console.log(await authentication(privateKey))
+  .command('authentication <privateKey> <password>')
+  .action(async (privateKey, password)=>{
+    console.log(await authentication(privateKey, password))
   })
 
 comand.parse(process.argv)

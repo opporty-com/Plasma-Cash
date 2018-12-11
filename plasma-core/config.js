@@ -19,7 +19,7 @@ export default {
   dptKey: process.env.DPT_KEY ? Buffer.from(process.env.DPT_KEY, 'hex') : randomBytes(32),
   dptPort: process.env.DPT_PORT || 30301,
   bootNodes: process.env.BOOT_NODES || [
-    {address: '192.168.254.112',
+    {address: '192.168.0.101',
       udpPort: 30301,
       tcpPort: 30301,
     }],
@@ -32,7 +32,7 @@ export default {
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
   web3HttpProvider: null,
   blockPeriod: 5000,
-  blockTime: 10000,
+  blockTime: 1000,
   roundInterval: 300000,
   startBlockNumber: 1, // first nlock number in Root contract
   contractblockStep: 1,

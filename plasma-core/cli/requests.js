@@ -13,26 +13,30 @@ async function balance(address) {
 }
 
 async function validator() {
-  return (await axios.get('http://localhost:30313/Validators/getCurrentValidator')).data
+  return (await axios.get('http://localhost:30313/getCurrentValidator')).data
 }
 
 async function candidates() {
-  return (await axios.get('http://localhost:30313/Validators/getCandidates')).data
+  return (await axios.get('http://localhost:30313/getAllCandidates')).data
+}
+
+async function validators() {
+  return (await axios.get('http://localhost:30313/getCandidates')).data
 }
 
 async function deposit() {
   try {
-    let account = await web3.eth.accounts.privateKeyToAccount('0x'+config.privateKey)
-    let data = contractHandler.contract.methods.deposit().encodeABI()
-    let tx = await account.signTransaction({
-      from: config.address,
-      to: config.plasmaContractAddress,
-      value: 1,
-      gas: 2800000,
-      data,
-    })
-    let result = await web3.eth.sendSignedTransaction(tx.rawTransaction)
-    return result.status
+    console.log('[0]', config.address, config.password);
+    
+    await web3.eth.personal.unlockAccount(config.address, config.password, 1000)
+    console.log('[1]');
+    let gas = await contractHandler.contract.methods.deposit()
+    .estimateGas({from: config.address})
+    console.log('[2]');
+    let answer = await contractHandler.contract.methods.deposit()
+    .send({from: config.address, value: 1, gas: gas + 1500000})
+    console.log('[3]');
+    return answer.events.DepositAdded.returnValues.tokenId
   } catch (error) {
     return error
   }
@@ -44,4 +48,5 @@ module.exports = {
   deposit,
   candidates,
   validator,
+  validators,
 }

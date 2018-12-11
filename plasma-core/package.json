@@ -24,6 +24,7 @@
     "bluebird": "^3.5.1",
     "chai-things": "^0.2.0",
     "es6-promisify": "^6.0.0",
+    "big-integer": "^1.6.30",
     "ethereum-input-data-decoder": "0.0.3",
     "ethereumjs-abi": "^0.6.5",
     "ethereumjs-devp2p": "^2.5.0",

@@ -30,6 +30,15 @@ class Block {
     }
   }
 
+  isValid() {
+
+    if (this.merkleRootHash && this.blockNumber) {
+      return true
+    }
+    
+    return false
+  }
+
   getRlp() {
     if (this._rlp) {
       return this._rlp
