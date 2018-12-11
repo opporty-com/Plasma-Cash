@@ -1,13 +1,14 @@
 import { rlpx } from 'lib/p2p'
 import PlasmaProtocol  from 'lib/p2p/plasma-protocol'
 import Block from 'child-chain/block'
+import logger from 'lib/logger'
 
-const INIT = 0;
-const PREPARE = 1;
-const COMMIT = 2;
-const N = 3;
-const PBFT_N = Math.floor((N-1) / 3);
-const PBFT_F = PBFT_N + 1;
+const INIT = 0
+const PREPARE = 1
+const COMMIT = 2
+const N = 3
+const PBFT_N = Math.floor((N-1) / 3)
+const PBFT_F = PBFT_N + 1
 
 /** pbft */
 class PBFT {
@@ -23,12 +24,13 @@ class PBFT {
   }
 
   acceptBlock(block) {
-    console.log('SUBMIT msg to PBFT', block.getRlp() )
+    logger.info('SUBMIT msg to PBFT', block.getRlp() )
 
     for (let peer of rlpx.getPeers() ) {
       const eth = peer.getProtocols()[0]
       eth.sendMessage(0x07, block.getRlp() )
     }
+    this.status = PREPARE
 
   }
 
@@ -37,35 +39,37 @@ class PBFT {
     switch (code)  {
     case 0x07: //PREPARE
       this.prepareMsgs++
-      console.log('PREPARE msg GOT: ', this.prepareMsgs)
+      logger.info('PREPARE msg GOT: ', this.prepareMsgs)
       bl = new Block(msg) 
 
       if (bl.isValid()) {
         if (this.prepareMsgs > PBFT_N) {
-          console.log('SEND COMMIT msg', msg)
+          logger.info('SEND COMMIT msg', msg)
           this.status = COMMIT
-          // const block = new Block(msg);
-          //if (block.isValid()) {
+          const block = new Block(msg)
+          if (block.isValid()) {
             for (let peer of rlpx.getPeers()) {
               const eth = peer.getProtocols()[0]
               eth.sendMessage(0x06, msg)
             }
             this.prepareMsgs = 0
-          //}
+            this.status = COMMIT
+          }
         }
+        
       }
       break
     
     case 0x06: //COMMIT
       this.commitMsgs++
-      console.log('COMMIT msg GOT: ', this.commitMsgs)
+      logger.info('COMMIT msg GOT: ', this.commitMsgs)
       if (this.commitMsgs > PBFT_F) {
         // reseting
         this.prepareMsgs = 0
         this.commitMsgs = 0
         this.status = INIT
 
-        console.log('SUBMIT AND CALL msg:', this.callback)
+        logger.info('SUBMIT AND CALL msg:', this.callback)
         this.callback && this.callback()
       }
       break
