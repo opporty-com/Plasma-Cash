@@ -1,5 +1,4 @@
 import { rlpx } from 'lib/p2p'
-import PlasmaProtocol  from 'lib/p2p/plasma-protocol'
 import Block from 'child-chain/block'
 import logger from 'lib/logger'
 
@@ -40,7 +39,7 @@ class PBFT {
     case 0x07: //PREPARE
       this.prepareMsgs++
       logger.info('PREPARE msg GOT: ', this.prepareMsgs)
-      bl = new Block(msg) 
+      bl = new Block(msg)
 
       if (bl.isValid()) {
         if (this.prepareMsgs > PBFT_N) {
@@ -74,11 +73,6 @@ class PBFT {
       }
       break
     }
-    
-
-
-
-
   }
 }
 
