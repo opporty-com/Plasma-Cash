@@ -109,5 +109,4 @@ async function logout() {
   return 'Logging out successfully'
 }
 
-
 module.exports = {comandHandler, authentication, logout}

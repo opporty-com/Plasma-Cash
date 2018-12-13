@@ -1,6 +1,6 @@
 {
   "config": {
-    "chainId": 58545,
+    "chainId": 1,
     "homesteadBlock": 0,
     "eip150Block": 0,
     "eip155Block": 0,
@@ -27,6 +27,6 @@
     "0x3d90a916af5163cac1a0e2c822d47ef224e85711": { "balance": "1000000000000000000" },
     "0x2adc318ac93a7289f83aa7f26513bc0d15f0ab3e": { "balance": "1000000000000000000" },
     "0xe2201ef12c3216750513f900fea533eeea63e7ef": { "balance": "1000000000000000000" },
-    "0x4c7b140ff9df71316ba91bf0bec55aa6b6e2f431": { "balance": "1000000000000000000" }
+    "0x4c7b140ff9df71316ba91bf0bec55aa6b6e2f431": { "balance": "1000000000000000000000000000000000000000000000" }
   }
 }

@@ -22,7 +22,7 @@ class BlockCreator {
 
   start() {
     this.initBlockPeriodicalCreation()
-    this.blockEventsCheck(null)
+    this.blockEventsCheck()
   }
 
   async initBlockPeriodicalCreation() {
@@ -67,33 +67,13 @@ class BlockCreator {
     }
   }
 
-  async blockEventsCheck(lastCheckedBlock) {
-    let lastBlock
-    if (lastCheckedBlock == null) {
-      lastCheckedBlock = await redis.getAsync('lastEventProcessed')
-      lastCheckedBlock = lastCheckedBlock ? parseInt(lastCheckedBlock) : 0
-    }
-    try {
-      lastBlock = await web3.eth.getBlockNumber()
-      const depositEventsInBlock = await contractHandler.contract.getPastEvents('DepositAdded', {
-        fromBlock: lastCheckedBlock,
-        toBlock: lastBlock,
-      })
-      if (depositEventsInBlock.length > 0) {
-        for (let i = 0, length = depositEventsInBlock.length; i < length; ++i) {
-          depositEventHandler(depositEventsInBlock[i])
-        }
-      }
-      if (lastBlock > lastCheckedBlock) {
-        lastCheckedBlock++
-        logger.info('Process Block for Deposit Events - ', lastBlock)
-        redis.setAsync('lastEventProcessed', lastBlock)
-      }
-    } catch (error) {
-      logger.error('blockEventsCheck error ' + error)
-      lastBlock = lastCheckedBlock
-    }
-    setTimeout(() => this.blockEventsCheck(lastBlock), 5000)
+  blockEventsCheck() {
+    contractHandler.contract.events.DepositAdded((error, event)=>{
+      if(error){
+        logger.error(error);
+      }     
+      depositEventHandler(event)
+    })
   }
 
   async startBlockSubmit(blockNumber, sig) {

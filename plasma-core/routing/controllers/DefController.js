@@ -49,7 +49,7 @@ class DefController {
     }
   }
 
-  static async getAllCandidates(req, res) {
+  static async getCandidates(req, res) {
     try {
       let answer = await stateValidators.getAllCandidates()
       return res.end(JSON.stringify(answer))
@@ -60,9 +60,8 @@ class DefController {
     }
   }
 
-  static async getCandidates(req, res) {
+  static async getValidators(req, res) {
     try {
-      await validatorsQueue.prepareValidators()
       let answer = await validatorsQueue.getAllValidators()
       return res.end(JSON.stringify(answer))
     } catch (error) {

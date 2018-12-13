@@ -10,7 +10,6 @@ import redis from 'lib/storage/redis'
 import Block from 'child-chain/block'
 import {txMemPool, TxMemPool} from 'child-chain/TxMemPool'
 import {checkTransactionFields} from 'child-chain/validator/transactions'
-import {depositEventHandler} from 'child-chain/eventsHandler'
 import config from 'config'
 import PlasmaTransaction from 'child-chain/transaction'
 import {validateTxsFromPool} from 'child-chain/validator/validateTxsFromPool'
@@ -54,7 +53,7 @@ async function createDeposit({address, amount}) {
       .estimateGas({from: address})
     let answer = await contractHandler.contract.methods.deposit()
       .send({from: address, value: amount, gas: gas + 15000})
-    return depositEventHandler(answer.events.DepositAdded)
+    return answer.events.DepositAdded.returnValues.tokenId
   } catch (error) {
     return error.toString()
   }
@@ -90,24 +89,20 @@ async function createNewBlock() {
       return false
     } else {
       logger.info('You address is current validator. Starting submit block...')
-    
-      pbft.setCallback(async () => {
-        for (let tx of successfullTransactions) {
-          await redis.hdel('txpool', tx.getHash())
-        }
-        await redis.setAsync('lastBlockNumber', block.blockNumber)
-        await redis.setAsync('block' + block.blockNumber.toString(10),
-          block.getRlp());
-    
-        console.log('BLOCK SUBMITTED', block.blockNumber.toString(10))
-        let blockDataToSig = block.getRlp()
-        let blockHash = ethUtil.hashPersonalMessage(blockDataToSig)
-        let key = Buffer.from(config.plasmaNodeKey, 'hex')
-        let sig = ethUtil.ecsign(blockHash, key)
-        logger.info('New block created - transactions: ', block.transactions.length)
-      });
-
-      return pbft.acceptBlock(block)
+      for (let tx of successfullTransactions) {
+        await redis.hdel('txpool', tx.getHash())
+      }
+      await redis.setAsync('lastBlockNumber', block.blockNumber)
+      await redis.setAsync('block' + block.blockNumber.toString(10),
+        block.getRlp());
+  
+      console.log('BLOCK SUBMITTED', block.blockNumber.toString(10))
+      let blockDataToSig = block.getRlp()
+      let blockHash = ethUtil.hashPersonalMessage(blockDataToSig)
+      let key = Buffer.from(config.plasmaNodeKey, 'hex')
+      let sig = ethUtil.ecsign(blockHash, key)
+      logger.info('New block created - transactions: ', block.transactions.length)
+      return sig
     }
      
   } catch (err) {
