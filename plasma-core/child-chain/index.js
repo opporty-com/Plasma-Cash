@@ -83,6 +83,7 @@ async function createNewBlock() {
     let currentValidator = await validatorsQueue.getCurrentValidator()
     // start submit block to PBFT validators
     block.signer = config.plasmaNodeAddress
+    pbft.acceptBlock(block)
 
     if (!(currentValidator === config.plasmaNodeAddress)) {
       logger.info('Please wait your turn to submit')
@@ -194,7 +195,13 @@ async function createTransaction(transaction) {
       Buffer.from(config.plasmaNodeKey, 'hex'))
     txData.signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
     let transaction = createSignedTransaction(txData)
-    return await TxMemPool.acceptToMemoryPool(txMemPool, transaction)
+    for (let peer of rlpx.getPeers() ) {
+      const eth = peer.getProtocols()[0]
+      eth.sendMessage(0x02, transaction.getRlp() )
+    }
+
+    await TxMemPool.acceptToMemoryPool(txMemPool, transaction)
+
   } catch (error) {
     return error.toString()
   }

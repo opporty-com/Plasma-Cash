@@ -1,7 +1,7 @@
 
 const txFieldsIsInvalid = 'Transaction fields is invalid'
 const invalidSignature = 'Invalid signature'
-const undefinedUtxo = 'Utxo is undefined'
+const undefinedUtxo = 'No free utxo to spent'
 const utxoFieldsIsInvalid = 'Utxo fields is invalid'
 const noUtxo = 'No utxo on this token'
 const nonExistentCandidate = 'Denieded stake on a non-existent candidate'

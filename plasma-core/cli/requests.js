@@ -17,11 +17,11 @@ async function validator() {
 }
 
 async function candidates() {
-  return (await axios.get('http://localhost:30313/getAllCandidates')).data
+  return (await axios.get('http://localhost:30313/getCandidates')).data
 }
 
 async function validators() {
-  return (await axios.get('http://localhost:30313/getCandidates')).data
+  return (await axios.get('http://localhost:30313/getValidators')).data
 }
 
 async function deposit() {

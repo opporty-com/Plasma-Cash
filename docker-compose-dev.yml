@@ -14,6 +14,48 @@ services:
      - "6379"
     logging:
       driver: "none"
+  addredis:
+    image: redis
+    container_name: addredisserver
+    expose:
+     - "6379"
+    logging:
+      driver: "none"
+  addredis2:
+    image: redis
+    container_name: addredisserver2
+    expose:
+     - "6379"
+    logging:
+      driver: "none"
+  addredis3:
+    image: redis
+    container_name: addredisserver3
+    expose:
+     - "6379"
+    logging:
+      driver: "none"
+  addredis4:
+    image: redis
+    container_name: addredisserver4
+    expose:
+     - "6379"
+    logging:
+      driver: "none"
+  addredis5:
+    image: redis
+    container_name: addredisserver5
+    expose:
+     - "6379"
+    logging:
+      driver: "none"
+  addredis6:
+    image: redis
+    container_name: addredisserver6
+    expose:
+     - "6379"
+    logging:
+      driver: "none"
   bootnode:
     build: ./plasma-core
     container_name: bootnode
@@ -34,11 +76,12 @@ services:
       BOOTNODE: 1
       DPT_KEY: 'd772e3d6a001a38064dd23964dd2836239fa0e6cec8b28972a87460a17210fe9'
       LOG_LEVEL: "debug"
+      BOOT_NODES: "[{\"address\": \"192.168.0.101\",\"udpPort\": 30301,\"tcpPort\": 30301}]" 
       PRODUCTION_MODE: "OFF"
-      PLASMA_CONTRACT_ADDRESS: '0x6134cf6bd676ff7abd287a02b54774de9fd2b79a'
-      PLASMA_NODE_ADDRESS: '0xcDd97e8350e93eeD3224A217A42d28cF0276b67b'
-      PLASMA_NODE_PRIVATE: ''
-      PLASMA_NODE_PASSWORD: ''
+      PLASMA_CONTRACT_ADDRESS: '0xd859dc3f136cb137b6bd36614c597691aa136bfa'
+      PLASMA_NODE_ADDRESS: '0x40aa3069Ea5EA29bd7F2a8b91abe1f2fE4a3F852'
+      PLASMA_NODE_PRIVATE: 'ce59f6669173d505d2be002ec50ceb72a556c0d9d31797283b3b7f493d6b8277'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
       WEB3_HTTP_PROVIDER: ''
     command: 'npm run development'
     logging:
@@ -59,17 +102,216 @@ services:
     links: 
       - redis
       - bootnode
+      - addnode
+      - addnode2
+      - addnode3
+      - addnode4
+      - addnode5
+      - addnode6
     environment:
       REDIS_HOST: redisserver
       REDIS_PORT: 6379
       NODE_ENV: development
       DPT_PORT: 30302
+      BOOT_NODES: "[{\"address\": \"192.168.0.101\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"192.168.0.101\",\"udpPort\": 30304,\"tcpPort\": 30304},{\"address\": \"192.168.0.101\",\"udpPort\": 30305,\"tcpPort\": 30305},{\"address\": \"192.168.0.101\",\"udpPort\": 30306,\"tcpPort\": 30306},{\"address\": \"192.168.0.101\",\"udpPort\": 30307,\"tcpPort\": 30307},{\"address\": \"192.168.0.101\",\"udpPort\": 30308,\"tcpPort\": 30308},{\"address\": \"192.168.0.101\",\"udpPort\": 30309,\"tcpPort\": 30309}]" 
       LOG_LEVEL: "debug"
       PRODUCTION_MODE: "OFF"
       PLASMA_CONTRACT_ADDRESS: '0xd859dc3f136cb137b6bd36614c597691aa136bfa'
       PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
       PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
       PLASMA_NODE_PASSWORD: ''
+      WEB3_HTTP_PROVIDER: ''
+    command: 'npm run development'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+  addnode:
+    build: ./plasma-core
+    ports:
+      - "30312:30312"
+      - "30304:30304"
+      - "30304:30304/udp"
+    volumes:
+      - "./plasma-core:/usr/src/app"
+      - "./data/leveldb:/var/lib/leveldb/data"
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - addredis
+      - bootnode
+    environment:
+      REDIS_HOST: addredisserver
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      DPT_PORT: 30304
+      BOOT_NODES: "[{\"address\": \"192.168.0.101\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"192.168.0.101\",\"udpPort\": 30302,\"tcpPort\": 30302}]" 
+      LOG_LEVEL: "debug"
+      PRODUCTION_MODE: "OFF"
+      PLASMA_CONTRACT_ADDRESS: '0xd859dc3f136cb137b6bd36614c597691aa136bfa'
+      PLASMA_NODE_ADDRESS: '0x3f437e74d362FB9f35E36370d33290F2C7c564Fa'
+      PLASMA_NODE_PRIVATE: '3cf33c4f3390926ded2bce4501b917b63e755b51073b100fd4fb7f6776431781'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+    command: 'npm run development'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+  addnode2:
+    build: ./plasma-core
+    ports:
+      - "30322:30322"
+      - "30305:30305"
+      - "30305:30305/udp"
+    volumes:
+      - "./plasma-core:/usr/src/app"
+      - "./data/leveldb:/var/lib/leveldb/data"
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - addredis2
+      - bootnode
+    environment:
+      REDIS_HOST: addredisserver2
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      DPT_PORT: 30305
+      BOOT_NODES: "[{\"address\": \"192.168.0.101\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"192.168.0.101\",\"udpPort\": 30302,\"tcpPort\": 30302}]" 
+      LOG_LEVEL: "debug"
+      PRODUCTION_MODE: "OFF"
+      PLASMA_CONTRACT_ADDRESS: '0xd859dc3f136cb137b6bd36614c597691aa136bfa'
+      PLASMA_NODE_ADDRESS: '0x3f437e74d362FB9f35E36370d33290F2C7c564Fa'
+      PLASMA_NODE_PRIVATE: '3cf33c4f3390926ded2bce4501b917b63e755b51073b100fd4fb7f6776431781'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+    command: 'npm run development'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+  addnode3:
+    build: ./plasma-core
+    ports:
+      - "30323:30323"
+      - "30306:30306"
+      - "30306:30306/udp"
+    volumes:
+      - "./plasma-core:/usr/src/app"
+      - "./data/leveldb:/var/lib/leveldb/data"
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - addredis3
+      - bootnode
+    environment:
+      REDIS_HOST: addredisserver3
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      DPT_PORT: 30306
+      BOOT_NODES: "[{\"address\": \"192.168.0.101\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"192.168.0.101\",\"udpPort\": 30302,\"tcpPort\": 30302}]" 
+      LOG_LEVEL: "debug"
+      PRODUCTION_MODE: "OFF"
+      PLASMA_CONTRACT_ADDRESS: '0xd859dc3f136cb137b6bd36614c597691aa136bfa'
+      PLASMA_NODE_ADDRESS: '0x3f437e74d362FB9f35E36370d33290F2C7c564Fa'
+      PLASMA_NODE_PRIVATE: '3cf33c4f3390926ded2bce4501b917b63e755b51073b100fd4fb7f6776431781'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+    command: 'npm run development'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+  addnode4:
+    build: ./plasma-core
+    ports:
+      - "30324:30324"
+      - "30307:30307"
+      - "30307:30307/udp"
+    volumes:
+      - "./plasma-core:/usr/src/app"
+      - "./data/leveldb:/var/lib/leveldb/data"
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - addredis4
+      - bootnode
+    environment:
+      REDIS_HOST: addredisserver4
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      DPT_PORT: 30307
+      BOOT_NODES: "[{\"address\": \"192.168.0.101\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"192.168.0.101\",\"udpPort\": 30302,\"tcpPort\": 30302}]" 
+      LOG_LEVEL: "debug"
+      PRODUCTION_MODE: "OFF"
+      PLASMA_CONTRACT_ADDRESS: '0xd859dc3f136cb137b6bd36614c597691aa136bfa'
+      PLASMA_NODE_ADDRESS: '0x3f437e74d362FB9f35E36370d33290F2C7c564Fa'
+      PLASMA_NODE_PRIVATE: '3cf33c4f3390926ded2bce4501b917b63e755b51073b100fd4fb7f6776431781'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+    command: 'npm run development'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+  addnode5:
+    build: ./plasma-core
+    ports:
+      - "30325:30325"
+      - "30308:30308"
+      - "30308:30308/udp"
+    volumes:
+      - "./plasma-core:/usr/src/app"
+      - "./data/leveldb:/var/lib/leveldb/data"
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - addredis5
+      - bootnode
+    environment:
+      REDIS_HOST: addredisserver5
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      DPT_PORT: 30308
+      BOOT_NODES: "[{\"address\": \"192.168.0.101\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"192.168.0.101\",\"udpPort\": 30302,\"tcpPort\": 30302}]" 
+      LOG_LEVEL: "debug"
+      PRODUCTION_MODE: "OFF"
+      PLASMA_CONTRACT_ADDRESS: '0xd859dc3f136cb137b6bd36614c597691aa136bfa'
+      PLASMA_NODE_ADDRESS: '0x3f437e74d362FB9f35E36370d33290F2C7c564Fa'
+      PLASMA_NODE_PRIVATE: '3cf33c4f3390926ded2bce4501b917b63e755b51073b100fd4fb7f6776431781'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+    command: 'npm run development'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+  addnode6:
+    build: ./plasma-core
+    ports:
+      - "30326:30326"
+      - "30309:30309"
+      - "30309:30309/udp"
+    volumes:
+      - "./plasma-core:/usr/src/app"
+      - "./data/leveldb:/var/lib/leveldb/data"
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - addredis6
+      - bootnode
+    environment:
+      REDIS_HOST: addredisserver6
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      DPT_PORT: 30309
+      BOOT_NODES: "[{\"address\": \"192.168.0.101\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"192.168.0.101\",\"udpPort\": 30302,\"tcpPort\": 30302}]" 
+      LOG_LEVEL: "debug"
+      PRODUCTION_MODE: "OFF"
+      PLASMA_CONTRACT_ADDRESS: '0xd859dc3f136cb137b6bd36614c597691aa136bfa'
+      PLASMA_NODE_ADDRESS: '0x3f437e74d362FB9f35E36370d33290F2C7c564Fa'
+      PLASMA_NODE_PRIVATE: '3cf33c4f3390926ded2bce4501b917b63e755b51073b100fd4fb7f6776431781'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
       WEB3_HTTP_PROVIDER: ''
     command: 'npm run development'
     logging:

@@ -119,6 +119,7 @@ class PlasmaProtocol extends EventEmitter {
 
       case MESSAGE_CODES.NEW_BLOCK_HASHES:
       case MESSAGE_CODES.TX:
+        console.log('GOT TX msg: ', payload);
       case MESSAGE_CODES.GET_BLOCK_HEADERS:
       case MESSAGE_CODES.BLOCK_HEADERS:
       case MESSAGE_CODES.GET_BLOCK_BODIES:
@@ -135,6 +136,7 @@ class PlasmaProtocol extends EventEmitter {
   }
 
   getMsgPrefix (msgCode) {
+    if (msgCode == 0x06) return ' COMMIT '; else
     return Object.keys(MESSAGE_CODES).find(key => MESSAGE_CODES[key] === msgCode)
   }
 }

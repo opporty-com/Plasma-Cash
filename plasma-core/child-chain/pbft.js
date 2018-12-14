@@ -5,9 +5,9 @@ import logger from 'lib/logger'
 const INIT = 0
 const PREPARE = 1
 const COMMIT = 2
-const N = 3
+const N = 8
 const PBFT_N = Math.floor((N-1) / 3)
-const PBFT_F = PBFT_N + 1
+const PBFT_F = PBFT_N*2 + 1
 
 /** pbft */
 class PBFT {

@@ -11,7 +11,7 @@ import {
 async function validatePayTx(transaction) {
   checkTransactionFields(transaction)
   const tokenOwner = await getSignatureOwner(transaction)
-  if (tokenOwner != config.plasmaNodeAddress) {
+  if (tokenOwner != config.contractOwnerAddress) {
     const utxos = await getUtxosForAddress(tokenOwner)
     let tokenId = transaction.tokenId.toString()
     checkUtxoFieldsAndFindToken(utxos, tokenId, tokenOwner)

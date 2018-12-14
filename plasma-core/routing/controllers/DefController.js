@@ -44,7 +44,7 @@ class DefController {
       })
       res.end(JSON.stringify(utxos))
     } catch (error) {
-      res.statusCode = 400
+      
       return res.end(error.toString())
     }
   }

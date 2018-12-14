@@ -35,7 +35,7 @@ rlpx.on('peer:added', (peer) => {
     genesisHash: Buffer.from('d4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3', 'hex'),
   })
 
-  eth.sendMessage(PlasmaProtocol.MESSAGE_CODES.TX, ['tx', 'text'])
+  //eth.sendMessage(PlasmaProtocol.MESSAGE_CODES.TX, ['tx', 'text'])
 
   eth.on('message', async (code, payload) => {
     switch (code) {
@@ -76,12 +76,24 @@ logger.info('Listening p2p on ' + config.dptPort)
 rlpx.listen(config.dptPort, '0.0.0.0')
 dpt.bind(config.dptPort, '0.0.0.0')
 
-if (!config.bootNode) {
-  logger.info('boot nodes')
-  for (let bootnode of config.bootNodes) {
-    logger.info('Boot node: ' + bootnode.address + ':'+ bootnode.tcpPort)
-    dpt.bootstrap(bootnode).catch((err) => logger.error(err.stack || err))
+
+setTimeout(()=> {
+  if (!config.bootNode) {
+    logger.info('boot nodes')
+    for (let bootnode of config.bootNodes) {
+      logger.info('Boot node: ' + bootnode.address + ':'+ bootnode.tcpPort)
+      dpt.bootstrap(bootnode).catch((err) => logger.error(err.stack || err))
+    }
   }
-}
+
+  setInterval(() => {
+    const peersCount = dpt.getPeers().length
+    const openSlots = rlpx._getOpenSlots()
+    const queueLength = rlpx._peersQueue.length
+    const queueLength2 = rlpx._peersQueue.filter((o) => o.ts <= Date.now()).length
+
+    console.log(`Total nodes in DPT: ${peersCount}, open slots: ${openSlots}, queue: ${queueLength} / ${queueLength2}`)
+  }, 10000);
+}, 40000);
 
 export {dpt, rlpx}
