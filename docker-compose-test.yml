@@ -12,13 +12,17 @@ services:
       - "./data/logs/plasma-core:/usr/src/app/app/logs"
       - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
     environment:
+      REDIS_HOST: redisserver
+      REDIS_PORT: 6379
       NODE_ENV: development
       PRODUCTION_MODE: "OFF"
-      PLASMA_CONTRACT_ADDRESS: '0x6134cf6bd676ff7abd287a02b54774de9fd2b79a'
+      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
       PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
       PLASMA_NODE_PRIVATE: ''
-      PLASMA_NODE_PASSWORD: ''
+      PLASMA_NODE_PASSWORD: '123123123'
       WEB3_HTTP_PROVIDER: ''
+      BOOT_NODES: "[{\"address\": \"192.168.0.101\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"192.168.0.101\",\"udpPort\": 30304,\"tcpPort\": 30304},{\"address\": \"192.168.0.101\",\"udpPort\": 30305,\"tcpPort\": 30305},{\"address\": \"192.168.0.101\",\"udpPort\": 30306,\"tcpPort\": 30306},{\"address\": \"192.168.0.101\",\"udpPort\": 30307,\"tcpPort\": 30307},{\"address\": \"192.168.0.101\",\"udpPort\": 30308,\"tcpPort\": 30308},{\"address\": \"192.168.0.101\",\"udpPort\": 30309,\"tcpPort\": 30309}]"
+      LOG_LEVEL: "debug"
     command: 'sleep 100000000'
     logging:
       options:

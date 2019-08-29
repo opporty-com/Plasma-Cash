@@ -1,203 +1,136 @@
-### Run tests (Smart contract code test) ###
+# Plasma Cash
 
-```
-ganache-cli --account="0x1fa1ab00c7e975e6dbe50781076b7c6c3130904c8bfaf9aeda98a9c6ef9938e9,10000000000000000000000000000000000000000000" --account="0x1fa1ab11c7e975e6dbe50781076b7c6c3130904c8bfaf9aeda98a9c6ef9938e9,10000000000000000000000000000000000000000000" --networkId=999 --port=8546
-cd truffle/app
-npm install
-truffle test --network=test
-```
+Opporty Plasma Cash contains a set of smart contracts and microservices performing Node functions. You can run it on different servers. Each microservice has an API with documentation. There is also a CLI. Plasma Cash allows you to conduct public and private transactions using the zk-snark tool. You can confidentially transfer standard ERC-20 and ERC-721 tokens within the Ethereum blockchain.
 
-## Request & Response Examples
+Please note that this technology is still in a test mode and needs more profound elaboration to be released as a ready-made product. We continue working on Plasma Cash and searching for advanced solutions that can make our innovative project even better.
+We have shared news about Plasma Cash with the purpose of stimulating the adoption of public blockchains. We want to show to the community that progressive projects are being developed in this industry and it deserves close attention. 
+Also, we use the comments of those who have checked out our solution as guidelines for further work. Your feedback, both positive and negative, is very important for us. If the current version of Plasma Cash simplifies your work, this proves our efforts were not made in vain. If you find some drawbacks, be sure to inform us about them. Thus you will help our project evolve and grow. 
 
-### GET /utxo/
+**We do not recommend using the prototype for the processing of classified data and the transfer of funds since it has not yet passed a security check. We do not undertake responsibility for damage caused by the failures of this version, so you should better test it on minor tasks.**
 
-Example: http://localhost/utxo?address=0x11a618de3ade9b85cd811bf45af03bad481842ed
+# Getting started
 
-*  **URL Params**
-```
- address=[string] return all utxo filtered by owner address
-```
+The guidelines below should give you a clear idea of how to conduct the Nightfall setup and start using Plasma Cash. Since significant computing resources are needed, you should better opt for a high-end processor. The setup would last from one to a couple of hours, depending on your equipment. 
+
+# Supported hardware & prerequisites
+
+Mac and Linux machines with at least 64GB of memory and 512GB of disk space are supported.
+
+The Opporty Plasma Cash demonstration requires the following software to run:
+- Docker
+  - Launch Docker Desktop (on Mac, it is on the menu bar) and set memory to 8GB with 4GB of swap space (minimum - 12GB memory is better) or 16GB of memory with 512MB of swap. The default values for Docker Desktop will NOT work. No, they really won't.
+  - https://docs.docker.com/install/linux/docker-ce/debian/
+
+**Docker compose https://docs.docker.com/compose/install/**
  
-Response body:
-```javascript
-[
- {
-   "prev_block": 0,
-   "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
-   "new_owner": "0x11a618de3ade9b85cd811bf45af03bad481842ed",
-   "signature": "0x9845229c3f7a3b3a1c5979d91c0db84d20ac29c3df2bd4cd288dd3aec9ec075f523c2bb94b6c26747ad30525138d390054655ba192ca605fa336e699a2b29d661b",
-   "blockNumber": 1
- }
-]
+# Installing Opporty Plasma Cash
+
+Clone the Plasma Cash repository and use a terminal to enter the directory.
+1. `git clone https://github.com/opporty-com/Plasma-Cash.git plasma`
+
+2. `cd plasma`
+
+
+Set up a test Ether Node. 
+
+3. `cd plasma/bin/ethernode/`
+
+4. `./up-dev.sh -d`
+
+Set up a smart contract. 
+
+5. `./migration-dev.sh`
+
+Launch Plasma.
+
+6. Change contract address into `plasma/docker-compose-dev.yml` which has been received on previous step and ip address your server file
+```
+Root: 0xe40d2fee1554cd536c630bf5af30fdfe97f924de
 ```
 
-### GET /utxoCount
+7. `cd `plasma/bin`
 
-Example: http://localhost/utxoCount
+8. `./up-dev.sh -d`
 
-Response body:
-```javascript
-{
- "utxoCount": "250"
-}
+Run demo. 
+
+9. `cd plasma`
+
+10. `docker-compose -f docker-compose-dev.yml exec mainnode npm run demo`
+
+# To run API controllers tests
+
+There are test cases for plasma api controllers
+
+
+## Usage 
+
+Go to  `bin/` directory
+
+## Api documentation
+`http://localhost:55555/documentation`
+
+## Blocks test 
+Run `test-api-block` for start blocks test.  
+This test case include ( you can change params in `BLOCK_NUMBERS_ARRAY` constant ):
+ - getBlock test ( by block number ) 
+   - Should get block number `BLOCK_NUMBERS_ARRAY[number]`
+ - getLastBlock test 
+   - Should get last block
+```
+  ./run-some-test.sh "npm run test-api-block"
 ```
 
-### GET /block/[id]
-
-Example: http://localhost/block/get/1
-
-Response body:
-```javascript
-
-{
- "blockNumber": 1,
- "merkleRootHash": "eb997bad9ba36496b4c78f1eb292176a06ea2d33ae4fe84b514f066e8c11be2b",
- "transactions": [
-   {
-     "prev_block": 0,
-     "token_id": "85361955844800290802551163085565397049851884903525530293420604591556133442855",
-     "new_owner": "0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe",
-     "signature": "0x392df7e071a4e7f1569237cb7c465d7d644cda2252bd8893c0d847203619d5507d1a5d9978eea508eb8f43847d6e3126ad567af68909ae336cf63c61961d277a1b"
-   },
-   {
-     "prev_block": 0,
-     "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
-     "new_owner": "0x11a618de3ade9b85cd811bf45af03bad481842ed",
-     "signature": "0x9845229c3f7a3b3a1c5979d91c0db84d20ac29c3df2bd4cd288dd3aec9ec075f523c2bb94b6c26747ad30525138d390054655ba192ca605fa336e699a2b29d661b"
-   }
- ]
-}
+## Transaction test 
+Run `test-api-transaction` for try create transaction test.  
+This test case include ( you can change params in `TRX_ARRAY` and `TRX_HASH` constants ):
+ - createTransaction
+   - Should create Transaction where prevBlock is `TRX_ARRAY[prevBlock]`
+ - getPool
+   - Should get Pool
+ - getTransactions ( by hash )
+   - Should get transaction where hash is `TRX_HASH[index]`
+   
+```
+  ./run-some-test.sh "npm run test-api-transaction"
 ```
 
-### POST /block/proof
-
-Example: http://localhost/block/proof?block=1&token_id=6595446839462728333343449079459300500808965641044370550270962527014110948362
-
- **Required:**
+## Token test 
+Run `test-api-token` for get tokens.
+This test case include ( you can change params in `TOKEN_IDS` and `TOKEN_ADDRESSES` constants ):
+ - getToken ( by address )
+   - Should get token by address -  `TOKEN_ADDRESSES[index]`
+ - getToken ( by token id )
+   - Should get token by token id -  `TOKEN_IDS[index]`
+ - getLastTransaction ( by token )
+    - Should get last transaction by token -  `TOKEN_IDS[index]`
+ - getAllTransactions ( by token )
+    - Should get last transaction by token -  `TOKEN_IDS[index]`     
 ```
- block=[integer] Block number
- token_id=[string] Transaction TokenId
-```
-
-Response body:
-```javascript
-{
- "proof": "01000000000000000000000000000000000000000000000000000000000000000000ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597b...64ba963b70"
-}
+  ./run-some-test.sh "npm run test-api-token"
 ```
 
-### GET /block/checkProof
-
-Example: http://localhost/block/checkProof
-
-*  **URL Params**
- **Required:**
+## Validators tests
+Run `test-api-validator` for start validators tests.
+This test case include:
+ - Validators
+   - getCandidates
+   - getValidators
+   - getCurrent
 ```
- block=[integer] Block number
- hash=[string] Transaction hash
- proof=[string] Merkle proof of existence
-```
-  
-Request body:
-
-```javascript
-{ "block":1,
- "hash": "77771d855eddf6971a72f3a81b1c38d1f164268a5beee49fea7d0da0ec9def8a",
- "proof": "01000000000000000000000000000000000000000000000000000000000000000000ad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597b...64ba963b70"
-}
-```
-Response body:
-```javascript
-{
- "message": true
-}
+  ./run-some-test.sh "npm run test-api-validator"
 ```
 
-### GET /tx
-
-Example: http://localhost/tx?block=1&token_id=6595446839462728333343449079459300500808965641044370550270962527014110948362
-
-*  **URL Params**
+## Deposit test 
+Run `test-api-deposit` for create deposit ( you can change deposit data in `DATA_FOR_DEPOSIT` constant ).  
 ```
- getHash=[boolean] Return Transaction Merkle hash
-```
- **Required:**
-```
- block=[integer] Block number
- token_id=[string] Transaction TokenId
+ ./run-some-test.sh "npm run test-api-deposit"
 ```
 
-Response body:
-```javascript
-{
- "prev_block": 0,
- "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
- "new_owner": "0x11a618de3ade9b85cd811bf45af03bad481842ed",
- "signature": "0x9845229c3f7a3b3a1c5979d91c0db84d20ac29c3df2bd4cd288dd3aec9ec075f523c2bb94b6c26747ad30525138d390054655ba192ca605fa336e699a2b29d661b"
-}
+## All tests
+Run `test-api-run` for start all tests.
+This command will run all tests above.  
 ```
-
-### POST /tx/getHashToSign/
-
-Example: http://localhost/tx/getHashToSign
-
-*  **URL Params**
- **Required:**
-``` 
-   prev_hash=[string] utxo Transaction hash
-   prev_block=[integer] New block number
-   token_id=[string] Transaction TokenId
-   new_owner=[string] New utxo owner address
+  ./run-tests.sh 
 ```
-
-Request body:
-```javascript
-{
- "prev_hash": "0caa05a05d88d6a531f4876ec0447e073cd67ef3512f8f1b9dbfc5e4eca6b044",
- "prev_block": 1,
- "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
- "new_owner": "0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe"
-}
-```
-Response body:
-```javascript
-"0xd6329448836107a349bcfaa40c3294c33d994ed7c989343ce4b64675252bc5b6"
-```
-
-### POST /tx/signed/
-
-Example: http://localhost/tx/signed
-
-*  **URL Params**
-
- **Required:**
-``` 
-   prev_block=[integer] New block number
-   token_id=[string] Transaction TokenId
-   new_owner=[string] New utxo owner address
-   signature=[string] Transaction signature
-```
-
-Request body:
-```javascript
-{
- "prev_hash": "0caa05a05d88d6a531f4876ec0447e073cd67ef3512f8f1b9dbfc5e4eca6b044",
- "prev_block": 1,
- "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
- "new_owner": "0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe",
- "signature": "0x51119fc358f4aa9656a574ee74f1ccce1517543f341d3da9556230f4020928fe26046adfcfe3ed5308c713a816b9971632b08fb40c84ed64e1e477d7fd7db77b1b"
-}
-```
-Response body:
-
-```javascript
-{
- "prev_hash": "0x0caa05a05d88d6a531f4876ec0447e073cd67ef3512f8f1b9dbfc5e4eca6b044",
- "prev_block": 1,
- "token_id": "6595446839462728333343449079459300500808965641044370550270962527014110948362",
- "new_owner": "0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe",
- "signature": "0x51119fc358f4aa9656a574ee74f1ccce1517543f341d3da9556230f4020928fe26046adfcfe3ed5308c713a816b9971632b08fb40c84ed64e1e477d7fd7db77b1b"
-}
-```
-
 

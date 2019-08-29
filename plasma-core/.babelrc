@@ -1,13 +1,10 @@
 {
-  "presets": ["es2015", "stage-2"],
+  "presets": [
+    "@babel/preset-env"
+  ],
   "plugins": [
-    ["module-alias", [
-      { "src": "lib", "expose": "lib" },
-      { "src": "child-chain", "expose": "child-chain" },
-      { "src": "root-chain", "expose": "root-chain" },
-      { "src": "consensus", "expose": "consensus" },
-      { "src": "routing", "expose": "routing" },
-      { "src": "config", "expose": "config" }
-    ]]
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-runtime",
+    "inline-json-import"
   ]
 }

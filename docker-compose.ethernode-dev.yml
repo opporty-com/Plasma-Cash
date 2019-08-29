@@ -9,7 +9,7 @@ services:
     ports:
       - 30303:30303
       - 30303:30303/udp
-      - 127.0.0.1:8545:8545
+      - 8545:8545
     volumes:
       - ./ethernode/devnet:/root/devnet
       - ./ethernode/rinkeby:/root/rinkeby

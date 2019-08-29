@@ -1,0 +1,102 @@
+{
+  "swagger": "2.0",
+  "host": "94.130.89.154:55555",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "info": {
+    "title": "Plasma API Documentation",
+    "version": "0.0.1"
+  },
+  "tags": [
+    {
+      "name": "block"
+    }
+  ],
+  "paths": {
+    "/block/{number}": {
+      "get": {
+        "summary": "Get block",
+        "operationId": "getBlockNumber",
+        "description": "Returns a block item by the number passed in the path",
+        "parameters": [
+          {
+            "type": "number",
+            "name": "number",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "tags": [
+          "block"
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/Model 1",
+              "x-alternatives": [
+                {
+                  "$ref": "#/x-alt-definitions/Model 1"
+                },
+                {
+                  "$ref": "#/x-alt-definitions/Model 2"
+                }
+              ]
+            },
+            "description": "Successful"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Model 1": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "number"
+      ]
+    }
+  },
+  "x-alt-definitions": {
+    "Model 1": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "number"
+      ]
+    },
+    "details": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "Model 2": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "statusCode": {
+          "type": "number"
+        },
+        "details": {
+          "$ref": "#/x-alt-definitions/details"
+        }
+      }
+    }
+  }
+}

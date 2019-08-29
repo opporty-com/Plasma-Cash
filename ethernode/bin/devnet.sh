@@ -42,5 +42,6 @@ geth \
   --jspath "/root/devnet/" \
   --preload "preload.js" \
   --password "/root/devnet/password" \
+  --allow-insecure-unlock \
 #  --unlock 0 ${GETH_OPTS} $@
 #  --ws --wsaddr 0.0.0.0 --wsapi "db,eth,net,web3,personal" --wsorigins "*" \
