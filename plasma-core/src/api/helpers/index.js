@@ -39,7 +39,14 @@ const promiseFromEvent = data => new Promise( resolve => {
   });
 
   client.on("data", result => {
-    const res =  JSON.parse(result)
+
+    let res = {}
+    try {
+      res = JSON.parse(result)
+    } catch (e) {
+      res.error = e.message
+    }
+
     resolve( res )
   });
 

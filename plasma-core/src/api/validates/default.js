@@ -19,7 +19,8 @@ const error = Joi.object({
   message: Joi.string(),
   status: Joi.string(),
   statusCode: Joi.number(),
-  details: Joi.array()
+  details: Joi.array(),
+  error: Joi.string()
 }).label('Error');
 
 
