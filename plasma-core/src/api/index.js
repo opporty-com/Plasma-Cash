@@ -17,7 +17,7 @@ import {failAction, failActionResponse} from './helpers';
 const init = async () => {
 
   const server = Hapi.server({
-    port: 55555,
+    port: 80,
     host: '0.0.0.0',
     routes: {
       validate: {failAction},

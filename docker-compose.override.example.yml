@@ -1,0 +1,36 @@
+version: '3.3'
+services:
+  bootnode:
+    environment:
+      DPT_KEY: 'd772e3d6a001a38064dd23964dd2836239fa0e6cec8b28972a87460a17210fe9'
+      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+      PLASMA_NODE_ADDRESS: '0x40aa3069Ea5EA29bd7F2a8b91abe1f2fE4a3F852'
+      PLASMA_NODE_PRIVATE: 'ce59f6669173d505d2be002ec50ceb72a556c0d9d31797283b3b7f493d6b8277'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+  mainnode:
+    volumes:
+      - "./plasma-core/src:/usr/src/app/src"
+      - "./plasma-core/test:/usr/src/app/test"
+      - "./data/leveldb:/var/lib/leveldb/data"
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+      - "./ethernode:/root/.ethereum"
+    environment:
+      DPT_KEY: 'd772e3d6a001a38064dd23964dd2836239fa0e6cec8b28972a87460a17210fe9'
+      BOOT_NODES: "[{\"address\": \"94.130.89.154\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"94.130.89.154\",\"udpPort\": 30304,\"tcpPort\": 30304}]"
+      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
+      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
+      PLASMA_NODE_PASSWORD: ''
+      WEB3_HTTP_PROVIDER: ''
+    command: 'npm run development'
+  node1:
+    environment:
+      DPT_KEY: 'd772e3d6a001a38064dd23964dd2836239fa0e6cec8b28972a87460a17210fe9'
+      BOOT_NODES: "[{\"address\": \"94.130.89.154\",\"udpPort\": 30301,\"tcpPort\": 30301},{\"address\": \"94.130.89.154\",\"udpPort\": 30302,\"tcpPort\": 30302}]"
+      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+      PLASMA_NODE_ADDRESS: '0x3f437e74d362FB9f35E36370d33290F2C7c564Fa'
+      PLASMA_NODE_PRIVATE: '3cf33c4f3390926ded2bce4501b917b63e755b51073b100fd4fb7f6776431781'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''

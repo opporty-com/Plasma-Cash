@@ -1,0 +1,92 @@
+version: '3.3'
+services:
+  bootredis:
+    image: redis
+    expose:
+      - "6379"
+    logging:
+      driver: "none"
+  redis:
+    image: redis
+    expose:
+      - "6379"
+    logging:
+      driver: "none"
+  redis1:
+    image: redis
+    expose:
+      - "6379"
+    logging:
+      driver: "none"
+
+  bootnode:
+    build: ./plasma-core
+    ports:
+      - "8081:80"
+      - "30301:30301"
+      - "30301:30301/udp"
+    volumes:
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - bootredis
+    environment:
+      REDIS_HOST: bootredis
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      BOOTNODE: 1
+      LOG_LEVEL: "info"
+      PRODUCTION_MODE: "OFF"
+#    command: 'npm run development'
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+
+  mainnode:
+    build: ./plasma-core
+    ports:
+      - "8082:80"
+      - "30302:30301"
+      - "30302:30301/udp"
+    volumes:
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - redis
+      - bootnode
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      DPT_PORT: 30301
+      LOG_LEVEL: "info"
+      PRODUCTION_MODE: "OFF"
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+
+  node1:
+    build: ./plasma-core
+    ports:
+      - "8084:80"
+      - "30304:30301"
+      - "30304:30301/udp"
+    volumes:
+      - "./data/logs/plasma-core:/usr/src/app/app/logs"
+      - "./data/ethernode/geth_ipc:/usr/src/geth_ipc:ro"
+    links:
+      - redis1
+      - mainnode
+    environment:
+      REDIS_HOST: redis1
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      DPT_PORT: 30301
+      LOG_LEVEL: "info"
+      PRODUCTION_MODE: "OFF"
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
