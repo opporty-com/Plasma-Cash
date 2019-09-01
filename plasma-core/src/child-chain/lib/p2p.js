@@ -16,6 +16,7 @@ class PlasmaEmitter extends EventEmitter {
     super();
   }
 
+  peerCount = 0;
   EVENT_MESSAGES = {
     NEW_TX_CREATED: "NEW_TX_CREATED",
     PREPARE_NEW_BLOCK: "PREPARE_NEW_BLOCK",
@@ -38,12 +39,17 @@ class PlasmaEmitter extends EventEmitter {
   sendCommitBlock(block) {
     _send(PCP.MESSAGE_CODES.BLOCK_COMMIT, block);
   }
+
   sendNewBlock(block) {
     _send(PCP.MESSAGE_CODES.NEW_BLOCK, block);
   }
 
   sendNewTransaction(tx) {
     _send(PCP.MESSAGE_CODES.TX, tx);
+  }
+
+  getCountPeers() {
+    return  _rlpx.getPeers().length
   }
 }
 
@@ -115,22 +121,32 @@ _dpt.bind(config.dptPort, '0.0.0.0', () => {
 });
 
 
+function bootstrap(bootnode) {
+  _dpt.bootstrap(bootnode).catch((err) => {
+    bootstrap(bootnode);
+    logger.error(err.stack || err)
+  })
+}
+
 setTimeout(() => {
   if (!config.bootNode) {
     logger.debug('boot nodes')
     for (let bootnode of config.bootNodes) {
       logger.debug('Boot node: ' + bootnode.address + ':' + bootnode.tcpPort)
-      _dpt.bootstrap(bootnode).catch((err) => logger.error(err.stack || err))
+      bootstrap(bootnode);
     }
   }
-
-  setInterval(() => {
-    const peersCount = _dpt.getPeers().length
-    const openSlots = _rlpx._getOpenSlots()
-    const queueLength = _rlpx._peersQueue.length
-    const queueLength2 = _rlpx._peersQueue.filter((o) => o.ts <= Date.now()).length;
-    logger.info(`Total nodes in DPT: ${peersCount}, open slots: ${openSlots}, queue: ${queueLength} / ${queueLength2}`)
-  }, 10000);
+  //
+  //
+  // setInterval(() => {
+  //
+  //   const dptCount = _dpt.getPeers().length
+  //   const rlpxCount = _rlpx.getPeers().length
+  //   const openSlots = _rlpx._getOpenSlots()
+  //   const queueLength = _rlpx._peersQueue.length
+  //   const queueLength2 = _rlpx._peersQueue.filter((o) => o.ts <= Date.now()).length;
+  //   logger.info(`Total nodes in DPT: ${dptCount}, RLPX: ${rlpxCount}, open slots: ${openSlots}, queue: ${queueLength} / ${queueLength2}`)
+  // }, 10000);
 }, 10000);
 
 

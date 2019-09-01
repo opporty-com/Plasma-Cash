@@ -13,6 +13,9 @@ RUN npm i
 COPY .babelrc /usr/src/app/
 COPY ./src /usr/src/app/src
 COPY ./src/cli/bin /usr/src/app/dist/cli/bin
+
 RUN npm run build
+
+COPY ./src/api/plugins/swagger-ui ./dist/api/plugins/swagger-ui
 
 CMD npm run start

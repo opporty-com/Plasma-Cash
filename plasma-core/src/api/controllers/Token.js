@@ -3,59 +3,59 @@
  * moonion.com;
  */
 
-import { promiseFromEvent } from "../helpers"
 import Boom from "@hapi/boom";
+import plasma from "../lib/plasma-client";
 
-async function get( request, h ) {
-  const { tokenId } = request.params;
+async function get(request, h) {
+  const {tokenId} = request.params;
 
   let result
   try {
-    result = await promiseFromEvent({ action: "getToken", payload: tokenId });
+    result = await plasma({action: "getToken", payload: tokenId});
   } catch (e) {
-    Boom.badGateway( e )
+    return Boom.badGateway(e)
   }
 
   return result
 }
 
-async function getByAddress( request, h ) {
-  const { address } = request.params;
+async function getByAddress(request, h) {
+  const {address} = request.params;
 
   let result
   try {
-    result = await promiseFromEvent({ action: "getTokenByAddress", payload: address });
+    result = await plasma({action: "getTokenByAddress", payload: address});
   } catch (e) {
-    Boom.badGateway( e )
+    return Boom.badGateway(e)
   }
 
   return result
 }
 
-async function getTransactions( request, h ) {
-  const { tokenId } = request.params;
+async function getTransactions(request, h) {
+  const {tokenId} = request.params;
 
   let result
   try {
-    result = await promiseFromEvent({ action: "getTransactionsByTokenId", payload: tokenId });
+    result = await plasma({action: "getTransactionsByTokenId", payload: tokenId});
   } catch (e) {
-    Boom.badGateway( e )
+    return Boom.badGateway(e)
   }
 
   return result
 }
 
-async function getLastTransaction( request, h ) {
-  const { tokenId } = request.params;
+async function getLastTransaction(request, h) {
+  const {tokenId} = request.params;
 
   let result
   try {
-    result = await promiseFromEvent({ action: "getLastTransactionByTokenId", payload: tokenId });
+    result = await plasma({action: "getLastTransactionByTokenId", payload: tokenId});
   } catch (e) {
-    Boom.badGateway( e )
+    return Boom.badGateway(e)
   }
 
   return result
 }
 
-export { get, getByAddress, getTransactions, getLastTransaction }
+export {get, getByAddress, getTransactions, getLastTransaction}

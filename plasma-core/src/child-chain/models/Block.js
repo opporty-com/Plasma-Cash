@@ -5,12 +5,16 @@
 
 import * as RLP from 'rlp'
 import ethUtil from 'ethereumjs-util'
+
+import BaseModel from './Base';
+
 import * as BlockDb from './db/Block';
 
 import TransactionModel from './Transaction';
 
 import {initFields, isValidFields, encodeFields} from '../helpers';
 import PatriciaMerkle from "../lib/PatriciaMerkle";
+import logger from "../lib/logger";
 
 
 const fields = [
@@ -35,58 +39,59 @@ const fields = [
   },
   {
     name: 'transactions',
-    decode: v => Array.isArray(v) && v.length && v[0] instanceof TransactionModel ? v : v.map(tx => new TransactionModel(tx))
+    decode: (v, parent) => Array.isArray(v) && v.length && v[0] instanceof TransactionModel ? v : v.map(tx => new TransactionModel(tx))
   },
-  {name: 'signature'},
+  {
+    name: 'signature',
+    encode: v => ethUtil.toBuffer(v),
+  },
 ];
 
-class BlockModel {
+class BlockModel extends BaseModel {
+  // number = null;
+  // merkleRootHash = null;
+  // transactions = null;
+  // signer = null;
+  // signature = null;
+
   constructor(data) {
-    this.number = null;
-    this.merkleRootHash = null;
-    this.transactions = null;
-    this.signer = null;
-    this.signature = null;
-    initFields(this, fields, data || {});
-
-    if (this.merkleRootHash || this.transactions.length === 0)
-      return;
-
-    let leaves = this.transactions.map(tx => ({key: tx.tokenId, hash: tx.getHash()}));
-    this.txCount = leaves.length;
-    this.merkle = new PatriciaMerkle(leaves);
-    this.merkle.buildTree();
-    this.merkleRootHash = this.merkle.getMerkleRoot();
+    super(data, fields);
   }
 
-  static async getLastNumber() {
-    return await BlockDb.getLastNumber();
-  }
 
-  static async setLastNumber(number) {
-    return await BlockDb.settLastNumber(number);
-  }
-
-  getMerkleRootHash() {
-    return ethUtil.addHexPrefix(this.merkleRootHash.toString('hex'));
-  }
-
-  getRlp(excludeSignature) {
-    let fieldName = excludeSignature ? '_rlpNoSignature' : '_rlp';
+  getTxBuffer(txHash) {
+    let fieldName = `_rlpTx${txHash && "Hash"}`;
     if (this[fieldName]) {
       return this[fieldName]
     }
-    let dataToEncode = encodeFields(this, fields, true);
+    this[fieldName] = this.transactions.map(tx => txHash ? tx.getHash() : tx.getBuffer());
+    return this[fieldName];
+  }
 
-    let transactions = (this.getTx() || []).map(tx => tx.getBuffer());
+  getBuffer(excludeSignature, txHash, excludeTx) {
+    let dataToEncode = [
+      this.number,
+      this.merkleRootHash,
+      this.signer,
+    ];
+    const transactions = excludeTx ? [] : this.getTxBuffer(txHash);
     dataToEncode.push(transactions);
+    if (!excludeSignature) {
+      dataToEncode.push(this.signature);
+    }
+    return dataToEncode
+  }
 
-    // if (!excludeSignature) {
-    //   dataToEncode.push(this.signature)
-    // }
+  getRlp(excludeSignature, txHash, excludeTx) {
+    let fieldName = `_rlp${excludeSignature && "NoSignature"}${excludeTx && "NoTx"}${!excludeTx && txHash && "TxHash"}`;
+    if (this[fieldName]) {
+      return this[fieldName]
+    }
+    const dataToEncode = this.getBuffer(excludeSignature, txHash, excludeTx);
     this[fieldName] = RLP.encode(dataToEncode);
     return this[fieldName]
   }
+
 
   async isValid() {
     if (!isValidFields(this, fields))
@@ -100,47 +105,64 @@ class BlockModel {
     return true;
   }
 
-  async incCommit() {
-    return await BlockDb.incCommit(this.merkleRootHash);
+
+  async loadTxFromPool() {
+    if (this.transactions[0] instanceof TransactionModel)
+      return;
+
+    this.transactions = await TransactionModel.getPoolByHashes(this.transactions);
   }
 
-  getTx() {
-    return this.transactions.map(tx => {
-      let t = tx instanceof TransactionModel ? tx : new TransactionModel(tx)
-      t.blockNumber = this.number;
-      return t;
-    })
+  async buildMerkle() {
+    if (this.merkleRootHash.length > 0 || this.transactions.length === 0)
+      return;
+
+    let leaves = this.transactions.map(tx => ({key: tx.tokenId, hash: tx.getHash()}));
+    this.merkle = new PatriciaMerkle(leaves);
+    this.merkle.buildTree();
+    this.merkleRootHash = this.merkle.getMerkleRoot();
   }
 
   async save() {
     await this.add();
     let lastNumber = await BlockModel.getLastNumber();
-    if (this.number > lastNumber)
-      await BlockModel.setLastNumber(this.number);
+    if (this.get('number') > lastNumber)
+      await BlockModel.setLastNumber(this.get('number'));
 
     return this;
   }
 
   async add() {
-    await BlockDb.add(this.number.toString(10), this.getRlp());
+    for(let tx of this.transactions)
+      tx.set('blockNumber', this.get('number'));
+    await BlockDb.add(this.get('number'), this.getRlp());
     return this;
   }
 
-  static async get(number) {
-    const block = await BlockDb.get(number);
-    if (!block)
-      return null;
-    return new BlockModel(block);
+  getJson() {
+    let o = {};
+    fields.filter(field => field.decode).forEach(field => {
+      o[field.name] = this.get(field.name)
+    });
+    o.transactions = this.transactions.map(tx => tx.getJson());
+    return o;
   }
 
-  getJson() {
-    return {
-      number: this.number,
-      merkleRootHash: this.merkleRootHash,
-      transactions: this.getTx().map(tx => tx.getJson()),
-      signer: this.signer || null,
-      signature: this.signature || null,
-    }
+  static async getLastNumber() {
+    return await BlockDb.getLastNumber();
+  }
+
+  static async setLastNumber(number) {
+    return await BlockDb.settLastNumber(number);
+  }
+
+  static async get(number) {
+    const data = await BlockDb.get(number);
+    if (!data)
+      return null;
+    const block = new BlockModel(data);
+    block.transactions = block.transactions.map(tx => new TransactionModel(tx));
+    return block
   }
 }
 

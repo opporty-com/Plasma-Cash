@@ -4,12 +4,11 @@ import logger from './logger'
 
 let client = redis.createClient({
   detect_buffers: true,
-  host: process.env.REDIS_HOST,
-  port: process.env.REDIS_PORT,
+  path: "/var/run/redis/redis.sock"
 })
 
 client.on('connect', () => {
-  logger.info('Redis storage has opened redis://' + process.env.REDIS_HOST )
+  logger.info('Redis storage has opened')
 })
 
 client.on('close', () => {
@@ -34,6 +33,7 @@ const hdelAsync = util.promisify(client.hdel).bind(client)
 const hlenAsync = util.promisify(client.hlen).bind(client)
 const hvalsAsync = util.promisify(client.hvals).bind(client)
 const hkeysAsync = util.promisify(client.hkeys).bind(client)
+const hmgetAsync = util.promisify(client.hmget).bind(client)
 const smembersAsync = util.promisify(client.smembers).bind(client)
 const srandmemberAsync = util.promisify(client.srandmember).bind(client)
 const sremAsync = util.promisify(client.srem).bind(client)
@@ -57,6 +57,7 @@ client.hgetallAsync = hgetallAsync
 client.hlenAsync = hlenAsync
 client.hvalsAsync = hvalsAsync
 client.hkeysAsync = hkeysAsync
+client.hmgetAsync = hmgetAsync
 client.sremAsync = sremAsync
 client.saddAsync = saddAsync
 client.srandmemberAsync = srandmemberAsync

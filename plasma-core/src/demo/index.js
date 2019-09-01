@@ -1,12 +1,11 @@
 import web3 from "../root-chain/web3";
+import * as RLP from 'rlp'
 import contractHandler from "../root-chain/contracts/plasma";
 import keythereum from "keythereum";
-import plasma from "./plasma-client";
+import plasma, {client as plasmaClient} from "./plasma-client";
 import ethUtil from "ethereumjs-util";
 
-
-import TransactionModel from "../child-chain/models/Transaction";
-
+plasmaClient();
 const colors = {
   bold: 1,
   italic: 3,
@@ -138,23 +137,54 @@ async function sendEth() {
   log(`End send ${sumEth} ether to test account`, colors.yellow);
 }
 
-async function deposit(countPerAddress = 1) {
+
+function generateRandomString(length = 78) {
+  let text = "";
+  const possible = "0123456789";
+
+  for (let i = 0; i < length; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
+
+async function deposit(countPerAddress = 1, useEth = true) {
   log("Start deposit from test address", colors.blue);
 
-
-  const promises = addresses.map(async ({address, password}) => {
-    const gas = await contractHandler.contract.methods.deposit().estimateGas({from: address});
-    await web3.eth.personal.unlockAccount(address, password, 100000);
+  let allPromises = [];
+  for (let account of addresses) {
+    const {address, password} = account;
+    let promises = [];
     for (let i = 0; i < countPerAddress; i++) {
-      let answer = await contractHandler.contract.methods.deposit()
-        .send({from: address, value: 1, gas: gas + 1500000});
-      const tokenId = answer.events.DepositAdded.returnValues.tokenId;
-      tokens[tokenId] = {tokenId, address};
-      log(`Token "${tokenId}" has been sent from ${address}`, colors.blue);
+      let promise = new Promise(async (resolve, reject) => {
+        if (!useEth) {
+          const tokenId = generateRandomString();
+          await plasma({action: "deposit", payload: {depositor: address, tokenId, send: true}});
+          tokens[tokenId] = {tokenId, address};
+          return resolve({tokenId, address});
+        }
+        const gas = await contractHandler.contract.methods.deposit().estimateGas({from: address});
+        await web3.eth.personal.unlockAccount(address, password, 100000);
+        let answer = await contractHandler.contract.methods.deposit()
+          .send({from: address, value: 1, gas: gas + 1500000});
+        const tokenId = answer.events.DepositAdded.returnValues.tokenId;
+
+        tokens[tokenId] = {tokenId, address};
+        return resolve({tokenId, address});
+      });
+      promises.push(promise)
     }
-  });
-  await Promise.all(promises);
-  log("End deposit from test address", colors.blue);
+    await Promise.all(promises);
+    log(`Deposit ${promises.length} tokens`, colors.blue);
+  }
+  //
+  // for (let promises of allPromises) {
+  //   await Promise.all(promises);
+  //   log(`Deposit ${promises.length} tokens`, colors.blue);
+  // }
+
+
+  log(`End ${countPerAddress * addresses.length} deposit from test address`, colors.blue);
 }
 
 
@@ -216,8 +246,17 @@ async function getTransactionData({tokenId, to, privateKey, data = ''}) {
     data,
     newOwner: to,
   };
-  const txWithoutSignature = new TransactionModel(txData);
-  const hash = txWithoutSignature.getHash(true);
+
+  const dataToEncode = [
+    ethUtil.toBuffer(lastTx.hash),
+    ethUtil.toBuffer(lastTx.blockNumber),
+    ethUtil.toBuffer(ethUtil.stripHexPrefix(tokenId)),
+    ethUtil.toBuffer(to),
+    ethUtil.toBuffer('pay'),
+    ethUtil.toBuffer('')
+  ];
+  const rlp = RLP.encode(dataToEncode);
+  const hash = ethUtil.sha3(rlp);
   txData.signature = _sign(hash, privateKey);
 
   return txData;
@@ -255,23 +294,22 @@ async function sendTransactions() {
   log(`End send ${promises.length} Transactions`, colors.red);
 }
 
-
 async function start() {
   log("Start Demo", colors.red);
   try {
     await checkETHBalances();
-    await createAccount(1);
-    setPrivateKeys();
-    await checkETHBalances();
-    await sendEth();
-    await checkETHBalances();
+    await createAccount(100);
+    // setPrivateKeys();
+    // await checkETHBalances();
+    // await sendEth();
+    // await checkETHBalances();
     // await checkTokenBalances(true);
     // await checkTokenBalances();
-    await deposit(1);
-    await checkTokenBalances();
+    await deposit(5000, false);
+    // await checkTokenBalances();
 
-    await sendTransactions();
-    await checkTokenBalances();
+    // await sendTransactions();
+    // await checkTokenBalances();
 
   } catch (e) {
     console.log(e);
@@ -282,6 +320,9 @@ async function start() {
 
 start();
 
+
 function log(message, color = 37) {
-  console.log(`\x1b[${color}m${message}\x1b[0m`);
+  const time = new Date();
+  time.toTimeString()
+  console.log(`${time.toISOString()}:  \x1b[${color}m${message}\x1b[0m`);
 }

@@ -4,9 +4,7 @@
  */
 
 import Boom from '@hapi/boom';
-import net from 'net'
 
-const socketPath = '/var/run/mysocket'
 
 async function failAction(request, h, err) {
   console.error('ValidationError:', err);
@@ -33,27 +31,7 @@ async function failActionResponse(request, h, err) {
 
 }
 
-const promiseFromEvent = data => new Promise( resolve => {
-  const client = net.createConnection( socketPath, ()=> {
-    client.write( JSON.stringify( data ) )
-  });
-
-  client.on("data", result => {
-
-    let res = {}
-    try {
-      res = JSON.parse(result)
-    } catch (e) {
-      res.error = e.message
-    }
-
-    resolve( res )
-  });
-
-})
-
 export {
   failAction,
   failActionResponse,
-  promiseFromEvent
 }
