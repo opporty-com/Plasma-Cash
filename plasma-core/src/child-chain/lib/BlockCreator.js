@@ -154,7 +154,7 @@ class BlockCreator {
       logger.info(`Start submit Block`);
       await this.submit();
     } catch (e) {
-      // logger.debug(`Error start submit Block`, e);
+      logger.debug(`Error start submit Block`, e);
     }
     logger.info(`End submit Block`);
     setTimeout(this.interval.bind(this), config.blockPeriod)
