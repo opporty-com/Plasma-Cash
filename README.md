@@ -45,6 +45,7 @@ Launch Plasma.
 
 6. Copy example docker-compose.yml  
 `cp plasma/docker-compose.override.example.yml plasma/docker-compose.override.yml`
+`cp plasma/docker-compose.example.yml plasma/docker-compose.yml`
 
 7. Change contract address into `plasma/docker-compose.override.yml` which has been received on previous steps and ip address your server file
 ```
