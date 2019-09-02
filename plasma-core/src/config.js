@@ -28,6 +28,7 @@ export default {
   maxDelegates: 5,
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
   web3HttpProvider: process.env.WEB3_HTTP_PROVIDER || null,
+  web3WsProvider: process.env.WEB3_WS_PROVIDER || null,
   blockPeriod: 10000,
   blockTime: 20000,
   roundInterval: 300000,

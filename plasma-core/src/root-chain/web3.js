@@ -7,8 +7,8 @@ import fs from 'fs'
 
 let provider
 
-if (config.web3HttpProvider) {
-  provider = new Web3.providers.HttpProvider(config.web3HttpProvider)
+if (config.web3WsProvider) {
+  provider = new Web3.providers.WebsocketProvider(config.web3WsProvider)
 } else {
   if (!fs.existsSync(config.gethIpc)) {
     throw new Error(`Not exists geth.ipc  ${config.gethIpc}`)
