@@ -10,7 +10,7 @@ import {sign} from "../helpers";
 const N = 8;
 const PBFT_N = Math.floor((N - 1) / 3);
 // const PBFT_F = PBFT_N * 2 + 1;
-const PBFT_F = 1;
+const PBFT_F = process.env.COUNT_CHECK_PROOF || 0;
 
 class BlockCreator {
   constructor(options = {}) {
@@ -18,7 +18,7 @@ class BlockCreator {
     this.interval();
   }
 
-  async submit(){
+  async submit() {
 
     const lastSubmittedBlock = await contractHandler.contract.methods.getCurrentBlock().call();
     logger.info(`last submitted block #${lastSubmittedBlock}`);
@@ -36,7 +36,7 @@ class BlockCreator {
       throw new Error('Please wait your turn to submit')
     }
 
-    if (p2pEmitter.getCountPeers() <= PBFT_F) {
+    if (p2pEmitter.getCountPeers() < PBFT_F) {
       logger.info('Please wait validators');
       throw new Error('Please wait validators')
     }
@@ -54,8 +54,7 @@ class BlockCreator {
       const isValid = await tx.isValid();
       if (isValid) {
         blockTransactions.push(tx);
-      }
-      else
+      } else
         await tx.removeFromPool();
     }
     logger.info(`transactions`, 3, blockTransactions.length);
@@ -64,7 +63,6 @@ class BlockCreator {
       throw new Error('Successfull transactions is not defined for this block')
       //return false;
     }
-
 
 
     const block = new BlockModel({
@@ -81,43 +79,45 @@ class BlockCreator {
     logger.info(`sign block #${newBlockNumber}`, 3, signature);
     block.set('signature', signature);
     logger.info(`sign block #${newBlockNumber}`, 4);
-    try {
-      await new Promise((resolve, reject) => {
-        let commit = 0;
 
-        let rejectTimeout = setTimeout(() => {
-          logger.info("reject timeout")
-          p2pEmitter.removeListener(p2pEmitter.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
-          reject()
-        }, config.blockPeriod);
+    if (PBFT_F) {
+      try {
+        await new Promise((resolve, reject) => {
+          let commit = 0;
 
-        logger.info(`send block #${newBlockNumber}`);
-        let rplData;
-        rplData = block.getRlp(false, true);
+          let rejectTimeout = setTimeout(() => {
+            logger.info("reject timeout")
+            p2pEmitter.removeListener(p2pEmitter.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
+            reject()
+          }, config.blockPeriod);
 
-        p2pEmitter.validateNewBlock(rplData);
-        logger.info(`sent block #${newBlockNumber}`, rplData.length);
+          logger.info(`send block #${newBlockNumber}`);
+          let rplData;
+          rplData = block.getRlp(false, true);
 
-        function getValidateBlock(payload) {
-          commit++;
-          if (commit <= PBFT_F) {
-            logger.info(`wait commit Block`);
-            return;
+          p2pEmitter.validateNewBlock(rplData);
+          logger.info(`sent block #${newBlockNumber}`, rplData.length);
+
+          function getValidateBlock(payload) {
+            commit++;
+            if (commit < PBFT_F) {
+              logger.info(`wait commit Block`);
+              return;
+            }
+
+            p2pEmitter.removeListener(p2pEmitter.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
+            clearTimeout(rejectTimeout);
+            logger.info(`Block #${newBlockNumber} has been validated successful`);
+            return resolve();
           }
 
-          p2pEmitter.removeListener(p2pEmitter.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
-          clearTimeout(rejectTimeout);
-          logger.info(`Block #${newBlockNumber} has been validated successful`);
-          return resolve();
-        }
+          p2pEmitter.on(p2pEmitter.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
 
-        p2pEmitter.on(p2pEmitter.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
-
-      });
-    } catch (e) {
-      throw new Error('Successfull transactions is not defined for this block')
+        });
+      } catch (e) {
+        throw new Error('Successfull transactions is not defined for this block')
+      }
     }
-
 
     const blockMerkleRootHash = block.get('merkleRootHash');
     logger.info('Block submit #', newBlockNumber, blockMerkleRootHash);
