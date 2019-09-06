@@ -34,6 +34,10 @@ async function getByToken(token) {
   return await redis.smembersAsync(`transactions:token:${token}`.toLowerCase());
 }
 
+async function getByAddress(address) {
+  return await redis.smembersAsync(`transactions:address:${address}`.toLowerCase());
+}
+
 async function count() {
   return await redis.hlenAsync(`transactions`);
 }
@@ -45,6 +49,7 @@ export {
   removeFromAddress,
   get,
   getByToken,
+  getByAddress,
   getLastByToken,
   count
 }

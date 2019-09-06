@@ -45,6 +45,19 @@ async function getTransactions( request, h ) {
   return result
 }
 
+async function getTransactionsByAddress( request, h ) {
+  const { address } = request.params;
+
+  let result
+  try {
+    result = await promiseFromEvent({ action: "getTransactionsByAddress", payload: address });
+  } catch (e) {
+    Boom.badGateway( e )
+  }
+
+  return result
+}
+
 async function getLastTransaction( request, h ) {
   const { tokenId } = request.params;
 
@@ -58,4 +71,4 @@ async function getLastTransaction( request, h ) {
   return result
 }
 
-export { get, getByAddress, getTransactions, getLastTransaction }
+export { get, getByAddress, getTransactions, getLastTransaction, getTransactionsByAddress }

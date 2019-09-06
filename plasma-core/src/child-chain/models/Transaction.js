@@ -282,6 +282,13 @@ class TransactionModel {
     return Promise.all(transactions.map(hash => TransactionModel.get(hash)));
   }
 
+  static async getByAddress(address, hashOnly = false) {
+    const transactions = await TransactionDb.getByAddress(address);
+    if (!transactions) return [];
+    if (hashOnly) return transactions;
+    return Promise.all(transactions.map(hash => TransactionModel.get(hash)));
+  }
+
   static async getLastByToken(token, hashOnly = false) {
     const hash = await TransactionDb.getLastByToken(token);
     if (!hash) return null;

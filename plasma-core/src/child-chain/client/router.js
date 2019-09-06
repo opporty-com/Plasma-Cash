@@ -1,5 +1,5 @@
 import { send as sendBlock, get as getBlock, last as getLastBlock } from "../controllers/Block"
-import { get as getToken, getByAddress as getTokenByAddress, getLastTransaction, getTransactions as getTransactionsByTokenId } from "../controllers/Token"
+import { get as getToken, getByAddress as getTokenByAddress, getLastTransaction, getTransactions as getTransactionsByTokenId, getTransactionsByAddress } from "../controllers/Token"
 import { send as sendTransaction, add as addTransaction,  deposit, getPool, get as getTransactionsByHash  } from "../controllers/Transaction"
 import { getCandidates, getValidators, getCurrent } from "../controllers/Validator"
 
@@ -24,6 +24,9 @@ const ROUTER = {
   },
   "getTransactionsByTokenId": {
     controller: arg => getTransactionsByTokenId( arg ) // tokenId
+  },
+  "getTransactionsByAddress": {
+    controller: arg => getTransactionsByAddress( arg ) // tokenId
   },
   "getTransactionsByHash": {
     controller: arg => getTransactionsByHash( arg ) // hash
