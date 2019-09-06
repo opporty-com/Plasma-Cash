@@ -1,0 +1,103 @@
+version: '3.3'
+services:
+  submit1:
+    environment:
+      #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
+      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305}]"
+      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
+      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+      IS_SUBBMITTER: 1
+      COUNT_CHECK_PROOF: 2
+      LOG_LEVEL: "info"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+
+  #  submit2:
+  #    environment:
+  #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
+  #      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+  #      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
+  #      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
+  #      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+  #      WEB3_HTTP_PROVIDER: ''
+  ##      IS_SUBBMITTER: 1
+  #      LOG_LEVEL: "info"
+  #      NODE_OPTIONS: "--max-old-space-size=4096"
+
+  validator1:
+    environment:
+      #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
+      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305}]"
+      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
+      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+      IS_VALIDATOR: 1
+      LOG_LEVEL: "info"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+    volumes:
+      - "./plasma-core/src:/usr/src/app/src"
+      - "./ethernode:/root/.ethereum"
+
+  validator2:
+    environment:
+      #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
+      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305}]"
+      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
+      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+      IS_VALIDATOR: 1
+      LOG_LEVEL: "info"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+    volumes:
+      - "./plasma-core/src:/usr/src/app/src"
+      - "./ethernode:/root/.ethereum"
+
+  validator3:
+    environment:
+      #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
+      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304}]"
+      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
+      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
+      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+      WEB3_HTTP_PROVIDER: ''
+      IS_VALIDATOR: 1
+      LOG_LEVEL: "info"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+    volumes:
+      - "./plasma-core/src:/usr/src/app/src"
+      - "./ethernode:/root/.ethereum"
+
+
+#  demo1:
+#    environment:
+#      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
+#      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+#      PLASMA_NODE_ADDRESS: '0x11a618de3ade9b85cd811bf45af03bad481842ed'
+#      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
+#      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+#      WEB3_HTTP_PROVIDER: ''
+#      LOG_LEVEL: "info"
+#      NODE_OPTIONS: "--max-old-space-size=4096"
+#    volumes:
+#      - "./plasma-core/src:/usr/src/app/src"
+#      - "./ethernode:/root/.ethereum"
+#  demo2:
+#    environment:
+#      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305}]"
+#      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
+#      PLASMA_NODE_ADDRESS: '0x11a618de3ade9b85cd811bf45af03bad481842ed'
+#      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
+#      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
+#      WEB3_HTTP_PROVIDER: ''
+#      LOG_LEVEL: "info"
+#      NODE_OPTIONS: "--max-old-space-size=4096"
+#    volumes:
+#      - "./plasma-core/src:/usr/src/app/src"
+#      - "./ethernode:/root/.ethereum"

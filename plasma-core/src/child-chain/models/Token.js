@@ -6,8 +6,9 @@ import * as RLP from 'rlp';
 import ethUtil from 'ethereumjs-util'
 import {encodeFields, initFields} from "../helpers";
 import * as TokenDb from './db/Token';
+import BaseModel from "./Base";
 
-export const fields = [
+const fields = [
   {
     name: 'owner',
     require: true,
@@ -38,14 +39,23 @@ export const fields = [
   },
 ];
 
-class TokenModel {
-  constructor(data) {
-    this.owner = null;
-    this.tokenId = null;
-    this.amount = null;
-    this.block = null;
+class TokenModel extends BaseModel {
+  // owner = null;
+  // tokenId = null;
+  // amount = null;
+  // block = null;
 
-    initFields(this, fields, data || {})
+  constructor(data) {
+    super(data, fields);
+  }
+
+  getBuffer() {
+    return [
+      this.owner,
+      this.tokenId,
+      this.amount,
+      this.block,
+    ]
   }
 
   getRlp() {
@@ -53,27 +63,20 @@ class TokenModel {
     if (this[fieldName]) {
       return this[fieldName]
     }
-    let dataToEncode = encodeFields(this, fields, true);
+    const dataToEncode = this.getBuffer();
 
     this[fieldName] = RLP.encode(dataToEncode);
     return this[fieldName]
   }
 
-  getJson() {
-    return {
-      owner: this.owner,
-      tokenId: this.tokenId,
-      amount: this.amount,
-      block: this.block,
-    }
-  }
 
   async save() {
-    const oldToken = await TokenModel.get(this.tokenId);
-    await TokenDb.add(this.tokenId, this.getRlp());
-    await TokenDb.addOwner(this.owner, this.tokenId);
+    const tokenId = this.get('tokenId');
+    const oldToken = await TokenModel.get(tokenId);
+    await TokenDb.add(tokenId, this.getRlp());
+    await TokenDb.addOwner(this.get('owner'), tokenId);
     if (oldToken)
-      await TokenDb.removeOwner(oldToken.owner, this.tokenId);
+      await TokenDb.removeOwner(oldToken.get('owner'), tokenId);
     return this;
   }
 
@@ -88,7 +91,8 @@ class TokenModel {
     const tokens = await TokenDb.getOwner(address);
     return Promise.all(tokens.map(token => TokenModel.get(token)));
   }
-  static async count(){
+
+  static async count() {
     return await TokenDb.count();
   }
 }

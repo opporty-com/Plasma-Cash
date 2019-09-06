@@ -7,36 +7,36 @@ import * as RLP from 'rlp'
 import ethUtil from 'ethereumjs-util'
 import config from "../../config";
 
+
 function initFields(self, fields, data) {
   if (data instanceof Buffer) {
     let decodedData = RLP.decode(data);
-    fields.forEach((field, i) => {
-      if (field.decode)
-        self[field.name] = field.decode(decodedData[i]);
-      else
-        self[field.name] = decodedData[i] ? decodedData[i].toString() : null;
-    })
+    if (Array.isArray(decodedData))
+      fields.forEach((field, i) => {
+        if (!decodedData[i]) return
+        if (field.int) {
+          if (decodedData[i].length) {
+            self[field.name] = decodedData[i].readUIntBE()
+          } else {
+            self[field.name] = ethUtil.toBuffer('')
+          }
+        } else {
+          self[field.name] = decodedData[i]
+        }
+      })
 
   } else if (Array.isArray(data) && data.length) {
     fields.forEach((field, i) => {
-      self[field.name] = field.decode ? field.decode(data[i]) : data[i];
+      if (!data[i]) return
+      self[field.name] = data[i];
     })
   } else if (data && typeof data === 'object') {
     fields.forEach((field) => {
       let value = data[field.name];
-      if (value) {
-        if (field.int && typeof (value) !== 'number') {
-          if (value instanceof Buffer) {
-            value = value.readUIntBE()
-          } else {
-            value = parseInt(value)
-          }
-        }
-      } else {
+      if (!value && field.default) {
         value = field.default
       }
-
-      self[field.name] = value
+      self[field.name] = field.encode ? field.encode(value) : value;
     })
   }
 }

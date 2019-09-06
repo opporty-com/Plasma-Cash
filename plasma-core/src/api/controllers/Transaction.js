@@ -3,19 +3,17 @@
  * moonion.com;
  */
 
-
-
-import { promiseFromEvent } from "../helpers"
 import Boom from "@hapi/boom";
+import plasma from "../lib/plasma-client";
 
-async function send( request, h ) {
+async function send(request, h) {
   const transaction = request.payload;
 
   let result
   try {
-    result = await promiseFromEvent({ action: "sendTransaction", payload: transaction });
+    result = await plasma({action: "sendTransaction", payload: transaction});
   } catch (e) {
-    Boom.badGateway( e )
+    return Boom.badGateway(e)
   }
 
   return result
@@ -25,22 +23,22 @@ async function send( request, h ) {
 async function getPool(request, h) {
   let result
   try {
-    result = await promiseFromEvent({ action: "getPool", payload: {}  });
+    result = await plasma({action: "getPool", payload: {}});
   } catch (e) {
-    Boom.badGateway( e )
+    return Boom.badGateway(e)
   }
 
   return result
 }
 
 async function get(request, h) {
-  const { hash } = request.params;
+  const {hash} = request.params;
 
   let result
   try {
-    result = await promiseFromEvent({ action: "getTransactionsByHash", payload: hash  });
+    result = await plasma({action: "getTransactionsByHash", payload: hash});
   } catch (e) {
-    Boom.badGateway( e )
+    return Boom.badGateway(e)
   }
 
   return result

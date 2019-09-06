@@ -5,19 +5,20 @@
 
 import Hapi from '@hapi/hapi';
 import handlebars from 'handlebars';
-import path  from 'path';
+import path from 'path';
 
 import routes from './routes';
 import plugins from './plugins';
+import {client as plasmaClient} from './lib/plasma-client'
 
 
 import {failAction, failActionResponse} from './helpers';
 
 
-const init = async () => {
+const apiServer = async () => {
 
   const server = Hapi.server({
-    port: 55555,
+    port: 80,
     host: '0.0.0.0',
     routes: {
       validate: {failAction},
@@ -30,13 +31,14 @@ const init = async () => {
   server.route(routes);
   server.views({
     path: path.resolve(__dirname, 'plugins/swagger-ui'),
-    engines: { html: handlebars },
+    engines: {html: handlebars},
     isCached: false
   });
 
 
   try {
     await server.start();
+    plasmaClient();
     console.log('Server running at:', server.info.uri);
   } catch (err) {
     console.log(err);
@@ -45,9 +47,4 @@ const init = async () => {
 
 };
 
-process.on('unhandledRejection', (err) => {
-  console.log(err);
-  process.exit(1);
-});
-
-init();
+export default apiServer

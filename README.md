@@ -43,20 +43,25 @@ Set up a smart contract.
 
 Launch Plasma.
 
-6. Change contract address into `plasma/docker-compose-dev.yml` which has been received on previous step and ip address your server file
+6. Copy example docker-compose.yml  
+`cp plasma/docker-compose.override.example.yml plasma/docker-compose.override.yml`
+`cp plasma/docker-compose.example.yml plasma/docker-compose.yml`
+
+7. Change contract address into `plasma/docker-compose.override.yml` which has been received on previous steps and ip address your server file
 ```
 Root: 0xe40d2fee1554cd536c630bf5af30fdfe97f924de
 ```
 
-7. `cd `plasma/bin`
 
-8. `./up-dev.sh -d`
+8. `cd plasma/bin`
+
+9. `./up.sh -d`
 
 Run demo. 
 
-9. `cd plasma`
+10. `cd plasma`
 
-10. `docker-compose -f docker-compose-dev.yml exec mainnode npm run demo`
+11. `docker-compose exec mainnode npm run demo`  
 
 # To run API controllers tests
 

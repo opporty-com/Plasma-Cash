@@ -14,6 +14,7 @@ async function addToToken(token, hash) {
   await redis.hsetAsync(`transactions:token:last`, token.toLowerCase(), hash.toString('hex'));
   return await redis.saddAsync(`transactions:token:${token}`.toLowerCase(), hash.toString('hex'));
 }
+
 async function getLastByToken(token) {
   return await redis.hgetAsync("transactions:token:last", token.toLowerCase());
 }
@@ -28,6 +29,10 @@ async function removeFromAddress(address, hash) {
 
 async function get(hash) {
   return await redis.hgetAsync(Buffer.from("transactions"), hash.toString('hex'));
+}
+
+async function getByHashes(hashes) {
+  return await redis.hmgetAsync(Buffer.from("transactions"), hashes.map(hash => hash.toString('hex')));
 }
 
 async function getByToken(token) {
@@ -48,6 +53,7 @@ export {
   addToAddress,
   removeFromAddress,
   get,
+  getByHashes,
   getByToken,
   getByAddress,
   getLastByToken,

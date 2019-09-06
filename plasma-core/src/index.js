@@ -3,8 +3,11 @@
  * moonion.com;
  */
 
-import './api'
-import './child-chain/client/socketServer'
+import apiServer from './api';
+import socketServer from './child-chain/socketServer';
 import server from './child-chain'
 
 
+socketServer(async () => {
+  await apiServer()
+});

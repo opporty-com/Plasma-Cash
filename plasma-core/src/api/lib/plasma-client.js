@@ -33,7 +33,7 @@ function client() {
 function timeout(reject) {
   return setTimeout(() => {
     reject("Timeout")
-  }, 6000000);
+  }, 60000);
 }
 
 const promiseFromEvent = data => new Promise((resolve, reject) => {
