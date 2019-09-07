@@ -58,8 +58,6 @@ async function submitted({operator, merkleRoot, blockNumber}) {
 async function get(number) {
   const block = await BlockModel.get(number);
   if (!block) throw new Error("Block not found!");
-  logger.debug("get block", block);
-  logger.debug(JSON.stringify(block.getJson()));
   return block.getJson();
 }
 

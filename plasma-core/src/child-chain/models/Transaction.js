@@ -90,7 +90,7 @@ const fields = [
     require: true,
     isRPL: true,
     encode: v => ethUtil.toBuffer(v),
-    decode: v => v.length === 0 || !v ? 0 : ethUtil.bufferToInt(v),
+    decode: v => !v || v.length === 0  ? 0 : ethUtil.bufferToInt(v),
   },
 ];
 
