@@ -45,6 +45,7 @@ async function submitted({operator, merkleRoot, blockNumber}) {
   const promises = [];
   for (let tx of block.transactions) {
     tx.set('blockNumber', parseInt(blockNumber));
+    tx.set('timestamp', new Date().getTime());
     promises.push(new Promise(async resolve => {
       await tx.execute();
       resolve();
