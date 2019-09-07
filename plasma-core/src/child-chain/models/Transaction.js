@@ -224,6 +224,7 @@ class TransactionModel extends BaseModel {
       if (!excludeHash) {
         dataToEncode.push(this.blockNumber);
         dataToEncode.push(this.getHash());
+        dataToEncode.push(this.timestamp);
       }
     }
     return dataToEncode
