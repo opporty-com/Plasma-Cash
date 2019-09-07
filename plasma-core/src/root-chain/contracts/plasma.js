@@ -46,13 +46,9 @@ class ContractHandler extends EventEmitter {
     });
     this.contract = new this.web3.eth.Contract(this.abi, this.address);
 
-    this.contract.events.BlockSubmitted((error, event) => {
-      this.emit('BlockSubmitted', error, event);
+    this.contract.events.allEvents((error, data) => {
+      this.emit(data.event, error, data);
     });
-    this.contract.events.DepositAdded((error, event) => {
-      this.emit('DepositAdded', error, event);
-    })
-
   }
 
   async getCurrentBlock() {
