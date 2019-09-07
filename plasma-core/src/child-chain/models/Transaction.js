@@ -69,6 +69,14 @@ const fields = [
     decode: v => v.toString()
   },
   {
+    name: 'timestamp',
+    int: true,
+    require: true,
+    isRPL: true,
+    encode: v => ethUtil.toBuffer(v),
+    decode: v => v.length === 0 ? -1 : ethUtil.bufferToInt(v),
+  },
+  {
     name: 'signature', require: true,
     encode: v => ethUtil.toBuffer(v),
     decode: v => ethUtil.addHexPrefix(v.toString('hex'))

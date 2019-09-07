@@ -19,6 +19,7 @@ async function add(transaction) {
   let tx = transaction;
   if (!(transaction instanceof TransactionModel))
     tx = new TransactionModel(transaction);
+  tx.set('timestamp', new Date().getTime());
   // logger.info(`Add transaction #${tx.getHash().toString('hex')} to pull`);
   const isValid = await tx.isValid();
   if (!isValid) throw new Error('The transaction is not valid');
@@ -44,10 +45,6 @@ async function deposit({depositor: owner, tokenId, amount, blockNumber, send}) {
     throw new Error(error.toString())
   }
   tx = await add(tx);
-
-  //Todo
-  if (send)
-    p2pEmitter.sendNewTransaction(tx.getRlp(false, true));
 
   return {status: true};
 }
