@@ -70,7 +70,7 @@ if (process.env.IS_SUBBMITTER) {
 }
 
 
-validators.addCandidate("0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70");
+validators.addCandidate(process.env.PLASMA_NODE_ADDRESS);
 
 
 let prevCountTx = 0, prevCountToken = 0, prevCountPool = 0;
@@ -86,4 +86,4 @@ setInterval(async () => {
   prevCountToken = countToken;
   prevCountPool = countPool;
 
-}, 1000);
+}, 10000);
