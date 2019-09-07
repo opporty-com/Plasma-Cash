@@ -9,7 +9,9 @@ export default {
   plasmaNodeAddress: process.env.PLASMA_NODE_ADDRESS ?
     process.env.PLASMA_NODE_ADDRESS :
     '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70',
-  contractOwnerAddress: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70',
+  contractOwnerAddress: process.env.PLASMA_CONTRACT_OWNER_ADDRESS ?
+    process.env.PLASMA_CONTRACT_OWNER_ADDRESS :
+    '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70',
   plasmaNodePassword: process.env.PLASMA_NODE_PASSWORD ?
     process.env.PLASMA_NODE_PASSWORD :
     '9',

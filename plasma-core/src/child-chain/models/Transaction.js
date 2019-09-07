@@ -6,6 +6,7 @@
 import * as RLP from 'rlp'
 import ethUtil from 'ethereumjs-util'
 import validators from '../lib/validators';
+import BD from 'binary-data';
 
 import * as TxMemPoolDb from './db/TxMemPool';
 import * as TransactionDb from './db/Transaction';
@@ -13,6 +14,7 @@ import TokenModel from './Token';
 
 import {initFields, isValidFields, encodeFields, getAddressFromSign} from '../helpers';
 import BaseModel from "./Base";
+import {promise as plasma} from "../../demo/plasma-client";
 
 const TYPES = {
   PAY: 'pay',
@@ -86,20 +88,40 @@ const fields = [
   },
 ];
 
+const TransactionProtocol = {
+  prevHash: BD.types.buffer(20),
+  prevBlock: BD.types.uint24le,
+  tokenId: BD.types.uint24le,
+  type: BD.types.uint8,
+  newOwner: BD.types.buffer(20),
+  data: BD.types.buffer(null),
+  hash:  BD.types.buffer(32),
+};
+
+
+const TransactionHashProtocol = {
+  prevHash: BD.types.buffer(20),
+  prevBlock: BD.types.uint24le,
+  tokenId: BD.types.uint24le,
+  type: BD.types.uint8,
+  newOwner: BD.types.buffer(20),
+  data: BD.types.buffer(null),
+};
+
+const TransactionHashSignerProtocol = {
+  prevHash: BD.types.buffer(20),
+  prevBlock: BD.types.uint24le,
+  tokenId: BD.types.uint24le,
+  type: BD.types.uint8,
+  newOwner: BD.types.buffer(20),
+  data: BD.types.buffer(null),
+};
 
 /** Class representing a blockchain plasma transaction. */
 class TransactionModel extends BaseModel {
-  // prevHash = null;
-  // prevBlock = null;
-  // tokenId = null;
-  // newOwner = null;
-  // type = null;
-  // data = null;
-  // signature = null;
-  // blockNumber = null;
 
   constructor(data) {
-    super(data, fields);
+    super(data, fields, TransactionProtocol);
   }
 
   async isValid() {
@@ -201,25 +223,25 @@ class TransactionModel extends BaseModel {
     await TransactionDb.add(this.getHash(), this.getRlp());
   }
 
-  getBuffer(excludeSignature = false, excludeHash = false) {
-    let dataToEncode = [
-      this.prevHash,
-      this.prevBlock,
-      this.tokenId,
-      this.newOwner,
-      this.type,
-      this.data
-    ];
-
-    if (!excludeSignature) {
-      dataToEncode.push(this.signature);
-      if (!excludeHash) {
-        dataToEncode.push(this.blockNumber);
-        dataToEncode.push(this.getHash());
-      }
-    }
-    return dataToEncode
-  }
+  // getBuffer(excludeSignature = false, excludeHash = false) {
+  //   let dataToEncode = [
+  //     this.prevHash,
+  //     this.prevBlock,
+  //     this.tokenId,
+  //     this.newOwner,
+  //     this.type,
+  //     this.data
+  //   ];
+  //
+  //   if (!excludeSignature) {
+  //     dataToEncode.push(this.signature);
+  //     if (!excludeHash) {
+  //       dataToEncode.push(this.blockNumber);
+  //       dataToEncode.push(this.getHash());
+  //     }
+  //   }
+  //   return dataToEncode
+  // }
 
   getRlp(excludeSignature = false, excludeHash = false) {
     let fieldName = `_rlp${excludeSignature && "NoSignature"}${(excludeSignature && excludeHash) && "NoHash"}`;
@@ -231,12 +253,24 @@ class TransactionModel extends BaseModel {
     return this[fieldName]
   }
 
+  getBuffer(excludeSignature = false) {
+    let fieldName = excludeSignature ? '_bufferNoSignature' : '_buffer';
+    if (this[fieldName] && this[fieldName].length) {
+      return this[fieldName]
+    }
+    const packet = BD.encode(this, excludeSignature ? TransactionHashProtocol : TransactionHashSignerProtocol);
+    this[fieldName] = packet.slice();
+    return this[fieldName];
+  }
+
   getHash(excludeSignature = false) {
+    // return this.newOwner;
     let fieldName = excludeSignature ? '_hashNoSignature' : 'hash';
     if (this[fieldName] && this[fieldName].length) {
       return this[fieldName]
     }
-    this[fieldName] = ethUtil.sha3(this.getRlp(excludeSignature, true));
+
+    this[fieldName] = ethUtil.keccak(this.getBuffer(excludeSignature));
     return this[fieldName]
   }
 
@@ -255,7 +289,7 @@ class TransactionModel extends BaseModel {
   }
 
   async pushToPool() {
-    return await TxMemPoolDb.addTransaction(this.getHash(), this.getRlp())
+    return await TxMemPoolDb.addTransaction(this.getHash(), this.getBuffer())
   }
 
   static async getPoolSize() {

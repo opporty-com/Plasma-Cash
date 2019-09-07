@@ -23,11 +23,17 @@ async function clear() {
 }
 
 async function addTransaction(hash, txRpl) {
-  if (await this.exists(hash)) {
-    throw Error('the transaction is already exists');
-  }
-  const hashStr = hash.toString('hex');
-  await redis.hsetAsync('txpool', hashStr, txRpl);
+  // const hashStr = hash.toString('hex');
+  // const hashStr = hash;
+  // if (await this.exists(hash)) {
+  //   throw Error('the transaction is already exists');
+  // }
+  //
+  // console.log(hashStr, txRpl);
+  // console.log(hashStr.length, txRpl.length);
+  // const rpl = txRpl.toString('hex');
+  // await redis.hsetAsync('txpool', hash, txRpl);
+  await redis.hsetAsync('txpool', hash, txRpl.toString('hex'));
   return hash;
 }
 

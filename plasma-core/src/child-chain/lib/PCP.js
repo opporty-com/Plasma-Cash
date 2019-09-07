@@ -43,13 +43,16 @@ class PlasmaProtocol extends EventEmitter {
   static MESSAGE_CODES = MESSAGE_CODES;
 
   _handleMessage(code, data) {
-    const payload = rlp.decode(data);
+    // const payload = rlp.decode(data);
+    const payload = data;
     if (code !== MESSAGE_CODES.STATUS) {
       // logger.debug(`Received ${this.getMsgPrefix(code)} message from ${this._peer._socket.remoteAddress}:${this._peer._socket.remotePort}: ${data.toString('hex')}`)
       logger.debug(`Received ${this.getMsgPrefix(code)} message from ${this._peer._socket.remoteAddress}:${this._peer._socket.remotePort}`)
     }
     switch (code) {
+
       case MESSAGE_CODES.STATUS:
+        const payload = rlp.decode(data);
         _util.assertEq(this._peerStatus, null, 'Uncontrolled status message')
         this._peerStatus = payload;
         logger.debug(`Received ${this.getMsgPrefix(code)} message from ${this._peer._socket.remoteAddress}:${this._peer._socket.remotePort}: : ${this._getStatusString(this._peerStatus)}`)
@@ -137,7 +140,8 @@ class PlasmaProtocol extends EventEmitter {
         throw new Error(`Unknown code ${code}`)
     }
 
-    this._send(code, rlp.encode(payload));
+    // this._send(code, rlp.encode(payload));
+    this._send(code, payload);
   }
 
   getMsgPrefix(msgCode) {

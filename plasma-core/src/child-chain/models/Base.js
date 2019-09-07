@@ -1,15 +1,46 @@
-import {initFields, isValidFields, encodeFields} from '../helpers';
-
 /**
  * Created by Oleksandr <alex@moonion.com> on 8/31/19
  * moonion.com;
  */
 
+import {initFields, isValidFields, encodeFields} from '../helpers';
+import BD from 'binary-data';
+
+
 class BaseModel {
-  constructor(data, fields) {
+  constructor(data, fields, protocol) {
     this._fields = fields;
-    initFields(this, this._fields, data || {})
+
+    if (data instanceof Buffer) {
+      this._buffer = data;
+      const packet = BD.decode(data, protocol);
+
+      fields.forEach((field) => {
+        let value = packet[field.name];
+        if (!value && field.default) {
+          value = field.default
+        }
+        this[field.name] = value;
+      });
+
+    } else if (Array.isArray(data) && data.length) {
+      fields.forEach((field, i) => {
+        if (!data[i]) return
+        this[field.name] = data[i];
+      })
+    } else if (data && typeof data === 'object') {
+      fields.forEach((field) => {
+        let value = data[field.name];
+        if (!value && field.default) {
+          value = field.default
+        }
+        this[field.name] = field.encode ? field.encode(value) : value;
+      })
+    }
+
+
   }
+
 
   get(name) {
     if (typeof this[name] === "undefined")

@@ -2,20 +2,48 @@
  * Created by Oleksandr <alex@moonion.com> on 2019-08-06
  * moonion.com;
  */
+
 import ethUtil from 'ethereumjs-util'
-import {sign} from '../helpers';
+import {initFields, sign} from '../helpers';
 import TransactionModel from '../models/Transaction';
 import TokenModel from '../models/Token';
 import p2pEmitter from "../lib/p2p";
 import logger from "../lib/logger";
+import BD from 'binary-data';
+import {addTransaction} from '../models/db/TxMemPool';
+
+let depositCount = 0;
+let prevDepositCount = 0
+setInterval(() => {
+  logger.info(`Count deposit: ${depositCount} (${depositCount - prevDepositCount})`);
+  prevDepositCount = depositCount;
+}, 10000);
+
+
+const TransactionProtocol = {
+  prevHash: BD.types.buffer(20),
+  prevBlock: BD.types.uint24le,
+  tokenId: BD.types.uint24le,
+  type: BD.types.uint8,
+  newOwner: BD.types.buffer(20),
+  data: BD.types.buffer(null),
+  hash: BD.types.string(64),
+};
+
 
 async function send(transaction) {
-  const tx = await add(transaction);
-  p2pEmitter.sendNewTransaction(tx.getRlp(false, true));
+  p2pEmitter.sendNewTransaction(transaction);
+  await add(transaction);
+  depositCount++;
+  return ethUtil.toBuffer('0x124');
   return tx.getJson();
 }
 
 async function add(transaction) {
+  const packet = BD.decode(transaction, TransactionProtocol);
+  await addTransaction(packet.hash, transaction);
+  return
+
   let tx = transaction;
   if (!(transaction instanceof TransactionModel))
     tx = new TransactionModel(transaction);
@@ -26,7 +54,20 @@ async function add(transaction) {
   return tx;
 }
 
+
+async function demo(data) {
+
+  depositCount++;
+
+  let tx = new TransactionModel(data);
+
+
+  return ethUtil.toBuffer('0x124');
+
+}
+
 async function deposit({depositor: owner, tokenId, amount, blockNumber, send}) {
+
   // logger.info(`receive new deposit token: ${tokenId} owner: ${owner}`);
   let newOwner = ethUtil.addHexPrefix(owner);
   let transaction = {
@@ -45,12 +86,9 @@ async function deposit({depositor: owner, tokenId, amount, blockNumber, send}) {
   }
   tx = await add(tx);
 
-  //Todo
-  if (send)
-    p2pEmitter.sendNewTransaction(tx.getRlp(false, true));
-
   return {status: true};
 }
+
 
 async function getPool(json) {
   return await TransactionModel.getPool(json);
@@ -77,6 +115,7 @@ export {
   add,
   get,
   deposit,
+  demo,
   getPool,
   getPoolSize,
   count
