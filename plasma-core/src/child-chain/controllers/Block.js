@@ -6,7 +6,7 @@ import ethUtil from 'ethereumjs-util'
 import p2pEmitter from "../lib/p2p";
 import BlockModel from '../models/Block';
 import logger from "../lib/logger";
-import contractHandler from "../../root-chain/contracts/plasma";
+import plasmaContract from "../../root-chain/contracts/plasma";
 
 async function validation(payload) {
   if (!process.env.IS_VALIDATOR) return;
@@ -62,7 +62,7 @@ async function get(number) {
 }
 
 async function last() {
-  const lastSubmittedBlock = await contractHandler.contract.methods.getCurrentBlock().call();
+  const lastSubmittedBlock = await plasmaContract.getCurrentBlock();
   return await get(lastSubmittedBlock);
 }
 

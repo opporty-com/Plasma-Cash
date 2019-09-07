@@ -6,8 +6,7 @@ import p2pEmitter from "./lib/p2p";
 import validators from "./lib/validators";
 import BlockCreator from "./lib/BlockCreator";
 import logger from "./lib/logger";
-import contractHandler from '../root-chain/contracts/plasma';
-import config from '../config';
+import plasmaContract from '../root-chain/contracts/plasma';
 
 import * as Transaction from './controllers/Transaction';
 import * as Block from './controllers/Block';
@@ -39,7 +38,7 @@ p2pEmitter.on(p2pEmitter.EVENT_MESSAGES.NEW_BLOCK_CREATED, async payload => {
 });
 
 
-contractHandler.contract.events.DepositAdded(async (error, event) => {
+plasmaContract.on('DepositAdded', async (error, event) => {
   if (error)
     return logger.error(error);
 
@@ -50,7 +49,7 @@ contractHandler.contract.events.DepositAdded(async (error, event) => {
   }
 });
 
-contractHandler.contract.events.BlockSubmitted(async (error, event) => {
+plasmaContract.on('BlockSubmitted', async (error, event) => {
   if (error)
     return logger.error(error);
 
