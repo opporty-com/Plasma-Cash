@@ -27,11 +27,6 @@ async function getTransactions(tokenId) {
   return transactions.map(tx => tx.getJson());
 }
 
-async function getTransactionsByAddress( address ) {
-  const transactions = await TransactionModel.getByAddress(address);
-  return transactions.map(tx => tx.getJson());
-}
-
 async function getLastTransaction(tokenId) {
   const tx = await TransactionModel.getLastByToken(tokenId);
   if(!tx) throw new Error("Transaction not found");
@@ -46,6 +41,5 @@ export {
   getByAddress,
   getTransactions,
   getLastTransaction,
-  getTransactionsByAddress,
   count
 }

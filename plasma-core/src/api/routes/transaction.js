@@ -4,8 +4,9 @@
  */
 
 
-import {send, getPool, get} from '../controllers/Transaction'
+import {send, getPool, get, getTransactionsByAddress} from '../controllers/Transaction'
 import {getByHash, sendPayload, getByHashResponse, getPoolResponse, sendResponse} from '../validates/transaction'
+import {getAllTrxResponse, getByAddress as byAddress} from "../validates/token";
 
 export default [
   {
@@ -34,6 +35,22 @@ export default [
       },
       response: {
         schema: getByHashResponse,
+      }
+    },
+  },
+  {
+    method: 'GET',
+    path: '/transaction/address/{address}',
+    handler: getTransactionsByAddress,
+    options: {
+      description: 'Get all transactions by address',
+      notes: 'Returns token by address',
+      tags: ['api', 'token'],
+      validate: {
+        params: byAddress
+      },
+      response: {
+        schema: getAllTrxResponse,
       }
     },
   },

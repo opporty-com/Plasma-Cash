@@ -4,7 +4,7 @@
  */
 
 
-import { get, getByAddress, getTransactions, getLastTransaction, getTransactionsByAddress } from '../controllers/Token'
+import { get, getByAddress, getTransactions, getLastTransaction } from '../controllers/Token'
 import { getByTokenId as byToken, getByAddress as byAddress, getTrxResponse, getAllTrxResponse, getTokenByIdResponse, getTokensByAddressResponse} from '../validates/token'
 
 export default [
@@ -50,22 +50,6 @@ export default [
       tags: ['api', 'token'],
       validate: {
         params: byToken
-      },
-      response: {
-        schema: getAllTrxResponse,
-      }
-    },
-  },
-  {
-    method: 'GET',
-    path: '/token/transaction/address/{address}',
-    handler: getTransactionsByAddress,
-    options: {
-      description: 'Get all transactions by address',
-      notes: 'Returns token by address',
-      tags: ['api', 'token'],
-      validate: {
-        params: byAddress
       },
       response: {
         schema: getAllTrxResponse,

@@ -58,17 +58,4 @@ async function getLastTransaction(request, h) {
   return result
 }
 
-async function getTransactionsByAddress( request, h ) {
-  const { address } = request.params;
-
-  let result
-  try {
-    result = await plasma({ action: "getTransactionsByAddress", payload: address });
-  } catch (e) {
-    Boom.badGateway( e )
-  }
-
-  return result
-}
-
-export { get, getByAddress, getTransactions, getLastTransaction, getTransactionsByAddress }
+export { get, getByAddress, getTransactions, getLastTransaction }
