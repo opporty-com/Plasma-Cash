@@ -195,7 +195,7 @@ class TransactionModel extends BaseModel {
     await token.save();
     await this.save();
     if (oldToken)
-      await TransactionDb.removeFromAddress(oldToken.get('owner'), this.getHash());
+      await TransactionDb.addToAddress(oldToken.get('owner'), this.getHash());
     await TransactionDb.addToAddress(owner, this.getHash());
     await TransactionDb.addToToken(tokenId, this.getHash());
     return this;
