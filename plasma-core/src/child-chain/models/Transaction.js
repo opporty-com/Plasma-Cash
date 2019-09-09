@@ -37,8 +37,8 @@ const fields = [
     int: true,
     require: true,
     isRPL: true,
-    encode: v => ethUtil.intToBuffer(v),
-    decode: v => v.length === 0 ? -1 : ethUtil.bufferToInt(v),
+    encode: v => ethUtil.intToBuffer(v || -1),
+    decode: v => !v || v.length === 0 ? -1 : ethUtil.bufferToInt(v),
   },
   {
     name: 'tokenId',
@@ -76,8 +76,8 @@ const fields = [
 
   {
     name: 'blockNumber', int: true,
-    encode: v => ethUtil.intToBuffer(v),
-    decode: v => !v ? 0 : ethUtil.bufferToInt(v)
+    encode: v => ethUtil.intToBuffer(v || -1),
+    decode: v => !v || v.length === 0 ? -1 : ethUtil.bufferToInt(v)
   },
   {
     name: 'hash',
@@ -87,7 +87,7 @@ const fields = [
   {
     name: 'timestamp',
     int: true,
-    encode: v => ethUtil.intToBuffer(v),
+    encode: v => ethUtil.intToBuffer(v || -1),
     decode: v => !v || v.length === 0 ? 0 : ethUtil.bufferToInt(v),
   },
 ];
