@@ -69,6 +69,11 @@ async function count() {
   return await TransactionModel.count();
 }
 
+async function getTransactionsByAddress( address ) {
+  const transactions = await TransactionModel.getByAddress(address);
+  return transactions.map(tx => tx.getJson());
+}
+
 export {
   send,
   add,
@@ -76,5 +81,6 @@ export {
   deposit,
   getPool,
   getPoolSize,
+  getTransactionsByAddress,
   count
 }
