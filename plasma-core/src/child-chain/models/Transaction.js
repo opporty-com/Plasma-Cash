@@ -37,7 +37,7 @@ const fields = [
     int: true,
     require: true,
     isRPL: true,
-    encode: v => ethUtil.toBuffer(v),
+    encode: v => ethUtil.intToBuffer(v),
     decode: v => v.length === 0 ? -1 : ethUtil.bufferToInt(v),
   },
   {
@@ -81,13 +81,13 @@ const fields = [
   },
   {
     name: 'hash',
-    encode: v => ethUtil.intToBuffer(v),
+    encode: v => ethUtil.toBuffer(v),
     decode: v => ethUtil.addHexPrefix(v.toString('hex'))
   },
   {
     name: 'timestamp',
     int: true,
-    encode: v => ethUtil.toBuffer(v),
+    encode: v => ethUtil.intToBuffer(v),
     decode: v => !v || v.length === 0 ? 0 : ethUtil.bufferToInt(v),
   },
 ];

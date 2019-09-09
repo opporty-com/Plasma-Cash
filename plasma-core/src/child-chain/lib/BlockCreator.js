@@ -27,19 +27,19 @@ class BlockCreator {
     const count = await TransactionModel.getPoolSize();
     if (!this.options.minTransactionsInBlock || this.options.minTransactionsInBlock > count) {
       logger.info('Please wait transactions');
-      throw new Error('Please wait transactions')
+      return false;
     }
 
     const currentValidator = await validators.getCurrent();
 
     if (!(currentValidator === config.plasmaNodeAddress)) {
       logger.info('Please wait your turn to submit');
-      throw new Error('Please wait your turn to submit')
+      return false;
     }
 
     if (p2pEmitter.getCountPeers() < PBFT_F) {
       logger.info('Please wait validators');
-      throw new Error('Please wait validators')
+      return false;
     }
 
     // const lastBlockNumber = await BlockModel.getLastNumber();
@@ -61,8 +61,7 @@ class BlockCreator {
     logger.info(`transactions`, 3, blockTransactions.length);
     if (blockTransactions.length === 0) {
       logger.info('Successfull transactions is not defined for this block');
-      throw new Error('Successfull transactions is not defined for this block')
-      //return false;
+      return false;
     }
 
 
