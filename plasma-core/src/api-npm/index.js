@@ -1,5 +1,5 @@
-import  {sendTransaction, deposit, getLastBlock } from './requests'
-import { createSignTransaction } from "./helpers"
+const { sendTransaction, deposit, getLastBlock } = require('./requests')
+const { createSignTransaction } = require("./helpers")
 
 const STATIC_DATA = {
   tokenId: "74606747508472834153939422909902043216245506461041191111419810376443146092084",
@@ -12,30 +12,28 @@ async function createTransaction( tokenId = STATIC_DATA.tokenId, newOwner = STAT
         prevHash = '0x123',
         prevBlockExist = !isNaN( createTransaction.prevBlock )
 
-  console.log(`<<<<<<<<<<<<<<<<<<<<<<< START CREATE TRX NUMBER  ${ trxNubmer } >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`)
+  console.log(`<<<<<<<<<<<<<<<<<<<<<<< START CREATE TRX NUMBER  ${ trxNubmer } >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`, prevBlockExist)
 
-  if ( prevBlockExist ) createTransaction.prevBlock = createTransaction.prevBlock + 1
-  else {
+  if ( !prevBlockExist ) {
     try {
-      createTransaction.prevBlock = 1 || await getPrevBlock()
+      createTransaction.prevBlock = await getPrevBlock()
     } catch (e) {
       throw new Error('Cant get previous block number')
     }
   }
 
-  if (!address) throw new Error('Incorrect address to')
+  console.log( createTransaction.prevBlock )
+
+  if (!newOwner) throw new Error('Incorrect address to')
   if (!tokenId) throw new Error('Incorrect tokenId')
 
   const txData = { prevHash, prevBlock: createTransaction.prevBlock, tokenId, type, newOwner };
 
   txData.signature = createSignTransaction( txData )
 
-  console.log(txData.signature)
-
   let transactionResult;
   try {
     transactionResult = await sendTransaction( txData )
-    console.log( transactionResult )
   } catch (e) {
     console.log(` GOT ERROR IN TRX CREATE ${ trxNubmer } `)
   }
@@ -54,8 +52,10 @@ async function getPrevBlock() {
   let lastBlockNumber
   try {
     const lastBlock = await getLastBlock()
+    console.log( lastBlock )
     lastBlockNumber = lastBlock.number
   } catch (e) {
+    console.log(e)
     throw new Error(e)
   }
 

@@ -1,6 +1,6 @@
 'use strict'
 
-import web3 from '../../lib/web3'
+const web3 = require('../lib/web3')
 const config = require('../config')
 /** */
 class ContractHandler {
