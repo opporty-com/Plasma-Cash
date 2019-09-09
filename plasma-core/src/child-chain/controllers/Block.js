@@ -6,7 +6,7 @@ import ethUtil from 'ethereumjs-util'
 import p2pEmitter from "../lib/p2p";
 import BlockModel from '../models/Block';
 import logger from "../lib/logger";
-import contractHandler from "../../root-chain/contracts/plasma";
+import plasmaContract from "../../root-chain/contracts/plasma";
 
 async function validation(payload) {
   if (!process.env.IS_VALIDATOR) return;
@@ -45,6 +45,7 @@ async function submitted({operator, merkleRoot, blockNumber}) {
   const promises = [];
   for (let tx of block.transactions) {
     tx.set('blockNumber', parseInt(blockNumber));
+    tx.set('timestamp', new Date().getTime());
     promises.push(new Promise(async resolve => {
       await tx.execute();
       resolve();
@@ -57,12 +58,12 @@ async function submitted({operator, merkleRoot, blockNumber}) {
 
 async function get(number) {
   const block = await BlockModel.get(number);
-  if (!block) throw new Error("Block not found!")
+  if (!block) throw new Error("Block not found!");
   return block.getJson();
 }
 
 async function last() {
-  const lastSubmittedBlock = await contractHandler.contract.methods.getCurrentBlock().call();
+  const lastSubmittedBlock = await plasmaContract.getCurrentBlock();
   return await get(lastSubmittedBlock);
 }
 

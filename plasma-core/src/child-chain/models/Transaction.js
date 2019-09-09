@@ -84,6 +84,12 @@ const fields = [
     encode: v => ethUtil.toBuffer(v),
     decode: v => ethUtil.addHexPrefix(v.toString('hex'))
   },
+  {
+    name: 'timestamp',
+    int: true,
+    encode: v => ethUtil.toBuffer(v),
+    decode: v => !v || v.length === 0  ? 0 : ethUtil.bufferToInt(v),
+  },
 ];
 
 
@@ -216,6 +222,7 @@ class TransactionModel extends BaseModel {
       if (!excludeHash) {
         dataToEncode.push(this.blockNumber);
         dataToEncode.push(this.getHash());
+        dataToEncode.push(this.timestamp);
       }
     }
     return dataToEncode

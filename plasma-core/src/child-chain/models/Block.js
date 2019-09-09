@@ -133,8 +133,10 @@ class BlockModel extends BaseModel {
   }
 
   async add() {
-    for(let tx of this.transactions)
+    for (let tx of this.transactions) {
       tx.set('blockNumber', this.get('number'));
+      tx.set('timestamp', new Date().getTime());
+    }
     await BlockDb.add(this.get('number'), this.getRlp());
     return this;
   }

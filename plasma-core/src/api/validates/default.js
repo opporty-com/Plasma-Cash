@@ -33,6 +33,7 @@ const trxResponse = Joi.object({
   newOwner: Joi.string(),
   signature: Joi.string(),
   blockNumber: Joi.number(),
+  timestamp: Joi.number(),
   hash: Joi.string()
 }).label("Transaction")
 

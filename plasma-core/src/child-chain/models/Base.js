@@ -12,9 +12,6 @@ class BaseModel {
   }
 
   get(name) {
-    if (typeof this[name] === "undefined")
-      throw Error(`Not found params ${name}`);
-
     const fieldName = `_${name}`;
     if (this[fieldName]) {
       return this[fieldName]
