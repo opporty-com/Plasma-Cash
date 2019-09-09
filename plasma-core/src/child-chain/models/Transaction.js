@@ -85,8 +85,7 @@ const fields = [
     decode: v => ethUtil.addHexPrefix(v.toString('hex'))
   },
   {
-    name: 'timestamp',
-    int: true,
+    name: 'timestamp', int: true,
     encode: v => ethUtil.intToBuffer(v || -1),
     decode: v => !v || v.length === 0 ? 0 : ethUtil.bufferToInt(v),
   },

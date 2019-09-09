@@ -14,15 +14,15 @@ function initFields(self, fields, data) {
     if (Array.isArray(decodedData))
       fields.forEach((field, i) => {
         if (!decodedData[i]) return
-        if (field.int) {
-          if (decodedData[i].length) {
-            self[field.name] = decodedData[i].readUIntBE()
-          } else {
-            self[field.name] = ethUtil.toBuffer('')
-          }
-        } else {
+        // if (field.int) {
+        //   if (decodedData[i].length) {
+        //     self[field.name] = decodedData[i].readUIntBE()
+        //   } else {
+        //     self[field.name] = ethUtil.toBuffer('')
+        //   }
+        // } else {
           self[field.name] = decodedData[i]
-        }
+        // }
       })
 
   } else if (Array.isArray(data) && data.length) {
