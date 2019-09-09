@@ -37,7 +37,7 @@ const fields = [
     int: true,
     require: true,
     isRPL: true,
-    encode: v => ethUtil.toBuffer(v),
+    encode: v => ethUtil.intToBuffer(v),
     decode: v => v.length === 0 ? -1 : ethUtil.bufferToInt(v),
   },
   {
@@ -76,12 +76,12 @@ const fields = [
 
   {
     name: 'blockNumber', int: true,
-    encode: v => ethUtil.toBuffer(v),
+    encode: v => ethUtil.intToBuffer(v),
     decode: v => ethUtil.bufferToInt(v)
   },
   {
     name: 'hash',
-    encode: v => ethUtil.toBuffer(v),
+    encode: v => ethUtil.intToBuffer(v),
     decode: v => ethUtil.addHexPrefix(v.toString('hex'))
   },
   {
@@ -243,7 +243,7 @@ class TransactionModel extends BaseModel {
     if (this[fieldName] && this[fieldName].length) {
       return this[fieldName]
     }
-    this[fieldName] = ethUtil.sha3(this.getRlp(excludeSignature, true));
+    this[fieldName] = ethUtil.keccak(this.getRlp(excludeSignature, true));
     return this[fieldName]
   }
 
