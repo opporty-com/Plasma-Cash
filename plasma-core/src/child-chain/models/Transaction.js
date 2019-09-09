@@ -77,7 +77,7 @@ const fields = [
   {
     name: 'blockNumber', int: true,
     encode: v => ethUtil.intToBuffer(v),
-    decode: v => ethUtil.bufferToInt(v)
+    decode: v => !v ? 0 : ethUtil.bufferToInt(v)
   },
   {
     name: 'hash',
