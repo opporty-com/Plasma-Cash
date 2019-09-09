@@ -243,7 +243,7 @@ class TransactionModel extends BaseModel {
     if (this[fieldName] && this[fieldName].length) {
       return this[fieldName]
     }
-    this[fieldName] = ethUtil.sha3(this.getRlp(excludeSignature, true));
+    this[fieldName] = ethUtil.keccak(this.getRlp(excludeSignature, true));
     return this[fieldName]
   }
 
