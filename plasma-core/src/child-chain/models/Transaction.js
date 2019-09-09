@@ -37,7 +37,7 @@ const fields = [
     int: true,
     require: true,
     isRPL: true,
-    encode: v => ethUtil.intToBuffer(v),
+    encode: v => ethUtil.toBuffer(v),
     decode: v => v.length === 0 ? -1 : ethUtil.bufferToInt(v),
   },
   {
@@ -88,7 +88,7 @@ const fields = [
     name: 'timestamp',
     int: true,
     encode: v => ethUtil.toBuffer(v),
-    decode: v => !v || v.length === 0  ? 0 : ethUtil.bufferToInt(v),
+    decode: v => !v || v.length === 0 ? 0 : ethUtil.bufferToInt(v),
   },
 ];
 
@@ -109,7 +109,6 @@ class TransactionModel extends BaseModel {
   }
 
   async isValid() {
-    return true;
     if (!isValidFields(this, fields))
       return false;
 
