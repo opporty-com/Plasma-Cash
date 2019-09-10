@@ -66,6 +66,9 @@ class ContractHandler extends EventEmitter {
       .submitBlock(hash, number)
       .send({from: address, gas: parseInt(gas) + 15000});
   }
+  async getTokenBalance(tokenId){
+    return await this.contract.methods.getToken().call();
+  }
 }
 
 const contractHandler = new ContractHandler();

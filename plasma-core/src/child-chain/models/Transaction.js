@@ -6,6 +6,7 @@
 import * as RLP from 'rlp'
 import ethUtil from 'ethereumjs-util'
 import validators from '../lib/validators';
+import plasmaContract from "../../root-chain/contracts/plasma";
 
 import * as TxMemPoolDb from './db/TxMemPool';
 import * as TransactionDb from './db/Transaction';
@@ -137,7 +138,6 @@ class TransactionModel extends BaseModel {
       await this.saveToken({
         owner: this.get('newOwner'),
         tokenId: this.get('tokenId'),
-        amount: 1,
         block: this.get('blockNumber')
       });
 
@@ -184,12 +184,12 @@ class TransactionModel extends BaseModel {
   }
 
 
-  async saveToken({owner, tokenId, amount, block}) {
+  async saveToken({owner, tokenId, block}) {
     const oldToken = await TokenModel.get(tokenId);
     let token = new TokenModel({
       owner,
       tokenId,
-      amount: oldToken ? oldToken.get('amount') : amount,
+      amount: oldToken ? oldToken.get('amount') : await plasmaContract.getTokenBalance(tokenId),
       block
     });
     await token.save();
