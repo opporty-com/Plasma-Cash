@@ -67,7 +67,7 @@ class ContractHandler extends EventEmitter {
       .send({from: address, gas: parseInt(gas) + 15000});
   }
   async getTokenBalance(tokenId){
-    return await this.contract.methods.getToken(tokenId).call();
+    return (await this.contract.methods.getToken(tokenId).call()).toString();
   }
 }
 
