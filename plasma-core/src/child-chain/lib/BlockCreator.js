@@ -73,7 +73,7 @@ class BlockCreator {
     logger.info(`sign block #${newBlockNumber}`, 0);
     await block.buildMerkle();
     logger.info(`sign block #${newBlockNumber}`, 1, block.get('merkleRootHash'));
-    let blockDataToSig = block.getRlp(true, true);
+    let blockDataToSig = block.getBuffer(true);
     logger.info(`sign block #${newBlockNumber}`, 2, blockDataToSig);
     const signature = sign(blockDataToSig);
     logger.info(`sign block #${newBlockNumber}`, 3, signature);
@@ -92,11 +92,11 @@ class BlockCreator {
           }, config.blockPeriod);
 
           logger.info(`send block #${newBlockNumber}`);
-          let rplData;
-          rplData = block.getRlp(false, true);
 
-          p2pEmitter.validateNewBlock(rplData);
-          logger.info(`sent block #${newBlockNumber}`, rplData.length);
+          const buffer = block.getBuffer();
+
+          p2pEmitter.validateNewBlock(buffer);
+          logger.info(`sent block #${newBlockNumber}`, buffer.length);
 
           function getValidateBlock(payload) {
             commit++;
@@ -119,6 +119,7 @@ class BlockCreator {
       }
     }
 
+    return
     const blockMerkleRootHash = block.get('merkleRootHash');
     logger.info('Block submit #', newBlockNumber, blockMerkleRootHash);
 

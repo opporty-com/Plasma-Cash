@@ -117,11 +117,18 @@ const TransactionHashSignerProtocol = {
   data: BD.types.buffer(null),
 };
 
+const protocols = {
+  TransactionProtocol,
+  TransactionHashProtocol,
+  TransactionHashSignerProtocol
+};
+
 /** Class representing a blockchain plasma transaction. */
 class TransactionModel extends BaseModel {
 
-  constructor(data) {
-    super(data, fields, TransactionProtocol);
+  constructor(data, protocol) {
+    super(data, fields, protocols[protocol] || TransactionProtocol);
+    // super(data, fields, TransactionHashProtocol);
   }
 
   async isValid() {
@@ -305,9 +312,9 @@ class TransactionModel extends BaseModel {
     if (limit)
       transactions = data.slice(0, limit);
     if (json) {
-      return transactions.map(el => new TransactionModel(el).getJson())
+      return transactions.map(el => new TransactionModel(el, "TransactionHashProtocol").getJson())
     }
-    return transactions.map(el => new TransactionModel(el))
+    return transactions.map(el => new TransactionModel(el, "TransactionHashProtocol"))
   }
 
   static async getPoolByHashes(hashes) {

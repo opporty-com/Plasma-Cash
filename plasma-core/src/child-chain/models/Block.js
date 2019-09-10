@@ -5,7 +5,7 @@
 
 import * as RLP from 'rlp'
 import ethUtil from 'ethereumjs-util'
-
+import BD from 'binary-data';
 import BaseModel from './Base';
 
 import * as BlockDb from './db/Block';
@@ -16,6 +16,16 @@ import {initFields, isValidFields, encodeFields} from '../helpers';
 import PatriciaMerkle from "../lib/PatriciaMerkle";
 import logger from "../lib/logger";
 
+const BlockProtocol = {
+  number: BD.types.uint24le,
+  merkleRootHash: BD.types.buffer(32),
+  signer: BD.types.buffer(20),
+  length: BD.types.uint24le,
+  transactions: BD.types.array(BD.types.buffer(null), ({node}) => node.length),
+};
+const BlockSignatureProtocol = {
+  ...BlockProtocol,
+};
 
 const fields = [
   {
@@ -55,7 +65,7 @@ class BlockModel extends BaseModel {
   // signature = null;
 
   constructor(data) {
-    super(data, fields);
+    super(data, fields, BlockProtocol);
   }
 
 
@@ -64,23 +74,46 @@ class BlockModel extends BaseModel {
     if (this[fieldName]) {
       return this[fieldName]
     }
+
     this[fieldName] = this.transactions.map(tx => txHash ? tx.getHash() : tx.getBuffer());
     return this[fieldName];
   }
 
-  getBuffer(excludeSignature, txHash, excludeTx) {
-    let dataToEncode = [
-      this.number,
-      this.merkleRootHash,
-      this.signer,
-    ];
-    const transactions = excludeTx ? [] : this.getTxBuffer(txHash);
-    dataToEncode.push(transactions);
-    if (!excludeSignature) {
-      dataToEncode.push(this.signature);
+  // getBuffer(excludeSignature, txHash, excludeTx) {
+  //   let dataToEncode = [
+  //     this.number,
+  //     this.merkleRootHash,
+  //     this.signer,
+  //   ];
+  //   const transactions = excludeTx ? [] : this.getTxBuffer(txHash);
+  //   dataToEncode.push(transactions);
+  //   if (!excludeSignature) {
+  //     dataToEncode.push(this.signature);
+  //   }
+  //   return dataToEncode
+  // }
+
+  getBuffer(excludeSignature = false, txHash, excludeTx) {
+
+
+    let fieldName = `_buffer${excludeSignature && "NoSignature"}${excludeTx && "NoTx"}${!excludeTx && txHash && "TxHash"}`;
+    if (this[fieldName] && this[fieldName].length) {
+      return this[fieldName]
     }
-    return dataToEncode
+
+    let dataToEncode = {
+      number: this.number,
+      merkleRootHash: this.merkleRootHash,
+      signer: this.signer,
+      length: this.transactions.length
+    };
+
+    dataToEncode.transactions = excludeTx ? [] : this.getTxBuffer(txHash);
+    const packet = BD.encode(dataToEncode, excludeSignature ? BlockProtocol : BlockSignatureProtocol);
+    this[fieldName] = packet.slice();
+    return this[fieldName];
   }
+
 
   getRlp(excludeSignature, txHash, excludeTx) {
     let fieldName = `_rlp${excludeSignature && "NoSignature"}${excludeTx && "NoTx"}${!excludeTx && txHash && "TxHash"}`;
@@ -133,7 +166,7 @@ class BlockModel extends BaseModel {
   }
 
   async add() {
-    for(let tx of this.transactions)
+    for (let tx of this.transactions)
       tx.set('blockNumber', this.get('number'));
     await BlockDb.add(this.get('number'), this.getRlp());
     return this;

@@ -199,7 +199,7 @@ async function deposit(countPerAddress = 1, useEth = true) {
           data.hash = ethUtil.keccak(dataHash.slice()).toString('hex');
           const packet = BD.encode(data, TransactionProtocol);
           const res = await plasma(packet.slice());
-          // console.log(res);
+          console.log(res);
           // await plasma(data);
 
 
@@ -346,14 +346,14 @@ async function start() {
   log("Start Demo", colors.red);
   try {
     await checkETHBalances();
-    await createAccount(10);
+    await createAccount(1);
     // setPrivateKeys();
     // await checkETHBalances();
     // await sendEth();
     // await checkETHBalances();
     // await checkTokenBalances(true);
     // await checkTokenBalances();
-    await deposit(100000, false);
+    await deposit(1, false);
     // await checkTokenBalances();
 
     // await sendTransactions();

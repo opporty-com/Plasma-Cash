@@ -32,7 +32,7 @@ const TransactionProtocol = {
 
 
 async function send(transaction) {
-  p2pEmitter.sendNewTransaction(transaction);
+  // p2pEmitter.sendNewTransaction(transaction);
   await add(transaction);
   depositCount++;
   return ethUtil.toBuffer('0x124');

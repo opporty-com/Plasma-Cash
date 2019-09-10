@@ -10,11 +10,16 @@ import BD from 'binary-data';
 class BaseModel {
   constructor(data, fields, protocol) {
     this._fields = fields;
-
+    console.log("BaseModel", data);
     if (data instanceof Buffer) {
       this._buffer = data;
-      const packet = BD.decode(data, protocol);
-
+      let packet;
+      try {
+        packet = BD.decode(data, protocol);
+      } catch (e) {
+        console.log(e);
+      }
+      console.log("BaseModel -packet", packet);
       fields.forEach((field) => {
         let value = packet[field.name];
         if (!value && field.default) {

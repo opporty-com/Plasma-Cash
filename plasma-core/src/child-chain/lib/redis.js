@@ -80,7 +80,7 @@ function hset(key, hash, val) {
     hsetData[hash] = val;
     promises.push({resolve, reject});
 
-    if (promises.length >= 100) {
+    if (promises.length >= 1) {
       let execHsetData = hsetData;
       let execPromises = promises;
       hsetData = {};
