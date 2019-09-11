@@ -37,11 +37,13 @@ class ContractHandler extends EventEmitter {
     }
     this.isWatchingEvents = true;
 
-    this.web3._provider.on('error', () => {
+    this.web3._provider.on('error', (e) => {
+      console.log("error this.web3._provider", e);
       this.isWatchingEvents = false;
       this.restartWatchEvents()
     });
-    this.web3._provider.on('end', () => {
+    this.web3._provider.on('end', (e) => {
+      console.log("end this.web3._provider", e);
       this.isWatchingEvents = false;
       this.restartWatchEvents()
     });
