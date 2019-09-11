@@ -16,12 +16,21 @@ import {initFields, isValidFields, encodeFields} from '../helpers';
 import PatriciaMerkle from "../lib/PatriciaMerkle";
 import logger from "../lib/logger";
 
+const TransactionProtocol = {
+  prevHash: BD.types.buffer(20),
+  prevBlock: BD.types.uint24le,
+  tokenId: BD.types.uint24le,
+  type: BD.types.uint8,
+  newOwner: BD.types.buffer(20),
+  data: BD.types.buffer(null),
+};
+
 const BlockProtocol = {
   number: BD.types.uint24le,
   merkleRootHash: BD.types.buffer(32),
   signer: BD.types.buffer(20),
   length: BD.types.uint24le,
-  transactions: BD.types.array(BD.types.buffer(null), ({node}) => node.length),
+  transactions: BD.types.array(TransactionProtocol, ({node}) => node.length),
 };
 const BlockSignatureProtocol = {
   ...BlockProtocol,
@@ -49,7 +58,9 @@ const fields = [
   },
   {
     name: 'transactions',
-    decode: (v, parent) => Array.isArray(v) && v.length && v[0] instanceof TransactionModel ? v : v.map(tx => new TransactionModel(tx))
+    decode: (v, parent) => Array.isArray(v) && v.length && v[0] instanceof TransactionModel ? v : v.map(tx => new TransactionModel(tx)),
+    encode: (v, parent) => Array.isArray(v) && v.length && v[0] instanceof TransactionModel ? v : v.map(tx => new TransactionModel(tx)),
+
   },
   {
     name: 'signature',
@@ -69,13 +80,19 @@ class BlockModel extends BaseModel {
   }
 
 
-  getTxBuffer(txHash) {
+  getTxBuffer(txHash = false) {
     let fieldName = `_rlpTx${txHash && "Hash"}`;
     if (this[fieldName]) {
       return this[fieldName]
     }
 
-    this[fieldName] = this.transactions.map(tx => txHash ? tx.getHash() : tx.getBuffer());
+    this[fieldName] = this.transactions.map(tx => {
+      const buffer = tx.getBuffer();
+      return {
+        length: buffer.length,
+        value: buffer
+      }
+    });
     return this[fieldName];
   }
 
@@ -105,10 +122,13 @@ class BlockModel extends BaseModel {
       number: this.number,
       merkleRootHash: this.merkleRootHash,
       signer: this.signer,
-      length: this.transactions.length
+      length: this.transactions.length,
+      transactions: this.transactions
     };
 
-    dataToEncode.transactions = excludeTx ? [] : this.getTxBuffer(txHash);
+    // dataToEncode.transactions = excludeTx ? [] : this.getTxBuffer(txHash);
+    // console.log("getBuffer dataToEncode.transactions ", dataToEncode)
+
     const packet = BD.encode(dataToEncode, excludeSignature ? BlockProtocol : BlockSignatureProtocol);
     this[fieldName] = packet.slice();
     return this[fieldName];

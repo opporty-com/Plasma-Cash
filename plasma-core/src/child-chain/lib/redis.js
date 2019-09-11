@@ -96,7 +96,6 @@ function hset(key, hash, val) {
 
       });
     }
-    // console.log(results)
     // results.forEach((result, i) => {
     //   if (result[0])
     //     return execPromises[i].reject(result);

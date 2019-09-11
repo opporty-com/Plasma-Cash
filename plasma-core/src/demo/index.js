@@ -346,14 +346,14 @@ async function start() {
   log("Start Demo", colors.red);
   try {
     await checkETHBalances();
-    await createAccount(1);
+    await createAccount(10);
     // setPrivateKeys();
     // await checkETHBalances();
     // await sendEth();
     // await checkETHBalances();
     // await checkTokenBalances(true);
     // await checkTokenBalances();
-    await deposit(1, false);
+    await deposit(100000, false);
     // await checkTokenBalances();
 
     // await sendTransactions();

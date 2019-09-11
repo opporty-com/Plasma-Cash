@@ -9,9 +9,38 @@ import logger from "./lib/logger";
 import contractHandler from '../root-chain/contracts/plasma';
 import config from '../config';
 
+import {client, server} from './lib/PN';
+
 import * as Transaction from './controllers/Transaction';
 import * as Block from './controllers/Block';
 import * as Token from './controllers/Token';
+
+
+
+
+contractHandler.contract.events.DepositAdded(async (error, event) => {
+  if (error)
+    return logger.error(error);
+
+  try {
+    await Transaction.deposit(event.returnValues);
+  } catch (error) {
+    logger.error(error);
+  }
+});
+
+contractHandler.contract.events.BlockSubmitted(async (error, event) => {
+  if (error)
+    return logger.error(error);
+
+  try {
+    await Block.submitted(event.returnValues);
+  } catch (error) {
+    logger.error(error);
+  }
+
+});
+
 
 
 p2pEmitter.on(p2pEmitter.EVENT_MESSAGES.NEW_TX_CREATED, async payload => {
@@ -39,34 +68,16 @@ p2pEmitter.on(p2pEmitter.EVENT_MESSAGES.NEW_BLOCK_CREATED, async payload => {
 });
 
 
-contractHandler.contract.events.DepositAdded(async (error, event) => {
-  if (error)
-    return logger.error(error);
-
-  try {
-    await Transaction.deposit(event.returnValues);
-  } catch (error) {
-    logger.error(error);
-  }
-});
-
-contractHandler.contract.events.BlockSubmitted(async (error, event) => {
-  if (error)
-    return logger.error(error);
-
-  try {
-    await Block.submitted(event.returnValues);
-  } catch (error) {
-    logger.error(error);
-  }
-
-});
-
 
 if (process.env.IS_SUBBMITTER) {
   const blockCreator = new BlockCreator({
     minTransactionsInBlock: 1,
   });
+}
+
+if(process.env.IS_VALIDATOR){
+  client.create({uri:""})
+
 }
 
 

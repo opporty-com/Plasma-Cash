@@ -33,7 +33,6 @@ async function addTransaction(hash, txRpl) {
   // console.log(hashStr.length, txRpl.length);
   // const rpl = txRpl.toString('hex');
   // await redis.hsetAsync('txpool', hash, txRpl);
-  console.log("addTransaction", txRpl);
   await redis.hsetAsync('txpool', hash, txRpl.toString('hex'));
   return hash;
 }
@@ -47,7 +46,6 @@ async function removeTransactions(hashes) {
 
 async function getTransactions(onlyHash) {
   const tx = await redis.hvalsAsync("txpool");
-  console.log("getTransactions", tx);
   return tx.map(t=>Buffer.from(t, 'hex'));
 }
 

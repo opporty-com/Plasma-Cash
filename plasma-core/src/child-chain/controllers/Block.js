@@ -10,17 +10,17 @@ import contractHandler from "../../root-chain/contracts/plasma";
 
 async function validation(payload) {
   if (!process.env.IS_VALIDATOR) return;
-  logger.info("Validate Block", payload.length, payload);
+  logger.info("Validate Block", payload.length);
 
   const block = new BlockModel(payload);
 
   // await block.loadTxFromPool();
   logger.info(`Start Validate Block  #${block.get('number')}`);
-  const isValid = await block.isValid();
-  if (!isValid)
-    throw Error(`Not valid Block  #${block.get('number')}`);
+  // const isValid = await block.isValid();
+  // if (!isValid)
+  //   throw Error(`Not valid Block  #${block.get('number')}`);
 
-  // p2pEmitter.sendCommitBlock(block.getRlp(false, false, true));
+  p2pEmitter.sendCommitBlock(ethUtil.toBuffer('0x124'));
   logger.info(`validation block # ${block.number}`);
 }
 

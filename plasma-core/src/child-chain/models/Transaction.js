@@ -270,6 +270,7 @@ class TransactionModel extends BaseModel {
     return this[fieldName];
   }
 
+
   getHash(excludeSignature = false) {
     // return this.newOwner;
     let fieldName = excludeSignature ? '_hashNoSignature' : 'hash';

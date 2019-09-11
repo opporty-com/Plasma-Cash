@@ -10,8 +10,8 @@ import BD from 'binary-data';
 class BaseModel {
   constructor(data, fields, protocol) {
     this._fields = fields;
-    console.log("BaseModel", data);
     if (data instanceof Buffer) {
+      // console.log("BaseModel", data.toString('hex'));
       this._buffer = data;
       let packet;
       try {
@@ -19,7 +19,7 @@ class BaseModel {
       } catch (e) {
         console.log(e);
       }
-      console.log("BaseModel -packet", packet);
+      // console.log("BaseModel -packet", packet);
       fields.forEach((field) => {
         let value = packet[field.name];
         if (!value && field.default) {
@@ -39,7 +39,7 @@ class BaseModel {
         if (!value && field.default) {
           value = field.default
         }
-        this[field.name] = field.encode ? field.encode(value) : value;
+        this[field.name] = !field.encode || value instanceof Buffer ? value : field.encode(value);
       })
     }
 

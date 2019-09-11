@@ -46,8 +46,9 @@ class BlockCreator {
     let newBlockNumber = parseInt(lastSubmittedBlock) + config.contractblockStep;
     logger.info(`Prepare Block submit # ${newBlockNumber}`);
 
-    logger.info(`transactions`, 1);
-    const transactions = await TransactionModel.getPool(false, 100000);
+    const limitT = 350000;
+    logger.info(`transactions limitT`, 1, limitT);
+    const transactions = await TransactionModel.getPool(false, limitT);
     logger.info(`transactions`, 2, transactions.length);
     let blockTransactions = [];
     for (let tx of transactions) {
@@ -74,7 +75,7 @@ class BlockCreator {
     await block.buildMerkle();
     logger.info(`sign block #${newBlockNumber}`, 1, block.get('merkleRootHash'));
     let blockDataToSig = block.getBuffer(true);
-    logger.info(`sign block #${newBlockNumber}`, 2, blockDataToSig);
+    logger.info(`sign block #${newBlockNumber}`, 2);
     const signature = sign(blockDataToSig);
     logger.info(`sign block #${newBlockNumber}`, 3, signature);
     block.set('signature', signature);
@@ -119,6 +120,7 @@ class BlockCreator {
       }
     }
 
+    console.log("+++++++++++++++verified");
     return
     const blockMerkleRootHash = block.get('merkleRootHash');
     logger.info('Block submit #', newBlockNumber, blockMerkleRootHash);
