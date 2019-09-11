@@ -8,7 +8,7 @@ const expect = chai.expect
 
 
 const DATA_FOR_DEPOSIT = [{
-      address: '0x11a618de3ade9b85cd811bf45af03bad481842ed',
+      address: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70',
       password: '123123123',
       amount: 1
     },{
@@ -30,7 +30,7 @@ describe("deposit", () => {
       console.log("GET GAS", gas)
       await web3.eth.personal.unlockAccount(data.address, data.password, 1000);
       console.log("UNLOCKED")
-      const deposit = await contractHandler.contract.methods.deposit().send({ from: data.address, value: data.amount, gas: gas + 150000 }),
+      const deposit = await contractHandler.createDeposit({ from: data.address, value: data.amount, gas: gas + 150000 }),
         isError = deposit instanceof Error;
 
       console.log( "Deposit token id ->", deposit.events.DepositAdded.returnValues.tokenId )

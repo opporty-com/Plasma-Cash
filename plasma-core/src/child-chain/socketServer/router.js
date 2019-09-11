@@ -1,4 +1,4 @@
-import { send as sendBlock, get as getBlock, last as getLastBlock } from "../controllers/Block"
+import { send as sendBlock, get as getBlock, last as getLastBlock, getProof } from "../controllers/Block"
 import { get as getToken, getByAddress as getTokenByAddress, getLastTransaction, getTransactions as getTransactionsByTokenId,  } from "../controllers/Token"
 import { send as sendTransaction, add as addTransaction,  deposit, getPool, get as getTransactionsByHash, getTransactionsByAddress  } from "../controllers/Transaction"
 import { getCandidates, getValidators, getCurrent } from "../controllers/Validator"
@@ -51,7 +51,12 @@ const ROUTER = {
   },
   "getCurrent": {
     controller: arg => getCurrent( arg )
+  },
+  "getProof": {
+    controller: arg => getProof( arg )
   }
 }
+
+
 
 export default ROUTER

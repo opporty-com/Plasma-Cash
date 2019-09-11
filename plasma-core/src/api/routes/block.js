@@ -4,8 +4,8 @@
  */
 
 
-import {get, last} from '../controllers/Block'
-import { getByNumber, getBlockResponse } from '../validates/block'
+import {get, last, proof} from '../controllers/Block'
+import { getByNumber, getBlockResponse, getByNumberAndTokenId, getProofResponse } from '../validates/block'
 
 export default [
   {
@@ -34,6 +34,22 @@ export default [
       },
       response: {
         schema: getBlockResponse,
+      }
+    },
+  },
+  {
+    method: 'GET',
+    path: '/block/getProof',
+    handler: proof,
+    options: {
+      description: 'Get proof',
+      notes: 'Returns a proof by the number and token id',
+      tags: ['api', 'block'],
+      validate: {
+        query: getByNumberAndTokenId
+      },
+      response: {
+        schema: getProofResponse,
       }
     },
   }
