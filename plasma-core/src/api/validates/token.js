@@ -16,7 +16,7 @@ const getByAddress = Joi.object({
 const tokenJoi = Joi.object({
   owner: Joi.string(),
   tokenId: Joi.string(),
-  amount: Joi.number(),
+  amount: Joi.string(),
   block: Joi.number()
 }).label('Token')
 

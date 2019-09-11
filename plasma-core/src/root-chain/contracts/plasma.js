@@ -35,6 +35,7 @@ class ContractHandler extends EventEmitter {
     if (!this.address) {
       throw new Error('Contract address not set');
     }
+    this.isWatchingEvents = true;
 
     this.web3._provider.on('error', () => {
       this.isWatchingEvents = false;
