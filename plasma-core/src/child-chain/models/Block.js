@@ -114,10 +114,10 @@ class BlockModel extends BaseModel {
   }
 
   async buildMerkle(forse = false) {
-    if ( this.transactions.length === 0)
+    if (this.transactions.length === 0)
       return;
 
-    if(!forse &&  this.merkleRootHash.length > 0 )
+    if (!forse && this.merkleRootHash.length > 0)
       return;
 
     let leaves = this.transactions.map(tx => ({key: tx.tokenId, hash: tx.getHash()}));
@@ -171,7 +171,11 @@ class BlockModel extends BaseModel {
   }
 
   getProof(tokenId) {
-     return this.merkle.getProof( tokenId, true)
+    return this.merkle.getProof(tokenId, true)
+  }
+
+  checkProof(proof, hash) {
+    return this.merkle.checkProof(proof, hash)
   }
 }
 

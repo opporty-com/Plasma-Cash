@@ -124,7 +124,11 @@ class Merkle {
     return returnBinary ? Buffer.concat(proof).toString('hex') : proof
   }
 
-  checkProof(proof, leafHash, merkleRoot) {
+  // checkProof(proof, leafHash, merkleRoot) {
+  checkProof(proof, leafHash) {
+
+    const merkleRoot =  this.rootNode.hash;
+
     if (!merkleRoot || !leafHash || !proof) {
       return false
     }

@@ -67,19 +67,34 @@ async function last() {
   return await get(lastSubmittedBlock);
 }
 
-async function getProof({ tokenId, blockNumber }) {
+async function getProof({tokenId, blockNumber}) {
   const block = await BlockModel.get(blockNumber);
   if (!block) throw new Error("Block not found!");
 
   let hash
   try {
     await block.buildMerkle(true)
-    hash = block.getProof( tokenId )
+    hash = block.getProof(tokenId)
   } catch (e) {
     throw Error(e);
   }
 
-  return { hash }
+  return {hash}
+}
+
+async function checkProof({hash, blockNumber, proof}) {
+  const block = await BlockModel.get(blockNumber);
+  if (!block) throw new Error("Block not found!");
+
+  let result = false;
+  try {
+    await block.buildMerkle(true);
+    result = block.checkProof(proof, hash);
+  } catch (e) {
+    throw Error(e);
+  }
+
+  return {result}
 }
 
 export {
@@ -88,5 +103,6 @@ export {
   add,
   get,
   last,
-  getProof
+  getProof,
+  checkProof
 }
