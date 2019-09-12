@@ -76,6 +76,9 @@ class ContractHandler extends EventEmitter {
   async getTokenBalance(tokenId){
     return (await this.contract.methods.getToken(tokenId).call()).toString();
   }
+  async checkProof(merkle, root, proof){
+    return await this.contract.methods.checkPatriciaProof(merkle, root, proof).call();
+  }
 }
 
 const contractHandler = new ContractHandler();

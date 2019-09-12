@@ -397,7 +397,7 @@ contract Root {
         }
         hash = keccak256(nodeKey, hash);
 
-        for (uint i = 64; i < proof.length; i += 65) {
+        for (uint i = 32; i < proof.length; i += 65) {
             assembly {
                 flag := mload(add(proof, i))
                 nodeKey := mload(add(add(proof, i), 1))

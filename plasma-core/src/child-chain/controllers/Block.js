@@ -93,7 +93,13 @@ async function checkProof({hash, blockNumber, proof}) {
   } catch (e) {
     throw Error(e);
   }
-
+  try {
+    const root = block.get('merkleRootHash');
+    const res = await plasmaContract.checkProof(hash, root, proof);
+    console.log(res)
+  } catch (e) {
+    console.log(e)
+  }
   return {result}
 }
 
