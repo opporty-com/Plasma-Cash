@@ -23,7 +23,7 @@ module.exports = {
         ropsten: {
             provider,
             from: process.env.ETH_FROM,
-            gas: 470000,
+            // gas: 470000,
             network_id: 3, // Match any network id
             websockets: true
         }
