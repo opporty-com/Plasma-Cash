@@ -95,7 +95,7 @@ async function checkProof({hash, blockNumber, proof}) {
   }
   try {
     const root = block.get('merkleRootHash');
-    const res = await plasmaContract.checkProof(hash, root, proof);
+    const res = await plasmaContract.checkProof(ethUtil.addHexPrefix(hash), root, ethUtil.addHexPrefix(proof));
     console.log(res)
   } catch (e) {
     console.log(e)
