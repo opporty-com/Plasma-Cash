@@ -33,11 +33,11 @@ async function last(request, h) {
 }
 
 async function proof(request, h) {
-  const { tokenId, blockNumber } = request.query;
+  const {tokenId, blockNumber} = request.query;
 
   let result
   try {
-    result = await plasma({action: "getProof", payload: { tokenId, blockNumber } });
+    result = await plasma({action: "getProof", payload: {tokenId, blockNumber}});
   } catch (e) {
     return Boom.badGateway(e)
   }
@@ -45,4 +45,18 @@ async function proof(request, h) {
   return result
 }
 
-export {get, last, proof}
+async function checkProof(request, h) {
+  const {hash, blockNumber, proof} = request.query;
+
+  let result
+  try {
+    result = await plasma({action: "checkProof", payload: {hash, blockNumber, proof}});
+  } catch (e) {
+    return Boom.badGateway(e)
+  }
+
+  return result
+}
+
+
+export {get, last, proof, checkProof}

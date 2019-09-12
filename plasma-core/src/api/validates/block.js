@@ -23,8 +23,20 @@ const getByNumberAndTokenId = Joi.object({
   tokenId: Joi.string().required().description('Token id for block you need')
 }).label('getByNumberAndTokenId')
 
+
 const getProofResponse = Joi.object({
   hash: Joi.string().required().description('Proof hash'),
 }).label('getProofResponse')
 
-export { getByNumber, getBlockResponse, getByNumberAndTokenId, getProofResponse }
+
+const checkProofRequest = Joi.object({
+  blockNumber: Joi.string().required().description('Number for block you need'),
+  hash: Joi.string().required().description('Transaction hash for block you need'),
+  proof: Joi.string().required().description('Proof for block you need'),
+}).label('checkProofRequest')
+
+const checkProofResponse = Joi.object({
+  result: Joi.boolean().required().description('Results'),
+}).label('checkProofResponse')
+
+export { getByNumber, getBlockResponse, getByNumberAndTokenId, getProofResponse, checkProofRequest , checkProofResponse}

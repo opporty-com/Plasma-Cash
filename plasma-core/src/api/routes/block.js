@@ -4,8 +4,15 @@
  */
 
 
-import {get, last, proof} from '../controllers/Block'
-import { getByNumber, getBlockResponse, getByNumberAndTokenId, getProofResponse } from '../validates/block'
+import {get, last, proof, checkProof} from '../controllers/Block'
+import {
+  getByNumber,
+  getBlockResponse,
+  getByNumberAndTokenId,
+  getProofResponse,
+  checkProofRequest,
+  checkProofResponse
+} from '../validates/block'
 
 export default [
   {
@@ -50,6 +57,22 @@ export default [
       },
       response: {
         schema: getProofResponse,
+      }
+    },
+  },
+  {
+    method: 'GET',
+    path: '/block/checkProof',
+    handler: checkProof,
+    options: {
+      description: 'Check proof',
+      notes: 'Returns tru if is ok',
+      tags: ['api', 'block'],
+      validate: {
+        query: checkProofRequest
+      },
+      response: {
+        schema: checkProofResponse,
       }
     },
   }
