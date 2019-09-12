@@ -18,5 +18,13 @@ const getBlockResponse = Joi.alternatives().try([
   Joi.object({ error: Joi.string() })
 ]).label('Block')
 
+const getByNumberAndTokenId = Joi.object({
+  blockNumber: Joi.string().required().description('Number for block you need'),
+  tokenId: Joi.string().required().description('Token id for block you need')
+}).label('getByNumberAndTokenId')
 
-export { getByNumber, getBlockResponse }
+const getProofResponse = Joi.object({
+  hash: Joi.string().required().description('Proof hash'),
+}).label('getProofResponse')
+
+export { getByNumber, getBlockResponse, getByNumberAndTokenId, getProofResponse }

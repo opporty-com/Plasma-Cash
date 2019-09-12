@@ -67,10 +67,26 @@ async function last() {
   return await get(lastSubmittedBlock);
 }
 
+async function getProof({ tokenId, blockNumber }) {
+  const block = await BlockModel.get(blockNumber);
+  if (!block) throw new Error("Block not found!");
+
+  let hash
+  try {
+    await block.buildMerkle(true)
+    hash = block.getProof( tokenId )
+  } catch (e) {
+    throw Error(e);
+  }
+
+  return { hash }
+}
+
 export {
   submitted,
   validation,
   add,
   get,
-  last
+  last,
+  getProof
 }
