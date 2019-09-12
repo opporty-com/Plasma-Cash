@@ -26,6 +26,7 @@ async function getTransactions(tokenId) {
   const transactions = await TransactionModel.getByToken(tokenId);
   return transactions.map(tx => tx.getJson());
 }
+
 async function getLastTransaction(tokenId) {
   const tx = await TransactionModel.getLastByToken(tokenId);
   if(!tx) throw new Error("Transaction not found");

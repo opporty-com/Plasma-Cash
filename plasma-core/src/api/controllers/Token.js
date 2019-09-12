@@ -58,4 +58,4 @@ async function getLastTransaction(request, h) {
   return result
 }
 
-export {get, getByAddress, getTransactions, getLastTransaction}
+export { get, getByAddress, getTransactions, getLastTransaction }

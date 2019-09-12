@@ -11,9 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",
-    "commander": "^2.19.0",
     "ethereumjs-util": "^5.2.0",
-    "keythereum": "^1.0.4",
     "rlp": "^2.1.0"
   }
 }

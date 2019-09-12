@@ -1,9 +1,9 @@
 'use strict'
 
-import net from 'net'
-import Web3 from 'web3'
+const net = require('net')
+const Web3 = require('web3')
 const config = require('../config')
-import fs from 'fs'
+const fs = require('fs')
 
 let provider
 if (config.web3HttpProvider) {

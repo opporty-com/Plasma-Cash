@@ -9,23 +9,21 @@ let web3;
 
 if (config.web3WsProvider) {
   console.log(`Set WS WEB3 provider ${config.web3WsProvider}`);
-  // provider = new Web3.providers.WebsocketProvider(config.web3WsProvider)
-
-  let provider = new Web3.providers.WebsocketProvider(config.web3WsProvider);
-  web3 = new Web3(provider);
-
-  provider.on('error', e => console.log('WS Error', e));
-  provider.on('end', e => {
-    console.log('WS closed');
-    console.log('Attempting to reconnect...');
-    provider = new Web3.providers.WebsocketProvider(config.web3WsProvider);
-
-    provider.on('connect', function () {
-      console.log('WSS Reconnected');
+  const getProvider = () => {
+    const provider = new Web3.providers.WebsocketProvider(config.web3WsProvider)
+    provider.on('connect', () => console.log('WS Connected'))
+    provider.on('error', e => {
+      console.error('WS Error', e)
+      web3.setProvider(getProvider())
+    });
+    provider.on('end', e => {
+      console.error('WS End', e)
+      web3.setProvider(getProvider())
     });
 
-    web3.setProvider(provider);
-  });
+    return provider
+  };
+  web3 = new Web3(getProvider())
 
 } else {
   if (!fs.existsSync(config.gethIpc)) {

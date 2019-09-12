@@ -1,11 +1,12 @@
 import logger from "./logger";
 import config from "../../config";
-import contractHandler from "../../root-chain/contracts/plasma";
+import plasmaContract from "../../root-chain/contracts/plasma";
 import TransactionModel from "../models/Transaction";
 import validators from "./validators";
 import p2pEmitter from "./p2p";
 import BlockModel from "../models/Block";
 import {sign} from "../helpers";
+import web3 from "../../root-chain/web3";
 
 const N = 8;
 const PBFT_N = Math.floor((N - 1) / 3);
@@ -20,25 +21,25 @@ class BlockCreator {
 
   async submit() {
 
-    const lastSubmittedBlock = await contractHandler.contract.methods.getCurrentBlock().call();
+    const lastSubmittedBlock = await plasmaContract.getCurrentBlock();
     logger.info(`last submitted block #${lastSubmittedBlock}`);
 
     const count = await TransactionModel.getPoolSize();
     if (!this.options.minTransactionsInBlock || this.options.minTransactionsInBlock > count) {
       logger.info('Please wait transactions');
-      throw new Error('Please wait transactions')
+      return false;
     }
 
     const currentValidator = await validators.getCurrent();
 
     if (!(currentValidator === config.plasmaNodeAddress)) {
       logger.info('Please wait your turn to submit');
-      throw new Error('Please wait your turn to submit')
+      return false;
     }
 
     if (p2pEmitter.getCountPeers() < PBFT_F) {
       logger.info('Please wait validators');
-      throw new Error('Please wait validators')
+      return false;
     }
 
     // const lastBlockNumber = await BlockModel.getLastNumber();
@@ -61,8 +62,7 @@ class BlockCreator {
     logger.info(`transactions`, 3, blockTransactions.length);
     if (blockTransactions.length === 0) {
       logger.info('Successfull transactions is not defined for this block');
-      throw new Error('Successfull transactions is not defined for this block')
-      //return false;
+      return false;
     }
 
 
@@ -129,24 +129,26 @@ class BlockCreator {
     logger.info(`Block #${newBlockNumber} has been send`);
     await block.save();
 
+    try {
+      await web3.eth.personal.unlockAccount(config.plasmaNodeAddress, config.plasmaNodePassword);
+    } catch (error) {
+      logger.error(`Error submit Block  #${newBlockNumber}, unlock address:`, error.toString());
+      throw new Error(`Error submit Block  #${newBlockNumber}, unlock address: ${error.toString()}`);
+    }
+
     let gas = 0;
     try {
-      gas = await contractHandler.contract.methods
-        .submitBlock(blockMerkleRootHash, newBlockNumber)
-        .estimateGas({from: config.plasmaNodeAddress});
+      gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress);
 
     } catch (error) {
       logger.error(`Error submit Block  #${newBlockNumber}, estimate gas:`, error.toString());
       throw new Error(`Error submit Block  #${newBlockNumber}, estimate gas: ${error.toString()}`);
     }
     try {
-      await contractHandler.contract.methods
-        .submitBlock(blockMerkleRootHash, newBlockNumber)
-        .send({from: config.plasmaNodeAddress, gas: parseInt(gas) + 15000});
-
+      await plasmaContract.submitBlock(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress, gas)
     } catch (error) {
       logger.error('Error submit block in contract', error.toString());
-      throw new Error('Successful transactions is not defined for this block')
+      throw new Error(`Error submit block in contract ${error.toString()}`)
     }
 
     logger.info(`Block  #${newBlockNumber} has been submitted successful`);

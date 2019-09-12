@@ -6,6 +6,7 @@
 import * as RLP from 'rlp'
 import ethUtil from 'ethereumjs-util'
 import validators from '../lib/validators';
+import plasmaContract from "../../root-chain/contracts/plasma";
 import BD from 'binary-data';
 
 import * as TxMemPoolDb from './db/TxMemPool';
@@ -14,15 +15,15 @@ import TokenModel from './Token';
 
 import {initFields, isValidFields, encodeFields, getAddressFromSign} from '../helpers';
 import BaseModel from "./Base";
-import {promise as plasma} from "../../demo/plasma-client";
+import config from "../../config";
 
-const TYPES = {
-  PAY: 'pay',
-  VOTE: 'vote',
-  UN_VOTE: 'unvote',
-  CANDIDATE: 'candidate',
-  REGISTRATION: 'resignation',
-  PRIVATE: 'private'
+export const TYPES = {
+  PAY: 1,
+  VOTE: 2,
+  UN_VOTE: 3,
+  CANDIDATE: 4,
+  REGISTRATION: 5,
+  PRIVATE: 6
 };
 
 
@@ -39,8 +40,8 @@ const fields = [
     int: true,
     require: true,
     isRPL: true,
-    encode: v => ethUtil.toBuffer(v),
-    decode: v => v.length === 0 ? -1 : ethUtil.bufferToInt(v),
+    encode: v => ethUtil.intToBuffer(v || -1),
+    decode: v => !v || v.length === 0 ? -1 : ethUtil.bufferToInt(v),
   },
   {
     name: 'tokenId',
@@ -78,13 +79,18 @@ const fields = [
 
   {
     name: 'blockNumber', int: true,
-    encode: v => ethUtil.toBuffer(v),
-    decode: v => ethUtil.bufferToInt(v)
+    encode: v => ethUtil.intToBuffer(v || -1),
+    decode: v => !v || v.length === 0 ? -1 : ethUtil.bufferToInt(v)
   },
   {
     name: 'hash',
     encode: v => ethUtil.toBuffer(v),
     decode: v => ethUtil.addHexPrefix(v.toString('hex'))
+  },
+  {
+    name: 'timestamp', int: true,
+    encode: v => ethUtil.intToBuffer(v || -1),
+    decode: v => !v || v.length === 0 ? 0 : ethUtil.bufferToInt(v),
   },
 ];
 
@@ -95,7 +101,7 @@ const TransactionProtocol = {
   type: BD.types.uint8,
   newOwner: BD.types.buffer(20),
   data: BD.types.buffer(null),
-  hash:  BD.types.buffer(32),
+  hash: BD.types.buffer(32),
 };
 
 
@@ -132,7 +138,6 @@ class TransactionModel extends BaseModel {
   }
 
   async isValid() {
-    return true;
     if (!isValidFields(this, fields))
       return false;
 
@@ -162,7 +167,6 @@ class TransactionModel extends BaseModel {
       await this.saveToken({
         owner: this.get('newOwner'),
         tokenId: this.get('tokenId'),
-        amount: 1,
         block: this.get('blockNumber')
       });
 
@@ -209,18 +213,18 @@ class TransactionModel extends BaseModel {
   }
 
 
-  async saveToken({owner, tokenId, amount, block}) {
+  async saveToken({owner, tokenId, block}) {
     const oldToken = await TokenModel.get(tokenId);
     let token = new TokenModel({
       owner,
       tokenId,
-      amount: oldToken ? oldToken.get('amount') : amount,
+      amount: oldToken ? oldToken.get('amount') : await plasmaContract.getTokenBalance(tokenId),
       block
     });
     await token.save();
     await this.save();
     if (oldToken)
-      await TransactionDb.removeFromAddress(oldToken.get('owner'), this.getHash());
+      await TransactionDb.addToAddress(oldToken.get('owner'), this.getHash());
     await TransactionDb.addToAddress(owner, this.getHash());
     await TransactionDb.addToToken(tokenId, this.getHash());
     return this;
@@ -245,6 +249,7 @@ class TransactionModel extends BaseModel {
   //     if (!excludeHash) {
   //       dataToEncode.push(this.blockNumber);
   //       dataToEncode.push(this.getHash());
+  //       dataToEncode.push(this.timestamp);
   //     }
   //   }
   //   return dataToEncode
@@ -356,6 +361,13 @@ class TransactionModel extends BaseModel {
     return await TransactionModel.get(hash)
   }
 
+  static async getByAddress(address, hashOnly = false) {
+    const transactions = await TransactionDb.getByAddress(address);
+    if (!transactions) return [];
+    if (hashOnly) return transactions;
+    return Promise.all(transactions.map(hash => TransactionModel.get(hash)));
+  }
+
   static async count() {
     return await TransactionDb.count();
   }
@@ -363,3 +375,115 @@ class TransactionModel extends BaseModel {
 
 
 export default TransactionModel
+
+
+const ProtocolWithoutSignature = {
+  prevHash: BD.types.buffer(20),
+  prevBlock: BD.types.uint24le,
+  tokenId: BD.types.uint24le,
+  type: BD.types.uint8,
+  newOwner: BD.types.buffer(20),
+  dataLength: BD.types.uint24le,
+  data: BD.types.buffer(({node}) => node.dataLength),
+};
+const ProtocolWithoutHash = {
+  ...ProtocolWithoutSignature,
+  signature: BD.types.buffer(40),
+};
+
+const Protocol = {
+  ...ProtocolWithoutHash,
+  hash: BD.types.buffer(20),
+};
+
+function getBuffer(tx) {
+  if (tx._buffer)
+    return tx._buffer;
+
+  const packet = BD.encode(tx, Protocol);
+  tx._buffer = packet.slice();
+  return tx._buffer;
+}
+
+function getHash(tx) {
+  if (tx.hash)
+    return tx.hash;
+
+  if (!tx._hashBuffer) {
+    const packet = BD.encode(tx, ProtocolWithoutHash);
+    tx._hashBuffer = packet.slice();
+  }
+  tx.hash = ethUtil.keccak(tx._hashBuffer);
+  return tx.hash
+}
+
+
+function getSignHash(tx) {
+  if (tx._signHash)
+    return tx._signHash;
+  if (!tx._signBuffer) {
+    const packet = BD.encode(tx, ProtocolWithoutSignature);
+    tx._signBuffer = packet.slice();
+  }
+  tx._signHash = ethUtil.keccak(tx._signBuffer);
+  return tx._signHash
+}
+
+function sign(tx) {
+
+  if (tx.signature)
+    return tx;
+
+  const _signHash = getSignHash(tx);
+
+  let msgHash = ethUtil.hashPersonalMessage(_signHash);
+  let key = Buffer.from(config.plasmaNodeKey, 'hex');
+  let sig = ethUtil.ecsign(msgHash, key);
+  tx.signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
+
+  return tx;
+}
+
+function getSigner(tx) {
+  if (tx._signer)
+    return tx._signer;
+
+  const hash = getSignHash(tx);
+  try {
+    let sig = ethUtil.fromRpcSig(ethUtil.addHexPrefix(this.signature));
+    let msgHash = ethUtil.hashPersonalMessage(hash);
+    let pubKey = ethUtil.ecrecover(msgHash, sig.v, sig.r, sig.s);
+    tx._signer = ethUtil.bufferToHex(ethUtil.pubToAddress(pubKey));
+  } catch (error) {
+    throw new Error("Invalid signature")
+  }
+  return tx._signer;
+
+}
+
+
+async function validate(tx) {
+  if (tx.type === TYPES.PAY
+    || tx.type === TYPES.VOTE
+    || tx.type === TYPES.CANDIDATE
+  ) {
+    const token = await TokenModel.get(tx.tokenId);
+    if (!token && tx.prevBlock === -1)
+      return true;
+    if (!token) return false;
+
+    return token.owner === getSigner(tx);
+  }
+
+  return false;
+}
+
+async function pushToPool(tx) {
+  return await TxMemPoolDb.addTransaction(getHash(tx), getBuffer(tx))
+};
+
+export {
+  sign,
+  validate,
+  pushToPool
+}

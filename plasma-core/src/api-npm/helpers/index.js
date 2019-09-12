@@ -1,6 +1,7 @@
-import ethUtil from "ethereumjs-util";
-import { encode as rlpEncode } from 'rlp'
-import config from "../config"
+const ethUtil = require( "ethereumjs-util" );
+//import { encode as rlpEncode } from 'rlp'
+const config = require("../config")
+const RLP = require('rlp')
 
 const fields = [
   {name: 'prevHash', require: true, encode: v => v instanceof Buffer ? v : ethUtil.addHexPrefix(v)},
@@ -37,7 +38,7 @@ const encodeFields = (self, fields) => {
 
 const createSignature = transactionData => {
   const dataToEncode = encodeFields(transactionData, fields),
-    _rlpNoSignature = rlpEncode(dataToEncode),
+    _rlpNoSignature = RLP.encode(dataToEncode),
     txHash = ethUtil.sha3( _rlpNoSignature ),
     signature = ethUtil.ecsign(ethUtil.hashPersonalMessage(txHash), Buffer.from(config.privateKey, 'hex')),
     rpcSig = ethUtil.toRpcSig( signature.v, signature.r, signature.s ) ;
@@ -53,4 +54,4 @@ const createSignTransaction = data => {
   return signature
 }
 
-export { createSignTransaction }
+module.exports =  { createSignTransaction }

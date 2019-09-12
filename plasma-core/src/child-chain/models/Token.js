@@ -26,7 +26,7 @@ const fields = [
     name: 'amount', require: true,
     isRPL: true,
     encode: v => ethUtil.toBuffer(v),
-    decode: v => v.readUIntBE()
+    decode: v => v.toString()
   },
   {
     name: 'block',
@@ -74,9 +74,9 @@ class TokenModel extends BaseModel {
     const tokenId = this.get('tokenId');
     const oldToken = await TokenModel.get(tokenId);
     await TokenDb.add(tokenId, this.getRlp());
-    await TokenDb.addOwner(this.get('owner'), tokenId);
     if (oldToken)
       await TokenDb.removeOwner(oldToken.get('owner'), tokenId);
+    await TokenDb.addOwner(this.get('owner'), tokenId);
     return this;
   }
 

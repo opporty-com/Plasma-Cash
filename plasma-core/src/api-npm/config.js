@@ -8,5 +8,5 @@ module.exports = {
   privateKey: '099999f2bc38bfa01d01881738e82fcb00047976617c1228acfa6eb2bfc96de0',
   gethIpc: '/usr/src/geth_ipc/geth.ipc',
   web3HttpProvider: null,
-  apiUrl: "http://94.130.89.154:55555"
+  apiUrl: "http://95.216.10.211:55555"
 }
