@@ -47,7 +47,7 @@ const fields = [
     require: true,
     isRPL: true,
     encode: v => ethUtil.toBuffer(new BN(v)),
-    decode: v => v.toString()
+    decode: v => (new BN(v)).toString()
   },
   {
     name: 'newOwner',
