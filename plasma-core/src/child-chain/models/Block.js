@@ -120,7 +120,7 @@ class BlockModel extends BaseModel {
     if (!forse && this.merkleRootHash.length > 0)
       return;
 
-    let leaves = this.transactions.map(tx => ({key: tx.tokenId, hash: tx.getHash()}));
+    let leaves = this.transactions.map(tx => ({key: tx.get('tokenId'), hash: tx.getHash()}));
     this.merkle = new PatriciaMerkle(leaves);
     this.merkle.buildTree();
     this.merkleRootHash = this.merkle.getMerkleRoot();
