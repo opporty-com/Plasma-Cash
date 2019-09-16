@@ -5,6 +5,7 @@
 
 import * as RLP from 'rlp'
 import ethUtil from 'ethereumjs-util'
+import BN from 'bn.js'
 import validators from '../lib/validators';
 import plasmaContract from "../../root-chain/contracts/plasma";
 import BD from 'binary-data';
@@ -47,8 +48,8 @@ const fields = [
     name: 'tokenId',
     require: true,
     isRPL: true,
-    encode: v => ethUtil.toBuffer(ethUtil.stripHexPrefix(v)),
-    decode: v => v.toString()
+    encode: v => ethUtil.toBuffer(new BN(v)),
+    decode: v => (new BN(v)).toString()
   },
   {
     name: 'newOwner',

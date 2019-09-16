@@ -34,9 +34,9 @@ class Merkle {
         childNodes[0].key.slice(level - 1)
       node.key = nodeKey
 
-      let nodeHashes = Buffer.concat([Buffer.from(ethUtil.sha3(nodeKey)),
+      let nodeHashes = Buffer.concat([Buffer.from(ethUtil.keccak256(nodeKey)),
         childNodes[0].hash])
-      node.hash = ethUtil.sha3(nodeHashes)
+      node.hash = ethUtil.keccak256(nodeHashes)
       return node
     }
 
@@ -54,10 +54,10 @@ class Merkle {
     if (leftChilds.length && rightChilds.length) {
       node.leftChild = this.buildNode(leftChilds, '0', level + 1)
       node.rightChild = this.buildNode(rightChilds, '1', level + 1)
-      let nodeHashes = Buffer.concat([Buffer.from(ethUtil.sha3(node.key)),
+      let nodeHashes = Buffer.concat([Buffer.from(ethUtil.keccak256(node.key)),
         node.leftChild.hash,
         node.rightChild.hash])
-      node.hash = ethUtil.sha3(nodeHashes)
+      node.hash = ethUtil.keccak256(nodeHashes)
     } else if (leftChilds.length && !rightChilds.length) {
       node = this.buildNode(leftChilds, key + '0', level + 1)
     } else if (!leftChilds.length && rightChilds.length) {
@@ -89,9 +89,9 @@ class Merkle {
       }
       if (nodeKey.length == key.length) {
         if (returnBinary) {
-          proof.unshift(Buffer.from(ethUtil.sha3(nodeKey)))
+          proof.unshift(Buffer.from(ethUtil.keccak256(nodeKey)))
         } else {
-          proof.unshift({key: ethUtil.sha3(nodeKey)})
+          proof.unshift({key: ethUtil.keccak256(nodeKey)})
         }
         break
       }
@@ -100,21 +100,21 @@ class Merkle {
       if (isLeftItem) {
         if (returnBinary) {
           proof.unshift(node.rightChild.hash)
-          proof.unshift(Buffer.from(ethUtil.sha3(nodeKey)))
+          proof.unshift(Buffer.from(ethUtil.keccak256(nodeKey)))
           proof.unshift(Buffer.from([0x01]))
         } else {
           proof.unshift({right: node.rightChild.hash,
-            key: ethUtil.sha3(nodeKey)})
+            key: ethUtil.keccak256(nodeKey)})
         }
         node = node.leftChild
         key = key.slice(nodeKey.length)
       } else {
         if (returnBinary) {
           proof.unshift(node.leftChild.hash)
-          proof.unshift(Buffer.from(ethUtil.sha3(nodeKey)))
+          proof.unshift(Buffer.from(ethUtil.keccak256(nodeKey)))
           proof.unshift(Buffer.from([0x00]))
         } else {
-          proof.unshift({left: node.leftChild.hash, key: ethUtil.sha3(nodeKey)})
+          proof.unshift({left: node.leftChild.hash, key: ethUtil.keccak256(nodeKey)})
         }
         node = node.rightChild
         key = key.slice(nodeKey.length)
@@ -124,7 +124,11 @@ class Merkle {
     return returnBinary ? Buffer.concat(proof).toString('hex') : proof
   }
 
-  checkProof(proof, leafHash, merkleRoot) {
+  // checkProof(proof, leafHash, merkleRoot) {
+  checkProof(proof, leafHash) {
+
+    const merkleRoot =  this.rootNode.hash;
+
     if (!merkleRoot || !leafHash || !proof) {
       return false
     }
@@ -142,13 +146,13 @@ class Merkle {
         } else {
           nodeHashes = Buffer.concat([Buffer.from(node.key), hash])
         }
-        hash = ethUtil.sha3(nodeHashes)
+        hash = ethUtil.keccak256(nodeHashes)
       })
     } else {
       proof = Buffer.from(proof, 'hex')
       let right = Buffer.from('01', 'hex')
       let keyLeafHash = proof.slice(0, 32)
-      hash = ethUtil.sha3(Buffer.concat([keyLeafHash, hash]))
+      hash = ethUtil.keccak256(Buffer.concat([keyLeafHash, hash]))
 
       for (let i = 32, length = proof.length; i < length; i += 65) {
         let typeByte = proof.slice(i, i + 1)
@@ -156,8 +160,8 @@ class Merkle {
         let neighborLeafHash = proof.slice(i + 33, i + 65)
         let isRigthNeighbor = typeByte.equals(right)
         hash = isRigthNeighbor ?
-          ethUtil.sha3(Buffer.concat([keyLeafHash, hash, neighborLeafHash])) :
-          ethUtil.sha3(Buffer.concat([keyLeafHash, neighborLeafHash, hash]))
+          ethUtil.keccak256(Buffer.concat([keyLeafHash, hash, neighborLeafHash])) :
+          ethUtil.keccak256(Buffer.concat([keyLeafHash, neighborLeafHash, hash]))
       }
     }
 

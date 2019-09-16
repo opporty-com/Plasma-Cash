@@ -157,7 +157,7 @@ contract Root {
         // list of rlp decoded items
         RLP.RLPItem[] memory txList = rlp.toRLPItem().toList();
         //emit Log(txList.length);
-        require(txList.length == 5);
+        require(txList.length == 7);
         return (
             txList[0].toBytes32(),
             txList[1].toUint(),

@@ -166,11 +166,14 @@ class BlockModel extends BaseModel {
     this.transactions = await TransactionModel.getPoolByHashes(this.transactions);
   }
 
-  async buildMerkle() {
-    if (this.merkleRootHash.length > 0 || this.transactions.length === 0)
+  async buildMerkle(forse = false) {
+    if (this.transactions.length === 0)
       return;
 
-    let leaves = this.transactions.map(tx => ({key: tx.tokenId, hash: tx.getHash()}));
+    if (!forse && this.merkleRootHash.length > 0)
+      return;
+
+    let leaves = this.transactions.map(tx => ({key: tx.get('tokenId'), hash: tx.getHash()}));
     this.merkle = new PatriciaMerkle(leaves);
     this.merkle.buildTree();
     this.merkleRootHash = this.merkle.getMerkleRoot();
@@ -218,6 +221,14 @@ class BlockModel extends BaseModel {
     const block = new BlockModel(data);
     block.transactions = block.transactions.map(tx => new TransactionModel(tx));
     return block
+  }
+
+  getProof(tokenId) {
+    return this.merkle.getProof(tokenId, true)
+  }
+
+  checkProof(proof, hash) {
+    return this.merkle.checkProof(proof, hash)
   }
 }
 

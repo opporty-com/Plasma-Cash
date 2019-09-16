@@ -67,10 +67,48 @@ async function last() {
   return await get(lastSubmittedBlock);
 }
 
+async function getProof({tokenId, blockNumber}) {
+  const block = await BlockModel.get(blockNumber);
+  if (!block) throw new Error("Block not found!");
+
+  let hash
+  try {
+    await block.buildMerkle(true)
+    hash = block.getProof(tokenId)
+  } catch (e) {
+    throw Error(e);
+  }
+
+  return {hash}
+}
+
+async function checkProof({hash, blockNumber, proof}) {
+  const block = await BlockModel.get(blockNumber);
+  if (!block) throw new Error("Block not found!");
+
+  let result = false;
+  try {
+    await block.buildMerkle(true);
+    result = block.checkProof(proof, hash);
+  } catch (e) {
+    throw Error(e);
+  }
+  try {
+    const root = block.get('merkleRootHash');
+    const res = await plasmaContract.checkProof(ethUtil.addHexPrefix(hash), root, ethUtil.addHexPrefix(proof));
+    console.log(res)
+  } catch (e) {
+    console.log(e)
+  }
+  return {result}
+}
+
 export {
   submitted,
   validation,
   add,
   get,
-  last
+  last,
+  getProof,
+  checkProof
 }

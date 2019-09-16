@@ -58,6 +58,10 @@ class ContractHandler extends EventEmitter {
     return await this.contract.methods.getCurrentBlock().call();
   }
 
+  async createDeposit({ from, value, gas }) {
+    return await this.contract.methods.deposit().send({ from, value, gas })
+  }
+
   async estimateSubmitBlockGas(hash, number, address) {
     return await this.contract.methods
       .submitBlock(hash, number)
@@ -71,6 +75,9 @@ class ContractHandler extends EventEmitter {
   }
   async getTokenBalance(tokenId){
     return (await this.contract.methods.getToken(tokenId).call()).toString();
+  }
+  async checkProof(merkle, root, proof){
+    return await this.contract.methods.checkPatriciaProof(merkle, root, proof).call();
   }
 }
 

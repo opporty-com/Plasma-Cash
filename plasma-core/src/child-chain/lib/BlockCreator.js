@@ -81,7 +81,7 @@ class BlockCreator {
     block.set('signature', signature);
     logger.info(`sign block #${newBlockNumber}`, 4);
 
-    if (PBFT_F) {
+    if ( Number(PBFT_F) ) {
       try {
         await new Promise((resolve, reject) => {
           let commit = 0;
