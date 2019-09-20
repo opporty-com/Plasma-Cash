@@ -5,44 +5,45 @@
 import redis from '../../lib/redis';
 
 async function getLastNumber() {
-  let lastBlock = await redis.getAsync('lastBlockNumber');
+  let lastBlock = await redis.get('lastBlockNumber');
   if (!lastBlock) {
-    await redis.setAsync('lastBlockNumber', 0);
+    await redis.set('lastBlockNumber', 0);
     return 0
   }
   return parseInt(lastBlock)
 }
 
-async function settLastNumber(number) {
-  await redis.setAsync('lastBlockNumber', number);
+async function setLastNumber(number) {
+  await redis.set('lastBlockNumber', number);
   return number;
 }
 
 async function getLastSubmittedNumber() {
-  let lastBlock = await redis.getAsync('lastBlockSubmitted');
+  let lastBlock = await redis.get('lastBlockSubmitted');
   if (!lastBlock) {
-    await redis.setAsync('lastBlockSubmitted', 0);
+    await redis.set('lastBlockSubmitted', 0);
     return 0
   }
   return parseInt(lastBlock)
 }
 
 async function incCommit(hash) {
-  return await redis.incrAsync(`Block:${hash}`);
+  return await redis.incr(`Block:${hash}`);
 }
 
-async function add(number, blockRlp) {
-  return await redis.hsetAsync(`block`, number, blockRlp);
+async function add(number, buffer) {
+  return await redis.hset(`block`, number,  buffer.toString('hex'));
 }
 
 async function get(number) {
-  return await redis.hgetAsync(Buffer.from('block'), number);
+  const data = await redis.hget('block', number);
+  if (!data) return null;
+  return Buffer.from(data, 'hex');
 }
 
 
 export {
   getLastNumber,
-  settLastNumber,
   getLastSubmittedNumber,
   incCommit,
   add,

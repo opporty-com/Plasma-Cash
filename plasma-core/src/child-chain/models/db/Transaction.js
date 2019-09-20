@@ -6,54 +6,52 @@
 import redis from '../../lib/redis';
 
 
-async function add(hash, transactionRlp) {
-  return await redis.hsetAsync(`transactions`, hash.toString('hex'), transactionRlp);
+async function add(hash, buffer) {
+  const hashStr = hash instanceof Buffer ? hash.toString('hex') : hash;
+  return await redis.hset('transactions', hashStr, buffer.toString('hex'));
 }
 
 async function addToToken(token, hash) {
-  await redis.hsetAsync(`transactions:token:last`, token.toLowerCase(), hash.toString('hex'));
-  return await redis.saddAsync(`transactions:token:${token}`.toLowerCase(), hash.toString('hex'));
+  const hashStr = hash instanceof Buffer ? hash.toString('hex') : hash;
+  await redis.hset(`transactions:token:last`, token, hashStr);
+  return await redis.sadd(`transactions:token:${token}`, hashStr);
 }
 
 async function getLastByToken(token) {
-  return await redis.hgetAsync("transactions:token:last", token.toLowerCase());
+  return await redis.hget("transactions:token:last", token);
 }
 
 async function addToAddress(address, hash) {
-  return await redis.saddAsync(`transactions:address:${address}`.toLowerCase(), hash.toString('hex'));
+  const hashStr = hash instanceof Buffer ? hash.toString('hex') : hash;
+  return await redis.sadd(`transactions:address:${address}`.toLowerCase(), hashStr);
 }
 
-async function removeFromAddress(address, hash) {
-  return await redis.sremAsync(`transactions:address:${address}`.toLowerCase(), hash.toString('hex'));
-}
 
 async function get(hash) {
-  return await redis.hgetAsync(Buffer.from("transactions"), hash.toString('hex'));
+  const hashStr = hash instanceof Buffer ? hash.toString('hex') : hash;
+  const data = await redis.hget("transactions", hashStr);
+  if (!data) return null;
+  return Buffer.from(data, 'hex');
 }
 
-async function getByHashes(hashes) {
-  return await redis.hmgetAsync(Buffer.from("transactions"), hashes.map(hash => hash.toString('hex')));
-}
 
 async function getByToken(token) {
-  return await redis.smembersAsync(`transactions:token:${token}`.toLowerCase());
+  return await redis.smembers(`transactions:token:${token}`);
 }
 
 async function getByAddress(address) {
-  return await redis.smembersAsync(`transactions:address:${address}`.toLowerCase());
+  return await redis.smembers(`transactions:address:${address}`.toLowerCase());
 }
 
 async function count() {
-  return await redis.hlenAsync(`transactions`);
+  return await redis.hlen(`transactions`);
 }
 
 export {
   add,
   addToToken,
   addToAddress,
-  removeFromAddress,
   get,
-  getByHashes,
   getByToken,
   getByAddress,
   getLastByToken,

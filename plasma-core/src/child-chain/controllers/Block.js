@@ -2,64 +2,93 @@
  * Created by Oleksandr <alex@moonion.com> on 2019-08-10
  * moonion.com;
  */
-import ethUtil from 'ethereumjs-util'
-import p2pEmitter from "../lib/p2p";
-import BlockModel from '../models/Block';
-import logger from "../lib/logger";
+import * as ethUtil from 'ethereumjs-util';
 import plasmaContract from "../../root-chain/contracts/plasma";
+import logger from "../lib/logger";
+import {client} from "../lib/PN";
+
+import * as Block from '../models/Block';
+import * as Transaction from '../models/Transaction';
+
 
 async function validation(payload) {
   if (!process.env.IS_VALIDATOR) return;
   logger.info("Validate Block", payload.length);
 
-  const block = new BlockModel(payload);
+  const block = Block.fromBuffer(payload);
 
-  // await block.loadTxFromPool();
-  logger.info(`Start Validate Block  #${block.get('number')}`);
-  // const isValid = await block.isValid();
-  // if (!isValid)
-  //   throw Error(`Not valid Block  #${block.get('number')}`);
+  logger.info(`Start Validate Block  #${block.number}`);
 
-  p2pEmitter.sendCommitBlock(ethUtil.toBuffer('0x124'));
-  logger.info(`validation block # ${block.number}`);
-}
+  const isValid = await Block.validate(block);
+  if (!isValid)
+    throw Error(`Not valid Block  #${block.number}`);
 
-async function add(payload) {
-  let block = new BlockModel(payload);
-  await block.loadTxFromPool();
-  logger.info(`Start Add Block  #${block.number}`);
-  await block.add();
+  logger.info(`Block # ${block.number} is valid`);
+
+  await Block.pushToPool(block);
+
+  logger.info(`block # ${block.number} added to pool`);
+
+  const merkle = await Block.getMerkleRootHash(block);
+  client.sendCommitBlock(merkle);
+
+  logger.info(`block # ${block.number} commit`);
 }
 
 async function submitted({operator, merkleRoot, blockNumber}) {
   logger.info('Block submitted #', blockNumber, merkleRoot, operator);
 
-  const block = await BlockModel.get(blockNumber);
+  const block = await Block.getPool(merkleRoot.toLowerCase());
   if (!block)
     throw Error(`Not found Block  #${blockNumber}`);
 
 
-  if (ethUtil.addHexPrefix(merkleRoot).toLowerCase() !== ethUtil.addHexPrefix(block.get('merkleRootHash')).toLowerCase() || ethUtil.addHexPrefix(operator).toLowerCase() !== ethUtil.addHexPrefix(block.get('signer')).toLowerCase())
+  const signer = await Block.getSigner(block);
+  if (ethUtil.addHexPrefix(operator).toLowerCase() !== ethUtil.addHexPrefix(signer).toLowerCase()
+    || block.number !== parseInt(blockNumber))
     throw Error(`Block is huk  #${blockNumber}`);
 
-  const promises = [];
-  for (let tx of block.transactions) {
-    tx.set('blockNumber', parseInt(blockNumber));
-    tx.set('timestamp', new Date().getTime());
-    promises.push(new Promise(async resolve => {
-      await tx.execute();
-      resolve();
-    }))
+  logger.info(`Block added #${blockNumber}; Start execute ${block.transactions.length} transactions `);
+  let i = -1;
+  const now = (new Date()).getTime();
+
+  async function execute() {
+    i++;
+    if (i >= block.transactions.length) return;
+    const tx = block.transactions[i];
+    tx.blockNumber = block.number;
+    tx.timestamp = now;
+    await Transaction.execute(tx);
+    await execute();
+    if (i % 1000 === 0)
+      console.log("execute transactions", i);
   }
-  await Promise.all(promises);
+
+  await Promise.all((Array(10000)).fill(0).map(async i => await execute()));
+
+  // for (let tx of block.transactions) {
+  //   tx.blockNumber = block.number;
+  //   tx.timestamp = now;
+  //   try {
+  //     await Transaction.execute(tx);
+  //   } catch (e) {
+  //     logger.error(e);
+  //   }
+  //   i++;
+  //   if (i % 1000 === 0)
+  //     console.log("execute transactions", i);
+  // }
+
+  await Block.save(block, true);
+  await Block.removeFromPool(block);
 
   logger.info(`Block added #${blockNumber}; ${block.transactions.length} transactions execute `);
 }
 
 async function get(number) {
-  const block = await BlockModel.get(number);
+  const block = await Block.get(number);
   if (!block) throw new Error("Block not found!");
-  return block.getJson();
+  return Block.getJson(block);
 }
 
 async function last() {
@@ -68,13 +97,12 @@ async function last() {
 }
 
 async function getProof({tokenId, blockNumber}) {
-  const block = await BlockModel.get(blockNumber);
+  const block = await Block.get(blockNumber);
   if (!block) throw new Error("Block not found!");
 
-  let hash
+  let hash;
   try {
-    await block.buildMerkle(true)
-    hash = block.getProof(tokenId)
+    hash = Block.getProof(block, tokenId)
   } catch (e) {
     throw Error(e);
   }
@@ -83,18 +111,17 @@ async function getProof({tokenId, blockNumber}) {
 }
 
 async function checkProof({hash, blockNumber, proof}) {
-  const block = await BlockModel.get(blockNumber);
+  const block = await Block.get(blockNumber);
   if (!block) throw new Error("Block not found!");
 
   let result = false;
   try {
-    await block.buildMerkle(true);
-    result = block.checkProof(proof, hash);
+    result = Block.checkProof(block, proof, hash);
   } catch (e) {
     throw Error(e);
   }
   try {
-    const root = block.get('merkleRootHash');
+    const root = await Block.getMerkleRootHash(block);
     const res = await plasmaContract.checkProof(ethUtil.addHexPrefix(hash), root, ethUtil.addHexPrefix(proof));
     console.log(res)
   } catch (e) {
@@ -106,7 +133,6 @@ async function checkProof({hash, blockNumber, proof}) {
 export {
   submitted,
   validation,
-  add,
   get,
   last,
   getProof,

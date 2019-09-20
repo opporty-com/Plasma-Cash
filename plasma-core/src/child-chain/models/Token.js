@@ -2,99 +2,65 @@
  * Created by Oleksandr <alex@moonion.com> on 2019-08-07
  * moonion.com;
  */
-import * as RLP from 'rlp';
-import ethUtil from 'ethereumjs-util'
-import {encodeFields, initFields} from "../helpers";
+import * as ethUtil from 'ethereumjs-util';
+import BD from 'binary-data';
 import * as TokenDb from './db/Token';
-import BaseModel from "./Base";
 
-const fields = [
-  {
-    name: 'owner',
-    require: true,
-    isRPL: true,
-    encode: v => ethUtil.toBuffer(v),
-    decode: v => ethUtil.addHexPrefix(v.toString('hex'))
-  },
-  {
-    name: 'tokenId', require: true,
-    isRPL: true,
-    encode: v => ethUtil.toBuffer(ethUtil.stripHexPrefix(v)),
-    decode: v => v.toString()
-  },
-  {
-    name: 'amount', require: true,
-    isRPL: true,
-    encode: v => ethUtil.toBuffer(v),
-    decode: v => v.toString()
-  },
-  {
-    name: 'block',
-    int: true,
-    default: 0,
-    require: true,
-    isRPL: true,
-    encode: v => ethUtil.toBuffer(v),
-    decode: v => ethUtil.bufferToInt(v)
-  },
-];
-
-class TokenModel extends BaseModel {
-  // owner = null;
-  // tokenId = null;
-  // amount = null;
-  // block = null;
-
-  constructor(data) {
-    super(data, fields);
-  }
-
-  getBuffer() {
-    return [
-      this.owner,
-      this.tokenId,
-      this.amount,
-      this.block,
-    ]
-  }
-
-  getRlp() {
-    let fieldName = '_rlp';
-    if (this[fieldName]) {
-      return this[fieldName]
-    }
-    const dataToEncode = this.getBuffer();
-
-    this[fieldName] = RLP.encode(dataToEncode);
-    return this[fieldName]
-  }
+const Protocol = {
+  id: BD.types.string(null),
+  owner: BD.types.buffer(20),
+  block: BD.types.uint24le,
+  amount: BD.types.string(null),
+};
 
 
-  async save() {
-    const tokenId = this.get('tokenId');
-    const oldToken = await TokenModel.get(tokenId);
-    await TokenDb.add(tokenId, this.getRlp());
-    if (oldToken)
-      await TokenDb.removeOwner(oldToken.get('owner'), tokenId);
-    await TokenDb.addOwner(this.get('owner'), tokenId);
-    return this;
-  }
+function getBuffer(token) {
+  if (token._buffer)
+    return token._buffer;
 
-  static async get(tokenId) {
-    const token = await TokenDb.get(tokenId);
-    if (!token)
-      return null;
-    return new TokenModel(token);
-  }
-
-  static async getByOwner(address) {
-    const tokens = await TokenDb.getOwner(address);
-    return Promise.all(tokens.map(token => TokenModel.get(token)));
-  }
-
-  static async count() {
-    return await TokenDb.count();
-  }
+  const packet = BD.encode(token, Protocol);
+  token._buffer = packet.slice();
+  return token._buffer;
 }
 
-export default TokenModel
+async function get(id) {
+  const buffer = await TokenDb.get(id);
+  if (!buffer)
+    return null;
+  return BD.decode(buffer, Protocol)
+}
+
+async function getByOwner(address) {
+  const tokens = await TokenDb.getOwner(ethUtil.addHexPrefix(address));
+  return Promise.all(tokens.map(token => get(token)));
+}
+
+function getJson(token) {
+  if (token._json)
+    return token._json;
+  token._json = {
+    id: token.id,
+    owner: ethUtil.addHexPrefix(token.owner.toString('hex')),
+    block: token.block,
+    amount: token.amount
+
+  };
+  return token._json;
+
+}
+
+async function save(token) {
+  return await TokenDb.add(token.id, getBuffer(token));
+}
+
+async function count() {
+  return await TokenDb.count();
+}
+
+export {
+  get,
+  getByOwner,
+  getJson,
+  save,
+  count
+}

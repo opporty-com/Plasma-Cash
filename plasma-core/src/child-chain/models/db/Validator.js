@@ -6,7 +6,7 @@ import redis from '../../lib/redis';
 
 async function addToValidator(address) {
   try {
-    return await redis.saddAsync('validators', address);
+    return await redis.sadd('validators', address);
   } catch (error) {
     return error.toString()
   }
@@ -14,7 +14,7 @@ async function addToValidator(address) {
 
 async function deleteFromValidator(address) {
   try {
-    return await redis.sremAsync('validators', address);
+    return await redis.srem('validators', address);
   } catch (error) {
     return error.toString()
   }
@@ -22,7 +22,7 @@ async function deleteFromValidator(address) {
 
 async function isValidator(address) {
   try {
-    let result = await redis.smembersAsync('validators');
+    let result = await redis.smembers('validators');
     return result.includes(address)
   } catch (error) {
     return error.toString()
@@ -30,7 +30,7 @@ async function isValidator(address) {
 }
 
 async function getValidators() {
-  return await redis.smembersAsync('validators');
+  return await redis.smembers('validators');
 }
 
 export {

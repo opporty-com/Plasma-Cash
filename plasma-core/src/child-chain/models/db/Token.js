@@ -6,29 +6,33 @@
 import redis from '../../lib/redis';
 
 
-async function add(tokenId, tokenRlp) {
-  return await redis.hsetAsync(`utxo`, tokenId, tokenRlp);
+async function add(tokenId, buffer) {
+  return await redis.hset('utxo', tokenId, buffer.toString('hex'));
 }
 
 async function addOwner(owner, tokenId) {
-  return await redis.saddAsync(`utxo:owner:${owner}`.toLowerCase(), tokenId);
+  return await redis.sadd(`utxo:owner:${owner}`.toLowerCase(), tokenId);
 }
 
 async function removeOwner(owner, tokenId) {
-  return await redis.sremAsync(`utxo:owner:${owner}`.toLowerCase(), tokenId);
+  return await redis.srem(`utxo:owner:${owner}`.toLowerCase(), tokenId);
 }
 
 async function getOwner(owner) {
-  return await redis.smembersAsync(`utxo:owner:${owner}`.toLowerCase());
+  return await redis.smembers(`utxo:owner:${owner}`.toLowerCase());
 }
 
 
 async function get(tokenId) {
-  return await redis.hgetAsync(`utxo`, Buffer.from(tokenId));
+  const data = await redis.hget(`utxo`, tokenId);
+  if (!data) return null;
+
+  return Buffer.from(data, 'hex');
+
 }
 
 async function count() {
-  return await redis.hlenAsync(`utxo`);
+  return await redis.hlen(`utxo`);
 }
 
 export {

@@ -1,7 +1,9 @@
 'use strict'
 
-import ethUtil from 'ethereumjs-util'
-const BN = ethUtil.BN
+import {Worker} from 'worker_threads';
+import * as ethUtil from 'ethereumjs-util';
+import BN from 'bn.js';
+
 
 /** Mekle Patricia trie */
 class Merkle {
@@ -17,60 +19,31 @@ class Merkle {
       }
     }
 
-    this.iterations = 0
   }
 
   getMerkleRoot() {
-    return this.rootNode && this.rootNode.hash
+    const hash = this.rootNode && this.rootNode.hash;
+    if (!hash)
+      return null;
+
+    return Buffer.from(hash)
   }
 
-  buildNode(childNodes, key = '', level = 0) {
-    let node = {key}
-    this.iterations++
 
-    if (childNodes.length == 1) {
-      let nodeKey = level == 0 ?
-        childNodes[0].key :
-        childNodes[0].key.slice(level - 1)
-      node.key = nodeKey
-
-      let nodeHashes = Buffer.concat([Buffer.from(ethUtil.keccak256(nodeKey)),
-        childNodes[0].hash])
-      node.hash = ethUtil.keccak256(nodeHashes)
-      return node
-    }
-
-    let leftChilds = []
-    let rightChilds = []
-
-    childNodes.forEach((node) => {
-      if (node.key[level] == '1') {
-        rightChilds.push(node)
-      } else {
-        leftChilds.push(node)
-      }
+  runBuildNodeService(workerData) {
+    return new Promise((resolve, reject) => {
+      const worker = new Worker(__dirname + '/MerkleWorker.js', {workerData});
+      worker.on('message', resolve);
+      worker.on('error', reject);
+      worker.on('exit', (code) => {
+        if (code !== 0)
+          reject(new Error(`Worker stopped with exit code ${code}`));
+      })
     })
-
-    if (leftChilds.length && rightChilds.length) {
-      node.leftChild = this.buildNode(leftChilds, '0', level + 1)
-      node.rightChild = this.buildNode(rightChilds, '1', level + 1)
-      let nodeHashes = Buffer.concat([Buffer.from(ethUtil.keccak256(node.key)),
-        node.leftChild.hash,
-        node.rightChild.hash])
-      node.hash = ethUtil.keccak256(nodeHashes)
-    } else if (leftChilds.length && !rightChilds.length) {
-      node = this.buildNode(leftChilds, key + '0', level + 1)
-    } else if (!leftChilds.length && rightChilds.length) {
-      node = this.buildNode(rightChilds, key + '1', level + 1)
-    } else if (!leftChilds.length && !rightChilds.length) {
-      throw new Error('invalid tree')
-    }
-
-    return node
   }
 
-  buildTree() {
-    this.rootNode = this.buildNode(this.leaves)
+  async buildTree() {
+    this.rootNode = await this.runBuildNodeService(this.leaves);
   }
 
   getProof(tokenId, returnBinary) {
@@ -103,8 +76,10 @@ class Merkle {
           proof.unshift(Buffer.from(ethUtil.keccak256(nodeKey)))
           proof.unshift(Buffer.from([0x01]))
         } else {
-          proof.unshift({right: node.rightChild.hash,
-            key: ethUtil.keccak256(nodeKey)})
+          proof.unshift({
+            right: node.rightChild.hash,
+            key: ethUtil.keccak256(nodeKey)
+          })
         }
         node = node.leftChild
         key = key.slice(nodeKey.length)
@@ -127,7 +102,7 @@ class Merkle {
   // checkProof(proof, leafHash, merkleRoot) {
   checkProof(proof, leafHash) {
 
-    const merkleRoot =  this.rootNode.hash;
+    const merkleRoot = this.rootNode.hash;
 
     if (!merkleRoot || !leafHash || !proof) {
       return false

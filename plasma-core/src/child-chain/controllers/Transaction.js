@@ -3,39 +3,23 @@
  * moonion.com;
  */
 
-import ethUtil from 'ethereumjs-util'
-import {initFields, sign} from '../helpers';
-import TransactionModel, * as Transaction from '../models/Transaction';
-
-import BD from 'binary-data';
-import {addTransaction} from '../models/db/TxMemPool';
-
-
-const TransactionProtocol = {
-  prevHash: BD.types.buffer(20),
-  prevBlock: BD.types.uint24le,
-  tokenId: BD.types.string(),
-  type: BD.types.uint8,
-  newOwner: BD.types.buffer(20),
-  data: BD.types.buffer(null),
-  hash: BD.types.string(64),
-};
+import * as ethUtil from 'ethereumjs-util';
+import * as Transaction from '../models/Transaction';
 
 async function deposit({depositor: owner, tokenId, amount, blockNumber}) {
 
   // logger.info(`receive new deposit token: ${tokenId} owner: ${owner}`);
   let tx = {
-    prevHash: '0x123',
-    prevBlock: ethUtil.intToBuffer(-1),
+    prevHash: ethUtil.toBuffer(ethUtil.addHexPrefix(owner)),
+    prevBlock: 0,
     tokenId,
-    type: Transaction.TYPES.PAY,
     newOwner: ethUtil.toBuffer(ethUtil.addHexPrefix(owner)),
+    type: Transaction.TYPES.PAY,
     dataLength: 0,
-    data: new Buffer(0)
+    data: ethUtil.toBuffer(''),
   };
   tx = Transaction.sign(tx);
   await add(tx);
-
   return {status: true};
 }
 
@@ -43,43 +27,44 @@ async function deposit({depositor: owner, tokenId, amount, blockNumber}) {
 async function add(tx) {
   const isValid = await Transaction.validate(tx);
   if (!isValid) throw new Error('The transaction is not valid');
-  Transaction.pushToPool(tx);
+
+  tx.blockNumber = 0;
+  tx.timestamp = (new Date()).getTime();
+  await Transaction.pushToPool(tx);
   return tx;
 }
 
 
 async function send(transaction) {
-  // p2pEmitter.sendNewTransaction(transaction);
-  await add(transaction);
-  depositCount++;
-  return ethUtil.toBuffer('0x124');
-  return tx.getJson();
+  const tx = await add(transaction);
+  return Buffer.from("0x123", 'hex');
+  return Transaction.getJson(tx);
 }
 
 
-async function getPool(json) {
-  return await TransactionModel.getPool(json);
+async function getPool() {
+  const transactions = await Transaction.getPool();
+  return transactions.map(tx => Transaction.getJson(tx));
 }
 
 async function getPoolSize() {
-  return await TransactionModel.getPoolSize();
+  return await Transaction.getPoolSize();
 }
 
 async function get(hash) {
-  hash = hash.startsWith("0x") ? hash.slice(2) : hash
-  const tx = await TransactionModel.get(hash);
+  const tx = await Transaction.get(hash);
   if (!tx) throw new Error('The Transaction not found');
-  return tx.getJson();
+  return Transaction.getJson(tx);
 }
 
 
 async function count() {
-  return await TransactionModel.count();
+  return await Transaction.count();
 }
 
 async function getTransactionsByAddress(address) {
-  const transactions = await TransactionModel.getByAddress(address);
-  return transactions.map(tx => tx.getJson());
+  const transactions = await Transaction.getByAddress(address);
+  return transactions.map(tx => Transaction.getJson(tx));
 }
 
 export {
@@ -87,7 +72,6 @@ export {
   add,
   get,
   deposit,
-  demo,
   getPool,
   getPoolSize,
   getTransactionsByAddress,

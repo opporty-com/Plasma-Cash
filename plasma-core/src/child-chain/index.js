@@ -13,40 +13,27 @@ import * as Block from './controllers/Block';
 import * as Token from './controllers/Token';
 
 
-
-plasmaContract.on('DepositAdded', async (error, event) => {
-  if (error)
-    return logger.error(error);
-
-  try {
-    await Transaction.deposit(event.returnValues);
-  } catch (error) {
-    logger.error(error);
-  }
-});
-
-plasmaContract.on('BlockSubmitted', async (error, event) => {
-  if (error)
-    return logger.error(error);
-
-  try {
-    await Block.submitted(event.returnValues);
-  } catch (error) {
-    logger.error(error);
-  }
-
-});
-
-
 if (process.env.IS_SUBBMITTER) {
   const blockCreator = new BlockCreator({
     minTransactionsInBlock: 1,
   });
   server.create();
+
+
+  plasmaContract.on('DepositAdded', async (error, event) => {
+    if (error)
+      return logger.error(error);
+
+    try {
+      await Transaction.deposit(event.returnValues);
+    } catch (error) {
+      logger.error(error);
+    }
+  });
 }
 
 if (process.env.IS_VALIDATOR) {
-  client.create({uri: "ws://submit1:9000"});
+  client.create({uri: process.env.NODES});
   client.on(client.EVENT_MESSAGES.PREPARE_NEW_BLOCK, async payload => {
     try {
       await Block.validation(payload);
@@ -54,8 +41,20 @@ if (process.env.IS_VALIDATOR) {
       logger.error(error);
     }
   });
-}
 
+  plasmaContract.on('BlockSubmitted', async (error, event) => {
+    if (error)
+      return logger.error(error);
+
+    try {
+      await Block.submitted(event.returnValues);
+    } catch (error) {
+      logger.error(error);
+    }
+
+  });
+
+}
 
 
 // p2pEmitter.on(p2pEmitter.EVENT_MESSAGES.NEW_TX_CREATED, async payload => {
@@ -83,8 +82,6 @@ if (process.env.IS_VALIDATOR) {
 // });
 
 
-
-
 validators.addCandidate(process.env.PLASMA_NODE_ADDRESS);
 
 
@@ -94,8 +91,9 @@ setInterval(async () => {
   const countToken = await Token.count();
   const countPool = await Transaction.getPoolSize();
   const memory = process.memoryUsage().heapUsed / 1024 / 1024;
-  const peers = server.getCountPeers();
+  const peers = process.env.IS_SUBBMITTER ? server.getCountPeers() : client.getCountPeers();
   logger.info(`Transactions: ${countTx}(${countTx - prevCountTx}) | Pool size: ${countPool}(${countPool - prevCountPool}) | Tokens: ${countToken}(${countToken - prevCountToken}) | Peers: ${peers} | Memory: ${memory}`);
+
 
   prevCountTx = countTx;
   prevCountToken = countToken;

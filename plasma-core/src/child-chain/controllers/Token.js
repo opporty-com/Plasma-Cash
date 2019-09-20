@@ -3,39 +3,36 @@
  * moonion.com;
  */
 
-import TokenModel from '../models/Token';
-import TransactionModel from '../models/Transaction';
-import ethUtil from "ethereumjs-util";
-
-
+import * as Token from '../models/Token';
+import * as Transaction from '../models/Transaction';
 
 async function get(tokenId) {
-  if(!tokenId) throw new Error("Token not found")
-  const token = await TokenModel.get(tokenId);
-  if ( !token ) throw new Error("Token not found")
-  return token.getJson();
+  if (!tokenId) throw new Error("Token not found")
+  const token = await Token.get(tokenId);
+  if (!token) throw new Error("Token not found")
+  return Token.getJson(token);
 }
 
 async function getByAddress(address) {
-  const owner = ethUtil.addHexPrefix(address);
-  const tokens = await TokenModel.getByOwner(owner);
-  return tokens.map(token => token.getJson());
+  const tokens = await Token.getByOwner(address);
+  return tokens.map(token => Token.getJson(token));
 }
 
 async function getTransactions(tokenId) {
-  const transactions = await TransactionModel.getByToken(tokenId);
+  const transactions = await Transaction.getByToken(tokenId);
   return transactions.map(tx => tx.getJson());
 }
 
 async function getLastTransaction(tokenId) {
-  const tx = await TransactionModel.getLastByToken(tokenId);
-  if(!tx) throw new Error("Transaction not found");
-  return tx.getJson();
+  const tx = await Transaction.getLastByToken(tokenId);
+  if (!tx) throw new Error("Transaction not found");
+  return Transaction.getJson(tx);
 }
 
-async function count(){
-  return await TokenModel.count();
+async function count() {
+  return await Token.count();
 }
+
 export {
   get,
   getByAddress,

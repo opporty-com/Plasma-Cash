@@ -1,58 +1,44 @@
 'use strict'
 
 import redis from '../../lib/redis';
-import logger from "../../lib/logger";
 
 
 async function exists(hash) {
-  const hashStr = hash.toString('hex');
-  return (await redis.hexistsAsync('txpool', hashStr)) !== 0
+  const hashStr = hash instanceof Buffer ? hash.toString('hex') : hash;
+  return (await redis.hexists('txpool', hashStr)) !== 0
 }
 
 async function size() {
-  return await redis.hlenAsync('txpool')
+  return await redis.hlen('txpool')
 }
 
 async function remove(hash) {
-  const hashStr = hash.toString('hex');
-  return await redis.hdelAsync('txpool', hashStr)
+  const hashStr = hash instanceof Buffer ? hash.toString('hex') : hash;
+  return await redis.hdel('txpool', hashStr)
 }
 
 async function clear() {
-  return await redis.delAsync('txpool')
+  return await redis.del('txpool')
 }
 
-async function addTransaction(hash, txRpl) {
-  // const hashStr = hash.toString('hex');
-  // const hashStr = hash;
-  // if (await this.exists(hash)) {
-  //   throw Error('the transaction is already exists');
-  // }
-  //
-  // console.log(hashStr, txRpl);
-  // console.log(hashStr.length, txRpl.length);
-  // const rpl = txRpl.toString('hex');
-  // await redis.hsetAsync('txpool', hash, txRpl);
-  await redis.hsetAsync('txpool', hash, txRpl.toString('hex'));
+async function addTransaction(hash, buffer) {
+  const hashStr = hash instanceof Buffer ? hash.toString('hex') : hash;
+  await redis.hsetAsync('txpool', hashStr, buffer.toString('hex'));
   return hash;
 }
 
-async function removeTransactions(hashes) {
-  for (let hash of hashes) {
-    await redis.hdelAsync('txpool', hash.toString('hex'))
+async function getTransactions(limit) {
+  const tx = await redis.hvals("txpool");
+  if (tx.length === 0) {
+    return []
   }
-  return hashes;
+  let transactions = tx;
+  if (limit && limit < tx.length)
+    transactions = tx.slice(0, limit);
+
+  return transactions.map(t => Buffer.from(t, 'hex'));
 }
 
-async function getTransactions(onlyHash) {
-  const tx = await redis.hvalsAsync("txpool");
-  return tx.map(t=>Buffer.from(t, 'hex'));
-}
-
-async function getTransactionsByHashes(hashes) {
-  const hashesStr = hashes.map(hash => hash.toString('hex'));
-  return await redis.hmgetAsync(Buffer.from("txpool"), hashesStr);
-}
 
 export {
   exists,
@@ -60,7 +46,5 @@ export {
   remove,
   clear,
   addTransaction,
-  removeTransactions,
   getTransactions,
-  getTransactionsByHashes
 }

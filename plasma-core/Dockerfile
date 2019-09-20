@@ -1,4 +1,4 @@
-FROM node:10.16-buster
+FROM node:12.10
 
 #RUN apt-get update && apt-get -y install git make gcc g++ python
 
@@ -6,8 +6,9 @@ RUN mkdir -p /usr/src/app
 
 WORKDIR /usr/src/app
 
+
 COPY package.json /usr/src/app
-COPY package-lock.json /usr/src/app
+#COPY package-lock.json /usr/src/app
 RUN npm i
 
 COPY .babelrc /usr/src/app/

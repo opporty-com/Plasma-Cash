@@ -4,7 +4,7 @@
  */
 
 import * as RLP from 'rlp'
-import ethUtil from 'ethereumjs-util'
+import * as ethUtil from 'ethereumjs-util';
 import config from "../../config";
 
 

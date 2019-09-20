@@ -58,9 +58,17 @@ class ContractHandler extends EventEmitter {
     return await this.contract.methods.getCurrentBlock().call();
   }
 
-  async createDeposit({ from, value, gas }) {
-    return await this.contract.methods.deposit().send({ from, value, gas })
+  async estimateCreateDepositkGas(address) {
+    return await this.contract.methods
+      .deposit()
+      .estimateGas({from: address});
   }
+
+  async createDeposit({from, value, gas}) {
+    const response = await this.contract.methods.deposit().send({from, value, gas})
+    return response.events.DepositAdded.returnValues.tokenId;
+  }
+
 
   async estimateSubmitBlockGas(hash, number, address) {
     return await this.contract.methods
@@ -73,10 +81,18 @@ class ContractHandler extends EventEmitter {
       .submitBlock(hash, number)
       .send({from: address, gas: parseInt(gas) + 15000});
   }
-  async getTokenBalance(tokenId){
-    return (await this.contract.methods.getToken(tokenId).call()).toString();
+
+  async getTokenBalance(tokenId) {
+    let amount = '0';
+    try {
+      amount = await this.contract.methods.getToken(tokenId).call();
+    } catch (e) {
+      console.log(e);
+    }
+    return amount.toString();
   }
-  async checkProof(merkle, root, proof){
+
+  async checkProof(merkle, root, proof) {
     return await this.contract.methods.checkPatriciaProof(merkle, root, proof).call();
   }
 }
