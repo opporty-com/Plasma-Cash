@@ -8,12 +8,12 @@ import redis from '../../lib/redis';
 
 async function add(hash, buffer) {
   const hashStr = hash instanceof Buffer ? hash.toString('hex') : hash;
-  return await redis.hset('transactions', hashStr, buffer.toString('hex'));
+  return await redis.hsetAsync('transactions', hashStr, buffer.toString('hex'));
 }
 
 async function addToToken(token, hash) {
   const hashStr = hash instanceof Buffer ? hash.toString('hex') : hash;
-  await redis.hset(`transactions:token:last`, token, hashStr);
+  await redis.hsetAsync(`transactions:token:last`, token, hashStr);
   return await redis.sadd(`transactions:token:${token}`, hashStr);
 }
 

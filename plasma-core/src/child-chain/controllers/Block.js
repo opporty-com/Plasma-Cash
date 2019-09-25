@@ -13,11 +13,11 @@ import * as Transaction from '../models/Transaction';
 
 async function validation(payload) {
   if (!process.env.IS_VALIDATOR) return;
-  logger.info("Validate Block", payload.length);
+  // logger.info("Validate Block", payload.length);
 
   const block = Block.fromBuffer(payload);
 
-  logger.info(`Start Validate Block  #${block.number}`);
+  // logger.info(`Start Validate Block  #${block.number}`);
 
   const isValid = await Block.validate(block);
   if (!isValid)
@@ -27,12 +27,12 @@ async function validation(payload) {
 
   await Block.pushToPool(block);
 
-  logger.info(`block # ${block.number} added to pool`);
+  // logger.info(`block # ${block.number} added to pool`);
 
   const merkle = await Block.getMerkleRootHash(block);
   client.sendCommitBlock(merkle);
 
-  logger.info(`block # ${block.number} commit`);
+  // logger.info(`block # ${block.number} commit`);
 }
 
 async function submitted({operator, merkleRoot, blockNumber}) {
@@ -64,7 +64,7 @@ async function submitted({operator, merkleRoot, blockNumber}) {
       console.log("execute transactions", i);
   }
 
-  await Promise.all((Array(10000)).fill(0).map(async i => await execute()));
+  await Promise.all((Array(Math.min(10000, block.transactions.length))).fill(0).map(async i => await execute()));
 
   // for (let tx of block.transactions) {
   //   tx.blockNumber = block.number;

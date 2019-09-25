@@ -36,7 +36,7 @@ const MESSAGE_CODE = {
 const protocol = {
   code: BD.types.uint8,
   versionProtocol: BD.types.uint24le,
-  sec: BD.types.uint8,
+  seq: BD.types.uint8,
   countChunk: BD.types.uint24le,
   chunkNumber: BD.types.uint24le,
   length: BD.types.uint24le,
@@ -44,7 +44,7 @@ const protocol = {
 };
 const ChunkSize = 1000000;
 
-let sec = 0;
+let seq = 0;
 
 function noop() {
 }
@@ -68,12 +68,12 @@ class Server extends EventEmitter {
       client.istream = BD.createDecode(protocol);
 
 
-      client._sendChunk = (sec, chunkNumber) => {
-        if (!this.chunks[sec])
+      client._sendChunk = (seq, chunkNumber) => {
+        if (!this.chunks[seq])
           return;
-        const {countChunk, payload, code} = this.chunks[sec];
+        const {countChunk, payload, code} = this.chunks[seq];
         if (chunkNumber >= countChunk)
-          return delete this.chunks[sec];
+          return delete this.chunks[seq];
 
         const data = payload.slice(chunkNumber * ChunkSize, Math.min((chunkNumber + 1) * ChunkSize, payload.length));
 
@@ -82,7 +82,7 @@ class Server extends EventEmitter {
 
         client.ostream.write({
           code,
-          sec,
+          seq,
           versionProtocol: this.versionProtocol,
           chunkNumber,
           countChunk,
@@ -94,16 +94,16 @@ class Server extends EventEmitter {
       };
       client._send = (code, payload) => {
         // console.log("send to ", req.connection.remoteAddress, code);
-        sec++;
-        if (sec >= 255) sec = 0;
+        seq++;
+        if (seq >= 255) seq = 0;
         const countChunk = Math.ceil(payload.length / ChunkSize);
 
-        this.chunks[sec] = {
+        this.chunks[seq] = {
           code,
           countChunk,
           payload
         };
-        client._sendChunk(sec, 0);
+        client._sendChunk(seq, 0);
       };
       const duplex = WebSocket.createWebSocketStream(client, {compress: false, binary: true});
 
@@ -111,9 +111,9 @@ class Server extends EventEmitter {
 
       client.ostream.pipe(duplex);
       duplex.pipe(client.istream).on('data', packet => {
-        const {code, sec, versionProtocol, length, payload, chunkNumber, countChunk} = packet;
+        const {code, seq, versionProtocol, length, payload, chunkNumber, countChunk} = packet;
         if (code === MESSAGE_CODES.CHUNK_RECEIVE)
-          return client._sendChunk(sec, chunkNumber + 1);
+          return client._sendChunk(seq, chunkNumber + 1);
 
         this.emit(MESSAGE_CODE[code], payload, client);
       });
@@ -186,17 +186,17 @@ class Client extends EventEmitter {
 
       this.ostream.pipe(duplex);
       duplex.pipe(this.istream).on('data', packet => {
-        const {code, versionProtocol, length, payload, sec, chunkNumber, countChunk} = packet;
+        const {code, versionProtocol, length, payload, seq, chunkNumber, countChunk} = packet;
         if (countChunk === 1)
           return this.emit(MESSAGE_CODE[code], payload);
 
-        if (!this.chunks[sec])
-          this.chunks[sec] = [];
+        if (!this.chunks[seq])
+          this.chunks[seq] = [];
 
-        this.chunks[sec].push(packet);
+        this.chunks[seq].push(packet);
         this.ostream.write({
           code: MESSAGE_CODES.CHUNK_RECEIVE,
-          sec,
+          seq,
           versionProtocol: this.versionProtocol,
           chunkNumber,
           countChunk,
@@ -204,10 +204,10 @@ class Client extends EventEmitter {
           payload: Buffer.from('')
         });
 
-        if (this.chunks[sec].length !== countChunk)
+        if (this.chunks[seq].length !== countChunk)
           return;
-        const data = this.chunks[sec].sort((a, b) => a.chunkNumber - b.chunkNumber).map(i => i.payload);
-        const dataLength = this.chunks[sec].reduce((acc, val) => acc + val.length, 0);
+        const data = this.chunks[seq].sort((a, b) => a.chunkNumber - b.chunkNumber).map(i => i.payload);
+        const dataLength = this.chunks[seq].reduce((acc, val) => acc + val.length, 0);
         return this.emit(MESSAGE_CODE[code], Buffer.concat(data));
       });
 

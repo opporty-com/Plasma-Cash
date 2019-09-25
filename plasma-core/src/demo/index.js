@@ -6,6 +6,7 @@ import {promise as plasma, client as plasmaClient} from "./plasma-client";
 import * as ethUtil from "ethereumjs-util";
 
 import BD from 'binary-data';
+import config from "../config";
 
 plasmaClient();
 const colors = {
@@ -52,33 +53,51 @@ const nodes = [
 
 ];
 
+// let addresses = [];
 
-// let addresses = [
-//   {
-//     address: "0x95006D7ddb8dc5BE140d06ECe1Bdb1FffBe81385",
-//     password: defaultPassword,
-//   }, {
-//     address: "0xe30C44EAAe07B21768B9023cD86a939a528126Db",
-//     password: defaultPassword,
-//   }, {
-//     address: "0xAA833586FD627d4A9fA4814A165e5b87CEA05e93",
-//     password: defaultPassword,
-//   }, {
-//     address: "0xa7A2c3a83B9807873caa6C7C0622cBF82667e097",
-//     password: defaultPassword,
-//   }, {
-//     address: "0x2d7db92Fcc8203cD247cD36fAdbA3F86Fb38b1f4",
-//     password: defaultPassword,
-//   }, {
-//     address: "0xC20C7E7d92580d367D0827FF03CBD01636B9aA4e",
-//     password: defaultPassword,
-//   }, {
-//     address: "0xd80448a597DFD36Cc3612d2Eb3567EAedCF899c1",
-//     password: defaultPassword,
-//   }
-// ];
-
-let addresses = [];
+let addresses = [
+  {
+    address: "0x5F37D668c180584C99eeb3181F2548E66524663b",
+    password: defaultPassword,
+    privateKey: '75c531a112aa02134615bb9e481d984b5aea4159f7ef28f100a8530ba7b96cc5'
+  }, {
+    address: "0xa1E8e10AC00964CC2658E7dc3E1A017f0BB3D417",
+    password: defaultPassword,
+    privateKey: 'a9f0374e8bbe95682d3a4230068b631223c81b985a782c2d71ace7eb0a679122'
+  }, {
+    address: "0xF8536D809bF1064ac92abd5c3e64b84287C15b3D",
+    password: defaultPassword,
+    privateKey: 'fe5e915225a7f6da14461c74c847b53e4b2d064219f57d9e68f00b9df4875c51'
+  }, {
+    address: "0x9FaAA5C2a9b4e4C2Adb2cb91470023daA399cB05",
+    password: defaultPassword,
+    privateKey: 'e47b16e9c04ac88941c4a10db9c471c20b7808e9bfa8b653884f48fa979fc59d'
+  }, {
+    address: "0x535D24D047A725a6A215557fce50FE3313E6fF1c",
+    password: defaultPassword,
+    privateKey: '171195e014000efeb471f3bf77653d6f96b3099e843f186ec370f833255f3b92'
+  }, {
+    address: "0x9128a9C77c363351aB66a1fe547028e2FC330B53",
+    password: defaultPassword,
+    privateKey: '95b226c1f10198eb8a564d2c2be61ca399643f3044a04acf24501108c50c0ade'
+  }, {
+    address: "0x01517Ad0b546dD976b16E0787115ea4Cc265B74a",
+    password: defaultPassword,
+    privateKey: '6a653419e85f6ba1d97a0256660778a94344f890047f7d44e2b74978c21d7790'
+  }, {
+    address: "0x07B159F68ef75691987edA3f63911372d7D1B06c",
+    password: defaultPassword,
+    privateKey: '3f77d8b07a108f95fbef09a5b1ba3c6b9e36ea169d33d69eea43361cb75c3ae7'
+  }, {
+    address: "0xc017eFa942bF70Cfbb700318aEF3e2Bc30C0c6b3",
+    password: defaultPassword,
+    privateKey: 'a665de23235461a80ed452320c72f786905bfc899aff11b1ad33bf6fe83955bd'
+  }, {
+    address: "0xfd0A77075115C20b41B5F29646d76D52Fb23Aef8",
+    password: defaultPassword,
+    privateKey: '6a6577032c8cf470bc25bd50a79e555d955af0e9c065f1f3cca4ff39b25df8d1'
+  }
+];
 
 
 let tokens = {};
@@ -162,7 +181,7 @@ async function deposit(countPerAddress = 1, useEth = true) {
   let transactions = [];
 
 
-  log(`Create deposit transaction:`, colors.blue);
+  log(`Create deposit ${addresses.length * countPerAddress} transactions`, colors.blue);
   for (let account of addresses) {
     const {address, password, privateKey} = account;
 
@@ -195,23 +214,39 @@ async function deposit(countPerAddress = 1, useEth = true) {
 
       data.hash = ethUtil.keccak(RLP.encode(dataToEncode));
 
+
+
+
+      let msgHash = ethUtil.hashPersonalMessage(data.hash);
+      let key = Buffer.from(privateKey, 'hex');
+      let sig = ethUtil.ecsign(msgHash, key);
+      data.signature = ethUtil.toBuffer(ethUtil.toRpcSig(sig.v, sig.r, sig.s))
+
+
+
       // const {signature} = web3.eth.accounts.sign(ethUtil.addHexPrefix(data.hash.toString('hex')), privateKey);
       // data.signature = ethUtil.toBuffer(signature);
 
 
-      data.signature = ethUtil.toBuffer(await web3.eth.sign(ethUtil.addHexPrefix(data.hash.toString('hex')), address));
+      // data.signature = ethUtil.toBuffer(await web3.eth.sign(ethUtil.addHexPrefix(data.hash.toString('hex')), address));
 
 
       const packet = BD.encode(data, TransactionProtocol);
       transactions.push(packet.slice());
+
+      // if(transactions.length % 1000 === 0)
+      //   log(`${transactions.length} transactions have been created`, colors.blue);
     }
+    log(`${transactions.length} transactions have been created`, colors.blue);
   }
 
   log(`${transactions.length} deposit transaction have been created`, colors.blue);
 
-  log(`Send deposit`, colors.blue);
+  log(`Send ${transactions.length} deposits`, colors.blue);
 
   let i = -1;
+
+  const start = new Date();
 
   async function send() {
     i++;
@@ -223,7 +258,9 @@ async function deposit(countPerAddress = 1, useEth = true) {
 
   await Promise.all((Array(Math.min(transactions.length, 10000))).fill(0).map(async i => await send()));
 
-  log(`Deposit ${transactions.length} tokens`, colors.blue);
+  const end = new Date();
+
+  log(`Deposit ${transactions.length} tokens for ${(end.getTime() - start.getTime()) / 1000} sec. ~ ${transactions.length / ((end.getTime() - start.getTime()) / 1000)} transactions per sec`, colors.blue);
 
   log(`End ${countPerAddress * addresses.length} deposit from test address`, colors.blue);
 }
@@ -342,7 +379,7 @@ async function start() {
   log("Start Demo", colors.red);
   try {
     // await checkETHBalances();
-    await createAccount(10);
+    // await createAccount(10);
     // await checkETHBalances();
     // await sendEth();
     // await checkETHBalances();

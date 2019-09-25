@@ -1,0 +1,110 @@
+version: '3.3'
+services:
+  redissubmit:
+    image: redis
+    logging:
+      driver: "none"
+    volumes:
+      - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./data/redis/submit:/var/run/redis"
+    command: "redis-server /usr/local/etc/redis/redis.conf"
+
+  redisvalidator1:
+    image: redis
+    logging:
+      driver: "none"
+    volumes:
+      - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./data/redis/validator1:/var/run/redis"
+    command: "redis-server /usr/local/etc/redis/redis.conf"
+
+  redisvalidator2:
+    image: redis
+    logging:
+      driver: "none"
+    volumes:
+      - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./data/redis/validator2:/var/run/redis"
+    command: "redis-server /usr/local/etc/redis/redis.conf"
+
+  submit:
+    build: ./plasma-core
+    ports:
+      - "8080:80"
+      - "9000:9000"
+    volumes:
+      - "./data/redis/submit:/var/run/redis"
+    links:
+      - redissubmit
+    environment:
+      NODE_ENV: development
+      PLASMA_CONTRACT_ADDRESS: '0x88055065d6655AB56F99973DA710253F93efb2eB'
+      PLASMA_CONTRACT_OWNER_ADDRESS: '0x1CAd72F28B34141dB68D37f43b18d5e120c51f2A'
+      PLASMA_NODE_ADDRESS: '0xf0ca73acd8c7bacaaa94efe28730783a58a6f403'
+      PLASMA_NODE_PRIVATE: '70dac63359b94810694dce6dd8532cd73e5056db6ecc5bb602a103b64511d8e7'
+      PLASMA_NODE_PASSWORD: '123123123'
+      WEB3_WS_PROVIDER: 'ws://94.130.89.154:8546'
+#      IS_SUBBMITTER: 1
+      IS_VALIDATOR: 1
+      COUNT_CHECK_PROOF: 2
+      LOG_LEVEL: "info"
+      NODE_OPTIONS: "--max-old-space-size=6096"
+      PRODUCTION_MODE: "OFF"
+      NODES: ws://78.46.108.239:9000
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+
+
+  validator1:
+    build: ./plasma-core
+    ports:
+      - "8081:80"
+    volumes:
+      - "./data/redis/validator1:/var/run/redis"
+    links:
+      - redisvalidator1
+      - submit
+    environment:
+      NODE_ENV: development
+      PLASMA_CONTRACT_ADDRESS: '0x88055065d6655AB56F99973DA710253F93efb2eB'
+      PLASMA_NODE_ADDRESS: '0x76ed0955af5c39a8122e5069c6a0a4cc129a11ef'
+      PLASMA_NODE_PRIVATE: '44e5d898b001f7910c7f21ac097c5bfe164b6af875b36218c0c69268b0cb0d0c'
+      PLASMA_NODE_PASSWORD: '123123123'
+      WEB3_WS_PROVIDER: 'ws://94.130.89.154:8546'
+      IS_VALIDATOR: 1
+      LOG_LEVEL: "info"
+      NODE_OPTIONS: "--max-old-space-size=6096"
+      PRODUCTION_MODE: "OFF"
+      NODES: ws://78.46.108.239:9000
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+
+  validator2:
+    build: ./plasma-core
+    ports:
+      - "8082:80"
+    volumes:
+      - "./data/redis/validator2:/var/run/redis"
+    links:
+      - redisvalidator2
+      - submit
+    environment:
+      NODE_ENV: development
+      PLASMA_CONTRACT_ADDRESS: '0x88055065d6655AB56F99973DA710253F93efb2eB'
+      PLASMA_NODE_ADDRESS: '0x4309d070cdc587fec998426a34002371cec24a69'
+      PLASMA_NODE_PRIVATE: '68023ed09a6512cb02a1a3d8c0fd1c9424c85d6be9004286a5439c69f65d3047'
+      PLASMA_NODE_PASSWORD: '123123123'
+      WEB3_WS_PROVIDER: 'ws://94.130.89.154:8546'
+      IS_VALIDATOR: 1
+      LOG_LEVEL: "info"
+      NODE_OPTIONS: "--max-old-space-size=6096"
+      PRODUCTION_MODE: "OFF"
+      NODES: ws://78.46.108.239:9000
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'

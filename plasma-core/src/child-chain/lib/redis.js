@@ -8,7 +8,6 @@ const ioredis = new Redis("/var/run/redis/redis.sock");
 let hsetData = {};
 
 function hsetEval(data) {
-console.log("hsetEval");
   clearTimeout(data.timeout);
   data.timeout = null;
   data.isProcess = true;

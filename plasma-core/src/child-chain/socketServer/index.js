@@ -14,7 +14,7 @@ const protocol = {
   messageId: BD.types.uint24le,
   error: BD.types.uint8,
   length: BD.types.uint24le,
-  value: BD.types.buffer(({node}) => node.length)
+  payload: BD.types.buffer(({node}) => node.length)
 };
 
 
@@ -36,17 +36,17 @@ const server = net.createServer(socket => {
   const istream = BD.createDecode(protocol);
   ostream.pipe(socket);
   socket.pipe(istream).on('data', async packet => {
-    const {type, messageId, value, error} = packet;
+    const {type, messageId, payload, error} = packet;
 
-    let data = BD.decode(value, TransactionProtocol);
-    data._buffer = value;
+    let data = BD.decode(payload, TransactionProtocol);
+    data._buffer = payload;
     const result = await send(data);
     const res = {
       type,
       messageId,
       error: 0,
       length: result.length,
-      value: result
+      payload: result
     };
     ostream.write(res);
   });

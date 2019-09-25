@@ -50,11 +50,10 @@ class BlockCreator {
     logger.info(`Prepare Block submit # ${newBlockNumber}`);
 
 
-    const limitT = 1000000;
-    // const limitT = 1;
-    logger.info(`transactions limitT`, 1, limitT);
+    // const limitT = 1000000;
+    const limitT = 350000;
     const transactions = await Transaction.getPool(limitT);
-    logger.info(`transactions`, 2, transactions.length);
+    // logger.info(`transactions`, 2, transactions.length);
     let blockTransactions = [];
     for (let tx of transactions) {
       const isValid = await Transaction.validate(tx);
@@ -63,7 +62,7 @@ class BlockCreator {
       } else
         await Transaction.removeFromPool(tx);
     }
-    logger.info(`transactions`, 3, blockTransactions.length);
+    logger.info(`${blockTransactions.length} transactions in Block #${newBlockNumber}`);
     if (blockTransactions.length === 0) {
       logger.info('Successful transactions is not defined for this block');
       return false;
@@ -76,12 +75,12 @@ class BlockCreator {
       transactions: blockTransactions,
     };
 
-    logger.info(`sign block #${newBlockNumber}`, 0);
+    logger.info(`Start sign block #${newBlockNumber}`);
 
+    const signature = await Block.sign(block);
+    logger.info(`End sign block #${newBlockNumber}`);
 
-      const signature = await Block.sign(block);
-    logger.info(`sign block #${newBlockNumber}`, 1);
-
+    const blockMerkleRootHash = await Block.getMerkleRootHash(block);
 
     if (Number(PBFT_F)) {
       try {
@@ -93,21 +92,22 @@ class BlockCreator {
 
           const buffer = Block.getBuffer(block);
 
-          logger.info(`send block #${newBlockNumber}`, buffer.length);
+          // logger.info(`send block #${newBlockNumber}`, buffer.length);
           server.validateNewBlock(buffer);
-          logger.info(`sent block #${newBlockNumber}`, buffer.length);
+          // logger.info(`sent block #${newBlockNumber}`, buffer.length);
 
           let rejectTimeout = setTimeout(() => {
             logger.info("reject timeout")
             server.removeListener(server.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
             reject()
-          }, config.blockPeriod);
+          }, config.blockTime);
 
 
           function getValidateBlock(payload) {
+
             commit++;
             if (commit < PBFT_F) {
-              logger.info(`wait commit Block`);
+              // logger.info(`wait commit Block`);
               return;
             }
 
@@ -125,10 +125,10 @@ class BlockCreator {
       }
     }
 
-
+    logger.info(`Block  #${newBlockNumber} is started submitting to rootchain`);
     await Block.pushToPool(block);
 
-    const blockMerkleRootHash = await Block.getMerkleRootHash(block);
+
 
     try {
       await web3.eth.personal.unlockAccount(config.plasmaNodeAddress, config.plasmaNodePassword);

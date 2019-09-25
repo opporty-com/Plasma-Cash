@@ -11,7 +11,7 @@ const protocol = {
   messageId: BD.types.uint24le,
   error: BD.types.uint8,
   length: BD.types.uint24le,
-  value: BD.types.buffer(({node}) => node.length)
+  payload: BD.types.buffer(({node}) => node.length)
 };
 
 
@@ -22,14 +22,14 @@ function client() {
   socket = net.createConnection("/var/run/plasma.socket", () => {
     ostream.pipe(socket);
     socket.pipe(istream).on('data', packet => {
-      const {type, messageId, value, error} = packet;
+      const {type, messageId, payload, error} = packet;
       const promise = promises[messageId];
       if (messageId && promise) {
         clearTimeout(promise.timeout);
         if (error)
-          promise.reject(value);
+          promise.reject(payload);
         else
-          promise.resolve(value);
+          promise.resolve(payload);
 
         delete promises[messageId];
       }
@@ -52,7 +52,7 @@ const promise = data => new Promise((resolve, reject) => {
     error: 0,
     messageId: i,
     length: data.length,
-    value: data
+    payload: data
   };
   promises[i] = {resolve, reject, timeout: timeout(reject)};
   ostream.write(packet);

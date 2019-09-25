@@ -1,0 +1,16 @@
+version: '3.3'
+services:
+  truffle:
+    build: ./truffle
+    #stdin_open: true
+    tty: true
+    environment:
+      ETH_NODE: ws://94.130.89.154:8546
+      ETH_FROM: 1cad72f28b34141db68d37f43b18d5e120c51f2a
+
+    volumes:
+      - ./truffle/app:/usr/src/app
+    logging:
+      options:
+        max-size: 1000m
+    restart: "no"

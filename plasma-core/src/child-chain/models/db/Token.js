@@ -7,7 +7,7 @@ import redis from '../../lib/redis';
 
 
 async function add(tokenId, buffer) {
-  return await redis.hset('utxo', tokenId, buffer.toString('hex'));
+  return await redis.hsetAsync('utxo', tokenId, buffer.toString('hex'));
 }
 
 async function addOwner(owner, tokenId) {

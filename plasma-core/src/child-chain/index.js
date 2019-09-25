@@ -92,7 +92,8 @@ setInterval(async () => {
   const countPool = await Transaction.getPoolSize();
   const memory = process.memoryUsage().heapUsed / 1024 / 1024;
   const peers = process.env.IS_SUBBMITTER ? server.getCountPeers() : client.getCountPeers();
-  logger.info(`Transactions: ${countTx}(${countTx - prevCountTx}) | Pool size: ${countPool}(${countPool - prevCountPool}) | Tokens: ${countToken}(${countToken - prevCountToken}) | Peers: ${peers} | Memory: ${memory}`);
+  // if(prevCountTx !== countTx || prevCountToken !== countToken || prevCountPool !== countPool)
+  logger.info(`Txs: ${countTx}(${countTx - prevCountTx}) | TXPool: ${countPool}(${countPool - prevCountPool}) | Tokens: ${countToken}(${countToken - prevCountToken}) | Peers: ${peers}`);
 
 
   prevCountTx = countTx;
