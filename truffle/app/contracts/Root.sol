@@ -227,22 +227,25 @@ contract Root {
         require(checkPatriciaProof(hashPrevTx, childChain[prev_blk].merkle_root, proof0));
         require(prev_hash == hashPrevTx);
 
-        Exit storage record = exitRecords[token_id];
-        require(record.block_num == 0);
+        //tmp
+        msg.sender.transfer(tokens[token_id]);
 
-        record.block_num = block_num;
-        record.new_owner = msg.sender;
-        record.prev_block = prev_blk;
-
-        if (childChain[block_num].time > block.timestamp - week)
-            record.priority = childChain[block_num].time;
-        else
-            record.priority = block.timestamp - week;
-
-        exits.add(record.priority);
-        exit_ids[record.priority].push(token_id);
-
-        emit ExitAdded(msg.sender, record.priority, token_id);
+//        Exit storage record = exitRecords[token_id];
+//        require(record.block_num == 0);
+//
+//        record.block_num = block_num;
+//        record.new_owner = msg.sender;
+//        record.prev_block = prev_blk;
+//
+//        if (childChain[block_num].time > block.timestamp - week)
+//            record.priority = childChain[block_num].time;
+//        else
+//            record.priority = block.timestamp - week;
+//
+//        exits.add(record.priority);
+//        exit_ids[record.priority].push(token_id);
+//
+//        emit ExitAdded(msg.sender, record.priority, token_id);
         return token_id;
     }
     /*
