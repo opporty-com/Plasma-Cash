@@ -17,7 +17,7 @@ class ContractHandler extends EventEmitter {
   restartWatchEvents() {
     if (this.isWatchingEvents) return;
 
-    if (this.web3._provider.connected) {
+    if (this.web3.currentProvider.connected) {
       this.watchEvents()
     } else {
       console.log('Delay restartWatchEvents');
@@ -37,13 +37,13 @@ class ContractHandler extends EventEmitter {
     }
     this.isWatchingEvents = true;
 
-    this.web3._provider.on('error', (e) => {
-      console.log("error this.web3._provider", e);
+    this.web3.currentProvider.on('error', (e) => {
+      console.log("error this.web3.currentProvider", e);
       this.isWatchingEvents = false;
       this.restartWatchEvents()
     });
-    this.web3._provider.on('end', (e) => {
-      console.log("end this.web3._provider", e);
+    this.web3.currentProvider.on('end', (e) => {
+      console.log("end this.web3.currentProvider", e);
       this.isWatchingEvents = false;
       this.restartWatchEvents()
     });
