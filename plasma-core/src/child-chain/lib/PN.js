@@ -165,36 +165,51 @@ class Client extends EventEmitter {
   versionProtocol = 1;
   EVENT_MESSAGES = MESSAGE_LABEL;
 
-  chunks = {};
+  wss = [];
 
   create(options) {
     console.log('WS client create')
     if (!options.uri)
       throw "Not found URI";
 
-    this.ws = new WebSocket(options.uri);
-    this.ws.on('open', () => {
-      console.log("WS OPEN")
-      this.ostream = BD.createEncode(protocol);
-      this.istream = BD.createDecode(protocol);
-      const duplex = WebSocket.createWebSocketStream(this.ws, {compress: false, binary: true, maxPayload: 1000000000});
+    console.log(options.uri);
+    console.log(Array.isArray(options.uri));
+    const uris = Array.isArray(options.uri) ? options.uri : [options.uri];
+
+    for (const uri of uris)
+      this._connect({...options, uri})
+
+  }
+
+  _connect(options) {
+    this.wss = this.wss.filter(ws => ws._uri !== options.uri);
+
+    const ws = new WebSocket(options.uri);
+    ws._uri = options.uri;
+    ws.chunks = {};
+
+    ws.on('open', () => {
+      console.log(`WS OPEN ${ options.uri}`);
+      ws.ostream = BD.createEncode(protocol);
+      ws.istream = BD.createDecode(protocol);
+      const duplex = WebSocket.createWebSocketStream(ws, {compress: false, binary: true, maxPayload: 1000000000});
 
       duplex.on('error', err => console.log(err));
-      this.ostream.on('error', err => console.log(err));
-      this.istream.on('error', err => console.log(err));
+      ws.ostream.on('error', err => console.log(err));
+      ws.istream.on('error', err => console.log(err));
 
 
-      this.ostream.pipe(duplex);
-      duplex.pipe(this.istream).on('data', packet => {
+      ws.ostream.pipe(duplex);
+      duplex.pipe(ws.istream).on('data', packet => {
         const {code, versionProtocol, length, payload, seq, chunkNumber, countChunk} = packet;
         if (countChunk === 1)
           return this.emit(MESSAGE_CODE[code], payload);
 
-        if (!this.chunks[seq])
-          this.chunks[seq] = [];
+        if (!ws.chunks[seq])
+          ws.chunks[seq] = [];
 
-        this.chunks[seq].push(packet);
-        this.ostream.write({
+        ws.chunks[seq].push(packet);
+        ws.ostream.write({
           code: MESSAGE_CODES.CHUNK_RECEIVE,
           seq,
           versionProtocol: this.versionProtocol,
@@ -204,48 +219,51 @@ class Client extends EventEmitter {
           payload: Buffer.from('')
         });
 
-        if (this.chunks[seq].length !== countChunk)
+        if (ws.chunks[seq].length !== countChunk)
           return;
-        const data = this.chunks[seq].sort((a, b) => a.chunkNumber - b.chunkNumber).map(i => i.payload);
-        const dataLength = this.chunks[seq].reduce((acc, val) => acc + val.length, 0);
+        const data = ws.chunks[seq].sort((a, b) => a.chunkNumber - b.chunkNumber).map(i => i.payload);
+        const dataLength = ws.chunks[seq].reduce((acc, val) => acc + val.length, 0);
         return this.emit(MESSAGE_CODE[code], Buffer.concat(data));
       });
 
-      this._heartbeat();
+      this._heartbeat.bind(ws)();
     });
-    this.ws.on('ping', this._heartbeat.bind(this));
-    this.ws.on('error', err => {
-      clearTimeout(this.pingTimeout);
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = setTimeout(() => {
-        this.create(options);
+    ws.on('ping', this._heartbeat.bind(ws));
+    ws.on('error', err => {
+      clearTimeout(ws.pingTimeout);
+      clearTimeout(ws.reconnectTimeout);
+      ws.reconnectTimeout = setTimeout(() => {
+        this._connect(options);
       }, 1000)
 
     });
-    this.ws.on('close', () => {
-      console.log('close');
-      clearTimeout(this.reconnectTimeout);
+    ws.on('close', () => {
+      console.log(`WS CLOSE ${ options.uri}`);
+      clearTimeout(ws.reconnectTimeout);
       this.reconnectTimeout = setTimeout(() => {
-        this.create(options);
+        this._connect(options);
       }, 1000)
 
     });
+
+    this.wss.push(ws);
   }
 
   _heartbeat() {
     clearTimeout(this.pingTimeout);
     this.pingTimeout = setTimeout(() => {
-      this.ws.terminate();
+      this.terminate();
     }, 30000 + 1000);
   }
 
   _send(code, payload) {
-    this.ostream.write({
-      code,
-      versionProtocol: this.versionProtocol,
-      length: payload.length,
-      payload
-    });
+    for (const ws of this.wss)
+      ws.ostream.write({
+        code,
+        versionProtocol: this.versionProtocol,
+        length: payload.length,
+        payload
+      });
   }
 
   sendCommitBlock(block) {
@@ -253,7 +271,7 @@ class Client extends EventEmitter {
   }
 
   getCountPeers() {
-    return this.ws.readyState !== WebSocket.OPEN ? 1 : 0
+    return this.wss.length;
   }
 }
 

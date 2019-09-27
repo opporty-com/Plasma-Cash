@@ -24,6 +24,15 @@ class BlockCreator {
   async submit() {
     const lastSubmittedBlock = await plasmaContract.getCurrentBlock();
     logger.info(`last submitted block #${lastSubmittedBlock}`);
+
+
+    const currentValidator = await validators.getCurrent();
+    if (!(currentValidator === config.plasmaNodeAddress)) {
+      logger.info('Please wait your turn to submit');
+      return false;
+    }
+
+
     let count = 0;
     try {
       count = await Transaction.getPoolSize();
@@ -36,11 +45,7 @@ class BlockCreator {
       return false;
     }
 
-    const currentValidator = await validators.getCurrent();
-    if (!(currentValidator === config.plasmaNodeAddress)) {
-      logger.info('Please wait your turn to submit');
-      return false;
-    }
+
     if (server.getCountPeers() < PBFT_F) {
       logger.info('Please wait validators');
       return false;
@@ -100,10 +105,12 @@ class BlockCreator {
             logger.info("reject timeout")
             server.removeListener(server.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
             reject()
-          }, config.blockTime);
+          }, config.blockTime-config.blockPeriod);
 
 
           function getValidateBlock(payload) {
+            if (payload.toString('hex') !== blockMerkleRootHash.toString('hex'))
+              return;
 
             commit++;
             if (commit < PBFT_F) {
@@ -129,9 +136,9 @@ class BlockCreator {
     await Block.pushToPool(block);
 
 
-
     try {
-      await web3.eth.personal.unlockAccount(config.plasmaNodeAddress, config.plasmaNodePassword);
+      await web3.eth.personal.unlockAccount(config.contractOwnerAddress, config.plasmaNodePassword);
+      // await web3.eth.personal.unlockAccount(config.plasmaNodeAddress, config.plasmaNodePassword);
     } catch (error) {
       logger.error(`Error submit Block  #${newBlockNumber}, unlock address:`, error.toString());
       throw new Error(`Error submit Block  #${newBlockNumber}, unlock address: ${error.toString()}`);
@@ -139,14 +146,16 @@ class BlockCreator {
 
     let gas = 0;
     try {
-      gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress);
+      // gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress);
+      gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, newBlockNumber, config.contractOwnerAddress);
     } catch (error) {
       logger.error(`Error submit Block  #${newBlockNumber}, estimate gas:`, error.toString());
       throw new Error(`Error submit Block  #${newBlockNumber}, estimate gas: ${error.toString()}`);
     }
 
     try {
-      await plasmaContract.submitBlock(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress, gas)
+      // await plasmaContract.submitBlock(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress, gas)
+      await plasmaContract.submitBlock(blockMerkleRootHash, newBlockNumber, config.contractOwnerAddress, gas)
     } catch (error) {
       logger.error('Error submit block in contract', error.toString());
       throw new Error(`Error submit block in contract ${error.toString()}`)

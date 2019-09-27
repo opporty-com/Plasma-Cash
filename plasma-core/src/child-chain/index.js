@@ -33,7 +33,10 @@ if (process.env.IS_SUBBMITTER) {
 }
 
 if (process.env.IS_VALIDATOR) {
-  client.create({uri: process.env.NODES});
+
+  const nodes = process.env.NODES ? JSON.parse(process.env.NODES) : [];
+
+  client.create({uri: nodes});
   client.on(client.EVENT_MESSAGES.PREPARE_NEW_BLOCK, async payload => {
     try {
       await Block.validation(payload);
@@ -84,6 +87,9 @@ if (process.env.IS_VALIDATOR) {
 
 validators.addCandidate(process.env.PLASMA_NODE_ADDRESS);
 
+// validators.addCandidate("0x1CAd72F28B34141dB68D37f43b18d5e120c51f2A");
+// validators.addCandidate("0xf0ca73acd8c7bacaaa94efe28730783a58a6f403");
+// validators.addCandidate("0x76ed0955af5c39a8122e5069c6a0a4cc129a11ef");
 
 let prevCountTx = 0, prevCountToken = 0, prevCountPool = 0;
 setInterval(async () => {

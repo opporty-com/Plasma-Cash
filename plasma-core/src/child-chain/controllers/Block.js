@@ -43,10 +43,10 @@ async function submitted({operator, merkleRoot, blockNumber}) {
     throw Error(`Not found Block  #${blockNumber}`);
 
 
-  const signer = await Block.getSigner(block);
-  if (ethUtil.addHexPrefix(operator).toLowerCase() !== ethUtil.addHexPrefix(signer).toLowerCase()
-    || block.number !== parseInt(blockNumber))
-    throw Error(`Block is huk  #${blockNumber}`);
+  // const signer = await Block.getSigner(block);
+  // if (ethUtil.addHexPrefix(operator).toLowerCase() !== ethUtil.addHexPrefix(signer).toLowerCase()
+  //   || block.number !== parseInt(blockNumber))
+  //   throw Error(`Block is huk  #${blockNumber}`);
 
   logger.info(`Block added #${blockNumber}; Start execute ${block.transactions.length} transactions `);
   let i = -1;
