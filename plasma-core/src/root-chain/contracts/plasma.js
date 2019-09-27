@@ -37,16 +37,16 @@ class ContractHandler extends EventEmitter {
     }
     this.isWatchingEvents = true;
 
-    // this.web3.currentProvider.on('error', (e) => {
-    //   console.log("error this.web3.currentProvider", e);
-    //   this.isWatchingEvents = false;
-    //   this.restartWatchEvents()
-    // });
-    // this.web3.currentProvider.on('end', (e) => {
-    //   console.log("end this.web3.currentProvider", e);
-    //   this.isWatchingEvents = false;
-    //   this.restartWatchEvents()
-    // });
+    this.web3.currentProvider.on('error', (e) => {
+      console.log("error this.web3.currentProvider", e);
+      this.isWatchingEvents = false;
+      this.restartWatchEvents()
+    });
+    this.web3.currentProvider.on('end', (e) => {
+      console.log("end this.web3.currentProvider", e);
+      this.isWatchingEvents = false;
+      this.restartWatchEvents()
+    });
     this.contract = new this.web3.eth.Contract(this.abi, this.address);
 
     this.contract.events.allEvents((error, data) => {
