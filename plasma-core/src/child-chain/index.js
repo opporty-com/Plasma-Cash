@@ -99,7 +99,7 @@ setInterval(async () => {
   const memory = process.memoryUsage().heapUsed / 1024 / 1024;
   const peers = process.env.IS_SUBBMITTER ? server.getCountPeers() : client.getCountPeers();
   // if(prevCountTx !== countTx || prevCountToken !== countToken || prevCountPool !== countPool)
-  logger.info(`Txs: ${countTx}(${countTx - prevCountTx}) | TXPool: ${countPool}(${countPool - prevCountPool}) | Tokens: ${countToken}(${countToken - prevCountToken}) | Peers: ${peers}`);
+  logger.info(`Txs: ${countTx}(${countTx - prevCountTx}) | TXPool: ${countPool}(${countPool - prevCountPool}) | Tokens: ${countToken}(${countToken - prevCountToken}) | Peers: ${peers} | Memory: ${memory}`);
 
 
   prevCountTx = countTx;

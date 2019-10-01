@@ -124,13 +124,13 @@ contract Root {
 
     /*
      * Exit records (can be challenged)
-     */ 
+     */
     mapping(uint => uint[]) public exit_ids;
     mapping(uint => Exit) public exitRecords;
 
     /*
      * Smart contract constructor (initial blocknum and depositnum values)
-     */ 
+     */
     function Root() public {
         authority = msg.sender;
         current_blk = 0;
@@ -148,7 +148,7 @@ contract Root {
     }
     /*
      * RLP decoding from bytes to Transaction object fields
-     */ 
+     */
     function getTransactionFromRLP(bytes rlp) public pure returns (
         bytes32 prevhash,
         uint prev_block,
@@ -171,20 +171,19 @@ contract Root {
      * merkleRoot - merkle root of the block
      * block_num - current block number
      */
-    function submitBlock(bytes32 merkleRoot, uint block_num) public {
+    function submitBlock(bytes32 merkleRoot) public {
         // only operators and creator of the contract are able to submit block
         require(operators[msg.sender] || msg.sender == authority);
-        require(uint8(block_num) == current_blk + 1);
         // let's create new block in the chain
+        current_blk += 1;
         Block memory newBlock = Block({
             block_num: current_blk,
             merkle_root: merkleRoot,
             time: block.timestamp
         });
-        childChain[block_num] = newBlock;
+        childChain[current_blk] = newBlock;
 
-        current_blk = block_num;
-        emit BlockSubmitted(msg.sender, merkleRoot, block_num);
+        emit BlockSubmitted(msg.sender, merkleRoot, current_blk);
     }
 
     /*
@@ -219,9 +218,9 @@ contract Root {
         uint token_id;
         address new_owner;
         (prev_hash, prev_blk, token_id, new_owner,) = getTransactionFromRLP(tx1);
-    
+
         require(msg.sender == new_owner);
-        
+
         require(tokens[token_id] > 0);
         bytes32 hashPrevTx = keccak256(tx0);
         require(checkPatriciaProof(hashPrevTx, childChain[prev_blk].merkle_root, proof0));
@@ -249,7 +248,7 @@ contract Root {
      * Challenge exit by providing
      * a proof of a transaction spending C
      */
-    function challengeSpent(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
+    function challengeSpent(uint exit_id, uint blk_num, bytes tx1, bytes proof) public {
         require(checkPatriciaProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
 
         Exit memory record = exitRecords[exit_id];
@@ -272,15 +271,15 @@ contract Root {
      * Challenge exit by providing
      * a proof of a transaction spending P(C) that appears before C
      */
-    function challengeDoubleSpend(uint exit_id, uint blk_num, bytes tx1, bytes proof) public { 
+    function challengeDoubleSpend(uint exit_id, uint blk_num, bytes tx1, bytes proof) public {
         require(checkPatriciaProof(keccak256(tx1), childChain[blk_num].merkle_root, proof));
 
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
 
-       // bytes32 prev_hash; 
+       // bytes32 prev_hash;
         uint prev_block;
-        uint token_id; 
+        uint token_id;
         (, prev_block , token_id, ) = getTransactionFromRLP(tx1);
         require(tokens[token_id] > 0);
 
@@ -296,15 +295,15 @@ contract Root {
     //  * Challenge exit by providing
     //  * a transaction C* in the coin’s history before P(C)
     //  */
-    function challengeInvalidHistory(uint exit_id, uint blk_num, bytes tx0, bytes proof) public { 
+    function challengeInvalidHistory(uint exit_id, uint blk_num, bytes tx0, bytes proof) public {
         // check if proof is valid
         require(checkPatriciaProof(keccak256(tx0), childChain[blk_num].merkle_root, proof));
-        
+
         Exit memory record = exitRecords[exit_id];
         require(record.block_num > 0);
 
-        bytes32 prev_hash; 
-        uint token_id; 
+        bytes32 prev_hash;
+        uint token_id;
         (prev_hash, , token_id, ) = getTransactionFromRLP(tx0);
 
         //require(exit_id == token_id);
@@ -328,9 +327,9 @@ contract Root {
 
         require(checkPatriciaProof(keccak256(childtx), childChain[blk_num].merkle_root, proof));
         // get transaction from rlpencoded form
-        bytes32 prev_hash; 
+        bytes32 prev_hash;
         uint prev_block;
-        uint token_id; 
+        uint token_id;
         (prev_hash, prev_block, token_id, ) = getTransactionFromRLP(childtx);
         // if direct child
         if (prev_block == challenged[exit_id] ) {
@@ -360,7 +359,7 @@ contract Root {
                 delete tokens[index];
             }
             delete exit_ids[priority];
-            
+
         }
         return true;
     }
@@ -383,7 +382,7 @@ contract Root {
         }
         return hash == root;
     }
-    
+
     // check if merkle proof is valid
     function checkPatriciaProof(bytes32 merkle, bytes32 root, bytes proof) pure public returns (bool valid)
     {
@@ -411,7 +410,7 @@ contract Root {
         }
         return hash == root;
     }
-    
+
     // get current block number
     function getCurrentBlock() public view returns(uint) {
         return current_blk;
@@ -444,5 +443,5 @@ contract Root {
     // get balance of specific address
     function getBalance(address addr) public view returns(uint) {
         return addr.balance;
-    } 
+    }
 }

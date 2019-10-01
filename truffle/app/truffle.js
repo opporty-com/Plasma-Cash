@@ -37,6 +37,18 @@ module.exports = {
             websockets: true,
             confirmations: 2, // # of confs to wait between deployments. (default: 0)
             skipDryRun: true
+        },
+        rinkeby: {
+            provider,
+            from: process.env.ETH_FROM,
+            // gas: 8000029,
+            // gas: 8000029,
+            // // gas: 4500000,
+            // gasPrice: 10000000000,
+            network_id: 4, // Match any network id
+            websockets: true,
+            confirmations: 2, // # of confs to wait between deployments. (default: 0)
+            skipDryRun: true
         }
     }
 };

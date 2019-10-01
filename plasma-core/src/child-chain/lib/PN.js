@@ -223,6 +223,8 @@ class Client extends EventEmitter {
           return;
         const data = ws.chunks[seq].sort((a, b) => a.chunkNumber - b.chunkNumber).map(i => i.payload);
         const dataLength = ws.chunks[seq].reduce((acc, val) => acc + val.length, 0);
+        delete  ws.chunks[seq];
+
         return this.emit(MESSAGE_CODE[code], Buffer.concat(data));
       });
 
@@ -253,7 +255,7 @@ class Client extends EventEmitter {
     clearTimeout(this.pingTimeout);
     this.pingTimeout = setTimeout(() => {
       this.terminate();
-    }, 30000 + 1000);
+    }, 30000 + 10000);
   }
 
   _send(code, payload) {

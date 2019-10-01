@@ -55,8 +55,8 @@ class BlockCreator {
     logger.info(`Prepare Block submit # ${newBlockNumber}`);
 
 
-    // const limitT = 1000000;
-    const limitT = 350000;
+    const limitT = 1000000;
+    // const limitT = 350000;
     const transactions = await Transaction.getPool(limitT);
     // logger.info(`transactions`, 2, transactions.length);
     let blockTransactions = [];
@@ -83,9 +83,12 @@ class BlockCreator {
     logger.info(`Start sign block #${newBlockNumber}`);
 
     const signature = await Block.sign(block);
-    logger.info(`End sign block #${newBlockNumber}`);
+
 
     const blockMerkleRootHash = await Block.getMerkleRootHash(block);
+    const blockHash = blockMerkleRootHash.toString('hex');
+
+    logger.info(`End sign block #${newBlockNumber} (${blockHash})`);
 
     if (Number(PBFT_F)) {
       try {
@@ -93,7 +96,7 @@ class BlockCreator {
           let commit = 0;
 
 
-          logger.info(`send block #${newBlockNumber}`);
+          logger.info(`send block #${newBlockNumber} (${blockHash})`);
 
           const buffer = Block.getBuffer(block);
 
@@ -105,11 +108,11 @@ class BlockCreator {
             logger.info("reject timeout")
             server.removeListener(server.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
             reject()
-          }, config.blockTime-config.blockPeriod);
+          }, config.blockTime*4);
 
 
           function getValidateBlock(payload) {
-            if (payload.toString('hex') !== blockMerkleRootHash.toString('hex'))
+            if (payload.toString('hex') !== blockHash)
               return;
 
             commit++;
@@ -120,7 +123,7 @@ class BlockCreator {
 
             server.removeListener(server.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
             clearTimeout(rejectTimeout);
-            logger.info(`Block #${newBlockNumber} has been validated successful`);
+            logger.info(`Block #${newBlockNumber} (${blockHash}) has been validated successful`);
             return resolve();
           }
 
@@ -132,7 +135,7 @@ class BlockCreator {
       }
     }
 
-    logger.info(`Block  #${newBlockNumber} is started submitting to rootchain`);
+    logger.info(`Block  #${newBlockNumber} (${blockHash}) is started submitting to rootchain`);
     await Block.pushToPool(block);
 
 
@@ -147,7 +150,7 @@ class BlockCreator {
     let gas = 0;
     try {
       // gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress);
-      gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, newBlockNumber, config.contractOwnerAddress);
+      gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, config.contractOwnerAddress);
     } catch (error) {
       logger.error(`Error submit Block  #${newBlockNumber}, estimate gas:`, error.toString());
       throw new Error(`Error submit Block  #${newBlockNumber}, estimate gas: ${error.toString()}`);
@@ -155,7 +158,7 @@ class BlockCreator {
 
     try {
       // await plasmaContract.submitBlock(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress, gas)
-      await plasmaContract.submitBlock(blockMerkleRootHash, newBlockNumber, config.contractOwnerAddress, gas)
+      await plasmaContract.submitBlock(blockMerkleRootHash, config.contractOwnerAddress, gas)
     } catch (error) {
       logger.error('Error submit block in contract', error.toString());
       throw new Error(`Error submit block in contract ${error.toString()}`)
@@ -165,7 +168,7 @@ class BlockCreator {
       await Transaction.removeFromPool(tx);
     }
 
-    logger.info(`Block  #${newBlockNumber} has been submitted successful`);
+    logger.info(`Block  #${newBlockNumber} (${blockHash}) has been submitted successful`);
   }
 
   async interval() {

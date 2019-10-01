@@ -17,20 +17,21 @@ async function validation(payload) {
 
   const block = Block.fromBuffer(payload);
 
+  const blockMerkleRootHash = await Block.getMerkleRootHash(block);
+  const blockHash = blockMerkleRootHash.toString('hex');
   // logger.info(`Start Validate Block  #${block.number}`);
 
   const isValid = await Block.validate(block);
   if (!isValid)
-    throw Error(`Not valid Block  #${block.number}`);
+    throw Error(`Not valid Block  #${block.number} (${blockHash})`);
 
-  logger.info(`Block # ${block.number} is valid`);
+  logger.info(`Block # ${block.number} (${blockHash}) is valid`);
 
   await Block.pushToPool(block);
 
   // logger.info(`block # ${block.number} added to pool`);
 
-  const merkle = await Block.getMerkleRootHash(block);
-  client.sendCommitBlock(merkle);
+  client.sendCommitBlock(blockMerkleRootHash);
 
   // logger.info(`block # ${block.number} commit`);
 }
@@ -38,15 +39,17 @@ async function validation(payload) {
 async function submitted({operator, merkleRoot, blockNumber}) {
   logger.info('Block submitted #', blockNumber, merkleRoot, operator);
 
-  const block = await Block.getPool(merkleRoot.toLowerCase());
+  let block = await Block.getPool(merkleRoot.toLowerCase());
   if (!block)
     throw Error(`Not found Block  #${blockNumber}`);
 
+  block.number = parseInt(blockNumber);
 
   // const signer = await Block.getSigner(block);
   // if (ethUtil.addHexPrefix(operator).toLowerCase() !== ethUtil.addHexPrefix(signer).toLowerCase()
   //   || block.number !== parseInt(blockNumber))
   //   throw Error(`Block is huk  #${blockNumber}`);
+
 
   logger.info(`Block added #${blockNumber}; Start execute ${block.transactions.length} transactions `);
   let i = -1;
@@ -60,24 +63,10 @@ async function submitted({operator, merkleRoot, blockNumber}) {
     tx.timestamp = now;
     await Transaction.execute(tx);
     await execute();
-    if (i % 1000 === 0)
-      console.log("execute transactions", i);
   }
 
   await Promise.all((Array(Math.min(10000, block.transactions.length))).fill(0).map(async i => await execute()));
 
-  // for (let tx of block.transactions) {
-  //   tx.blockNumber = block.number;
-  //   tx.timestamp = now;
-  //   try {
-  //     await Transaction.execute(tx);
-  //   } catch (e) {
-  //     logger.error(e);
-  //   }
-  //   i++;
-  //   if (i % 1000 === 0)
-  //     console.log("execute transactions", i);
-  // }
 
   await Block.save(block, true);
   await Block.removeFromPool(block);
