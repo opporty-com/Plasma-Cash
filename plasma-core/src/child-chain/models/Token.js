@@ -6,11 +6,18 @@ import * as ethUtil from 'ethereumjs-util';
 import BD from 'binary-data';
 import * as TokenDb from './db/Token';
 
+export const STATUSES = {
+  ACTIVE: 1,
+  IN_EXIT: 2,
+  EXIT: 3
+};
+
 const Protocol = {
   id: BD.types.string(null),
   owner: BD.types.buffer(20),
   block: BD.types.uint24le,
   amount: BD.types.string(null),
+  status: BD.types.uint8,
 };
 
 

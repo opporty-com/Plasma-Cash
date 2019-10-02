@@ -33,10 +33,33 @@ async function count() {
   return await Token.count();
 }
 
+// emit ExitAdded(msg.sender, record.priority, token_id);
+//  event ExitAdded(address exitor, uint priority, uint exitId);
+async function startExit({exitor, priority, exitId}) {
+  const token = await Token.get(exitId);
+  if (!token) throw new Error("Token not found");
+  token.status = Token.STATUSES.IN_EXIT;
+  await Token.save(token);
+  return Token.getJson(token);
+}
+
+//  emit ExitCompleteEvent(current_blk, record.block_num, record.token_id, tokens[record.token_id]);
+//  event ExitCompleteEvent(uint blockNumber, uint exitBlockNumber, uint exitTokenId, uint exitDenom);
+async function endExit({blockNumber, exitBlockNumber, exitTokenId, exitDenom}) {
+  const token = await Token.get(exitTokenId);
+  if (!token) throw new Error("Token not found");
+  token.status = Token.STATUSES.EXIT;
+  await Token.save(token);
+  return Token.getJson(token);
+}
+
+
 export {
   get,
   getByAddress,
   getTransactions,
   getLastTransaction,
-  count
+  count,
+  startExit,
+  endExit
 }

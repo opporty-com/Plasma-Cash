@@ -134,6 +134,9 @@ async function validate(tx) {
       return true;
     if (!token) return false;
 
+    if (token.status !== Token.STATUSES.ACTIVE)
+      return false;
+
     return token.owner === getSigner(tx);
   }
 
@@ -196,8 +199,8 @@ async function save(tx) {
   let token = {
     id: tx.tokenId,
     owner: tx.newOwner,
-    // amount: oldToken ? oldToken.amount : await plasmaContract.getTokenBalance(tx.tokenId),
-    amount: "1",
+    amount: oldToken ? oldToken.amount : await plasmaContract.getTokenBalance(tx.tokenId),
+    status: Token.STATUSES.ACTIVE,
     block: tx.blockNumber
   };
 

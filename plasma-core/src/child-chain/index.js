@@ -57,6 +57,68 @@ if (process.env.IS_VALIDATOR) {
 
   });
 
+  plasmaContract.on('ExitAdded', async (error, event) => {
+    if (error)
+      return logger.error(error);
+
+    try {
+      await Token.startExit(event.returnValues);
+    } catch (error) {
+      logger.error(error);
+    }
+
+  });
+
+  plasmaContract.on('ExitCompleteEvent', async (error, event) => {
+    if (error)
+      return logger.error(error);
+
+    try {
+      await Token.endExit(event.returnValues);
+    } catch (error) {
+      logger.error(error);
+    }
+
+  });
+
+
+
+
+
+  plasmaContract.on('ExitChallengedEvent', async (error, event) => {
+    if (error)
+      return logger.error(error);
+
+    try {
+      await Block.submitted(event.returnValues);
+    } catch (error) {
+      logger.error(error);
+    }
+
+  });
+  plasmaContract.on('ChallengedInvalidHistory', async (error, event) => {
+    if (error)
+      return logger.error(error);
+
+    try {
+      await Block.submitted(event.returnValues);
+    } catch (error) {
+      logger.error(error);
+    }
+
+  });
+  plasmaContract.on('ExitRespondedEvent', async (error, event) => {
+    if (error)
+      return logger.error(error);
+
+    try {
+      await Block.submitted(event.returnValues);
+    } catch (error) {
+      logger.error(error);
+    }
+
+  });
+
 }
 
 
