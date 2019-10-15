@@ -1,3 +1,4 @@
+import BN from 'bn.js'
 import logger from "./logger";
 import config from "../../config";
 import web3 from "../../root-chain/web3";
@@ -60,10 +61,13 @@ class BlockCreator {
     const transactions = await Transaction.getPool(limitT);
     // logger.info(`transactions`, 2, transactions.length);
     let blockTransactions = [];
+    let totalFee = new BN(0);
+    const zero = new BN(0);
     for (let tx of transactions) {
-      const isValid = await Transaction.validate(tx);
-      if (isValid) {
+      const fee = await Transaction.validate(tx, true);
+      if (BN.isBN(fee) && fee.gte(zero)) {
         blockTransactions.push(tx);
+        totalFee.add(fee)
       } else
         await Transaction.removeFromPool(tx);
     }
@@ -78,6 +82,7 @@ class BlockCreator {
       number: newBlockNumber,
       countTx: blockTransactions.length,
       transactions: blockTransactions,
+      totalFee: totalFee.toString()
     };
 
     logger.info(`Start sign block #${newBlockNumber}`);
@@ -150,7 +155,7 @@ class BlockCreator {
     let gas = 0;
     try {
       // gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress);
-      gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, config.contractOwnerAddress);
+      gas = await plasmaContract.estimateSubmitBlockGas(blockMerkleRootHash, totalFee.toString(), config.contractOwnerAddress);
     } catch (error) {
       logger.error(`Error submit Block  #${newBlockNumber}, estimate gas:`, error.toString());
       throw new Error(`Error submit Block  #${newBlockNumber}, estimate gas: ${error.toString()}`);
@@ -158,7 +163,7 @@ class BlockCreator {
 
     try {
       // await plasmaContract.submitBlock(blockMerkleRootHash, newBlockNumber, config.plasmaNodeAddress, gas)
-      await plasmaContract.submitBlock(blockMerkleRootHash, config.contractOwnerAddress, gas)
+      await plasmaContract.submitBlock(blockMerkleRootHash, totalFee.toString(), config.contractOwnerAddress, gas)
     } catch (error) {
       logger.error('Error submit block in contract', error.toString());
       throw new Error(`Error submit block in contract ${error.toString()}`)

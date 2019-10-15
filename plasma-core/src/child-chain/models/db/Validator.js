@@ -4,7 +4,7 @@
  */
 import redis from '../../lib/redis';
 
-async function addToValidator(address) {
+async function add(address) {
   try {
     return await redis.sadd('validators', address);
   } catch (error) {
@@ -12,7 +12,7 @@ async function addToValidator(address) {
   }
 }
 
-async function deleteFromValidator(address) {
+async function remove(address) {
   try {
     return await redis.srem('validators', address);
   } catch (error) {
@@ -29,13 +29,13 @@ async function isValidator(address) {
   }
 }
 
-async function getValidators() {
+async function get() {
   return await redis.smembers('validators');
 }
 
 export {
-  addToValidator,
-  deleteFromValidator,
+  add,
+  remove,
   isValidator,
-  getValidators
+  get
 }

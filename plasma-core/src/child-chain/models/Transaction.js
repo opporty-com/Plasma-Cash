@@ -16,6 +16,7 @@ import config from "../../config";
 import * as TxMemPoolDb from './db/TxMemPool';
 import * as TransactionDb from './db/Transaction';
 import * as Token from './Token';
+import * as Validator from './Validator';
 
 
 export const TYPES = {
@@ -23,7 +24,7 @@ export const TYPES = {
   VOTE: 2,
   UN_VOTE: 3,
   CANDIDATE: 4,
-  REGISTRATION: 5,
+  RESIGNATION: 5,
   PRIVATE: 6
 };
 
@@ -32,6 +33,8 @@ const Protocol = {
   prevHash: BD.types.buffer(20),
   prevBlock: BD.types.uint24le,
   tokenId: BD.types.string(null),
+  totalFee: BD.types.string(null),
+  fee: BD.types.string(null),
   type: BD.types.uint8,
   newOwner: BD.types.buffer(20),
   dataLength: BD.types.uint24le,
@@ -62,6 +65,8 @@ function getHash(tx) {
       new BN(tx.tokenId),
       tx.newOwner,
       tx.type,
+      new BN(tx.totalFee),
+      new BN(tx.fee),
       tx.data,
       tx.signature,
     ];
@@ -82,7 +87,9 @@ function getSignHash(tx) {
       new BN(tx.tokenId),
       tx.newOwner,
       tx.type,
-      tx.data
+      new BN(tx.totalFee),
+      new BN(tx.fee),
+      tx.data,
     ];
     tx._signBuffer = RLP.encode(dataToEncode);
   }
@@ -123,24 +130,126 @@ function getSigner(tx) {
 }
 
 
-async function validate(tx) {
+async function validateToken(token, owner) {
 
-  if (tx.type === TYPES.PAY
-    || tx.type === TYPES.VOTE
-    || tx.type === TYPES.CANDIDATE
-  ) {
-    const token = await Token.get(tx.tokenId);
-    if (!token && tx.prevBlock === 0)
-      return true;
-    if (!token) return false;
+  if (token.status !== Token.STATUSES.ACTIVE)
+    return false;
 
-    if (token.status !== Token.STATUSES.ACTIVE)
+  return token.owner === owner;
+}
+
+
+async function validate(tx, returnFee = false) {
+
+  const prevTx = await get(tx.prevHash);
+
+  const fee = new BN(tx.fee);
+  if (prevTx) {
+    const calcFee = new BN(tx.totalFee).sub(prevTx.totalFee);
+    if (calcFee.eq(fee))
       return false;
 
-    return token.owner === getSigner(tx);
+    if (tx.tokenId !== prevTx.tokenId)
+      return false;
+
+    if (tx.prevBlock !== prevTx.blockNumber)
+      return false;
+
+  }
+  const token = await Token.get(tx.tokenId);
+  const isValidToken = await validateToken(token, getSigner(tx));
+
+
+  switch (tx.type) {
+    case TYPES.PAY:
+      if (token && (tx.prevBlock === 0 || !isValidToken))
+        return false;
+
+      return returnFee ? fee : true;
+
+    case TYPES.VOTE:
+    case TYPES.CANDIDATE:
+      if (!prevTx)
+        return false;
+
+      if (!isValidToken)
+        return false;
+
+      return returnFee ? fee : true;
+
+    case TYPES.UN_VOTE:
+      if (!prevTx)
+        return false;
+
+      if (!isValidToken)
+        return false;
+
+
+      if (prevTx.tokenId !== tx.tokenId)
+        return false;
+      if (prevTx.type !== TYPES.VOTE)
+        return false;
+      if (prevTx.newOwner.toString('hex') !== tx.newOwner.toString('hex'))
+        return false;
+      if (getSigner(tx) !== getSigner(prevTx))
+        return false;
+
+      return returnFee ? fee : true;
+
+    case TYPES.RESIGNATION:
+      if (!prevTx)
+        return false;
+
+      if (!isValidToken)
+        return false;
+
+      if (prevTx.tokenId !== tx.tokenId)
+        return false;
+
+      if (prevTx.type !== TYPES.CANDIDATE)
+        return false;
+
+      if (getSigner(tx) !== getSigner(prevTx))
+        return false;
+
+      return returnFee ? fee : true;
+
+    default:
+      return false;
+  }
+}
+
+async function execute(tx) {
+  if (tx.type === TYPES.PAY) {
+    await save(tx);
+    return true;
   }
 
-  return false;
+  if (tx.type === TYPES.VOTE) {
+    await Validator.voteCandidate(getSigner(tx), tx.newOwner, tx.tokenId);
+    await save(tx);
+    return true;
+  }
+
+  if (tx.type === TYPES.UN_VOTE) {
+    await Validator.unVoteCandidate(getSigner(tx), tx.newOwner, tx.tokenId);
+    await save(tx);
+    return true;
+  }
+
+
+  if (tx.type === TYPES.CANDIDATE) {
+    await Validator.addToCandidate(getSigner(tx), tx.tokenId);
+    await save(tx);
+    return true;
+  }
+
+  if (tx.type === TYPES.RESIGNATION) {
+    await Validator.deleteFromCandidate(getSigner(tx), tx.tokenId);
+    await save(tx);
+    return true;
+  }
+
 }
 
 async function pushToPool(tx) {
@@ -164,35 +273,7 @@ async function getPoolSize() {
 }
 
 
-async function execute(tx) {
-  if (tx.type === TYPES.PAY) {
-    await save(tx);
-    return true;
-  }
 
-  if (tx.type === TYPES.VOTE) {
-    await validators.addStake({
-      voter: getSigner(tx),
-      candidate: tx.newOwner,
-      value: 1,
-    });
-
-    await save(tx);
-    return true;
-  }
-
-  if (tx.type === TYPES.UN_VOTE) {
-    await validators.toLowerStake({
-      voter: getSigner(tx),
-      candidate: tx.newOwner,
-      value: 1,
-    });
-
-    await save(tx);
-    return true;
-  }
-
-}
 
 async function save(tx) {
   const oldToken = await Token.get(tx.tokenId);
@@ -277,6 +358,7 @@ export {
   getPool,
   execute,
   getJson,
+  getBuffer,
   getByToken,
   getLastByToken,
   getByAddress,

@@ -17,10 +17,12 @@ async function deposit({depositor: owner, tokenId, amount, blockNumber}) {
     type: Transaction.TYPES.PAY,
     dataLength: 0,
     data: ethUtil.toBuffer(''),
+    totalFee: "0",
+    fee: "0",
   };
   tx = Transaction.sign(tx);
   await add(tx);
-  return {status: true};
+  return Transaction.getBuffer(tx)
 }
 
 
@@ -37,8 +39,7 @@ async function add(tx) {
 
 async function send(transaction) {
   const tx = await add(transaction);
-  return Buffer.from("0x123", 'hex');
-  return Transaction.getJson(tx);
+  return Transaction.getBuffer(tx)
 }
 
 

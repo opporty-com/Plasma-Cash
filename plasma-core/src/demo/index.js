@@ -164,6 +164,7 @@ const TransactionProtocol = {
   prevHash: BD.types.buffer(20),
   prevBlock: BD.types.uint24le,
   tokenId: BD.types.string(null),
+  totalFee: BD.types.string(null),
   type: BD.types.uint8,
   newOwner: BD.types.buffer(20),
   dataLength: BD.types.uint24le,
@@ -195,6 +196,7 @@ async function deposit(countPerAddress = 1, useEth = true) {
         prevBlock: 0,
         tokenId,
         type: 1,
+        totalFee: "0",
         newOwner: Buffer.from(ethUtil.stripHexPrefix(address), 'hex'),
         dataLength: 0,
         data: Buffer.from(''),
@@ -385,7 +387,7 @@ async function start() {
     // await checkETHBalances();
     // await checkTokenBalances(true);
     // await checkTokenBalances();
-    await deposit(100000, false);
+    await deposit(1, false);
     // await checkTokenBalances();
 
     // await sendTransactions();

@@ -2,7 +2,7 @@
  * Created by Oleksandr <alex@moonion.com> on 2019-08-07
  * moonion.com;
  */
-import validators from "./lib/validators";
+import Validators from "./lib/Validators";
 import BlockCreator from "./lib/BlockCreator";
 import logger from "./lib/logger";
 import plasmaContract from '../root-chain/contracts/plasma';
@@ -11,6 +11,7 @@ import {client, server} from './lib/PN';
 import * as Transaction from './controllers/Transaction';
 import * as Block from './controllers/Block';
 import * as Token from './controllers/Token';
+import * as Validator from './controllers/Validator';
 
 
 if (process.env.IS_SUBBMITTER) {
@@ -31,6 +32,29 @@ if (process.env.IS_SUBBMITTER) {
     }
   });
 }
+
+plasmaContract.on('OperatorAdded', async (error, event) => {
+  if (error)
+    return logger.error(error);
+
+  try {
+    await Validator.addToValidator(event.returnValues);
+  } catch (error) {
+    logger.error(error);
+  }
+});
+
+plasmaContract.on('OperatorRemoved', async (error, event) => {
+  if (error)
+    return logger.error(error);
+
+  try {
+    await Validator.deleteFromValidator(event.returnValues);
+  } catch (error) {
+    logger.error(error);
+  }
+});
+
 
 if (process.env.IS_VALIDATOR) {
 
@@ -82,9 +106,6 @@ if (process.env.IS_VALIDATOR) {
   });
 
 
-
-
-
   plasmaContract.on('ExitChallengedEvent', async (error, event) => {
     if (error)
       return logger.error(error);
@@ -122,6 +143,8 @@ if (process.env.IS_VALIDATOR) {
 }
 
 
+
+
 // p2pEmitter.on(p2pEmitter.EVENT_MESSAGES.NEW_TX_CREATED, async payload => {
 //   try {
 //     await Transaction.add(payload);
@@ -147,7 +170,7 @@ if (process.env.IS_VALIDATOR) {
 // });
 
 
-validators.addCandidate(process.env.PLASMA_NODE_ADDRESS);
+// validators.addCandidate(process.env.PLASMA_NODE_ADDRESS);
 
 // validators.addCandidate("0x1CAd72F28B34141dB68D37f43b18d5e120c51f2A");
 // validators.addCandidate("0xf0ca73acd8c7bacaaa94efe28730783a58a6f403");

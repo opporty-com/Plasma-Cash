@@ -514,6 +514,10 @@
       {
         "name": "merkleRoot",
         "type": "bytes32"
+      },
+      {
+        "name": "total_fee",
+        "type": "uint256"
       }
     ],
     "name": "submitBlock",

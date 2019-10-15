@@ -1,5 +1,8 @@
 FROM node:10.5.0
 
+ENV CANDIDATE_CHECK_TIMEOUT 60000
+ENV CANDIDATE_COUNT_VOTES 5
+
 RUN mkdir -p /usr/src/app
 
 WORKDIR /usr/src/app

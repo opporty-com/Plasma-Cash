@@ -6,6 +6,7 @@
 import * as RLP from 'rlp'
 import * as ethUtil from 'ethereumjs-util';
 import BD from 'binary-data';
+import BN from 'bn.js'
 
 import PatriciaMerkle from "../lib/PatriciaMerkle";
 
@@ -23,6 +24,7 @@ const Protocol = {
   signature: BD.types.buffer(65),
   countTx: BD.types.uint24le,
   transactions: BD.types.array(Transaction.Protocol, ({current}) => current.countTx),
+  totalFee: BD.types.string(null)
 };
 
 
@@ -112,12 +114,16 @@ async function sign(block) {
 }
 
 async function validate(block) {
+  let totalFee = new BN(block.totalFee);
+  const zero = new BN(0);
   for (let tx of block.transactions) {
-    let txValid = await Transaction.validate(tx);
-    if (!txValid)
+    let fee = await Transaction.validate(tx, true);
+    if (!BN.isBN(fee) || fee.lte(zero))
       return false;
+    totalFee.sub(fee);
   }
-  return true;
+
+  return totalFee.eq(zero);
 }
 
 async function pushToPool(block) {
@@ -166,7 +172,8 @@ function getJson(block) {
     number: block.number,
     merkleRootHash: ethUtil.addHexPrefix(block.merkleRootHash.toString('hex')),
     signature: ethUtil.addHexPrefix(block.signature.toString('hex')),
-    transactions: block.transactions.map(tx => Transaction.getJson(tx))
+    transactions: block.transactions.map(tx => Transaction.getJson(tx)),
+    totalFee: block.totalFee,
   };
 
   return block._json;

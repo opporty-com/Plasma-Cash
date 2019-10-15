@@ -9,7 +9,9 @@ import * as TokenDb from './db/Token';
 export const STATUSES = {
   ACTIVE: 1,
   IN_EXIT: 2,
-  EXIT: 3
+  EXIT: 3,
+  GUARANTEE: 4
+
 };
 
 const Protocol = {
@@ -17,6 +19,7 @@ const Protocol = {
   owner: BD.types.buffer(20),
   block: BD.types.uint24le,
   amount: BD.types.string(null),
+  totalFee: BD.types.string(null),
   status: BD.types.uint8,
 };
 
@@ -49,7 +52,8 @@ function getJson(token) {
     id: token.id,
     owner: ethUtil.addHexPrefix(token.owner.toString('hex')),
     block: token.block,
-    amount: token.amount
+    amount: token.amount,
+    totalFee: token.totalFee,
 
   };
   return token._json;

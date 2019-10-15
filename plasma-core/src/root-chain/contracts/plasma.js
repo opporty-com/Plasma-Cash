@@ -69,16 +69,28 @@ class ContractHandler extends EventEmitter {
     return response.events.DepositAdded.returnValues.tokenId;
   }
 
-
-  async estimateSubmitBlockGas(hash, address) {
+  async estimateSetOperator(operator, status, address) {
     return await this.contract.methods
-      .submitBlock(hash)
+      .setOperator(operator, status)
       .estimateGas({from: address});
   }
 
-  async submitBlock(hash, address, gas) {
+  async setOperator(operator, status, address, gas) {
     return await this.contract.methods
-      .submitBlock(hash)
+      .setOperator(operator, status)
+      .send({from: address, gas: parseInt(gas) + 15000});
+  }
+
+  async estimateSubmitBlockGas(hash, totalFee, address) {
+    return await this.contract.methods
+      .submitBlock(hash, totalFee)
+      .estimateGas({from: address});
+  }
+
+
+  async submitBlock(hash, totalFee, address, gas) {
+    return await this.contract.methods
+      .submitBlock(hash, totalFee)
       .send({from: address, gas: parseInt(gas) + 150000});
   }
 

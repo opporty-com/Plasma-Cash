@@ -4,6 +4,7 @@
  */
 
 import * as ValidatorDb from './db/Validator';
+import * as CandidateDb from './db/Candidate';
 
 
 class Validator {
@@ -69,6 +70,7 @@ class Validator {
     await ValidatorDb.deleteFromValidator(this.getAddress());
   }
 
+
   static async getAddressValidators() {
     return await ValidatorDb.getValidators();
   }
@@ -76,3 +78,50 @@ class Validator {
 
 
 export default Validator;
+
+
+async function getCandidates() {
+  return await CandidateDb.get();
+}
+
+async function addToCandidate(address, token) {
+  return await CandidateDb.add(address, token);
+}
+
+async function deleteFromCandidate(address, token) {
+  return await CandidateDb.remove(address, token);
+}
+
+
+async function voteCandidate(voter, address, token) {
+  return await CandidateDb.vote(address, voter, token);
+}
+
+async function unVoteCandidate(votera, address, token) {
+  return await CandidateDb.unVote(address, voter, token);
+}
+
+
+async function getValidators() {
+  return await ValidatorDb.get();
+}
+
+async function addToValidator(address) {
+  return await ValidatorDb.add(address);
+}
+
+async function deleteFromValidator(address) {
+  return await ValidatorDb.remove(address);
+}
+
+
+export {
+  getCandidates,
+  addToCandidate,
+  deleteFromCandidate,
+  voteCandidate,
+  unVoteCandidate,
+  getValidators,
+  addToValidator,
+  deleteFromValidator
+}
