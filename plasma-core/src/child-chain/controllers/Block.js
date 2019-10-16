@@ -77,12 +77,12 @@ async function submitted({operator, merkleRoot, blockNumber}) {
 async function get(number) {
   const block = await Block.get(number);
   if (!block) throw new Error("Block not found!");
-  return Block.getJson(block);
+  return block;
 }
 
 async function last() {
-  const lastSubmittedBlock = await plasmaContract.getCurrentBlock();
-  return await get(lastSubmittedBlock);
+  const number = await plasmaContract.getCurrentBlock();
+  return await get(number);
 }
 
 async function getProof({tokenId, blockNumber}) {
@@ -91,12 +91,12 @@ async function getProof({tokenId, blockNumber}) {
 
   let hash;
   try {
-    hash = Block.getProof(block, tokenId)
+    hash = await Block.getProof(block, tokenId);
   } catch (e) {
     throw Error(e);
   }
 
-  return {hash}
+  return hash
 }
 
 async function checkProof({hash, blockNumber, proof}) {
@@ -105,7 +105,7 @@ async function checkProof({hash, blockNumber, proof}) {
 
   let result = false;
   try {
-    result = Block.checkProof(block, proof, hash);
+    result = await Block.checkProof(block, proof, hash);
   } catch (e) {
     throw Error(e);
   }
@@ -116,7 +116,7 @@ async function checkProof({hash, blockNumber, proof}) {
   } catch (e) {
     console.log(e)
   }
-  return {result}
+  return result;
 }
 
 export {

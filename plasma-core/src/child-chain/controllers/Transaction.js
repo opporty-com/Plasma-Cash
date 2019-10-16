@@ -36,15 +36,12 @@ async function add(tx) {
 
 
 async function send(transaction) {
-  const tx = await add(transaction);
-  return Buffer.from("0x123", 'hex');
-  return Transaction.getJson(tx);
+  return await add(transaction);
 }
 
 
 async function getPool() {
-  const transactions = await Transaction.getPool();
-  return transactions.map(tx => Transaction.getJson(tx));
+  return await Transaction.getPool();
 }
 
 async function getPoolSize() {
@@ -54,7 +51,7 @@ async function getPoolSize() {
 async function get(hash) {
   const tx = await Transaction.get(hash);
   if (!tx) throw new Error('The Transaction not found');
-  return Transaction.getJson(tx);
+  return tx;
 }
 
 
@@ -63,8 +60,7 @@ async function count() {
 }
 
 async function getTransactionsByAddress(address) {
-  const transactions = await Transaction.getByAddress(address);
-  return transactions.map(tx => Transaction.getJson(tx));
+  return await Transaction.getByAddress(address);
 }
 
 export {

@@ -16,6 +16,7 @@ import config from "../../config";
 import * as TxMemPoolDb from './db/TxMemPool';
 import * as TransactionDb from './db/Transaction';
 import * as Token from './Token';
+import * as MODEL_PROTOCOLS from '../../schemas/model-protocols';
 
 
 export const TYPES = {
@@ -26,21 +27,7 @@ export const TYPES = {
   REGISTRATION: 5,
   PRIVATE: 6
 };
-
-
-const Protocol = {
-  prevHash: BD.types.buffer(20),
-  prevBlock: BD.types.uint24le,
-  tokenId: BD.types.string(null),
-  type: BD.types.uint8,
-  newOwner: BD.types.buffer(20),
-  dataLength: BD.types.uint24le,
-  data: BD.types.buffer(({current}) => current.dataLength),
-  signature: BD.types.buffer(65),
-  hash: BD.types.buffer(32),
-  blockNumber: BD.types.uint24le,
-  timestamp: BD.types.uint48le,
-};
+const Protocol = MODEL_PROTOCOLS.Transaction;
 
 function getBuffer(tx) {
   if (tx._buffer)
@@ -251,7 +238,7 @@ function getJson(tx) {
     prevHash: ethUtil.addHexPrefix(tx.prevHash.toString('hex')),
     prevBlock: tx.prevBlock,
     tokenId: tx.tokenId,
-    type: tx.type,
+    type: tx.type.toString(),
     newOwner: ethUtil.addHexPrefix(tx.newOwner.toString('hex')),
     data: tx.data.toString(),
     signature: ethUtil.addHexPrefix(tx.signature.toString('hex')),
@@ -276,6 +263,7 @@ export {
   getPoolSize,
   getPool,
   execute,
+  getBuffer,
   getJson,
   getByToken,
   getLastByToken,
