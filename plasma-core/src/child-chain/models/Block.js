@@ -118,6 +118,7 @@ async function validate(block) {
   const zero = new BN(0);
   for (let tx of block.transactions) {
     let fee = await Transaction.validate(tx, true);
+
     if (!BN.isBN(fee) || fee.lte(zero))
       return false;
     totalFee.sub(fee);

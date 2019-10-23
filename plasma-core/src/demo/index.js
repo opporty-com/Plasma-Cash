@@ -26,30 +26,22 @@ const colors = {
   yellow: 33,
 };
 const balanceTimeout = 60000;
-const sumEth = 10;
+const sumEth = 0.001;
 const datadir = "/root/.ethereum/devnet";
 const defaultPassword = "123456";
 const nodes = [
   {
-    address: "0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70",
+    address: "0x1CAd72F28B34141dB68D37f43b18d5e120c51f2A",
     password: "123123123"
   },
   {
-    address: "0x11a618de3ade9b85cd811bf45af03bad481842ed",
+    address: "0x76ed0955af5c39a8122e5069c6a0a4cc129a11ef",
     password: "123123123"
   },
   {
-    address: "0xa5fe0deda5e1a0fcc34b02b5be6857e30c9023fe",
+    address: "0x4309d070cdc587fec998426a34002371cec24a69",
     password: "123123123"
-  },
-  {
-    address: "0x4dc884abb17d11de6102fc1ef2cee0ebd31df248",
-    password: "123123123"
-  },
-  {
-    address: "0x9345a4d4a43815c613cf9e9db1920b9c9eeb8dc7",
-    password: "123123123"
-  },
+  }
 
 ];
 
@@ -159,12 +151,32 @@ async function sendEth() {
   log(`End send ${sumEth} ether to test account`, colors.yellow);
 }
 
+async function sendEthNodes() {
+  log(`Start send ${sumEth} ether to test nodes`, colors.yellow);
+  const {address: from, password} = nodes[0];
+  await web3.eth.personal.unlockAccount(from, password);
+  const promises = nodes.map(({address: to}) => {
+    if (to === from) return;
+    return web3.eth.sendTransaction({
+      from,
+      to,
+      value: web3.utils.toWei(`${sumEth}`, "ether"),
+      gas: 21000
+    }).then(res => {
+      log(`${sumEth} ether has been sent from ${from} to address ${to}`, colors.yellow);
+    })
+  });
+  await Promise.all(promises);
+  log(`End send ${sumEth} ether to test account`, colors.yellow);
+}
+
 
 const TransactionProtocol = {
   prevHash: BD.types.buffer(20),
   prevBlock: BD.types.uint24le,
   tokenId: BD.types.string(null),
   totalFee: BD.types.string(null),
+  fee: BD.types.string(null),
   type: BD.types.uint8,
   newOwner: BD.types.buffer(20),
   dataLength: BD.types.uint24le,
@@ -175,6 +187,87 @@ const TransactionProtocol = {
   timestamp: BD.types.uint48le,
 };
 
+
+async function depositNodes(countPerAddress = 1) {
+  log("Start deposit from nodes", colors.blue);
+
+  let promises = [];
+  for (let account of nodes) {
+
+    const {address, password} = account;
+
+
+    for (let i = 0; i < countPerAddress; i++) {
+      promises.push(new Promise(async (resolve) => {
+          await web3.eth.personal.unlockAccount(address, password, 100000);
+          let gas = await plasmaContract.estimateCreateDepositkGas(address);
+          const tokenId = await plasmaContract.createDeposit({from: address, value: 1, gas: gas + 150000});
+          tokens[tokenId] = {tokenId, address};
+          log(`Token ${tokenId} has been added for ${address}`, colors.blue);
+          resolve(tokens[tokenId])
+        }
+      ));
+    }
+  }
+
+  await Promise.all(promises);
+  log("finish deposit from nodes", colors.blue);
+}
+
+
+async function addCandidate() {
+
+  let transactions = []
+  for (let account of nodes) {
+    const {address, password, privateKey} = account;
+
+    await web3.eth.personal.unlockAccount(address, password);
+
+    const tokenId = Object.keys(tokens).find(token => tokens[token].address === address);
+    const data = {
+      prevHash: Buffer.from(ethUtil.stripHexPrefix(address), 'hex'),
+      prevBlock: 0,
+      tokenId,
+      type: 1,
+      totalFee: "1",
+      fee: "1",
+      newOwner: Buffer.from(ethUtil.stripHexPrefix(address), 'hex'),
+      dataLength: 0,
+      data: Buffer.from(''),
+      blockNumber: 0,
+      timestamp: (new Date()).getTime()
+    };
+
+
+    const dataToEncode = [
+      data.prevHash,
+      data.prevBlock,
+      new BN(data.tokenId),
+      data.newOwner,
+      data.type,
+      data.data,
+    ];
+
+    data.hash = ethUtil.keccak(RLP.encode(dataToEncode));
+
+
+    let msgHash = ethUtil.hashPersonalMessage(data.hash);
+    let key = Buffer.from(privateKey, 'hex');
+    let sig = ethUtil.ecsign(msgHash, key);
+    data.signature = ethUtil.toBuffer(ethUtil.toRpcSig(sig.v, sig.r, sig.s))
+
+
+    // const {signature} = web3.eth.accounts.sign(ethUtil.addHexPrefix(data.hash.toString('hex')), privateKey);
+    // data.signature = ethUtil.toBuffer(signature);
+
+
+    // data.signature = ethUtil.toBuffer(await web3.eth.sign(ethUtil.addHexPrefix(data.hash.toString('hex')), address));
+
+
+    const packet = BD.encode(data, TransactionProtocol);
+    transactions.push(packet.slice());
+  }
+}
 
 async function deposit(countPerAddress = 1, useEth = true) {
   log("Start deposit from test address", colors.blue);
@@ -196,7 +289,8 @@ async function deposit(countPerAddress = 1, useEth = true) {
         prevBlock: 0,
         tokenId,
         type: 1,
-        totalFee: "0",
+        totalFee: "1",
+        fee: "1",
         newOwner: Buffer.from(ethUtil.stripHexPrefix(address), 'hex'),
         dataLength: 0,
         data: Buffer.from(''),
@@ -217,13 +311,10 @@ async function deposit(countPerAddress = 1, useEth = true) {
       data.hash = ethUtil.keccak(RLP.encode(dataToEncode));
 
 
-
-
       let msgHash = ethUtil.hashPersonalMessage(data.hash);
       let key = Buffer.from(privateKey, 'hex');
       let sig = ethUtil.ecsign(msgHash, key);
       data.signature = ethUtil.toBuffer(ethUtil.toRpcSig(sig.v, sig.r, sig.s))
-
 
 
       // const {signature} = web3.eth.accounts.sign(ethUtil.addHexPrefix(data.hash.toString('hex')), privateKey);
@@ -387,7 +478,13 @@ async function start() {
     // await checkETHBalances();
     // await checkTokenBalances(true);
     // await checkTokenBalances();
-    await deposit(1, false);
+
+    // await sendEthNodes();
+    await checkETHBalances();
+    await depositNodes(2);
+    await checkETHBalances();
+
+    // await deposit(1, false);
     // await checkTokenBalances();
 
     // await sendTransactions();

@@ -3,7 +3,7 @@
  * moonion.com;
  */
 
-import validators from '../lib/validators';
+import validators from '../lib/Validators';
 import * as Validator from '../models/Validator';
 import * as Token from '../models/Token';
 import * as Transaction from '../models/Transaction';

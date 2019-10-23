@@ -4,7 +4,7 @@ import config from "../../config";
 import web3 from "../../root-chain/web3";
 import plasmaContract from "../../root-chain/contracts/plasma";
 
-import validators from "./validators";
+import Validators from "./Validators";
 import * as Block from "../models/Block";
 import * as Transaction from "../models/Transaction";
 
@@ -27,8 +27,8 @@ class BlockCreator {
     logger.info(`last submitted block #${lastSubmittedBlock}`);
 
 
-    const currentValidator = await validators.getCurrent();
-    if (!(currentValidator === config.plasmaNodeAddress)) {
+    const currentValidator = await Validators.getCurrent();
+    if (!(currentValidator === config.plasmaNodeAddress) && process.env.PLASMA_CONTRACT_OWNER_ADDRESS !== process.env.PLASMA_NODE_ADDRESS) {
       logger.info('Please wait your turn to submit');
       return false;
     }
@@ -59,7 +59,7 @@ class BlockCreator {
     const limitT = 1000000;
     // const limitT = 350000;
     const transactions = await Transaction.getPool(limitT);
-    // logger.info(`transactions`, 2, transactions.length);
+    logger.info(`transactions`, 2, transactions.length);
     let blockTransactions = [];
     let totalFee = new BN(0);
     const zero = new BN(0);
@@ -113,7 +113,7 @@ class BlockCreator {
             logger.info("reject timeout")
             server.removeListener(server.EVENT_MESSAGES.NEW_BLOCK_COMMIT, getValidateBlock);
             reject()
-          }, config.blockTime*4);
+          }, config.blockTime * 4);
 
 
           function getValidateBlock(payload) {

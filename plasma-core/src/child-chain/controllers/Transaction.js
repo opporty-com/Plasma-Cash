@@ -17,8 +17,8 @@ async function deposit({depositor: owner, tokenId, amount, blockNumber}) {
     type: Transaction.TYPES.PAY,
     dataLength: 0,
     data: ethUtil.toBuffer(''),
-    totalFee: "0",
-    fee: "0",
+    totalFee: "1",
+    fee: "1",
   };
   tx = Transaction.sign(tx);
   await add(tx);

@@ -69,6 +69,31 @@ class ContractHandler extends EventEmitter {
     return response.events.DepositAdded.returnValues.tokenId;
   }
 
+  async estimateDepositERC20(contract, value, address) {
+    return await this.contract.methods
+      .depositERC20(contract, value)
+      .estimateGas({from: address});
+  }
+
+  async depositERC20(contract, value, address, gas) {
+    return await this.contract.methods
+      .depositERC20(contract, value)
+      .send({from: address, gas: parseInt(gas) + 15000});
+  }
+
+  async estimateExitERC20(token, address) {
+    return await this.contract.methods
+      .exitERC20(token)
+      .estimateGas({from: address});
+  }
+
+  async exitERC20(token, address, gas) {
+    return await this.contract.methods
+      .exitERC20(token)
+      .send({from: address, gas: parseInt(gas) + 15000});
+  }
+
+
   async estimateSetOperator(operator, status, address) {
     return await this.contract.methods
       .setOperator(operator, status)
@@ -93,6 +118,7 @@ class ContractHandler extends EventEmitter {
       .submitBlock(hash, totalFee)
       .send({from: address, gas: parseInt(gas) + 150000});
   }
+
 
   async getTokenBalance(tokenId) {
     let amount = '0';

@@ -6,6 +6,19 @@ import "./ArrayOp.sol";
 import "./ByteUtils.sol";
 import "./ECRecovery.sol";
 
+
+contract ERC20 {
+    function totalSupply() public constant returns (uint);
+    function balanceOf(address tokenOwner) public constant returns (uint balance);
+    function allowance(address tokenOwner, address spender) public constant returns (uint remaining);
+    function transfer(address to, uint tokens) public returns (bool success);
+    function approve(address spender, uint tokens) public returns (bool success);
+    function transferFrom(address from, address to, uint tokens) public returns (bool success);
+    event Transfer(address indexed from, address indexed to, uint tokens);
+    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
+}
+
+
 /*
  * Main Root chain Plasma Cash 
  * Smart contract
@@ -79,6 +92,20 @@ contract Root {
     address public authority;
 
     /*
+     * Token structure
+     */
+
+    uint8 constant token_currency_eth = 1;
+    uint8 constant token_currency_erc20 = 2;
+
+    struct Token {
+        uint value;
+        uint8 currency;
+        address addr;
+    }
+
+
+    /*
      * Block structure (represents one block in a chain)
      */
     struct Block {
@@ -120,7 +147,7 @@ contract Root {
      * Blockchain
      */
     mapping(uint => Block) public childChain;
-    mapping(uint => uint) public tokens;
+    mapping(uint => Token) public tokens;
 
     // mapping(address => Weight) candidatesWithStakes;
 
@@ -211,11 +238,38 @@ contract Root {
      */
     function deposit() public payable {
         uint token_id = uint(keccak256(msg.sender, msg.value, deposit_blk));
-        // token.index = deposit_blk;
-        tokens[token_id] = msg.value;
+        Token memory newToken = Token({
+            currency : token_currency_eth,
+            value : msg.value,
+            addr : msg.sender
+            });
+
+        tokens[token_id] = newToken;
         deposit_blk += 1;
         emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
     }
+
+    function depositERC20(address _contract_addr, uint _value) public payable {
+        ERC20(_contract_addr).transferFrom(msg.sender, address(this), _value);
+
+        uint token_id = uint(keccak256(msg.sender, _value, deposit_blk));
+        Token memory newToken = Token({
+            currency : token_currency_erc20,
+            value : _value,
+            addr : _contract_addr
+            });
+
+        tokens[token_id] = newToken;
+        deposit_blk += 1;
+        emit DepositAdded(msg.sender, msg.value, token_id, current_blk);
+
+    }
+
+    function exitERC20(uint token_id) public payable {
+        require(tokens[token_id].value > 0);
+        ERC20(tokens[token_id].addr).transfer(msg.sender, tokens[token_id].value);
+    }
+
 
     /*
      * Check if current message sender is transaction signer
@@ -238,7 +292,7 @@ contract Root {
         require(tx.tx_type != 2 && tx.tx_type != 4);
 
 
-        require(tokens[tx.token_id] > 0);
+        require(tokens[tx.token_id].value > 0);
         bytes32 hashPrevTx = keccak256(tx_prev_rpl);
         require(tx.prev_hash == hashPrevTx);
 
@@ -276,7 +330,7 @@ contract Root {
 
         Transaction memory tx = getTransactionFromRLP(tx_rpl);
 
-        require(tokens[tx.token_id] > 0);
+        require(tokens[tx.token_id].value > 0);
         require(tx.prev_block == record.block_num && record.block_num < blk_num);
         require(tx.token_id == exit_id);
 
@@ -296,7 +350,7 @@ contract Root {
         require(record.block_num > 0);
 
         Transaction memory tx = getTransactionFromRLP(tx_rpl);
-        require(tokens[tx.token_id] > 0);
+        require(tokens[tx.token_id].value > 0);
 
         // check if token double spent
         require(tx.prev_block == record.prev_block && blk_num < record.block_num);
@@ -320,7 +374,7 @@ contract Root {
         Transaction memory tx = getTransactionFromRLP(tx_rpl);
 
         //require(exit_id == token_id);
-        require(tokens[tx.token_id] > 0);
+        require(tokens[tx.token_id].value > 0);
 
         // transaction should be before exit tx in history
         require(blk_num < record.block_num - 1);
@@ -363,9 +417,14 @@ contract Root {
                 uint index = exit_ids[priority][i];
                 Exit memory record = exitRecords[index];
                 // finalize exits
-                record.new_owner.transfer(tokens[index] - record.total_fee);
 
-                emit ExitCompleteEvent(current_blk, record.block_num, record.token_id, tokens[record.token_id], record.total_fee);
+                if (tokens[index].currency == token_currency_eth)
+                    record.new_owner.transfer(tokens[index].value - record.total_fee);
+                else if (tokens[index].currency == token_currency_erc20) {
+                    ERC20(tokens[index].addr).transfer(record.new_owner, tokens[index].value - record.total_fee);
+                }
+
+                emit ExitCompleteEvent(current_blk, record.block_num, record.token_id, tokens[record.token_id].value, record.total_fee);
                 delete exitRecords[index];
                 delete tokens[index];
             }
@@ -436,7 +495,7 @@ contract Root {
     function getExit(uint token_id) public view returns (address, uint, uint, uint) {
         Exit memory er = exitRecords[token_id];
         if (er.priority > 0)
-            return (er.new_owner, token_id, tokens[token_id], er.priority);
+            return (er.new_owner, token_id, tokens[token_id].value, er.priority);
     }
 
     // get blockchain entry
@@ -446,8 +505,8 @@ contract Root {
     }
 
     // get token by identifier
-    function getToken(uint token_id) public view returns (uint) {
-        return tokens[token_id];
+    function getToken(uint token_id) public view returns (uint, uint8, address) {
+        return (tokens[token_id].value, tokens[token_id].currency, tokens[token_id].addr);
     }
 
     // get balance of operator address

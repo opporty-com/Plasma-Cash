@@ -46,6 +46,25 @@
     "inputs": [
       {
         "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "balances",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -61,6 +80,10 @@
       },
       {
         "name": "token_id",
+        "type": "uint256"
+      },
+      {
+        "name": "total_fee",
         "type": "uint256"
       },
       {
@@ -120,8 +143,16 @@
     "name": "tokens",
     "outputs": [
       {
-        "name": "",
+        "name": "value",
         "type": "uint256"
+      },
+      {
+        "name": "currency",
+        "type": "uint8"
+      },
+      {
+        "name": "addr",
+        "type": "address"
       }
     ],
     "payable": false,
@@ -173,6 +204,10 @@
       {
         "name": "merkle_root",
         "type": "bytes32"
+      },
+      {
+        "name": "total_fee",
+        "type": "uint256"
       },
       {
         "name": "time",
@@ -243,26 +278,11 @@
     "inputs": [
       {
         "indexed": false,
-        "name": "voter",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "name": "candidate",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "tokenId",
-        "type": "uint256"
       }
     ],
-    "name": "StakeAdded",
+    "name": "OperatorAdded",
     "type": "event"
   },
   {
@@ -270,26 +290,11 @@
     "inputs": [
       {
         "indexed": false,
-        "name": "voter",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "name": "candidate",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "tokenId",
-        "type": "uint256"
       }
     ],
-    "name": "StakeLowered",
+    "name": "OperatorRemoved",
     "type": "event"
   },
   {
@@ -308,6 +313,11 @@
       {
         "indexed": false,
         "name": "exitId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "total_fee",
         "type": "uint256"
       }
     ],
@@ -376,6 +386,11 @@
       {
         "indexed": false,
         "name": "exitDenom",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "total_fee",
         "type": "uint256"
       }
     ],
@@ -478,37 +493,6 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "rlp",
-        "type": "bytes"
-      }
-    ],
-    "name": "getTransactionFromRLP",
-    "outputs": [
-      {
-        "name": "prevhash",
-        "type": "bytes32"
-      },
-      {
-        "name": "prev_block",
-        "type": "uint256"
-      },
-      {
-        "name": "token_id",
-        "type": "uint256"
-      },
-      {
-        "name": "new_owner",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [
       {
@@ -539,23 +523,55 @@
     "constant": false,
     "inputs": [
       {
+        "name": "_contract_addr",
+        "type": "address"
+      },
+      {
+        "name": "_value",
+        "type": "uint256"
+      }
+    ],
+    "name": "depositERC20",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "token_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "exitERC20",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "block_num",
         "type": "uint256"
       },
       {
-        "name": "tx1",
+        "name": "tx_rpl",
         "type": "bytes"
       },
       {
-        "name": "tx0",
+        "name": "tx_prev_rpl",
         "type": "bytes"
       },
       {
-        "name": "proof1",
+        "name": "tx_proof",
         "type": "bytes"
       },
       {
-        "name": "proof0",
+        "name": "tx_prev_proof",
         "type": "bytes"
       }
     ],
@@ -582,7 +598,7 @@
         "type": "uint256"
       },
       {
-        "name": "tx1",
+        "name": "tx_rpl",
         "type": "bytes"
       },
       {
@@ -608,7 +624,7 @@
         "type": "uint256"
       },
       {
-        "name": "tx1",
+        "name": "tx_rpl",
         "type": "bytes"
       },
       {
@@ -634,7 +650,7 @@
         "type": "uint256"
       },
       {
-        "name": "tx0",
+        "name": "tx_rpl",
         "type": "bytes"
       },
       {
@@ -660,7 +676,7 @@
         "type": "uint256"
       },
       {
-        "name": "childtx",
+        "name": "tx_rpl",
         "type": "bytes"
       },
       {
@@ -810,6 +826,14 @@
       {
         "name": "",
         "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint8"
+      },
+      {
+        "name": "",
+        "type": "address"
       }
     ],
     "payable": false,
@@ -833,6 +857,25 @@
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

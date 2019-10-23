@@ -12,6 +12,7 @@
     "start": "node dist/index.js",
     "build": "babel src -d dist --ignore src/api/plugins/swagger-ui/",
     "demo": "babel-node src/demo",
+    "demo:deposit": "babel-node src/demo/sendDeposit.js",
     "test-trx-delay-async": "mocha --require @babel/register --timeout 160000 --reporter spec ./test/stressTests/test_create_trx_by_delay_async.js",
     "test-trx-delay-sync": "mocha --require @babel/register --timeout 160000 --reporter spec ./test/stressTests/test_create_trx_by_delay_sync.js",
     "test-trx-count-async": "mocha --require @babel/register --timeout 160000 --reporter spec ./test/stressTests/test_create_trx_by_count_async.js",
