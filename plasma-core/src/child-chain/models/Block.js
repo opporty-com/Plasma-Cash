@@ -16,16 +16,9 @@ import * as BlockDb from './db/Block';
 import * as BlockPoolDb from './db/BlockMemPool';
 
 import * as Transaction from './Transaction';
+import * as MODEL_PROTOCOLS from '../../schemas/model-protocols';
 
-
-const Protocol = {
-  number: BD.types.uint24le,
-  merkleRootHash: BD.types.buffer(32),
-  signature: BD.types.buffer(65),
-  countTx: BD.types.uint24le,
-  transactions: BD.types.array(Transaction.Protocol, ({current}) => current.countTx),
-  totalFee: BD.types.string(null)
-};
+const Protocol = MODEL_PROTOCOLS.Block;
 
 
 function getBuffer(block, force = false) {
@@ -39,6 +32,7 @@ function getBuffer(block, force = false) {
 }
 
 function fromBuffer(buffer) {
+  if (!buffer) return null;
   let block = BD.decode(buffer, Protocol);
   block._buffer = buffer;
   return block
@@ -173,8 +167,9 @@ function getJson(block) {
     number: block.number,
     merkleRootHash: ethUtil.addHexPrefix(block.merkleRootHash.toString('hex')),
     signature: ethUtil.addHexPrefix(block.signature.toString('hex')),
-    transactions: block.transactions.map(tx => Transaction.getJson(tx)),
-    totalFee: block.totalFee,
+    countTx: block.transactions.length,
+    transactions: block.transactions.map(tx => Transaction.getJson(tx))б
+    totalFee: block.totalFee
   };
 
   return block._json;

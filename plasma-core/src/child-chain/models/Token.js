@@ -5,6 +5,7 @@
 import * as ethUtil from 'ethereumjs-util';
 import BD from 'binary-data';
 import * as TokenDb from './db/Token';
+import * as MODEL_PROTOCOLS from '../../schemas/model-protocols';
 
 export const STATUSES = {
   ACTIVE: 1,
@@ -14,14 +15,7 @@ export const STATUSES = {
 
 };
 
-const Protocol = {
-  id: BD.types.string(null),
-  owner: BD.types.buffer(20),
-  block: BD.types.uint24le,
-  amount: BD.types.string(null),
-  totalFee: BD.types.string(null),
-  status: BD.types.uint8,
-};
+const Protocol = MODEL_PROTOCOLS.Token;
 
 
 function getBuffer(token) {
@@ -72,6 +66,7 @@ export {
   get,
   getByOwner,
   getJson,
+  getBuffer,
   save,
   count
 }

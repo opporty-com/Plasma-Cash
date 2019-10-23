@@ -175,8 +175,6 @@ const TransactionProtocol = {
   prevHash: BD.types.buffer(20),
   prevBlock: BD.types.uint24le,
   tokenId: BD.types.string(null),
-  totalFee: BD.types.string(null),
-  fee: BD.types.string(null),
   type: BD.types.uint8,
   newOwner: BD.types.buffer(20),
   dataLength: BD.types.uint24le,

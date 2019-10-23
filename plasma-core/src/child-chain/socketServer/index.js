@@ -1,56 +1,53 @@
 import net from 'net'
 import fs from 'fs'
-import ROUTER from "./router"
 
 import BD from 'binary-data';
-
-import {send} from '../controllers/Transaction';
+import { PROTOCOLS as API_PROTOCOLS } from "../../schemas/api-protocols";
+import ROUTER from "./router";
 
 const SOCKET_PATH = '/var/run/plasma.socket';
-
-
-const protocol = {
-  type: BD.types.uint8,
-  messageId: BD.types.uint24le,
-  error: BD.types.uint8,
-  length: BD.types.uint24le,
-  payload: BD.types.buffer(({node}) => node.length)
-};
-
-
-const TransactionProtocol = {
-  prevHash: BD.types.buffer(20),
-  prevBlock: BD.types.uint24le,
-  tokenId: BD.types.string(null),
-  totalFee: BD.types.string(null),
-  fee: BD.types.string(null),
-  type: BD.types.uint8,
-  newOwner: BD.types.buffer(20),
-  dataLength: BD.types.uint24le,
-  data: BD.types.buffer(({current}) => current.dataLength),
-  signature: BD.types.buffer(65),
-  hash: BD.types.buffer(32),
-};
-
+const { baseProtocol } = API_PROTOCOLS;
 
 const server = net.createServer(socket => {
-  const ostream = BD.createEncode(protocol);
-  const istream = BD.createDecode(protocol);
+  const ostream = BD.createEncode(baseProtocol);
+  const istream = BD.createDecode(baseProtocol);
   ostream.pipe(socket);
   socket.pipe(istream).on('data', async packet => {
-    const {type, messageId, payload, error} = packet;
+    try {
+      const {type, messageId, payload, error} = packet;
+      const actions = Object.keys(API_PROTOCOLS);
+      const act = actions.find(act => API_PROTOCOLS[act].type === type);
+      console.log('TYPE: ', type, 'ACTION: ', act);
 
-    let data = BD.decode(payload, TransactionProtocol);
-    data._buffer = payload;
-    const result = await send(data);
-    const res = {
-      type,
-      messageId,
-      error: 0,
-      length: result.length,
-      payload: result
-    };
-    ostream.write(res);
+      let data = BD.decode(payload, API_PROTOCOLS[act].request);
+      data._buffer = payload;
+      const result = await ROUTER[act].controller(data);
+      const res = {
+        type,
+        messageId,
+        error: 0,
+        length: result.length,
+        payload: result
+      };
+      console.log(res);
+      ostream.write(res);
+    }
+    catch (error) {
+      console.log(error);
+      const packet = BD.encode({
+        message: error.message
+      }, API_PROTOCOLS.error.response);
+      const payload = packet.slice();
+      const res = {
+        type: 16,
+        messageId: 0,
+        error: 1,
+        length: payload.length,
+        payload
+      };
+      console.log(res);
+      ostream.write(res);
+    }
   });
 
 });

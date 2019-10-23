@@ -4,39 +4,50 @@
  */
 
 import Boom from "@hapi/boom";
-import plasma from "../lib/plasma-client";
+import { promise as plasma } from "../lib/plasma-client";
+import * as Transaction from "../../child-chain/models/Transaction";
 
 async function send(request, h) {
   const transaction = request.payload;
 
-  let result
+  let result;
   try {
+    const {prevHash, data, newOwner, signature} = transaction;
+    transaction.prevHash = Buffer.from(prevHash, 'hex');
+    transaction.data = Buffer.from(data, 'hex');
+    transaction.newOwner = Buffer.from(newOwner, 'hex');
+    transaction.signature = Buffer.from(signature,'hex');
+    transaction.dataLength = transaction.dataLength || 0;
+
     result = await plasma({action: "sendTransaction", payload: transaction});
   } catch (e) {
+    console.log(e);
     return Boom.badGateway(e)
   }
 
-  return result
+  return result;
 }
 
 
 async function getPool(request, h) {
-  let result
+  let result;
   try {
-    result = await plasma({action: "getPool", payload: {}});
+    let data = await plasma({action: "getPool", payload: {}});
+    result = data.transactions.map(tx => Transaction.getJson(tx));
   } catch (e) {
     return Boom.badGateway(e)
   }
 
-  return result
+  return result;
 }
 
 async function get(request, h) {
   const {hash} = request.params;
 
-  let result
+  let result;
   try {
-    result = await plasma({action: "getTransactionsByHash", payload: hash});
+    let tx = await plasma({action: "getTransactionByHash", payload: {hash: Buffer.from(hash, 'hex')}});
+    result = Transaction.getJson(tx);
   } catch (e) {
     return Boom.badGateway(e)
   }
@@ -47,14 +58,15 @@ async function get(request, h) {
 async function getTransactionsByAddress( request, h ) {
   const { address } = request.params;
 
-  let result
+  let result;
   try {
-    result = await plasma({ action: "getTransactionsByAddress", payload: address });
+    let data = await plasma({ action: "getTransactionsByAddress", payload: {address}});
+    result = data.transactions.map(tx => Transaction.getJson(tx));
   } catch (e) {
     Boom.badGateway( e )
   }
 
-  return result
+  return result;
 }
 
 export {
