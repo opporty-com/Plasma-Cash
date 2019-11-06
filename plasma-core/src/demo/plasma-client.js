@@ -6,20 +6,6 @@ let i = 0;
 let promises = {};
 let socket = null;
 
-const TransactionProtocol = {
-  prevHash: BD.types.buffer(20),
-  prevBlock: BD.types.uint24le,
-  tokenId: BD.types.string(null),
-  type: BD.types.uint8,
-  newOwner: BD.types.buffer(20),
-  dataLength: BD.types.uint24le,
-  data: BD.types.buffer(({current}) => current.dataLength),
-  signature: BD.types.buffer(65),
-  hash: BD.types.buffer(32),
-  blockNumber: BD.types.uint24le,
-  timestamp: BD.types.uint48le,
-};
-
 const baseProtocol = {
   type: BD.types.uint8,
   messageId: BD.types.uint24le,
@@ -40,7 +26,6 @@ function client() {
       const actions = Object.keys(API_PROTOCOLS);
       const act = actions.find(act => API_PROTOCOLS[act].type === type);
       let data = BD.decode(payload, API_PROTOCOLS[act].response);
-
       const promise = promises[messageId];
       if (messageId && promise) {
         clearTimeout(promise.timeout);
@@ -66,12 +51,17 @@ const promise = data => new Promise((resolve, reject) => {
   if (!socket) return reject("Plasma hasn't connected");
   i++;
 
+  const type = API_PROTOCOLS[data.action].type;
+  const protocol = API_PROTOCOLS[data.action].request;
+
+  const stream = BD.encode(data.payload, protocol);
+  const payload = stream.slice();
   const packet = {
-    type: 9,
+    type,
     error: 0,
     messageId: i,
-    length: data.length,
-    payload: data
+    length: BD.encodingLength(data.payload, protocol),
+    payload
   };
   promises[i] = {resolve, reject, timeout: timeout(reject)};
   ostream.write(packet);
@@ -81,4 +71,3 @@ export {
   client,
   promise
 };
-

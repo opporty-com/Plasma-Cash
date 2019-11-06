@@ -1,10 +1,12 @@
 import BD from 'binary-data';
 
 const Transaction = {
-  prevHash: BD.types.buffer(20),
+  prevHash: BD.types.buffer(32),
   prevBlock: BD.types.uint24le,
   tokenId: BD.types.string(null),
   type: BD.types.uint8,
+  totalFee: BD.types.string(null),
+  fee: BD.types.string(null),
   newOwner: BD.types.buffer(20),
   dataLength: BD.types.uint24le,
   data: BD.types.buffer(({current}) => current.dataLength),
@@ -20,13 +22,15 @@ const Block = {
   signature: BD.types.buffer(65),
   countTx: BD.types.uint24le,
   transactions: BD.types.array(Transaction, ({current}) => current.countTx),
+  totalFee: BD.types.string(null),
 };
 
 const Token = {
-  tokenId: BD.types.string(null),
+  id: BD.types.string(null),
   owner: BD.types.buffer(20),
   block: BD.types.uint24le,
   amount: BD.types.string(null),
+  totalFee: BD.types.string(null),
   status: BD.types.uint8,
 };
 

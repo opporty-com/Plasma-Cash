@@ -8,6 +8,8 @@ import * as ethUtil from "ethereumjs-util";
 import BD from 'binary-data';
 import config from "../config";
 
+import {Transaction as TransactionProtocol} from '../schemas/model-protocols';
+
 plasmaClient();
 const colors = {
   bold: 1,
@@ -32,15 +34,18 @@ const defaultPassword = "123456";
 const nodes = [
   {
     address: "0x1CAd72F28B34141dB68D37f43b18d5e120c51f2A",
-    password: "123123123"
+    password: "123123123",
+    privateKey: "f98419bc1f1ad0bc2dce35ac183986c593d022dfaf0193bbe03372075acc42d8"
   },
   {
     address: "0x76ed0955af5c39a8122e5069c6a0a4cc129a11ef",
-    password: "123123123"
+    password: "123123123",
+    privateKey: "44e5d898b001f7910c7f21ac097c5bfe164b6af875b36218c0c69268b0cb0d0c"
   },
   {
     address: "0x4309d070cdc587fec998426a34002371cec24a69",
-    password: "123123123"
+    password: "123123123",
+    privateKey: "68023ed09a6512cb02a1a3d8c0fd1c9424c85d6be9004286a5439c69f65d3047"
   }
 
 ];
@@ -171,21 +176,6 @@ async function sendEthNodes() {
 }
 
 
-const TransactionProtocol = {
-  prevHash: BD.types.buffer(20),
-  prevBlock: BD.types.uint24le,
-  tokenId: BD.types.string(null),
-  type: BD.types.uint8,
-  newOwner: BD.types.buffer(20),
-  dataLength: BD.types.uint24le,
-  data: BD.types.buffer(({current}) => current.dataLength),
-  signature: BD.types.buffer(65),
-  hash: BD.types.buffer(32),
-  blockNumber: BD.types.uint24le,
-  timestamp: BD.types.uint48le,
-};
-
-
 async function depositNodes(countPerAddress = 1) {
   log("Start deposit from nodes", colors.blue);
 
@@ -213,20 +203,38 @@ async function depositNodes(countPerAddress = 1) {
 }
 
 
-async function addCandidate() {
+async function _getToken(address, resolve) {
+  let data = await plasma({
+    action: "getTokenByAddress",
+    payload: {address: Buffer.from(ethUtil.stripHexPrefix(address), 'hex'),}
+  });
+  if (data.count > 0)
+    return resolve(data.tokens[0].id);
 
-  let transactions = []
+  setTimeout(() => _getToken(address, resolve), 1000);
+}
+
+function getToken(address) {
+  return new Promise(async resolve => {
+    await _getToken(address, resolve);
+  })
+}
+
+async function addCandidate() {
   for (let account of nodes) {
     const {address, password, privateKey} = account;
 
     await web3.eth.personal.unlockAccount(address, password);
+    const tokenId = await getToken(address);
 
-    const tokenId = Object.keys(tokens).find(token => tokens[token].address === address);
+
+    let lastTx = await plasma({action: "getLastTransactionByTokenId", payload: {tokenId}});
+
     const data = {
-      prevHash: Buffer.from(ethUtil.stripHexPrefix(address), 'hex'),
-      prevBlock: 0,
+      prevHash: lastTx.hash,
+      prevBlock: lastTx.blockNumber,
       tokenId,
-      type: 1,
+      type: 4,
       totalFee: "1",
       fee: "1",
       newOwner: Buffer.from(ethUtil.stripHexPrefix(address), 'hex'),
@@ -252,19 +260,13 @@ async function addCandidate() {
     let msgHash = ethUtil.hashPersonalMessage(data.hash);
     let key = Buffer.from(privateKey, 'hex');
     let sig = ethUtil.ecsign(msgHash, key);
-    data.signature = ethUtil.toBuffer(ethUtil.toRpcSig(sig.v, sig.r, sig.s))
+    data.signature = ethUtil.toBuffer(ethUtil.toRpcSig(sig.v, sig.r, sig.s));
 
-
-    // const {signature} = web3.eth.accounts.sign(ethUtil.addHexPrefix(data.hash.toString('hex')), privateKey);
-    // data.signature = ethUtil.toBuffer(signature);
-
-
-    // data.signature = ethUtil.toBuffer(await web3.eth.sign(ethUtil.addHexPrefix(data.hash.toString('hex')), address));
-
-
-    const packet = BD.encode(data, TransactionProtocol);
-    transactions.push(packet.slice());
+    await plasma({action: "sendTransaction", payload: data});
+    log(`Send candidate from  address ${address}`, colors.blue);
   }
+
+
 }
 
 async function deposit(countPerAddress = 1, useEth = true) {
@@ -283,7 +285,7 @@ async function deposit(countPerAddress = 1, useEth = true) {
     for (let i = 0; i < countPerAddress; i++) {
       const tokenId = rand + i;
       const data = {
-        prevHash: Buffer.from(ethUtil.stripHexPrefix(address), 'hex'),
+        prevHash: Buffer.from(ethUtil.stripHexPrefix(address+"AAAAAAAAAAAAAAAAAAAAAAAA"), 'hex'),
         prevBlock: 0,
         tokenId,
         type: 1,
@@ -322,8 +324,9 @@ async function deposit(countPerAddress = 1, useEth = true) {
       // data.signature = ethUtil.toBuffer(await web3.eth.sign(ethUtil.addHexPrefix(data.hash.toString('hex')), address));
 
 
-      const packet = BD.encode(data, TransactionProtocol);
-      transactions.push(packet.slice());
+      // const packet = BD.encode(data, TransactionProtocol);
+      // transactions.push(packet.slice());
+      transactions.push(data);
 
       // if(transactions.length % 1000 === 0)
       //   log(`${transactions.length} transactions have been created`, colors.blue);
@@ -342,7 +345,7 @@ async function deposit(countPerAddress = 1, useEth = true) {
   async function send() {
     i++;
     if (i >= transactions.length) return Promise.resolve();
-    await plasma(transactions[i]);
+    await plasma({action: "sendTransaction", payload: transactions[i]});
     await send();
   }
 
@@ -478,11 +481,13 @@ async function start() {
     // await checkTokenBalances();
 
     // await sendEthNodes();
-    await checkETHBalances();
-    await depositNodes(2);
-    await checkETHBalances();
+    // await checkETHBalances();
+    // await depositNodes(1);
+    // await addCandidate();
 
-    // await deposit(1, false);
+    // await checkETHBalances();
+
+    await deposit(100000, false);
     // await checkTokenBalances();
 
     // await sendTransactions();

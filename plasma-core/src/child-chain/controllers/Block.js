@@ -36,7 +36,11 @@ async function validation(payload) {
   // logger.info(`block # ${block.number} commit`);
 }
 
+let blocks = [];
+
 async function submitted({operator, merkleRoot, blockNumber}) {
+  if(blocks.indexOf(blockNumber) > -1) return;
+  blocks.push(blockNumber);
   logger.info('Block submitted #', blockNumber, merkleRoot, operator);
 
   let block = await Block.getPool(merkleRoot.toLowerCase());
@@ -65,7 +69,7 @@ async function submitted({operator, merkleRoot, blockNumber}) {
     await execute();
   }
 
-  await Promise.all((Array(Math.min(10000, block.transactions.length))).fill(0).map(async i => await execute()));
+  await Promise.all((Array(Math.min(1000, block.transactions.length))).fill(0).map(async i => await execute()));
 
 
   await Block.save(block, true);

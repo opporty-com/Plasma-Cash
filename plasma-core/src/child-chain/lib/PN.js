@@ -130,7 +130,7 @@ class Server extends EventEmitter {
         client.isAlive = false;
         client.ping(noop);
       });
-    }, 30000);
+    }, 60000);
 
   }
 
@@ -255,7 +255,7 @@ class Client extends EventEmitter {
     clearTimeout(this.pingTimeout);
     this.pingTimeout = setTimeout(() => {
       this.terminate();
-    }, 30000 + 10000);
+    }, 60000 + 10000);
   }
 
   _send(code, payload) {

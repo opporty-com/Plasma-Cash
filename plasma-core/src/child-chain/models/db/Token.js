@@ -3,28 +3,29 @@
  * moonion.com;
  */
 
-import redis from '../../lib/redis';
+import db from '../../lib/db';
 
 
 async function add(tokenId, buffer) {
-  return await redis.hsetAsync('utxo', tokenId, buffer.toString('hex'));
+  return await db.hsetAsync('utxo', tokenId, buffer.toString('hex'));
 }
 
 async function addOwner(owner, tokenId) {
-  return await redis.sadd(`utxo:owner:${owner}`.toLowerCase(), tokenId);
+  const ownerStr = owner instanceof Buffer ? owner.toString('hex') : owner;
+  return await db.sadd(`utxo:owner:${ownerStr}`.toLowerCase(), tokenId);
 }
 
 async function removeOwner(owner, tokenId) {
-  return await redis.srem(`utxo:owner:${owner}`.toLowerCase(), tokenId);
+  return await db.srem(`utxo:owner:${owner}`.toLowerCase(), tokenId);
 }
 
 async function getOwner(owner) {
-  return await redis.smembers(`utxo:owner:${owner}`.toLowerCase());
+  return await db.smembers(`utxo:owner:${owner}`.toLowerCase());
 }
 
 
 async function get(tokenId) {
-  const data = await redis.hget(`utxo`, tokenId);
+  const data = await db.hget(`utxo`, tokenId);
   if (!data) return null;
 
   return Buffer.from(data, 'hex');
@@ -32,7 +33,7 @@ async function get(tokenId) {
 }
 
 async function count() {
-  return await redis.hlen(`utxo`);
+  return await db.hlen(`utxo`);
 }
 
 export {

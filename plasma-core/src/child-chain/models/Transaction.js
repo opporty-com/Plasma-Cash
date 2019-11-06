@@ -8,7 +8,6 @@ import * as ethUtil from 'ethereumjs-util';
 import BN from 'bn.js'
 import BD from 'binary-data';
 
-import plasmaContract from "../../root-chain/contracts/plasma";
 
 import config from "../../config";
 
@@ -125,7 +124,6 @@ async function validateToken(token, owner) {
 
 async function validate(tx, returnFee = false) {
   const fee = new BN(tx.fee);
-  return returnFee ? fee : true;
 
   const prevTx = await get(tx.prevHash);
 
@@ -269,8 +267,9 @@ async function save(tx) {
     amount: oldToken ? oldToken.amount : await plasmaContract.getTokenBalance(tx.tokenId),
     totalFee: tx.totalFee,
     status: Token.STATUSES.ACTIVE
-
   };
+
+
 
   let promises = [
     Token.save(token),

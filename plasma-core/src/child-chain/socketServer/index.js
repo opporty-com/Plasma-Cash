@@ -17,7 +17,6 @@ const server = net.createServer(socket => {
       const {type, messageId, payload, error} = packet;
       const actions = Object.keys(API_PROTOCOLS);
       const act = actions.find(act => API_PROTOCOLS[act].type === type);
-      console.log('TYPE: ', type, 'ACTION: ', act);
 
       let data = BD.decode(payload, API_PROTOCOLS[act].request);
       data._buffer = payload;
@@ -29,7 +28,6 @@ const server = net.createServer(socket => {
         length: result.length,
         payload: result
       };
-      console.log(res);
       ostream.write(res);
     }
     catch (error) {

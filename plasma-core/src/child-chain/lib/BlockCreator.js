@@ -56,8 +56,8 @@ class BlockCreator {
     logger.info(`Prepare Block submit # ${newBlockNumber}`);
 
 
-    const limitT = 1000000;
-    // const limitT = 350000;
+    // const limitT = 1000000;
+    const limitT = 350000;
     const transactions = await Transaction.getPool(limitT);
     logger.info(`transactions`, 2, transactions.length);
     let blockTransactions = [];
@@ -141,8 +141,11 @@ class BlockCreator {
     }
 
     logger.info(`Block  #${newBlockNumber} (${blockHash}) is started submitting to rootchain`);
-    await Block.pushToPool(block);
-
+    try {
+      await Block.pushToPool(block);
+    }catch (e) {
+      console.log(e);
+    }
 
     try {
       await web3.eth.personal.unlockAccount(config.contractOwnerAddress, config.plasmaNodePassword);
@@ -169,9 +172,19 @@ class BlockCreator {
       throw new Error(`Error submit block in contract ${error.toString()}`)
     }
 
-    for (let tx of block.transactions) {
+
+    let i = -1;
+    async function execute() {
+      i++;
+      if (i >= block.transactions.length) return;
+      const tx = block.transactions[i];
       await Transaction.removeFromPool(tx);
+      await execute();
     }
+
+    await Promise.all((Array(Math.min(10000, block.transactions.length))).fill(0).map(async i => await execute()));
+
+
 
     logger.info(`Block  #${newBlockNumber} (${blockHash}) has been submitted successful`);
   }

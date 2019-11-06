@@ -168,7 +168,7 @@ function getJson(block) {
     merkleRootHash: ethUtil.addHexPrefix(block.merkleRootHash.toString('hex')),
     signature: ethUtil.addHexPrefix(block.signature.toString('hex')),
     countTx: block.transactions.length,
-    transactions: block.transactions.map(tx => Transaction.getJson(tx))б
+    transactions: block.transactions.map(tx => Transaction.getJson(tx)),
     totalFee: block.totalFee
   };
 

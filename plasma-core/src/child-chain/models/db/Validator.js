@@ -2,35 +2,38 @@
  * Created by Oleksandr <alex@moonion.com> on 2019-08-10
  * moonion.com;
  */
-import redis from '../../lib/redis';
+import db from '../../lib/db';
 
 async function add(address) {
+  const addressStr = address instanceof Buffer ? address.toString('hex') : address;
   try {
-    return await redis.sadd('validators', address);
+    return await db.sadd('validators', addressStr);
   } catch (error) {
     return error.toString()
   }
 }
 
 async function remove(address) {
+  const addressStr = address instanceof Buffer ? address.toString('hex') : address;
   try {
-    return await redis.srem('validators', address);
+    return await db.srem('validators', addressStr);
   } catch (error) {
     return error.toString()
   }
 }
 
 async function isValidator(address) {
+  const addressStr = address instanceof Buffer ? address.toString('hex') : address;
   try {
-    let result = await redis.smembers('validators');
-    return result.includes(address)
+    let result = await db.smembers('validators');
+    return result.includes(addressStr)
   } catch (error) {
     return error.toString()
   }
 }
 
 async function get() {
-  return await redis.smembers('validators');
+  return await db.smembers('validators');
 }
 
 export {

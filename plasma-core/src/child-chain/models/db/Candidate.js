@@ -2,12 +2,13 @@
  * Created by Oleksandr <alex@moonion.com> on 2019-08-10
  * moonion.com;
  */
-import redis from '../../lib/redis';
+import db from '../../lib/db';
 
 async function add(candidate, token) {
+  const candidateStr = candidate instanceof Buffer ? candidate.toString('hex') : candidate;
   try {
-    await redis.hset('candidates', candidate, 0);
-    await redis.sadd(`candidates:${candidate}:${candidate}`, token);
+    await db.hset('candidates', candidateStr, 0);
+    await db.sadd(`candidates:${candidateStr}:${candidateStr}`, token);
     return candidate
   } catch (error) {
     return error.toString()
@@ -16,8 +17,8 @@ async function add(candidate, token) {
 
 async function remove(candidate, token) {
   try {
-    await redis.hdel('candidates', candidate);
-    await redis.srem(`candidates:${candidate}:${candidate}`, token);
+    await db.hdel('candidates', candidate);
+    await db.srem(`candidates:${candidate}:${candidate}`, token);
     return candidate
   } catch (error) {
     return error.toString()
@@ -26,10 +27,12 @@ async function remove(candidate, token) {
 
 
 async function vote(candidate, voter, token) {
+  const candidateStr = candidate instanceof Buffer ? candidate.toString('hex') : candidate;
+  const voterStr = voter instanceof Buffer ? voter.toString('hex') : voter;
   try {
-    await redis.hincrby('candidates', candidate, 1);
-    await redis.sadd(`candidates:${candidate}:${voter}`, token);
-    await redis.sadd(`candidates:${candidate}`, voter);
+    await db.hincrby('candidates', candidateStr, 1);
+    await db.sadd(`candidates:${candidateStr}:${voterStr}`, token);
+    await db.sadd(`candidates:${candidateStr}`, voterStr);
 
     return candidate
 
@@ -40,11 +43,11 @@ async function vote(candidate, voter, token) {
 
 async function unVote(candidate, voter, token) {
   try {
-    await redis.srem(`candidates:${candidate}:${voter}`, token);
-    await redis.hincrby('candidates', candidate, -1);
-    const count = await redis.scard(`candidates:${candidate}:${voter}`);
+    await db.srem(`candidates:${candidate}:${voter}`, token);
+    await db.hincrby('candidates', candidate, -1);
+    const count = await db.scard(`candidates:${candidate}:${voter}`);
     if (!count)
-      await redis.srem(`candidates:${candidate}`, voter);
+      await db.srem(`candidates:${candidate}`, voter);
 
     return candidate
 
@@ -55,7 +58,7 @@ async function unVote(candidate, voter, token) {
 
 
 async function get() {
-  const result = await redis.hgetall('candidates');
+  const result = await db.hgetall('candidates');
   let candidates = [];
   for (let i = 0; i < result.length; i += 2) {
     candidates.push({
@@ -67,7 +70,7 @@ async function get() {
 }
 
 async function getVoteTokens(candidate, voter) {
-  return await redis.smembers(`candidates:${candidate}:${voter}`);
+  return await db.smembers(`candidates:${candidate}:${voter}`);
 }
 
 export {

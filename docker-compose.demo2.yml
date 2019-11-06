@@ -1,5 +1,12 @@
 version: '3.3'
 services:
+  mongosubmit:
+    image: mongo
+  mongovalidator1:
+    image: mongo
+  mongovalidator2:
+    image: mongo
+
   redissubmit:
     image: redis
     logging:
@@ -36,9 +43,10 @@ services:
       - "./data/redis/submit:/var/run/redis"
     links:
       - redissubmit
+      - mongosubmit
     environment:
       NODE_ENV: development
-      PLASMA_CONTRACT_ADDRESS: '0x2c118541Bd730C4F91848a41ce83ce9BA6644e29'
+      PLASMA_CONTRACT_ADDRESS: '0x4966A8AE4F299646F590a65dA70e71dE4bE0BD62'
       PLASMA_CONTRACT_OWNER_ADDRESS: '0x1CAd72F28B34141dB68D37f43b18d5e120c51f2A'
 
       PLASMA_NODE_ADDRESS: '0x76ed0955af5c39a8122e5069c6a0a4cc129a11ef'
@@ -55,6 +63,12 @@ services:
       NODE_OPTIONS: "--max-old-space-size=8096"
       PRODUCTION_MODE: "OFF"
       NODES:  "[ \"ws://78.46.108.239:9000\", \"ws://94.130.89.154:9000\", \"ws://95.216.10.211:9000\" ]"
+      DB_ADAPTER: "mongo"
+#      DB_URI: "mongodb://mongosubmit/plasma"
+#      DB_URI: "mongodb+srv://plasma:plasma@cluster2-jnawb.azure.mongodb.net?retryWrites=true&w=majority"
+      DB_URI: "mongodb+srv://plasma:plasma@plasma2-jnawb.azure.mongodb.net?retryWrites=true&w=majority"
+      DB_NAME: "submit"
+
     logging:
       options:
         max-size: 1000m
@@ -69,10 +83,11 @@ services:
       - "./data/redis/validator1:/var/run/redis"
     links:
       - redisvalidator1
+      - mongovalidator1
       - submit
     environment:
       NODE_ENV: development
-      PLASMA_CONTRACT_ADDRESS: '0x2c118541Bd730C4F91848a41ce83ce9BA6644e29'
+      PLASMA_CONTRACT_ADDRESS: '0x4966A8AE4F299646F590a65dA70e71dE4bE0BD62'
       PLASMA_NODE_ADDRESS: '0x76ed0955af5c39a8122e5069c6a0a4cc129a11ef'
       PLASMA_NODE_PRIVATE: '44e5d898b001f7910c7f21ac097c5bfe164b6af875b36218c0c69268b0cb0d0c'
       PLASMA_NODE_PASSWORD: '123123123'
@@ -82,6 +97,11 @@ services:
       NODE_OPTIONS: "--max-old-space-size=8096"
       PRODUCTION_MODE: "OFF"
       NODES:  "[ \"ws://78.46.108.239:9000\", \"ws://94.130.89.154:9000\", \"ws://95.216.10.211:9000\" ]"
+      DB_ADAPTER: "mongo"
+#      DB_URI: "mongodb://mongovalidator1/plasma"
+#      DB_URI: "mongodb+srv://plasma:plasma@cluster2-jnawb.azure.mongodb.net?retryWrites=true&w=majority"
+      DB_URI: "mongodb+srv://plasma:plasma@plasma2-1-jnawb.azure.mongodb.net?retryWrites=true&w=majority"
+      DB_NAME: "validator1"
     logging:
       options:
         max-size: 1000m
@@ -119,10 +139,11 @@ services:
       - "./data/redis/submit:/var/run/redis"
     links:
       - redissubmit
+      - mongosubmit
       - submit
     environment:
       NODE_ENV: development
-      PLASMA_CONTRACT_ADDRESS: '0x2c118541Bd730C4F91848a41ce83ce9BA6644e29'
+      PLASMA_CONTRACT_ADDRESS: '0x4966A8AE4F299646F590a65dA70e71dE4bE0BD62'
       PLASMA_CONTRACT_OWNER_ADDRESS: '0x1CAd72F28B34141dB68D37f43b18d5e120c51f2A'
       PLASMA_NODE_ADDRESS: '0xf0ca73acd8c7bacaaa94efe28730783a58a6f403'
       PLASMA_NODE_PRIVATE: '70dac63359b94810694dce6dd8532cd73e5056db6ecc5bb602a103b64511d8e7'
@@ -133,6 +154,11 @@ services:
       NODE_OPTIONS: "--max-old-space-size=8096"
       PRODUCTION_MODE: "OFF"
       NODES:  "[ \"ws://78.46.108.239:9000\", \"ws://94.130.89.154:9000\", \"ws://95.216.10.211:9000\" ]"
+      DB_ADAPTER: "mongo"
+#      DB_URI: "mongodb://mongosubmit/plasma"
+#      DB_URI: "mongodb+srv://plasma:plasma@cluster2-jnawb.azure.mongodb.net?retryWrites=true&w=majority"
+      DB_URI: "mongodb+srv://plasma:plasma@plasma2-jnawb.azure.mongodb.net?retryWrites=true&w=majority"
+      DB_NAME: "submit"
     logging:
       options:
         max-size: 1000m

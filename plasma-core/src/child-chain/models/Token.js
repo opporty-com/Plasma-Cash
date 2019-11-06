@@ -55,7 +55,16 @@ function getJson(token) {
 }
 
 async function save(token) {
-  return await TokenDb.add(token.id, getBuffer(token));
+  const oldToken = await get(token.id);
+  await TokenDb.add(token.id, getBuffer(token));
+  const owner = ethUtil.addHexPrefix(token.owner.toString('hex'));
+
+
+  const oldOwner = oldToken && ethUtil.addHexPrefix(oldToken.owner.toString('hex'));
+  if (oldOwner && oldOwner !== owner)
+    await TokenDb.removeOwner(oldOwner, token.id);
+
+  await TokenDb.addOwner(owner, token.id);
 }
 
 async function count() {
