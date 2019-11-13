@@ -1,104 +1,70 @@
 version: '3.3'
 services:
-  submit1:
+  boot:
     environment:
-      #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
-      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305}]"
-      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
-      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
-      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
-      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
-      WEB3_HTTP_PROVIDER: ''
+      #      PLASMA_CONTRACT_ADDRESS: '0x2c118541Bd730C4F91848a41ce83ce9BA6644e29'
+      PLASMA_CONTRACT_ADDRESS: '0x4966A8AE4F299646F590a65dA70e71dE4bE0BD62'
+      PLASMA_CONTRACT_OWNER_ADDRESS: '0x1CAd72F28B34141dB68D37f43b18d5e120c51f2A'
+      PLASMA_NODE_ADDRESS: '0x1CAd72F28B34141dB68D37f43b18d5e120c51f2A'
+      PLASMA_NODE_PRIVATE: 'f98419bc1f1ad0bc2dce35ac183986c593d022dfaf0193bbe03372075acc42d8'
+      PLASMA_NODE_PASSWORD: '123123123'
+      WEB3_WS_PROVIDER: 'ws://94.130.89.154:8546'
       IS_SUBBMITTER: 1
-      COUNT_CHECK_PROOF: 2
-      LOG_LEVEL: "info"
-      NODE_OPTIONS: "--max-old-space-size=4096"
+      COUNT_CHECK_PROOF: 1
+      #      NODES:  "[ \"ws://78.46.108.239:9000\", \"ws://94.130.89.154:9000\", \"ws://95.216.10.211:9000\" ]"
+      NODES:  "[ \"ws://78.46.108.239:9000\"]"
+      LOG_LEVEL: "debug"
+      NODE_OPTIONS: "--max-old-space-size=8096"
+      DB_ADAPTER: "redis"
+      #      DB_ADAPTER: "mongo"
+      DB_URI: "mongodb://mongoboot/plasma"
+      #      DB_URI: "mongodb+srv://plasma:plasma@plasma1-0-jnawb.azure.mongodb.net?retryWrites=true&w=majority"
+      DB_NAME: "boot"
+    command: npm run development
+    volumes:
+      - "./plasma-core/src:/usr/src/app/src"
 
-  #  submit2:
-  #    environment:
-  #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
-  #      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
-  #      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
-  #      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
-  #      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
-  #      WEB3_HTTP_PROVIDER: ''
-  ##      IS_SUBBMITTER: 1
-  #      LOG_LEVEL: "info"
-  #      NODE_OPTIONS: "--max-old-space-size=4096"
 
   validator1:
     environment:
-      #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
-      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305}]"
-      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
-      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
-      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
-      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
-      WEB3_HTTP_PROVIDER: ''
+      #      PLASMA_CONTRACT_ADDRESS: '0x2c118541Bd730C4F91848a41ce83ce9BA6644e29'
+      PLASMA_CONTRACT_ADDRESS: '0x4966A8AE4F299646F590a65dA70e71dE4bE0BD62'
+      PLASMA_NODE_ADDRESS: '0x76ed0955af5c39a8122e5069c6a0a4cc129a11ef'
+      PLASMA_NODE_PRIVATE: '44e5d898b001f7910c7f21ac097c5bfe164b6af875b36218c0c69268b0cb0d0c'
+      PLASMA_NODE_PASSWORD: '123123123'
+      WEB3_WS_PROVIDER: 'ws://94.130.89.154:8546'
       IS_VALIDATOR: 1
+      #      NODES:  "[ \"ws://78.46.108.239:9000\", \"ws://94.130.89.154:9000\", \"ws://95.216.10.211:9000\" ]"
+      NODES:  "[ \"ws://78.46.108.239:9000\"]"
       LOG_LEVEL: "info"
-      NODE_OPTIONS: "--max-old-space-size=4096"
+      NODE_OPTIONS: "--max-old-space-size=8096"
+      #      DB_ADAPTER: "mongo"
+      DB_ADAPTER: "redis"
+      DB_URI: "mongodb://mongovalidator1/plasma"
+      #      DB_URI: "mongodb+srv://plasma:plasma@plasma1-1-jnawb.azure.mongodb.net?retryWrites=true&w=majority"
+      DB_NAME: "validator1_3"
+    command: npm run development
     volumes:
       - "./plasma-core/src:/usr/src/app/src"
-      - "./ethernode:/root/.ethereum"
 
-  validator2:
+  demo:
     environment:
-      #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
-      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305}]"
-      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
-      PLASMA_CONTRACT_OWNER_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
-      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
-      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
-      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
-      WEB3_HTTP_PROVIDER: ''
+      #      PLASMA_CONTRACT_ADDRESS: '0x2c118541Bd730C4F91848a41ce83ce9BA6644e29'
+      PLASMA_CONTRACT_ADDRESS: '0x4966A8AE4F299646F590a65dA70e71dE4bE0BD62'
+      PLASMA_NODE_ADDRESS: '0x4309d070cdc587fec998426a34002371cec24a69'
+      PLASMA_NODE_PRIVATE: '68023ed09a6512cb02a1a3d8c0fd1c9424c85d6be9004286a5439c69f65d3047'
+      PLASMA_NODE_PASSWORD: '123123123'
+      WEB3_WS_PROVIDER: 'ws://94.130.89.154:8546'
       IS_VALIDATOR: 1
+      #      NODES:  "[ \"ws://78.46.108.239:9000\", \"ws://94.130.89.154:9000\", \"ws://95.216.10.211:9000\" ]"
+      NODES:  "[ \"ws://78.46.108.239:9000\"]"
       LOG_LEVEL: "info"
-      NODE_OPTIONS: "--max-old-space-size=4096"
+      NODE_OPTIONS: "--max-old-space-size=8096"
+      #      DB_ADAPTER: "mongo"
+      DB_ADAPTER: "redis"
+      DB_URI: "mongodb://mongoboot/plasma"
+      #      DB_URI: "mongodb+srv://plasma:plasma@plasma1-0-jnawb.azure.mongodb.net?retryWrites=true&w=majority"
+      DB_NAME: "boot"
+    command: npm run development
     volumes:
       - "./plasma-core/src:/usr/src/app/src"
-      - "./ethernode:/root/.ethereum"
-
-  validator3:
-    environment:
-      #      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
-      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304}]"
-      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
-      PLASMA_NODE_ADDRESS: '0x2bf64b0ebd7ba3e20c54ec9f439c53e87e9d0a70'
-      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
-      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
-      WEB3_HTTP_PROVIDER: ''
-      IS_VALIDATOR: 1
-      LOG_LEVEL: "info"
-      NODE_OPTIONS: "--max-old-space-size=4096"
-    volumes:
-      - "./plasma-core/src:/usr/src/app/src"
-      - "./ethernode:/root/.ethereum"
-
-
-#  demo1:
-#    environment:
-#      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40306,\"tcpPort\": 40306}]"
-#      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
-#      PLASMA_NODE_ADDRESS: '0x11a618de3ade9b85cd811bf45af03bad481842ed'
-#      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
-#      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
-#      WEB3_HTTP_PROVIDER: ''
-#      LOG_LEVEL: "info"
-#      NODE_OPTIONS: "--max-old-space-size=4096"
-#    volumes:
-#      - "./plasma-core/src:/usr/src/app/src"
-#      - "./ethernode:/root/.ethereum"
-#  demo2:
-#    environment:
-#      BOOT_NODES: "[{\"address\": \"78.46.108.239\",\"udpPort\": 40301,\"tcpPort\": 40301},{\"address\": \"78.46.108.239\",\"udpPort\": 40302,\"tcpPort\": 40302},{\"address\": \"78.46.108.239\",\"udpPort\": 40303,\"tcpPort\": 40303},{\"address\": \"78.46.108.239\",\"udpPort\": 40304,\"tcpPort\": 40304},{\"address\": \"78.46.108.239\",\"udpPort\": 40305,\"tcpPort\": 40305}]"
-#      PLASMA_CONTRACT_ADDRESS: '0xe40d2fee1554cd536c630bf5af30fdfe97f924de'
-#      PLASMA_NODE_ADDRESS: '0x11a618de3ade9b85cd811bf45af03bad481842ed'
-#      PLASMA_NODE_PRIVATE: 'de3385a80c15c12bc7dd7800f5d383229569269016e6501a2714a3a77885007a'
-#      PLASMA_NODE_PASSWORD: 'hkshHKSH1'
-#      WEB3_HTTP_PROVIDER: ''
-#      LOG_LEVEL: "info"
-#      NODE_OPTIONS: "--max-old-space-size=4096"
-#    volumes:
-#      - "./plasma-core/src:/usr/src/app/src"
-#      - "./ethernode:/root/.ethereum"
