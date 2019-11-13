@@ -12,8 +12,8 @@ const getBlockResponse = Joi.alternatives().try([
     number: Joi.number(),
     merkleRootHash: Joi.string(),
     transactions: Joi.array().items(trxResponse),
-    signer: Joi.string(),
-    signature: Joi.string().allow(null).allow('')
+    signature: Joi.string().allow(null).allow(''),
+    totalFee: Joi.string(),
   }),
   Joi.object({ error: Joi.string() })
 ]).label('Block')

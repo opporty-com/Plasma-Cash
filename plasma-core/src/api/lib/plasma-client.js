@@ -29,8 +29,9 @@ function client() {
       const promise = promises[messageId];
       if (messageId && promise) {
         clearTimeout(promise.timeout);
+
         if (error)
-          promise.reject(data);
+          promise.reject(data.message);
         else
           promise.resolve(data);
 
@@ -38,7 +39,6 @@ function client() {
       }
     });
   });
-
 }
 
 function timeout(reject) {
@@ -50,7 +50,6 @@ function timeout(reject) {
 const promise = data => new Promise((resolve, reject) => {
   if (!socket) return reject("Plasma hasn't connected");
   i++;
-
   const type = API_PROTOCOLS[data.action].type;
   const protocol = API_PROTOCOLS[data.action].request;
 

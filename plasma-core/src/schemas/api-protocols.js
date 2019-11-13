@@ -28,7 +28,8 @@ const PROTOCOLS = {
       blockNumber: BD.types.uint24le
     },
     response: {
-      hash: BD.types.buffer(32)
+      length: BD.types.uint24le,
+      hash: BD.types.buffer(({node}) => node.length)
     }
   },
   checkProof: {
@@ -36,7 +37,8 @@ const PROTOCOLS = {
     request: {
       hash: BD.types.buffer(32),
       blockNumber: BD.types.uint24le,
-      proof: BD.types.string(null)
+      lengthProof: BD.types.uint24le,
+      proof: BD.types.buffer(({node}) => node.lengthProof)
     },
     response: {
       result: BD.types.buffer(1),

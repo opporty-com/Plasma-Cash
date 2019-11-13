@@ -28,15 +28,12 @@ async function addTransaction(hash, buffer) {
 }
 
 async function getTransactions(limit) {
-  const tx = await db.hvals("txpool", limit);
+  const tx = await db.hvalsasync("txpool", limit);
   if (tx.length === 0) {
     return []
   }
-  let transactions = tx;
-  if (limit && limit < tx.length)
-    transactions = tx.slice(0, limit);
 
-  return transactions.map(t => Buffer.from(t, 'hex'));
+  return tx.map(t => Buffer.from(t, 'hex'));
 }
 
 

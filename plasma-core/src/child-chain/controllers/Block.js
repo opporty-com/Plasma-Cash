@@ -39,7 +39,7 @@ async function validation(payload) {
 let blocks = [];
 
 async function submitted({operator, merkleRoot, blockNumber}) {
-  if(blocks.indexOf(blockNumber) > -1) return;
+  if (blocks.indexOf(blockNumber) > -1) return;
   blocks.push(blockNumber);
   logger.info('Block submitted #', blockNumber, merkleRoot, operator);
 
@@ -99,8 +99,8 @@ async function getProof({tokenId, blockNumber}) {
   } catch (e) {
     throw Error(e);
   }
-
-  return hash
+  console.log(hash);
+  return {hash, length: hash.length}
 }
 
 async function checkProof({hash, blockNumber, proof}) {
@@ -108,15 +108,14 @@ async function checkProof({hash, blockNumber, proof}) {
   if (!block) throw new Error("Block not found!");
 
   let result = false;
-  try {
-    result = await Block.checkProof(block, proof, hash);
-  } catch (e) {
-    throw Error(e);
-  }
+  // try {
+  //   result = await Block.checkProof(block, proof, hash);
+  // } catch (e) {
+  //   throw Error(e);
+  // }
   try {
     const root = await Block.getMerkleRootHash(block);
-    const res = await plasmaContract.checkProof(ethUtil.addHexPrefix(hash), root, ethUtil.addHexPrefix(proof));
-    console.log(res)
+    result = await plasmaContract.checkProof(ethUtil.addHexPrefix(hash), root, ethUtil.addHexPrefix(proof));
   } catch (e) {
     console.log(e)
   }

@@ -4,8 +4,9 @@
  */
 
 import Boom from "@hapi/boom";
+import * as ethUtil from 'ethereumjs-util';
 import { promise as plasma } from "../lib/plasma-client";
-import * as Transaction from "../../child-chain/models/Transaction";
+import * as Transaction from "../helpers/Transaction";
 
 async function send(request, h) {
   const transaction = request.payload;
@@ -46,7 +47,7 @@ async function get(request, h) {
 
   let result;
   try {
-    let tx = await plasma({action: "getTransactionByHash", payload: {hash: Buffer.from(hash, 'hex')}});
+    let tx = await plasma({action: "getTransactionByHash", payload: {hash: Buffer.from(ethUtil.stripHexPrefix(hash), 'hex')}});
     result = Transaction.getJson(tx);
   } catch (e) {
     return Boom.badGateway(e)

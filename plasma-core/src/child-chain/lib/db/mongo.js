@@ -279,7 +279,7 @@ export default (options) => {
       const count = await collection.count();
       return count;
     },
-    hvals: async function (collectionName, limit = 0) {
+    hvalsasync: async function (collectionName, limit = 0) {
       if (!db)
         throw "DB is not connect";
       const collection = db.collection(collectionName);

@@ -8,7 +8,7 @@ import * as ethUtil from 'ethereumjs-util';
 import BN from 'bn.js'
 import BD from 'binary-data';
 
-
+import plasmaContract from '../../root-chain/contracts/plasma';
 import config from "../../config";
 
 import * as TxMemPoolDb from './db/TxMemPool';
@@ -114,6 +114,8 @@ function getSigner(tx) {
 
 
 async function validateToken(token, owner) {
+  if (!token)
+    return false
 
   if (token.status !== Token.STATUSES.ACTIVE)
     return false;
@@ -141,7 +143,6 @@ async function validate(tx, returnFee = false) {
   }
   const token = await Token.get(tx.tokenId);
   const isValidToken = await validateToken(token, getSigner(tx));
-
 
   switch (tx.type) {
     case TYPES.PAY:
@@ -256,25 +257,26 @@ async function getPoolSize() {
 }
 
 
-
-
 async function save(tx) {
   const oldToken = await Token.get(tx.tokenId);
+  const amount = oldToken ? oldToken.amount : await plasmaContract.getTokenBalance(tx.tokenId);
+
+  console.log(amount);
+
   let token = {
     id: tx.tokenId,
     owner: tx.newOwner,
     block: tx.blockNumber,
-    amount: oldToken ? oldToken.amount : await plasmaContract.getTokenBalance(tx.tokenId),
+    amount,
     totalFee: tx.totalFee,
     status: Token.STATUSES.ACTIVE
   };
 
 
-
   let promises = [
     Token.save(token),
     TransactionDb.add(getHash(tx), getBuffer(tx)),
-    TransactionDb.addToAddress(tx.newOwner, getHash(tx)),
+    TransactionDb.addToAddress(ethUtil.stripHexPrefix(tx.newOwner), getHash(tx)),
     TransactionDb.addToToken(tx.tokenId, getHash(tx)),
   ];
 
@@ -307,7 +309,7 @@ async function getLastByToken(tokenId) {
 
 async function getByAddress(address) {
   const transactions = await TransactionDb.getByAddress(ethUtil.stripHexPrefix(address));
-  if (!transactions) return [];
+  if (!transactions || !transactions.length) return [];
   return Promise.all(transactions.map(hash => get(hash)));
 }
 

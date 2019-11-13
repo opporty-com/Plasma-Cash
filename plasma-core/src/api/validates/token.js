@@ -13,11 +13,14 @@ const getByAddress = Joi.object({
   address: Joi.string().required().description('Address for token you need'),
 })
 
+
 const tokenJoi = Joi.object({
+  id: Joi.string(),
   owner: Joi.string(),
-  tokenId: Joi.string(),
   amount: Joi.string(),
-  block: Joi.number()
+  block: Joi.number(),
+  totalFee: Joi.string(),
+  status: Joi.string()
 }).label('Token')
 
 const getTrxResponse =  Joi.alternatives().try([

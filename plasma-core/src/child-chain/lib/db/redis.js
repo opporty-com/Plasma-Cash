@@ -1,4 +1,5 @@
 import Redis from "ioredis"
+import db from "./index";
 
 export default (options = "/var/run/redis/redis.sock") => {
   const ioredis = new Redis(options);
@@ -48,6 +49,17 @@ export default (options = "/var/run/redis/redis.sock") => {
     });
   }
 
+  async function hvalsasync(key, limit) {
+    const data = await ioredis.hvals(key);
+    if(!limit || data.length === 0 || limit < data.length)
+      return data;
+    return  data.slice(0, limit);
+  }
+
+
+
+  ioredis.hvalsasync = hvalsasync;
   ioredis.hsetAsync = hsetAsync;
+  ioredis.hdelMany = ioredis.hdel;
   return ioredis
 }

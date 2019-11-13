@@ -47,6 +47,7 @@ class Merkle {
   }
 
   getProof(tokenId, returnBinary) {
+
     let proof = []
     let key = this.toBinaryString(tokenId)
     let node = this.rootNode
@@ -96,7 +97,7 @@ class Merkle {
       }
     }
 
-    return returnBinary ? Buffer.concat(proof).toString('hex') : proof
+    return returnBinary ? Buffer.concat(proof) : proof
   }
 
   // checkProof(proof, leafHash, merkleRoot) {

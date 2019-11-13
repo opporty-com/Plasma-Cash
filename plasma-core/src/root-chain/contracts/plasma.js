@@ -123,10 +123,12 @@ class ContractHandler extends EventEmitter {
   async getTokenBalance(tokenId) {
     let amount = '0';
     try {
-      amount = await this.contract.methods.getToken(tokenId).call();
+      const res = await this.contract.methods.getToken(tokenId).call();
+      amount = res[0];
     } catch (e) {
       console.log(e);
     }
+    console.log(amount);
     return amount.toString();
   }
 

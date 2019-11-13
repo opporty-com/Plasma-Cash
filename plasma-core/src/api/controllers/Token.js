@@ -6,7 +6,8 @@
 import Boom from "@hapi/boom";
 import { promise as plasma } from "../lib/plasma-client";
 import * as ethUtil from 'ethereumjs-util';
-import * as Transaction from "../../child-chain/models/Transaction";
+import * as Transaction from "../helpers/Transaction";
+import * as Token from "../helpers/Token";
 
 async function get(request, h) {
   const {tokenId} = request.params;
@@ -14,9 +15,7 @@ async function get(request, h) {
   let result;
   try {
     let data = await plasma({action: "getToken", payload: {tokenId}});
-    data.owner = ethUtil.addHexPrefix(data.owner.toString('hex'));
-    delete data.status;
-    result = data;
+    result = Token.getJson(data);
   } catch (e) {
     return Boom.badGateway(e)
   }
@@ -29,8 +28,8 @@ async function getByAddress(request, h) {
 
   let result;
   try {
-    let data = await plasma({action: "getTokenByAddress", payload: {address: Buffer.from(address, 'hex')}});
-    result = data.tokens;
+    let data = await plasma({action: "getTokenByAddress", payload: {address: Buffer.from(ethUtil.stripHexPrefix(address), 'hex')}});
+    result = data.tokens.map(token=>Token.getJson(token));
   } catch (e) {
     return Boom.badGateway(e)
   }

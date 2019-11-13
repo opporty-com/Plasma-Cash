@@ -30,6 +30,8 @@ const trxResponse = Joi.object({
   tokenId: Joi.string(),
   data: Joi.string().allow(null).allow(''),
   type: Joi.string().allow(transactionType),
+  fee: Joi.string(),
+  totalFee: Joi.string(),
   newOwner: Joi.string(),
   signature: Joi.string(),
   blockNumber: Joi.number(),

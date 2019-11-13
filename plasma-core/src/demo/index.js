@@ -487,7 +487,7 @@ async function start() {
 
     // await checkETHBalances();
 
-    await deposit(100000, false);
+    await deposit(10, false);
     // await checkTokenBalances();
 
     // await sendTransactions();
