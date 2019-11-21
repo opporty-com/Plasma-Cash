@@ -10,13 +10,13 @@ async function deposit({depositor: owner, tokenId, amount, blockNumber}) {
 
   // logger.info(`receive new deposit token: ${tokenId} owner: ${owner}`);
   let tx = {
-    prevHash: ethUtil.toBuffer(ethUtil.addHexPrefix(owner)),
+    prevHash: Buffer.from(ethUtil.stripHexPrefix(owner+"AAAAAAAAAAAAAAAAAAAAAAAA"), 'hex'),
     prevBlock: 0,
     tokenId,
     newOwner: ethUtil.toBuffer(ethUtil.addHexPrefix(owner)),
     type: Transaction.TYPES.PAY,
     dataLength: 0,
-    data: ethUtil.toBuffer(''),
+    data: Buffer.from(''),
     totalFee: "1",
     fee: "1",
   };

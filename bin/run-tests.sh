@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 cd ..
-docker-compose -p plasma exec mainnode npm run test-api-run
+docker-compose -p plasma exec boot npm run test-system

@@ -4,6 +4,7 @@ import web3 from '../web3';
 
 import config from '../../config';
 import abi from './Root_abi.json';
+import * as ethUtil from "ethereumjs-util";
 
 class ContractHandler extends EventEmitter {
   constructor(options = {}) {
@@ -67,6 +68,22 @@ class ContractHandler extends EventEmitter {
   async createDeposit({from, value, gas}) {
     const response = await this.contract.methods.deposit().send({from, value, gas})
     return response.events.DepositAdded.returnValues.tokenId;
+  }
+
+  async estimateStartExit({blockNum, txRpl, txPrevRpl, txProof, txPrevProof, address}) {
+    return await this.contract.methods.startExit(blockNum, txRpl, txPrevRpl, txProof, txPrevProof).estimateGas({from: address});
+  }
+
+  async startExit({address, password, exitParams}) {
+    const {blockNum, txRpl, txPrevRpl, txProof, txPrevProof, estimateGas} = exitParams;
+    await this.web3.eth.personal.unlockAccount(address, password, 1000);
+    const response = await this.contract.methods.startExit(blockNum, txRpl, txPrevRpl, txProof, txPrevProof)
+      .send({from: address, gas: estimateGas});
+    return response.events.ExitAdded.returnValues;
+  }
+
+  async getExit(tokenId) {
+    return await this.contract.methods.getExit(tokenId).call();
   }
 
   async estimateDepositERC20(contract, value, address) {

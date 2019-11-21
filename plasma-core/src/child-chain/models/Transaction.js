@@ -120,7 +120,7 @@ async function validateToken(token, owner) {
   if (token.status !== Token.STATUSES.ACTIVE)
     return false;
 
-  return token.owner === owner;
+  return ethUtil.addHexPrefix(token.owner.toString('hex')) === owner;
 }
 
 
@@ -130,8 +130,8 @@ async function validate(tx, returnFee = false) {
   const prevTx = await get(tx.prevHash);
 
   if (prevTx) {
-    const calcFee = new BN(tx.totalFee).sub(prevTx.totalFee);
-    if (calcFee.eq(fee))
+    const calcFee = new BN(tx.totalFee).sub(new BN(prevTx.totalFee));
+    if (!calcFee.eq(fee))
       return false;
 
     if (tx.tokenId !== prevTx.tokenId)
@@ -321,6 +321,8 @@ function getJson(tx) {
     prevBlock: tx.prevBlock,
     tokenId: tx.tokenId,
     type: tx.type.toString(),
+    totalFee: tx.totalFee,
+    fee: tx.fee,
     newOwner: ethUtil.addHexPrefix(tx.newOwner.toString('hex')),
     data: tx.data.toString(),
     signature: ethUtil.addHexPrefix(tx.signature.toString('hex')),

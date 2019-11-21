@@ -94,17 +94,7 @@ const ROUTER = {
   },
   "sendTransaction": {
     controller: async arg => {
-      arg.prevHash = arg.prevHash.toString('hex');
-      arg.data = arg.data.toString('hex');
-      arg.newOwner = arg.newOwner.toString('hex');
-      arg.signature = arg.signature.toString('hex');
       let result = await sendTransaction(arg);
-
-      const {prevHash, data, newOwner, signature} = result;
-      result.prevHash = Buffer.from(prevHash, 'hex');
-      result.data = Buffer.from(data, 'hex');
-      result.newOwner = Buffer.from(newOwner, 'hex');
-      result.signature = Buffer.from(signature,'hex');
       const packet = BD.encode(result, API_PROTOCOLS.sendTransaction.response);
       return packet.slice();
     }

@@ -11,14 +11,14 @@ import {send as sendTx} from './Transaction';
 
 
 async function getCandidates() {
-  const validatorsArr = Validator.getCandidates();
-  if (!validatorsArr) throw new Error("Candidates not found");
+  const validatorsArr = await Validator.getCandidates();
+  if (!validatorsArr.length) throw new Error("Candidates not found");
   return validatorsArr.map(v => v);
 }
 
 async function getValidators() {
-  const validatorsArr = Validator.getValidators();
-  if (!validatorsArr) throw new Error("Validators not found");
+  const validatorsArr = await Validator.getValidators();
+  if (!validatorsArr.length) throw new Error("Validators not found");
   return validatorsArr.map(v => v);
 }
 
