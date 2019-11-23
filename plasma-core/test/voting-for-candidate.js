@@ -7,6 +7,7 @@ import * as ethUtil from "ethereumjs-util";
 import {client, promise as plasma} from "../src/api/lib/plasma-client";
 import contractHandler from '../src/root-chain/contracts/plasma';
 import * as Token from "../src/api/helpers/Token";
+import logger from "../src/child-chain/lib/logger";
 
 const { expect } = chai;
 const ACCOUNTS = [
@@ -26,6 +27,7 @@ const MAX_COUNTER = 50;
 const INTERVAL = 5000;
 const CANDIDATE_COUNT_VOTES = 5;
 const VOTER_DEPOSITS_NUMBER = CANDIDATE_COUNT_VOTES + 2;
+const callback = data => process.env.LOG_LEVEL === 'debug' ? console.log(data) : null;
 
 chai.should();
 chai.use(chai_things);
@@ -40,17 +42,17 @@ describe("VOTING FOR CANDIDATE", () => {
 
       await web3.eth.personal.unlockAccount(candidate.address, candidate.password, 1000);
       await web3.eth.personal.unlockAccount(voter.address, voter.password, 1000);
-      console.log(`1. Accounts ${candidate.address} and ${voter.address} unlocked!`);
+      console.log(`1. Accounts ${candidate.address} and ${voter.address} unlocked`);
 
       client();
-      console.log(`2. Creating 1 deposit for future candidate ${candidate.address} (with logs):`);
+      console.log(`2. Creating 1 deposit for future candidate ${candidate.address}`);
       const candidateToken = await createDeposit(candidate);
 
-      console.log(`3. Creating transaction to make ${candidate.address} candidate:`);
+      console.log(`3. Creating transaction to make ${candidate.address} candidate`);
       await makeCandidate(candidate, candidateToken);
       console.log(`====> Now, ${candidate.address} is a candidate!`);
 
-      console.log(`4. Creating ${VOTER_DEPOSITS_NUMBER} number of deposits for voter ${voter.address} (without detailed logs):`);
+      console.log(`4. Creating ${VOTER_DEPOSITS_NUMBER} number of deposits for voter ${voter.address}`);
       const startDeposits = Date.now();
       let promisesForDeposits = [];
       for (let i = 0; i < VOTER_DEPOSITS_NUMBER; i++) {
@@ -59,14 +61,14 @@ describe("VOTING FOR CANDIDATE", () => {
       const voterTokens = await Promise.all(promisesForDeposits);
       console.log(`====> All deposits created, finished in ${(Date.now() - startDeposits)/1000}s.`);
 
-      console.log(`5. Voting ${CANDIDATE_COUNT_VOTES} times from ${voter.address} for ${candidate.address} (without detailed logs):`);
+      console.log(`5. Voting ${CANDIDATE_COUNT_VOTES} times from ${voter.address} for ${candidate.address}`);
       const startVoting = Date.now();
       let promisesForVoting = [];
       for (let i = 0; i < CANDIDATE_COUNT_VOTES; i++) {
         promisesForVoting.push(vote(candidate, voter, voterTokens[i]));
       }
       const voteTransactions = await Promise.all(promisesForVoting);
-      console.log('====> Vote transactions:', voteTransactions);
+      logger.debug('====> Vote transactions:', callback(voteTransactions));
       console.log(`====> All votes were sent, finished in ${(Date.now() - startVoting)/1000}s.`);
 
       console.log(`6. Waiting, until the account ${candidate.address} will have enough votes to be an operator (${MAX_COUNTER} number of attempts, one by one each ${INTERVAL/1000}s):`);
@@ -106,25 +108,31 @@ describe("VOTING FOR CANDIDATE", () => {
     });
     if (!res) throw new Error(`Our candidate ${candidate.address} still doesn't became a candidate!`);
     console.log(`====> Now, our candidate ${candidate.address} is an OPERATOR!`);
-    console.log('Result:', res);
+    logger.debug('Result:', callback(res));
     console.log('***END***');
     return true;
   })
 });
+
+after(() => setTimeout(() => process.exit(200), 1000));
 
 
 //console.log's only for candidate because of big number of deposits for voter!
 const createDeposit = async account => {
   await web3.eth.personal.unlockAccount(account.address, account.password, 1000);
   const gas = await contractHandler.estimateCreateDepositkGas(account.address);
-  if (isCandidateAcc(account))
-    console.log("====> Gas amount received:", gas);
+  if (isCandidateAcc(account)) {
+    console.log("====> Gas amount received");
+    logger.debug(gas);
+  }
 
   expect(gas).to.be.a('number');
 
   const tokenId = await contractHandler.createDeposit({ from: account.address, value: account.amount, gas: gas + 150000 });
-  if (isCandidateAcc(account))
-    console.log("====> Token ID received:", tokenId);
+  if (isCandidateAcc(account)) {
+    console.log("====> Token ID received");
+    logger.debug(tokenId);
+  }
 
   expect(tokenId).to.be.string;
 
@@ -170,10 +178,10 @@ const isCandidateAcc = account => account.address === ACCOUNTS[0].address;
 
 const makeCandidate = async (account, token) => {
   await web3.eth.personal.unlockAccount(account.address, account.password, 1000);
-  console.log('====> Token to use for making candidate:', token.id);
+  logger.debug('====> Token to use for making candidate:', callback(token.id));
 
   const lastTx = await plasma({action: "getLastTransactionByTokenId", payload: {tokenId: token.id}});
-  console.log(`====> Last transaction of ${account.address} by token ${token.id}:`, lastTx);
+  logger.debug(`====> Got last transaction of ${account.address} by token ${token.id}:`, callback(lastTx));
 
   expect(lastTx).to.be.an('object');
   expect(lastTx.tokenId).to.be.string;
@@ -193,7 +201,7 @@ const makeCandidate = async (account, token) => {
     blockNumber: 0,
     timestamp: (new Date()).getTime()
   };
-  console.log('====> Data for transaction:', data);
+  logger.debug('====> Formed data for transaction', callback(data));
 
   let dataToEncode = [
     data.prevHash,
@@ -205,10 +213,10 @@ const makeCandidate = async (account, token) => {
     new BN(data.fee),
     data.data,
   ];
-  // console.log('====> Data to encode:', dataToEncode);
+  logger.debug('====> Formed data to encode', callback(dataToEncode));
 
   const hash = ethUtil.keccak(RLP.encode(dataToEncode));
-  // console.log('====> Encoded data:', hash);
+  logger.debug('====> Data encoded', callback(hash));
 
   const msgHash = ethUtil.hashPersonalMessage(hash);
   const key = Buffer.from(account.privateKey, 'hex');
@@ -216,12 +224,13 @@ const makeCandidate = async (account, token) => {
 
   data.signature = ethUtil.toBuffer(ethUtil.toRpcSig(sig.v, sig.r, sig.s));
   dataToEncode.push(data.signature);
-  // console.log('====> New data to encode:', dataToEncode);
+  logger.debug('====> Formed new data to encode', callback(dataToEncode));
+
   data.hash = ethUtil.keccak(RLP.encode(dataToEncode));
-  console.log('====> Hash in transaction:', data.hash);
+  logger.debug('====> Formed hash in transaction', callback(data.hash));
 
   const sentTx = await plasma({action: "sendTransaction", payload: data});
-  console.log('====> Transaction has been sent, answer:', sentTx);
+  logger.debug('====> Transaction has been sent', callback(sentTx));
   expect(ethUtil.addHexPrefix(sentTx.newOwner.toString('hex').toLowerCase())).to.be.equal(account.address.toLowerCase());
 
   console.log(`====> Waiting, until the account ${account.address} becomes a candidate (${MAX_COUNTER} number of attempts, one by one each ${INTERVAL/1000}s):`);
@@ -238,7 +247,7 @@ const makeCandidate = async (account, token) => {
         console.log('Current candidates number:', candidates.length);
 
         if (candidates.length) {
-          console.log('CANDIDATES:', candidates);
+          // console.log('CANDIDATES:', candidates);
           const ourCandidateIndex = candidates.findIndex(can => ethUtil.addHexPrefix(can.address.toLowerCase()) === account.address.toLowerCase());
           if (ourCandidateIndex !== -1) {
             result = candidates[ourCandidateIndex];
@@ -260,7 +269,7 @@ const makeCandidate = async (account, token) => {
 const vote = async (candidate, voter, token) => {
   await web3.eth.personal.unlockAccount(candidate.address, candidate.password, 1000);
   await web3.eth.personal.unlockAccount(voter.address, voter.password, 1000);
-  console.log('====> Tokens ID to vote:', token.id);
+  logger.debug('====> Tokens ID to vote:', callback(token.id));
 
   const lastTx = await plasma({action: "getLastTransactionByTokenId", payload: {tokenId: token.id}});
   expect(lastTx).to.be.an('object');
@@ -304,5 +313,5 @@ const vote = async (candidate, voter, token) => {
 
   const sentTx = await plasma({action: "sendTransaction", payload: data});
   expect(ethUtil.addHexPrefix(sentTx.newOwner.toString('hex').toLowerCase())).to.be.equal(candidate.address.toLowerCase());
-  console.log('====> Transaction has been sent!');
+  logger.debug('====> Transaction has been sent!');
 };

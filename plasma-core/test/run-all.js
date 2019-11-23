@@ -12,3 +12,5 @@ require('./token-create-deposit');
 require('./token-change-owner');
 require('./token-exit');
 // require('./voting-for-candidate');
+
+after(() => setTimeout(() => process.exit(200), 1000));

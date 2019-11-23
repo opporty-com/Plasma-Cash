@@ -6,6 +6,7 @@ import web3 from "../src/root-chain/web3";
 import * as ethUtil from "ethereumjs-util";
 import {client, promise as plasma} from "../src/api/lib/plasma-client";
 import contractHandler from '../src/root-chain/contracts/plasma';
+import logger from "../src/child-chain/lib/logger";
 
 const { expect } = chai;
 const acc = {
@@ -13,6 +14,7 @@ const acc = {
   password: '123456',
   privateKey: 'a9f0374e8bbe95682d3a4230068b631223c81b985a782c2d71ace7eb0a679122'
 };
+const callback = data => process.env.LOG_LEVEL === 'debug' ? console.log(data) : null;
 
 chai.should();
 chai.use(chai_things);
@@ -20,14 +22,15 @@ chai.use(chai_things);
 describe("EXIT TOKEN", () => {
   it(`Should exit token by address: ${acc.address}`, async () => {
     await web3.eth.personal.unlockAccount(acc.address, acc.password, 1000);
-    console.log(`1. Account ${acc.address} unlocked!`);
+    console.log(`1. Account ${acc.address} unlocked`);
 
     client();
     const answer = await plasma({
       action: "getTokenByAddress",
       payload: {address: Buffer.from(ethUtil.stripHexPrefix(acc.address), 'hex')}
     });
-    console.log(`2. Answer for "getTokenByAddress" and address ${acc.address}:`, answer);
+    console.log(`2. Got answer for "getTokenByAddress" and address ${acc.address}`);
+    logger.debug(answer);
 
     expect(answer).to.be.an('object');
     expect(answer.tokens).to.be.an('array').that.is.not.empty;
@@ -35,18 +38,19 @@ describe("EXIT TOKEN", () => {
     const index = answer.tokens.findIndex(t => t.status === 1);
     if (index === -1) throw new Error(`No active tokens by address ${acc.address}`);
     const token = answer.tokens[index];
-    console.log('====> Token to use for test exit:', token.id);
+    logger.debug(`====> Token to use for test exit: ${token.id}`);
     expect(token.id).to.be.string;
 
-    console.log('======================================================================================');
-    console.log('=============================START FORMING EXIT PARAMS================================');
+    logger.debug('======================================================================================');
+    logger.debug('=============================START FORMING EXIT PARAMS================================');
     const exitParams = await getExitParams({contractHandler, tokenId: token.id, address: acc.address});
-    console.log('EXIT PARAMS    |', exitParams);
-    console.log('=============================END OF FORMING EXIT PARAMS================================');
-    console.log('=======================================================================================');
+    logger.debug('EXIT PARAMS:', callback(exitParams));
+    logger.debug('=============================END OF FORMING EXIT PARAMS================================');
+    logger.debug('=======================================================================================');
     console.log('10. Start execute startExit function...');
     const tokenEx = await contractHandler.startExit({address: acc.address, password: acc.password, exitParams});
-    console.log('====> Return:', tokenEx);
+    console.log('====> End of execution');
+    logger.debug(tokenEx);
     expect(tokenEx.exitId).to.be.string;
 
     const getEx = await contractHandler.getExit(tokenEx.exitId);
@@ -54,12 +58,15 @@ describe("EXIT TOKEN", () => {
   })
 });
 
+after(() => setTimeout(() => process.exit(200), 1000));
+
 
 
 async function getExitParams({contractHandler, tokenId, address}) {
   const lastTx = await plasma({action: "getLastTransactionByTokenId", payload: {tokenId}});
-  console.log('------------------------------------------');
-  console.log(`3. Last transaction of ${address} by token ${tokenId}:`, lastTx);
+  logger.debug('------------------------------------------');
+  console.log(`3. Got last transaction of ${address} by token ${tokenId}`);
+  logger.debug(lastTx);
   expect(lastTx).to.be.an('object');
   expect(lastTx.tokenId).to.be.string;
   expect(lastTx.blockNumber).to.be.a('number');
@@ -70,8 +77,9 @@ async function getExitParams({contractHandler, tokenId, address}) {
     throw new Error('wrong owner');
 
   const prevTx = await plasma({action: "getTransactionByHash", payload: {hash: lastTx.prevHash}});
-  console.log(`4. Previous transaction of transaction (hash: ${lastTx.hash.toString('hex')}):`, prevTx);
-  console.log('------------------------------------------');
+  console.log(`4. Got previous transaction (last tx hash: ${lastTx.hash.toString('hex')})`);
+  logger.debug(prevTx);
+  logger.debug('------------------------------------------');
   expect(prevTx).to.be.an('object');
   expect(prevTx.tokenId).to.be.string;
   expect(prevTx.blockNumber).to.be.a('number');
@@ -83,11 +91,13 @@ async function getExitParams({contractHandler, tokenId, address}) {
   const txRpl = createRpl(lastTx);
   const txPrevRpl = createRpl(prevTx);
   const txProof = (await plasma({action: "getProof", payload: {tokenId, blockNumber: blockNum}})).hash;
-  console.log(`5. Get proof for LAST transaction:`, txProof);
+  console.log(`5. Got proof for LAST transaction`);
+  logger.debug(txProof);
   expect(txProof.length).to.be.not.equal(0);
 
   const txPrevProof = (await plasma({action: "getProof", payload: {tokenId, blockNumber: prevBlockNum}})).hash;
-  console.log(`6. Get proof for PREVIOUS transaction:`, txPrevProof);
+  console.log(`6. Got proof for PREVIOUS transaction`);
+  logger.debug(txPrevProof);
   expect(txPrevProof.length).to.be.not.equal(0);
 
   const txBlock = await plasma({action: "getBlock", payload: {number: blockNum}});
@@ -98,18 +108,19 @@ async function getExitParams({contractHandler, tokenId, address}) {
   if (!(await contractHandler.checkProof(ethUtil.addHexPrefix(prevTx.hash.toString('hex')), ethUtil.addHexPrefix(txPrevBlock.merkleRootHash.toString('hex')), txPrevProof)))
     throw new Error('txPrevProof was marked as INCORRECT by checkProof function!');
   console.log('8. txPrevProof correct!');
-  console.log('============CHECK RLP=============');
-  console.log('============txRpl=============');
-  console.log('HASH IN TR     |', lastTx.hash);
-  console.log('FORMED IN TEST |', ethUtil.keccak(txRpl));
-  console.log('============txPrevRpl=============');
-  console.log('HASH IN TR     |', prevTx.hash);
-  console.log('FORMED IN TEST |', ethUtil.keccak(txPrevRpl));
-  console.log('===============END================');
-  console.log('FORMED MAIN PARAMS:', {blockNum, txRpl, txPrevRpl, txProof, txPrevProof, address});
+  logger.debug('============CHECK RLP=============');
+  logger.debug('============txRpl=============');
+  logger.debug(`HASH IN TR:`, callback(lastTx.hash));
+  logger.debug(`FORMED IN TEST:`, callback(ethUtil.keccak(txRpl)));
+  logger.debug('============txPrevRpl=============');
+  logger.debug(`HASH IN TR:`, callback(prevTx.hash));
+  logger.debug(`FORMED IN TEST:`, callback(ethUtil.keccak(txPrevRpl)));
+  logger.debug('===============END================');
+  logger.debug('FORMED MAIN PARAMS:', callback({blockNum, txRpl, txPrevRpl, txProof, txPrevProof, address}));
 
   const estimateGas = await contractHandler.estimateStartExit({blockNum, txRpl, txPrevRpl, txProof, txPrevProof, address});
-  console.log('9. Estimated gas amount:', estimateGas);
+  console.log('9. Estimated gas amount');
+  logger.debug(estimateGas);
   expect(estimateGas).to.be.a('number');
   return {blockNum, txRpl, txPrevRpl, txProof, txPrevProof, estimateGas};
 }

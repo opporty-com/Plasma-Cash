@@ -4,6 +4,7 @@ import { promise as plasma, client } from "../src/api/lib/plasma-client";
 import contractHandler from '../src/root-chain/contracts/plasma';
 import web3  from '../src/root-chain/web3';
 import * as Token from "../src/api/helpers/Token";
+import logger from "../src/child-chain/lib/logger";
 
 const { expect } = chai;
 const ACCOUNT = {
@@ -21,15 +22,17 @@ chai.use(chai_things);
 describe("CREATING DEPOSIT", () => {
   it(`Should create deposit by address ${ACCOUNT.address}`, async () => {
     await web3.eth.personal.unlockAccount(ACCOUNT.address, ACCOUNT.password, 1000);
-    console.log(`1. Account ${ACCOUNT.address} unlocked!`);
+    console.log(`1. Account ${ACCOUNT.address} unlocked`);
 
     const gas = await contractHandler.estimateCreateDepositkGas(ACCOUNT.address);
-    console.log("2. Gas amount received:", gas);
+    console.log("2. Gas amount received");
+    logger.debug(gas);
 
     expect(gas).to.be.a('number');
 
     const tokenId = await contractHandler.createDeposit({ from: ACCOUNT.address, value: ACCOUNT.amount, gas: gas + 150000 });
-    console.log("3. Token ID received:", tokenId);
+    console.log("3. Token ID received");
+    logger.debug(tokenId);
 
     expect(tokenId).to.be.string;
 
@@ -61,3 +64,5 @@ describe("CREATING DEPOSIT", () => {
     if (!(result && result.id)) throw new Error(`Token (ID: ${tokenId}) was not found in plasma network!`);
   });
 });
+
+after(() => setTimeout(() => process.exit(200), 1000));
