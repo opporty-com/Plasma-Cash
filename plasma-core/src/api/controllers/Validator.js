@@ -12,8 +12,8 @@ async function getCandidates(request, h) {
   let result;
   try {
     let data = await plasma({action: "getCandidates", payload: {}});
-    result = data.candidates;
-    result.forEach(r => delete r.countStakes);
+    result = data.votes;
+    result.forEach(r => delete r.votes);
   } catch (e) {
     return Boom.badGateway(e)
   }
