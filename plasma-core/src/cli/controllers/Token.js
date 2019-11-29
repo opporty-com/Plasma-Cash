@@ -1,31 +1,31 @@
-/**
- * Created by Oleksandr <alex@moonion.com> on 2019-08-12
- * moonion.com;
- */
+import {promise as plasma} from "../lib/plasma-client";
+import * as ethUtil from "ethereumjs-util";
+import * as Token from "../helpers/Token";
+import * as Transaction from "../helpers/Transaction";
 
-import { promiseFromEvent } from "../utils"
-
-const getByAddress = async ({ address }) => {
-
-  if ( !address ) {
-    console.log('address is required! add -a, --address')
-    process.exit(1);
-  }
-
-  console.log( `Balance action running by ${address} address` )
-
-  let balance
-  try {
-    balance = await promiseFromEvent({ action: "getTokenByAddress", payload: address });
-    console.log("Balance ->", balance)
-  } catch (e) {
-    console.log("Error: ", e)
-  }
-
-
-  process.exit(1)
-
+async function get(tokenId) {
+  const data = await plasma({action: "getToken", payload: {tokenId}});
+  return Token.getJson(data);
 }
 
+async function getByAddress(address) {
+  const data = await plasma({action: "getTokenByAddress", payload: {address: Buffer.from(ethUtil.stripHexPrefix(address), 'hex')}});
+  return data.tokens.map(token=>Token.getJson(token));
+}
 
-export { getByAddress }
+async function getTransactions(tokenId) {
+  const data = await plasma({action: "getTransactionsByTokenId", payload: {tokenId}});
+  return data.transactions.map(tx => Transaction.getJson(tx));
+}
+
+async function getLastTransaction(tokenId) {
+  const data = await plasma({action: "getLastTransactionByTokenId", payload: {tokenId}});
+  return Transaction.getJson(data);
+}
+
+module.exports = {
+  get,
+  getByAddress,
+  getTransactions,
+  getLastTransaction
+};

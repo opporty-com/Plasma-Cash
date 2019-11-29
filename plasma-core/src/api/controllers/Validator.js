@@ -11,13 +11,10 @@ import * as ethUtil from 'ethereumjs-util';
 async function getCandidates(request, h) {
   let result;
   try {
-    let data = await plasma({action: "getCandidates", payload: {}});
-    result = data.votes;
-    result.forEach(r => delete r.votes);
+    result = await plasma({action: "getCandidates", payload: {}});
   } catch (e) {
     return Boom.badGateway(e)
   }
-
   return result;
 }
 

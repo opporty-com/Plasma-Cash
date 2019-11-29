@@ -6,6 +6,7 @@ import web3 from "../src/root-chain/web3";
 import * as ethUtil from "ethereumjs-util";
 import {client, promise as plasma} from "../src/api/lib/plasma-client";
 import logger from "../src/child-chain/lib/logger";
+import * as Token from "../src/api/helpers/Token";
 
 const { expect } = chai;
 const ACCOUNTS = [
@@ -109,22 +110,25 @@ describe("CHANGING OWNER", () => {
       let counter = 0;
       const interval = setInterval(async () => {
         counter++;
-        console.log(`Attempt number ${counter}, time left: ~${counter*5}s.`);
+        let logStr = `Attempt number ${counter}, time left: ~${counter*5}s. `;
         const data = await plasma({action: "getToken", payload: {tokenId: token.id}})
-          .catch(e => console.log('Error:', e));
+          .catch(e => {
+            logStr += `Answered with error: ${e}. `;
+            return null;
+          });
         const owner = ethUtil.addHexPrefix(data.owner.toString('hex'));
-        console.log(`Current token owner: ${owner}, not changed...`);
+        logStr += `Current token owner: ${owner}, `;
 
         if (owner.toLowerCase() === newAcc.address.toLowerCase()) {
           result = true;
-          console.log('OWNER HAS CHANGED!');
-        }
+          logStr += 'HAS CHANGED! Current token state:';
+        } else logStr += 'has not changed...';
+        console.log(logStr); if (result) console.log(Token.getJson(data));
 
         if (result || counter === MAX_COUNTER) {
           clearInterval(interval);
           resolve(true);
         }
-        console.log('===========================================');
       }, INTERVAL);
     });
     if (!result) throw new Error('The owner has not changed!');

@@ -43,7 +43,6 @@ const server = net.createServer(socket => {
         length: payload.length,
         payload
       };
-      console.log(res);
       ostream.write(res);
     }
   });
