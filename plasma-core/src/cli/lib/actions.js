@@ -3,18 +3,80 @@ import * as Block from "../controllers/Block";
 import * as Deposit from "../controllers/Deposit";
 import * as Token from "../controllers/Token";
 import * as Transaction from "../controllers/Transaction";
+import * as User from "../controllers/User";
 import * as Validator from "../controllers/Validator";
+import * as fs from 'fs';
+
+const PATH = __dirname + '/../credentials.json';
+let ADDR, PSWD;
+if (fs.existsSync(PATH)) {
+  const credentials = require(PATH);
+  if (credentials && typeof credentials === 'object') {
+    ADDR = credentials.address;
+    PSWD = credentials.password;
+  }
+}
+
+const SHORTCUTS = {
+  address: '-a',
+  password: '-p',
+  info: '-i',
+  exit: '-e',
+  amount: '-c',
+  wait: '-w',
+  identifier: '-i',
+  last: '-l',
+  token: '-t',
+  proof: '-p',
+  hash: '-h',
+  check: '-c',
+  transaction: '-t',
+  send: '-s',
+  pool: '-p',
+  tokenId: '-i',
+  type: '-t',
+  candidates: '-c',
+  validators: '-v',
+  current: '-r'
+};
+
+async function auth({address, password}) {
+
+  //TODO: do
+  let result, ignored = [];
+  try {
+    if (!address || !password) {
+      console.log('Missing address or password. This options are required. Run "auth --help" for more information.');
+      process.exit(1);
+    }
+    await User.login(address, password);
+
+    if (ignored.length) logIgnored(ignored, 'token');
+    console.log(result);
+  } catch (e) { console.log(e); }
+  process.exit(1);
+  //TODO: end
+
+}
 
 async function deposit({amount, wait, address, password}) {
-  if (!address || !password) {
-    console.log('Missing address or password. This options are required. Run "deposit --help" for more information.');
-    process.exit(1);
-  }
-  if (!amount || isNaN(parseFloat(amount))) {
-    console.log('Missing amount or bad value. Add -c or --amount option with number of deposit amount.');
-    process.exit(1);
-  }
-  await Deposit.create(amount, wait, address, password);
+  try {
+    if (!address || !password) {
+      if (ADDR && PSWD) {
+        console.log(`Using address and password from current session.`);
+        address = ADDR;
+        password = PSWD;
+      } else {
+        console.log('Missing address or password. This options are required. Run "deposit --help" for more information.');
+        process.exit(1);
+      }
+    }
+    if (!amount || isNaN(parseFloat(amount))) {
+      console.log('Missing amount or bad value. Add -c or --amount option with number of deposit amount.');
+      process.exit(1);
+    }
+    await Deposit.create(amount, wait, address, password);
+  } catch (e) { console.log(e); }
   process.exit(1);
 }
 
@@ -28,8 +90,7 @@ async function block({identifier, last, token, proof, hash, check}) {
         process.exit(1);
       }
 
-      if (last) ignored.push('-l');
-      if (token) ignored.push('-t');
+      checkIgnored(ignored, {last, token});
       result = await Block.checkProof(hash, identifier, proof);
     } else if (proof) {
       if (!identifier || !token) {
@@ -37,20 +98,17 @@ async function block({identifier, last, token, proof, hash, check}) {
         process.exit(1);
       }
 
-      if (last) ignored.push('-l');
-      if (hash) ignored.push('-h');
+      checkIgnored(ignored, {last, hash});
       result = await Block.proof(token, identifier);
     } else {
       if (!identifier && !last) {
         console.log('Invalid set of options. Run "block --help" for more information.');
         process.exit(1);
       }
-
-      if (token) ignored.push('-t');
-      if (hash) ignored.push('-h');
+      checkIgnored(ignored, {token, hash});
 
       if (identifier) {
-        if (last) ignored.push('-l');
+        checkIgnored(ignored, {last});
         result = await Block.get(identifier);
       }
       else result = await Block.last();
@@ -68,18 +126,23 @@ async function token({identifier, address, transaction, last}) {
     client();
     if (!transaction) {
       if (!identifier && !address) {
-        console.log('Missing data for search. Add "-i" option with token identifier or "-a" with token address to search some token.');
-        process.exit(1);
+        if (ADDR) {
+          console.log(`Using address from current session.`);
+          result = await Token.getByAddress(ADDR);
+        } else {
+          console.log('Missing data for search. Add "-i" option with token identifier or "-a" with token address to search some token.');
+          process.exit(1);
+        }
       }
-      if (last) ignored.push('-l');
+      checkIgnored(ignored, {last});
 
       if (identifier) {
-        if (address) ignored.push('-a');
+        checkIgnored(ignored, {address});
         result = await Token.get(identifier);
       } else result = await Token.getByAddress(address);
     } else {
       if (!identifier) console.log('Missing option "-i". Run "token --help" for more information.');
-      if (address) ignored.push('-a');
+      checkIgnored(ignored, {address});
 
       if (!last) result = await Token.getTransactions(identifier);
       else result = await Token.getLastTransaction(identifier);
@@ -100,36 +163,20 @@ async function transaction({send, hash, address, pool, tokenId, password, type})
         console.log('Missing values to send transaction. Run "transaction --help" for more information.');
         process.exit(1);
       }
-
-      if (hash) ignored.push('-h');
-      if (pool) ignored.push('-l');
-
+      checkIgnored(ignored, {hash, pool});
       result = await Transaction.send(address, password, tokenId, type);
     } else if (hash) {
-      if (address) ignored.push('-a');
-      if (pool) ignored.push('-l');
-      if (tokenId) ignored.push('-i');
-      if (password) ignored.push('-p');
-
-      if (type) ignored.push('-t');
+      checkIgnored(ignored, {address, pool, tokenId, password, type});
       result = await Transaction.get(hash);
     } else if (address) {
-      if (pool) ignored.push('-l');
-      if (tokenId) ignored.push('-i');
-      if (password) ignored.push('-p');
-      if (type) ignored.push('-t');
-
+      checkIgnored(ignored, {pool, tokenId, password, type});
       result = await Transaction.getTransactionsByAddress(address);
     } else {
       if (!pool) {
         console.log('Invalid set of options.. Run "transaction --help" for more information.');
         process.exit(1);
       }
-
-      if (tokenId) ignored.push('-i');
-      if (password) ignored.push('-p');
-      if (type) ignored.push('-t');
-
+      checkIgnored(ignored, {tokenId, password, type});
       result = await Transaction.getPool();
     }
     if (ignored.length) logIgnored(ignored, 'token');
@@ -165,6 +212,15 @@ async function validator({candidates, validators, current}) {
   process.exit(1);
 }
 
+const checkIgnored = (array, opts) => {
+  const keys = Object.keys(opts);
+  keys.forEach(key => {
+    if (opts[key]) array.push(SHORTCUTS[key]);
+    return true;
+  });
+  return true;
+};
+
 const logIgnored = (opts, command) => {
   let res = 'Option', verb = 'was';
   if (opts.length > 1) {
@@ -178,6 +234,7 @@ const logIgnored = (opts, command) => {
 };
 
 module.exports = {
+  auth,
   deposit,
   block,
   token,

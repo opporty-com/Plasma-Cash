@@ -30,7 +30,7 @@ async function checkProof(hash, blockNumber, proof) {
   return Boolean(parseInt(result.result.toString()));
 }
 
-module.exports =  {
+module.exports = {
   get,
   last,
   proof,

@@ -1,6 +1,16 @@
 import * as actions from "./actions";
 
 const COMMANDS = {
+  "auth": {
+    description: 'Authentication to the system. Use "-a" and "-p" options to login. If you will use some command that requires address or password, this information may not be indicated and will be taken from current session. Run "auth --help" for more information.',
+    flags: [
+      {option: '-a, --address <address>', description: 'Address of account, use to login.'},
+      {option: '-p, --password <password>', description: 'Account password, use to login.'},
+      {option: '-i, --info', description: 'Info about current session.'},
+      {option: '-e, --exit', description: 'Use to logout.'}
+    ],
+    action: env => actions.auth(env)
+  },
   "deposit": {
     description: 'Create deposit and get token ID. Run "deposit --help" for more information.',
     flags: [
@@ -27,7 +37,7 @@ const COMMANDS = {
     description: 'Get token or transactions by token. It is required to determine one of: "-i" or "-a". If both are specified with values, will be used "-i" and ignored "-a". Run "token --help" for more information.',
     flags: [
       {option: '-i, --identifier <id>', description: 'Identifier of token.'},
-      {option: '-a, --address <address>', description: 'Address of token.'},
+      {option: '-a, --address <address>', description: 'Address of token owner.'},
       {option: '-t, --transaction', description: 'Means that need to get transactions by token identifier. Use with "-i" option.'},
       {option: '-l, --last', description: 'Use with "-t" option to get last transaction by token identifier.'}
     ],
