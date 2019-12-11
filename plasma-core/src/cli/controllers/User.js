@@ -1,15 +1,35 @@
 import * as fs from 'fs';
 import web3 from "../../root-chain/web3";
 
-const PATH = __dirname + '/../credentials.json';
+async function login(address, password, time, credentials, PATH) {
+  // await web3.eth.personal.unlockAccount(address, password, 1000);
 
-async function login(address, password) {
-  await web3.eth.personal.unlockAccount(address, password, 1000);
-
-  await fs.writeFileSync(PATH, `{"address": "${address}", "password": "${password}"}`);
-  console.log('Login successful.');
+  if (credentials) return 'Found active session. You must end the session to create new one. Use "auth -i" to see info.';
+  await fs.writeFileSync(PATH, `{"address": "${address}", "password": "${password}", "time": ${time}, "startedAt": ${Date.now()}}`);
+  if (fs.existsSync(PATH)) return 'Login successful.';
+  return 'Login failed.';
 }
 
+async function exit(credentials, PATH) {
+  if (credentials) {
+    fs.unlinkSync(PATH);
+    return 'Successfully logged out.';
+  }
+  return 'No active sessions.';
+}
+
+async function info(credentials) {
+  if (credentials) {
+    const endsAt = credentials.startedAt + credentials.time;
+    const now = Date.now();
+    console.log(`Now the user's ${credentials.address} session is active. Will be valid for ${Math.ceil((endsAt - now)/1000/60)} minute(s).`);
+  } else console.log('No active sessions.');
+  return true;
+}
+
+
 module.exports = {
-  login
+  login,
+  exit,
+  info
 };

@@ -6,7 +6,8 @@ const COMMANDS = {
     flags: [
       {option: '-a, --address <address>', description: 'Address of account, use to login.'},
       {option: '-p, --password <password>', description: 'Account password, use to login.'},
-      {option: '-i, --info', description: 'Info about current session.'},
+      {option: '-t, --time <time>', description: 'Time, during which the session will be valid (in minutes, default value is 60).'},
+      {option: '-i, --info', description: 'Info about current session. This option is compatible with any other and displays the latest system status.'},
       {option: '-e, --exit', description: 'Use to logout.'}
     ],
     action: env => actions.auth(env)

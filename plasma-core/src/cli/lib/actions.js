@@ -7,14 +7,17 @@ import * as User from "../controllers/User";
 import * as Validator from "../controllers/Validator";
 import * as fs from 'fs';
 
+// session validation before command's execution start
 const PATH = __dirname + '/../credentials.json';
-let ADDR, PSWD;
+let ADDR, PSWD, credentials;
 if (fs.existsSync(PATH)) {
-  const credentials = require(PATH);
+  credentials = require(PATH);
   if (credentials && typeof credentials === 'object') {
-    ADDR = credentials.address;
-    PSWD = credentials.password;
-  }
+    if (credentials.startedAt + credentials.time > Date.now()) {
+      ADDR = credentials.address;
+      PSWD = credentials.password;
+    } else fs.unlinkSync(PATH);
+  } else credentials = null;
 }
 
 const SHORTCUTS = {
@@ -37,26 +40,34 @@ const SHORTCUTS = {
   type: '-t',
   candidates: '-c',
   validators: '-v',
-  current: '-r'
+  current: '-r',
+  time: '-t'
 };
 
-async function auth({address, password}) {
-
-  //TODO: do
+async function auth({address, password, time, info, exit}) {
   let result, ignored = [];
   try {
-    if (!address || !password) {
-      console.log('Missing address or password. This options are required. Run "auth --help" for more information.');
-      process.exit(1);
+    if (exit) {
+      checkIgnored(ignored, {address, password, time});
+      result = await User.exit(credentials, PATH);
+    } else if (address && password) {
+      if (time && Number.isInteger(parseFloat(time)) && parseInt(time) > 0) time = time*60*1000;
+      else {
+        console.log('Invalid argument fot option "--time". Must be an integer, greater that 0.');
+        process.exit(1);
+      }
+      result = await User.login(address, password, time, credentials, PATH);
+    } else {
+      if (!info) {
+        console.log('Invalid set of options. Run "auth --help" for more information.');
+        process.exit(1);
+      }
     }
-    await User.login(address, password);
-
-    if (ignored.length) logIgnored(ignored, 'token');
-    console.log(result);
+    if (ignored.length) logIgnored(ignored, 'auth');
+    if (result) console.log(result);
+    if (info) await User.info(credentials);
   } catch (e) { console.log(e); }
   process.exit(1);
-  //TODO: end
-
 }
 
 async function deposit({amount, wait, address, password}) {
@@ -173,7 +184,7 @@ async function transaction({send, hash, address, pool, tokenId, password, type})
       result = await Transaction.getTransactionsByAddress(address);
     } else {
       if (!pool) {
-        console.log('Invalid set of options.. Run "transaction --help" for more information.');
+        console.log('Invalid set of options. Run "transaction --help" for more information.');
         process.exit(1);
       }
       checkIgnored(ignored, {tokenId, password, type});
@@ -190,17 +201,14 @@ async function validator({candidates, validators, current}) {
   try {
     client();
     if (candidates) {
-      if (validators) ignored.push('-v');
-      if (current) ignored.push('-c');
-
+      checkIgnored(ignored, {validators, current});
       result = await Validator.getCandidates();
     } else if (validators) {
-      if (current) ignored.push('-c');
-
+      checkIgnored(ignored, {current});
       result = await Validator.getValidators();
     } else {
       if (!current) {
-        console.log('Invalid set of options.. Run "transaction --help" for more information.');
+        console.log('Invalid set of options. Run "transaction --help" for more information.');
         process.exit(1);
       }
       result = await Validator.getCurrent();
