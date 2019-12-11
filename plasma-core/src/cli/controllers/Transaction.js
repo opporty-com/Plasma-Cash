@@ -5,13 +5,18 @@ import BN from "bn.js";
 import * as RLP from "rlp";
 import web3 from '../../root-chain/web3';
 
-async function send(address, password, tokenId, type) {
+async function send(address, password, tokenId, type, credentials) {
   type = parseInt(type);
   if (!type || isNaN(type)) {
     console.log('Type option must contain valid number.');
     process.exit(1);
   }
   const token = await plasma({action: "getToken", payload: {tokenId}});
+  if (ethUtil.addHexPrefix(token.owner.toString('hex').toLowerCase()) !== ethUtil.addHexPrefix(credentials.address.toLowerCase())) {
+    console.log('You are not an owner of token. Operation cancelled.');
+    process.exit(1);
+  }
+
   const lastTx = await plasma({action: "getLastTransactionByTokenId", payload: {tokenId}});
 
   const fee = 1;
@@ -41,7 +46,7 @@ async function send(address, password, tokenId, type) {
   ];
 
   const hash = ethUtil.keccak(RLP.encode(dataToEncode));
-  data.signature = ethUtil.toBuffer(await web3.eth.personal.sign(ethUtil.addHexPrefix(hash.toString('hex')), ethUtil.addHexPrefix(token.owner.toString('hex')), password));
+  data.signature = ethUtil.toBuffer(await web3.eth.personal.sign(ethUtil.addHexPrefix(hash.toString('hex')), ethUtil.addHexPrefix(credentials.address.toString('hex')), credentials.password));
 
   dataToEncode.push(data.signature);
   data.hash = ethUtil.keccak(RLP.encode(dataToEncode));

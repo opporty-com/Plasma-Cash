@@ -47,9 +47,9 @@ const COMMANDS = {
   "transaction": {
     description: 'By this command you can send transaction ("-s"), get transaction by hash ("-h") or address ("-a") or get pool ("-l"). If you specify an incorrect combination of parameters or a combination that cannot be performed at the same time, some options will be ignored.',
     flags: [
-      {option: '-s, --send', description: 'Send transaction. Such options are required to use with: "-a", "-p", "-i", "-t".'},
+      {option: '-s, --send', description: 'Send transaction. You must be logged in. Such options are required to use with: "-a", "-p", "-i", "-t".'},
       {option: '-h, --hash <hash>', description: 'Hash of transaction to get.'},
-      {option: '-a, --address <address>', description: 'Address of account which refers to new owner of token in transaction.'},
+      {option: '-a, --address <address>', description: 'Address of account which refers to NEW owner of token in transaction.'},
       {option: '-l, --pool', description: 'Get pool.'},
       {option: '-i, --token-id <tokenId>', description: 'Identifier of token.'},
       {option: '-p, --password <password>', description: 'Account password of current token owner.'},

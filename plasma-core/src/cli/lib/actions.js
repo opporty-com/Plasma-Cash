@@ -9,14 +9,12 @@ import * as fs from 'fs';
 
 // session validation before command's execution start
 const PATH = __dirname + '/../credentials.json';
-let ADDR, PSWD, credentials;
+let credentials;
 if (fs.existsSync(PATH)) {
   credentials = require(PATH);
   if (credentials && typeof credentials === 'object') {
-    if (credentials.startedAt + credentials.time > Date.now()) {
-      ADDR = credentials.address;
-      PSWD = credentials.password;
-    } else fs.unlinkSync(PATH);
+    if (credentials.startedAt + credentials.time < Date.now())
+      fs.unlinkSync(PATH);
   } else credentials = null;
 }
 
@@ -73,10 +71,10 @@ async function auth({address, password, time, info, exit}) {
 async function deposit({amount, wait, address, password}) {
   try {
     if (!address || !password) {
-      if (ADDR && PSWD) {
+      if (credentials) {
         console.log(`Using address and password from current session.`);
-        address = ADDR;
-        password = PSWD;
+        address = credentials.address;
+        password = credentials.password;
       } else {
         console.log('Missing address or password. This options are required. Run "deposit --help" for more information.');
         process.exit(1);
@@ -137,9 +135,9 @@ async function token({identifier, address, transaction, last}) {
     client();
     if (!transaction) {
       if (!identifier && !address) {
-        if (ADDR) {
+        if (credentials) {
           console.log(`Using address from current session.`);
-          result = await Token.getByAddress(ADDR);
+          result = await Token.getByAddress(credentials.address);
         } else {
           console.log('Missing data for search. Add "-i" option with token identifier or "-a" with token address to search some token.');
           process.exit(1);
@@ -174,8 +172,12 @@ async function transaction({send, hash, address, pool, tokenId, password, type})
         console.log('Missing values to send transaction. Run "transaction --help" for more information.');
         process.exit(1);
       }
+      if (!credentials) {
+        console.log('You must be logged in to send transactions. Use "auth --help" to check how to authenticate. Run "transaction --help" for more information.');
+        process.exit(1);
+      }
       checkIgnored(ignored, {hash, pool});
-      result = await Transaction.send(address, password, tokenId, type);
+      result = await Transaction.send(address, password, tokenId, type, credentials);
     } else if (hash) {
       checkIgnored(ignored, {address, pool, tokenId, password, type});
       result = await Transaction.get(hash);
