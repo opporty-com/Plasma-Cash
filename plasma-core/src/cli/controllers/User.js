@@ -2,7 +2,8 @@ import * as fs from 'fs';
 import web3 from "../../root-chain/web3";
 
 async function login(address, password, time, credentials, PATH) {
-  // await web3.eth.personal.unlockAccount(address, password, 1000);
+  const isUnlocked = await web3.eth.personal.unlockAccount(address, password, 1000);
+  if (!isUnlocked) return 'Login failed.';
 
   if (credentials) return 'Found active session. You must end the session to create new one. Use "auth -i" to see info.';
   await fs.writeFileSync(PATH, `{"address": "${address}", "password": "${password}", "time": ${time}, "startedAt": ${Date.now()}}`);
@@ -18,8 +19,9 @@ async function exit(credentials, PATH) {
   return 'No active sessions.';
 }
 
-async function info(credentials) {
-  if (credentials) {
+async function info(PATH) {
+  const credentials = require(PATH);
+  if (credentials && typeof credentials === 'object') {
     const endsAt = credentials.startedAt + credentials.time;
     const now = Date.now();
     console.log(`Now the user's ${credentials.address} session is active. Will be valid for ${Math.ceil((endsAt - now)/1000/60)} minute(s).`);

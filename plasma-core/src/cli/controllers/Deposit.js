@@ -7,7 +7,8 @@ const MAX_COUNTER = 50;
 const INTERVAL = 5000;
 
 async function create(amount, wait, address, password) {
-  await web3.eth.personal.unlockAccount(address, password, 1000);
+  const isUnlocked = await web3.eth.personal.unlockAccount(address, password, 1000);
+  if (!isUnlocked) return 'Deposit failed.';
   console.log(`1. Account ${address} unlocked.`);
 
   const gas = await contractHandler.estimateCreateDepositkGas(address);

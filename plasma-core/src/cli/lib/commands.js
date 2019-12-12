@@ -47,16 +47,15 @@ const COMMANDS = {
   "transaction": {
     description: 'By this command you can send transaction ("-s"), get transaction by hash ("-h") or address ("-a") or get pool ("-l"). If you specify an incorrect combination of parameters or a combination that cannot be performed at the same time, some options will be ignored.',
     flags: [
-      {option: '-s, --send', description: 'Send transaction. You must be logged in. Such options are required to use with: "-a", "-p", "-i", "-t".'},
+      {option: '-s, --send', description: 'Send transaction. You must be logged in. Such options are required to use with: "-a", "-i", "-t".'},
       {option: '-h, --hash <hash>', description: 'Hash of transaction to get.'},
       {option: '-a, --address <address>', description: 'Address of account which refers to NEW owner of token in transaction.'},
       {option: '-l, --pool', description: 'Get pool.'},
       {option: '-i, --token-id <tokenId>', description: 'Identifier of token.'},
-      {option: '-p, --password <password>', description: 'Account password of current token owner.'},
-      {option: '-t, --type <type>', description: 'Type of transaction.'}
+      {option: '-t, --type <type>', description: 'Type of transaction (number): 1 - pay, 2 - vote, 3 - unVote, 4 - candidate, 5 - resignation, 6 - private.'},
+      {option: '-w, --wait', description: 'If this option determined, script will wait, until transaction, that was sent, will be available in plasma.'}
     ],
-    action: env => actions.transaction(env)
-  },
+    action: env => actions.transaction(env)  },
   "validator": {
     description: 'Get candidates, validators or current. Execution priority: "-c", then "-v", then "-r". If an option with a higher priority is defpined, options with a lower priority will be ignored.',
     flags: [

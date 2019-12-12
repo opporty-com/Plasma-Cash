@@ -49,9 +49,10 @@ async function auth({address, password, time, info, exit}) {
       checkIgnored(ignored, {address, password, time});
       result = await User.exit(credentials, PATH);
     } else if (address && password) {
-      if (time && Number.isInteger(parseFloat(time)) && parseInt(time) > 0) time = time*60*1000;
+      time = Number(time);
+      if (time && !Number.isNaN(time) && Number.isInteger(time) && time > 0 && time < 1000000) time = time*60*1000;
       else {
-        console.log('Invalid argument fot option "--time". Must be an integer, greater that 0.');
+        console.log('Invalid argument fot option "--time". Must be an integer, greater that 0 and less than 1,000,000.');
         process.exit(1);
       }
       result = await User.login(address, password, time, credentials, PATH);
@@ -63,7 +64,7 @@ async function auth({address, password, time, info, exit}) {
     }
     if (ignored.length) logIgnored(ignored, 'auth');
     if (result) console.log(result);
-    if (info) await User.info(credentials);
+    if (info) await User.info(PATH);
   } catch (e) { console.log(e); }
   process.exit(1);
 }
@@ -163,12 +164,12 @@ async function token({identifier, address, transaction, last}) {
   process.exit(1);
 }
 
-async function transaction({send, hash, address, pool, tokenId, password, type}) {
+async function transaction({send, hash, address, pool, tokenId, type, wait}) {
   let result, ignored = [];
   try {
     client();
     if (send) {
-      if (!address || !password || !tokenId || !type) {
+      if (!address || !tokenId || !type) {
         console.log('Missing values to send transaction. Run "transaction --help" for more information.');
         process.exit(1);
       }
@@ -177,19 +178,19 @@ async function transaction({send, hash, address, pool, tokenId, password, type})
         process.exit(1);
       }
       checkIgnored(ignored, {hash, pool});
-      result = await Transaction.send(address, password, tokenId, type, credentials);
+      result = await Transaction.send(address, tokenId, type, wait, credentials);
     } else if (hash) {
-      checkIgnored(ignored, {address, pool, tokenId, password, type});
+      checkIgnored(ignored, {address, pool, tokenId, type, wait});
       result = await Transaction.get(hash);
     } else if (address) {
-      checkIgnored(ignored, {pool, tokenId, password, type});
+      checkIgnored(ignored, {pool, tokenId, type, wait});
       result = await Transaction.getTransactionsByAddress(address);
     } else {
       if (!pool) {
         console.log('Invalid set of options. Run "transaction --help" for more information.');
         process.exit(1);
       }
-      checkIgnored(ignored, {tokenId, password, type});
+      checkIgnored(ignored, {tokenId, type, wait});
       result = await Transaction.getPool();
     }
     if (ignored.length) logIgnored(ignored, 'token');
