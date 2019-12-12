@@ -77,7 +77,7 @@ async function deposit({amount, wait, address, password}) {
         address = credentials.address;
         password = credentials.password;
       } else {
-        console.log('Missing address or password. This options are required. Run "deposit --help" for more information.');
+        console.log('Missing address or password. This options are required (or you can log in instead). Run "deposit --help" for more information.');
         process.exit(1);
       }
     }
@@ -178,6 +178,7 @@ async function transaction({send, hash, address, pool, tokenId, type, wait}) {
         process.exit(1);
       }
       checkIgnored(ignored, {hash, pool});
+      console.log(`Using address and password from current session to sign transaction.`);
       result = await Transaction.send(address, tokenId, type, wait, credentials);
     } else if (hash) {
       checkIgnored(ignored, {address, pool, tokenId, type, wait});

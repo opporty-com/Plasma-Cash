@@ -16,8 +16,8 @@ const COMMANDS = {
     description: 'Create deposit and get token ID. Run "deposit --help" for more information.',
     flags: [
       {option: '-c, --amount <amount>', description: 'Amount of deposit, required.'},
-      {option: '-a, --address <address>', description: 'Address of account, required.'},
-      {option: '-p, --password <password>', description: 'Account password, required.'},
+      {option: '-a, --address <address>', description: 'Address of account.'},
+      {option: '-p, --password <password>', description: 'Account password.'},
       {option: '-w, --wait', description: 'If this option determined, script will wait, until token will be available in plasma.'}
     ],
     action: env => actions.deposit(env)

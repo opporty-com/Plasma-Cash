@@ -60,7 +60,6 @@ async function send(address, tokenId, type, wait, credentials) {
 
   if (wait) {
     const newTx = await plasma({action: "sendTransaction", payload: data});
-    console.log(newTx);
     console.log(`4. Trying to get same transaction from plasma (${MAX_COUNTER} number of attempts, one by one each ${INTERVAL/1000}s):`);
 
     client();
@@ -78,19 +77,21 @@ async function send(address, tokenId, type, wait, credentials) {
 
         if (data) {
           result = Transaction.getJson(data);
-          logStr += `Result: Token has been found! Data:`;
+          logStr += `Result: Transaction has been found! Data:`;
         } else logStr += 'Result: No data received...';
-        console.log(logStr); if (result) console.log('Result:', result);
+        console.log(logStr);
 
-        if ((result && result.id) || counter === MAX_COUNTER) {
+        if ((result && result.hash) || counter === MAX_COUNTER) {
           clearInterval(interval);
           resolve(true);
         }
       }, INTERVAL);
     });
-    if (!(result && result.id)) console.log(`Transaction (hash: ${newTx.hash}) was not found in plasma network!`);
+    if (!(result && result.hash))
+      return `Transaction (hash: ${newTx.hash}) was not found in plasma network!`;
+    return result;
   }
-  return await plasma({action: "sendTransaction", payload: data});
+  return Transaction.getJson(await plasma({action: "sendTransaction", payload: data}));
 }
 
 async function getPool() {

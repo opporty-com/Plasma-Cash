@@ -20,11 +20,13 @@ async function exit(credentials, PATH) {
 }
 
 async function info(PATH) {
-  const credentials = require(PATH);
-  if (credentials && typeof credentials === 'object') {
-    const endsAt = credentials.startedAt + credentials.time;
-    const now = Date.now();
-    console.log(`Now the user's ${credentials.address} session is active. Will be valid for ${Math.ceil((endsAt - now)/1000/60)} minute(s).`);
+  if (fs.existsSync(PATH)) {
+    const credentials = require(PATH);
+    if (credentials && typeof credentials === 'object') {
+      const endsAt = credentials.startedAt + credentials.time;
+      const now = Date.now();
+      console.log(`Now the user's ${credentials.address} session is active. Will be valid for ${Math.ceil((endsAt - now)/1000/60)} minute(s).`);
+    } else console.log('No active sessions.');
   } else console.log('No active sessions.');
   return true;
 }
