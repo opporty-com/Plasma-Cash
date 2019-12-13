@@ -15,6 +15,8 @@ COPY .babelrc /usr/src/app/
 COPY ./src /usr/src/app/src
 COPY ./src/cli/bin /usr/src/app/dist/cli/bin
 
+COPY ./test /usr/src/app/test
+
 RUN npm run build
 
 COPY ./src/api/plugins/swagger-ui ./dist/api/plugins/swagger-ui
