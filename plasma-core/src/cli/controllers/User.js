@@ -12,7 +12,7 @@ async function login(address, password, time, credentials, PATH) {
 }
 
 async function exit(credentials, PATH) {
-  if (credentials) {
+  if (credentials && fs.existsSync(PATH)) {
     fs.unlinkSync(PATH);
     return 'Successfully logged out.';
   }
@@ -25,7 +25,7 @@ async function info(PATH) {
     if (credentials && typeof credentials === 'object') {
       const endsAt = credentials.startedAt + credentials.time;
       const now = Date.now();
-      console.log(`Now the user's ${credentials.address} session is active. Will be valid for ${Math.ceil((endsAt - now)/1000/60)} minute(s).`);
+      console.log(`Now the user's ${credentials.address} session is active. Will be valid for ${Math.ceil((endsAt - now)/1000)} second(s).`);
     } else console.log('No active sessions.');
   } else console.log('No active sessions.');
   return true;

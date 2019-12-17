@@ -2,6 +2,7 @@ import {client, promise as plasma} from "../lib/plasma-client";
 import web3 from '../../root-chain/web3';
 import contractHandler from '../../root-chain/contracts/plasma';
 import * as Token from '../helpers/Token'
+import BN from 'bn.js'
 
 const MAX_COUNTER = 50;
 const INTERVAL = 5000;
@@ -10,6 +11,11 @@ async function create(amount, wait, address, password) {
   const isUnlocked = await web3.eth.personal.unlockAccount(address, password, 1000);
   if (!isUnlocked) return 'Deposit failed.';
   console.log(`1. Account ${address} unlocked.`);
+
+  //transfer ETH to Wei
+  // console.log(typeof amount, amount);
+  // console.log(new BN(amount));
+  // amount = web3.utils.toWei(new BN(amount), "ether");
 
   const gas = await contractHandler.estimateCreateDepositkGas(address);
   console.log("2. Gas amount received.");

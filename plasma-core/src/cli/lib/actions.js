@@ -49,12 +49,14 @@ async function auth({address, password, time, info, exit}) {
       checkIgnored(ignored, {address, password, time});
       result = await User.exit(credentials, PATH);
     } else if (address && password) {
-      time = Number(time);
-      if (time && !Number.isNaN(time) && Number.isInteger(time) && time > 0 && time < 1000000) time = time*60*1000;
-      else {
-        console.log('Invalid argument fot option "--time". Must be an integer, greater that 0 and less than 1,000,000.');
-        process.exit(1);
-      }
+      if (time) {
+        time = Number(time);
+        if (time && !Number.isNaN(time) && Number.isInteger(time) && time > 0 && time < 1000000) time = time*1000;
+        else {
+          console.log('Invalid argument fot option "--time". Must be an integer, greater that 0 and less than 1,000,000.');
+          process.exit(1);
+        }
+      } else time = 60*60*1000;
       result = await User.login(address, password, time, credentials, PATH);
     } else {
       if (!info) {

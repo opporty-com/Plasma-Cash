@@ -14,7 +14,7 @@ async function last() {
 
 async function proof(tokenId, blockNumber) {
   const data = await plasma({action: "getProof", payload: {tokenId, blockNumber}});
-  return {hash: ethUtil.addHexPrefix(data.hash.toString('hex'))};
+  return ethUtil.addHexPrefix(data.hash.toString('hex'));
 }
 
 async function checkProof(hash, blockNumber, proof) {
