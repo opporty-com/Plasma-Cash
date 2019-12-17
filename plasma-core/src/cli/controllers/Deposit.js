@@ -12,10 +12,8 @@ async function create(amount, wait, address, password) {
   if (!isUnlocked) return 'Deposit failed.';
   console.log(`1. Account ${address} unlocked.`);
 
-  //transfer ETH to Wei
-  // console.log(typeof amount, amount);
-  // console.log(new BN(amount));
-  // amount = web3.utils.toWei(new BN(amount), "ether");
+  // transfer ETH to Wei
+  amount = web3.utils.toWei(amount, "ether");
 
   const gas = await contractHandler.estimateCreateDepositkGas(address);
   console.log("2. Gas amount received.");
