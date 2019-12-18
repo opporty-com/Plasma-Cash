@@ -43,14 +43,18 @@ describe("CREATING DEPOSIT", () => {
       let counter = 0;
       const interval = setInterval(async () => {
         counter++;
-        console.log(`Attempt number ${counter}, time left: ~${counter*5}s.`);
+        let logStr = `Attempt number ${counter}, time left: ~${counter*5}s. `;
         const data = await plasma({action: "getToken", payload: {tokenId}})
-          .catch(e => console.log('Error:', e));
+          .catch(e => {
+            logStr += `Answered with error: ${e}. `;
+            return null;
+          });
 
         if (data) {
           result = Token.getJson(data);
-          console.log('Token has been found! Result:', Token.getJson(data));
-        } else console.log('No data received...');
+          logStr += `Result: Token has been found! Data:`;
+        } else logStr += 'Result: No data received...';
+        console.log(logStr); if (result) console.log(result);
 
         if ((result && result.id) || counter === MAX_COUNTER) {
           expect(result).to.be.an('object');
@@ -58,7 +62,6 @@ describe("CREATING DEPOSIT", () => {
           clearInterval(interval);
           resolve(true);
         }
-        console.log('===========================================');
       }, INTERVAL);
     });
     if (!(result && result.id)) throw new Error(`Token (ID: ${tokenId}) was not found in plasma network!`);

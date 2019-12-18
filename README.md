@@ -139,3 +139,10 @@ This command will run all tests above.
   ./run-tests.sh 
 ```
 
+## CLI
+
+Go to  `bin/` directory
+
+```bash
+./cli.sh -h
+```

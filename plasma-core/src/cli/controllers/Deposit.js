@@ -1,33 +1,58 @@
-//const web3 = require('../lib/web3')
-import web3  from '../../root-chain/web3'
-import contractHandler from '../../root-chain/contracts/plasma'
-import config from '../config'
+import {client, promise as plasma} from "../lib/plasma-client";
+import web3 from '../../root-chain/web3';
+import contractHandler from '../../root-chain/contracts/plasma';
+import * as Token from '../helpers/Token'
+import BN from 'bn.js'
 
-async function deposit({ amount }) {
-  const { address,  password } = config,
-    answerParams =  { from: address, value: amount },
-    calcGas = gas => gas + 1500000;
+const MAX_COUNTER = 50;
+const INTERVAL = 5000;
 
-  if ( !amount ) {
-    console.log('amount is required! add -c, --amount')
-    return process.exit(1);
-  }
+async function create(amount, wait, address, password) {
+  const isUnlocked = await web3.eth.personal.unlockAccount(address, password, 1000);
+  if (!isUnlocked) return 'Deposit failed.';
+  console.log(`1. Account ${address} unlocked.`);
 
-  console.log( "Deposit action running" )
+  // transfer ETH to Wei
+  amount = web3.utils.toWei(amount, "ether");
 
-  let answer
-  try {
-    const gas = await contractHandler.contract.methods.deposit().estimateGas({from: address});
-    console.log( "DEPOSIT SUCCESS gas", gas )
-    await web3.eth.personal.unlockAccount( address, password, 1000);
-    console.log( "DEPOSIT SUCCESS unlockAccount" )
-    answer = await contractHandler.contract.methods.deposit().send({ ...answerParams, gas: calcGas() });
-    console.log( "Deposit token id ->", answer.events.DepositAdded.returnValues.tokenId )
-  } catch (error) {
-    console.log("Error: ", error)
-  }
+  const gas = await contractHandler.estimateCreateDepositkGas(address);
+  console.log("2. Gas amount received.");
 
-  process.exit(1)
+  console.log("3. Creating deposit...");
+  const tokenId = await contractHandler.createDeposit({from: address, value: amount, gas: gas + 150000});
+  console.log("4. Token ID received.");
+  if (wait) {
+    console.log(`5. Trying to get same token from plasma (${MAX_COUNTER} number of attempts, one by one each ${INTERVAL/1000}s):`);
+    client();
+    let result;
+    await new Promise(resolve => {
+      let counter = 0;
+      const interval = setInterval(async () => {
+        counter++;
+        let logStr = `Attempt number ${counter}, time left: ~${counter*5}s. `;
+        const data = await plasma({action: "getToken", payload: {tokenId}})
+          .catch(e => {
+            logStr += `Answered with error: ${e}. `;
+            return null;
+          });
+
+        if (data) {
+          result = Token.getJson(data);
+          logStr += `Result: Token has been found! Data:`;
+        } else logStr += 'Result: No data received...';
+        console.log(logStr); if (result) console.log('Result:', result);
+
+        if ((result && result.id) || counter === MAX_COUNTER) {
+          clearInterval(interval);
+          resolve(true);
+        }
+      }, INTERVAL);
+    });
+    if (!(result && result.id)) console.log(`Token (ID: ${tokenId}) was not found in plasma network!`);
+  } else console.log('Result:', {tokenId, amount});
+  process.exit(1);
 }
 
-export { deposit }
+module.exports = {
+  create
+};

@@ -99,7 +99,6 @@ async function getProof({tokenId, blockNumber}) {
   } catch (e) {
     throw Error(e);
   }
-  console.log(hash);
   return {hash, length: hash.length}
 }
 

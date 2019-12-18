@@ -4,7 +4,7 @@
   "description": "backend",
   "main": "index.js",
   "bin": {
-    "plasma": "/usr/src/app/dist/cli/bin/create-project"
+    "plasma": "/usr/src/app/dist/cli/bin/execute"
   },
   "private": true,
   "scripts": {

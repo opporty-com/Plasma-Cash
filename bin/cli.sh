@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 cd ..
-docker-compose -p plasma exec mainnode plasma $@
+docker-compose -p plasma exec boot plasma $@

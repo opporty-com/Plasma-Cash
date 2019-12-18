@@ -144,10 +144,11 @@ const createDeposit = async account => {
     let counter = 0;
     const interval = setInterval(async () => {
       counter++;
-      if (isCandidateAcc(account)) console.log(`Attempt number ${counter}, time left: ~${counter*5}s.`);
+      let logStr;
+      if (isCandidateAcc(account)) logStr = `Attempt number ${counter}, time left: ~${counter*5}s. `;
       const data = await plasma({action: "getToken", payload: {tokenId}})
         .catch(e => {
-          if (isCandidateAcc(account)) console.log('Error:', e);
+          if (isCandidateAcc(account)) logStr += `Answered with error: ${e}. `;
           return null;
         });
 
@@ -156,9 +157,9 @@ const createDeposit = async account => {
 
       if (isCandidateAcc(account)) {
         if (data) {
-          console.log('Token has been found! Result:', result);
-        } else console.log('No data received...');
-        console.log('===========================================');
+          logStr += `Result: Token has been found! Data:`;
+        } else logStr += 'Result: No data received...';
+        console.log(logStr); if (result) console.log(result);
       }
 
       if ((result && result.id) || counter === MAX_COUNTER) {
@@ -239,28 +240,31 @@ const makeCandidate = async (account, token) => {
     let counter = 0;
     const interval = setInterval(async () => {
       counter++;
-      console.log(`Attempt number ${counter}, time left: ~${counter*5}s.`);
+      let logStr = `Attempt number ${counter}, time left: ~${counter*5}s. `;
       const data = await plasma({action: "getCandidates", payload: {}})
-        .catch(e => console.log('Error:', e));
+        .catch(e => {
+          logStr += `Answered with error: ${e}. `;
+          return null;
+        });
       if (data) {
         let {candidates} = data; candidates = candidates||[];
-        console.log('Current candidates number:', candidates.length);
+        logStr += `Current candidates number: ${candidates.length}. `;
 
         if (candidates.length) {
           // console.log('CANDIDATES:', candidates);
           const ourCandidateIndex = candidates.findIndex(can => ethUtil.addHexPrefix(can.address.toLowerCase()) === account.address.toLowerCase());
           if (ourCandidateIndex !== -1) {
             result = candidates[ourCandidateIndex];
-            console.log('Our candidate was found! Result:', result);
+            logStr += 'Our candidate has been found in the list! Result:';
           }
-        }
-      } else console.log('No data received...');
+        } else logStr += 'Our candidate was not found in the list...';
+      } else logStr += 'No data received...';
+      console.log(logStr); if (result) console.log(result);
 
       if (result || counter === MAX_COUNTER) {
         clearInterval(interval);
         resolve(true);
       }
-      console.log('===========================================');
     }, INTERVAL);
   });
   if (!result) throw new Error('Candidate was not found!');
