@@ -58,7 +58,7 @@
     "merkle-tools": "1.4.0",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.13",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "rlp": "^2.2.3",
