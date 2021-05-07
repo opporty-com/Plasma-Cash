@@ -54,7 +54,7 @@
     "handlebars": "^4.1.2",
     "hapi-swagger": "^10.0.2",
     "keythereum": "^1.0.4",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.21",
     "merkle-tools": "1.4.0",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.13",
