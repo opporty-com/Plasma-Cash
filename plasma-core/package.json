@@ -57,7 +57,7 @@
     "lodash": "^4.17.4",
     "merkle-tools": "1.4.0",
     "moment": "^2.18.1",
-    "moment-timezone": "^0.5.13",
+    "moment-timezone": "^0.5.35",
     "redis": "^2.8.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
